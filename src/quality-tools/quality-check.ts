@@ -104,7 +104,7 @@ async function main() {
   const functionSizes = checkFunctionSizes('src');
   for (const issue of functionSizes) {
     if (issue.severity === 'critical') {
-      report.messages.push(`👧🏻💬 CRITICAL: Function '${issue.function}' in ${issue.file} has ${issue.lines} lines! Functions over 10 lines MUST be broken down immediately.`);
+      report.messages.push(`👧🏻💬 CRITICAL: Function '${issue.function}' in ${issue.file} has ${issue.lines} lines! Functions over 10 lines MUST be broken down immediately. Long functions may also indicate an opportunity to introduce a new class.`);
     } else {
       report.messages.push(`👧🏻💬 Function '${issue.function}' in ${issue.file} has ${issue.lines} lines. Consider extracting helper methods.`);
     }
