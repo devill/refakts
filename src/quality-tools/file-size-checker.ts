@@ -105,9 +105,9 @@ function createFunctionSizeIssue(filePath: string, func: any): any | null {
 }
 
 function determineFunctionSizeIssue(filePath: string, functionName: string, lineCount: number): any | null {
-  if (lineCount > 10) {
+  if (lineCount > 12) {
     return { file: filePath, function: functionName, lines: lineCount, severity: 'critical' };
-  } else if (lineCount > 5) {
+  } else if (lineCount > 10) {
     return { file: filePath, function: functionName, lines: lineCount, severity: 'warn' };
   }
   return null;
