@@ -5,6 +5,7 @@ import { promisify } from 'util';
 import { findComments } from './comment-detector';
 import { checkFileSizes, checkFunctionSizes } from './file-size-checker';
 import { checkGitDiffSize } from './git-diff-checker';
+import { getIncompleteRefactorings } from '../cli-generator';
 
 const execAsync = promisify(exec);
 
@@ -101,6 +102,7 @@ async function addAllIssues(messages: string[]): Promise<void> {
   addFileSizeIssues(messages);
   addFunctionSizeIssues(messages);
   await addDiffSizeIssues(messages);
+  addIncompleteRefactoringReminder(messages);
 }
 
 async function addDuplicationIssues(messages: string[]): Promise<void> {
@@ -150,6 +152,14 @@ async function addDiffSizeIssues(messages: string[]): Promise<void> {
   const diffResult = await checkGitDiffSize();
   if (diffResult.message) {
     messages.push(diffResult.message);
+  }
+}
+
+function addIncompleteRefactoringReminder(messages: string[]): void {
+  const incompleteRefactorings = getIncompleteRefactorings();
+  if (incompleteRefactorings.length > 0) {
+    const refactoringList = incompleteRefactorings.join(', ');
+    messages.push(`👧🏻💬 Consider if any incomplete refactorings should be marked complete: ${refactoringList}. To mark complete, test on a file outside fixtures and update src/completion-status.json.`);
   }
 }
 

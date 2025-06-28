@@ -15,7 +15,8 @@
     "quality:watch:stop": "src/quality-tools/quality-watcher.sh stop",
     "quality:watch:status": "src/quality-tools/quality-watcher.sh status",
     "check-duplication": "jscpd src --threshold 10 --reporters console",
-    "check-comments": "ts-node src/quality-tools/comment-detector.ts src"
+    "check-comments": "ts-node src/quality-tools/comment-detector.ts src",
+    "update-claude-md": "ts-node src/update-claude-md.ts"
   },
   "keywords": [],
   "author": "",

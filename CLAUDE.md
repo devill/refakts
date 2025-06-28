@@ -37,6 +37,43 @@ npm run quality:watch:status # Check watcher status
 
 **Test Reminders**: The quality watcher also monitors test frequency and reminds Claude to run tests if they haven't been run within the last 2 minutes. This ensures code changes are continuously validated.
 
+## Use your tools
+
+**CRITICAL: Use your tools** when possible. If you find yourself making the same edit in multiple files consider using `sed`, `awk`
+
+**CRITICAL: Dog fooding** `refrakts` is meant for AI agents like you (Claude). Use the already completed functionalities when you refactor. 
+
+
+<!-- AUTO-GENERATED HELP START -->
+## Available RefakTS Commands
+
+```
+Usage: refakts [options] [command]
+
+TypeScript refactoring tool based on ts-morph
+
+Options:
+  -V, --version                     output the version number
+  -h, --help                        display help for command
+
+Commands:
+  inline-variable [options] <file>  Inline a variable using TSQuery selector
+  node-finding [options] <file>     Find nodes in TypeScript files
+                                    (development/testing only) (warning:
+                                    incomplete)
+  help [command]                    display help for command
+
+Available refactoring commands:
+
+  inline-variable
+    Inline a variable using TSQuery selector
+
+  node-finding (warning: incomplete)
+    Find nodes in TypeScript files (development/testing only)
+```
+
+<!-- AUTO-GENERATED HELP END -->
+
 ## Architecture
 
 ### Core Components
@@ -48,7 +85,6 @@ npm run quality:watch:status # Check watcher status
 
 **CLI Interface** (`src/cli.ts`): Commander.js-based CLI that:
 - Provides subcommands for each refactoring type (currently `inline-variable`)
-- Supports dual targeting: `--line X --column Y` or `--query "TSQuery selector"`
 - Acts as thin wrapper around RefactorEngine methods
 
 ### Testing Architecture
@@ -79,15 +115,6 @@ npm run quality:watch:status # Check watcher status
 
 - ✅ CLI framework and approval testing infrastructure complete
 - ✅ Basic RefactorEngine with ts-morph integration
-- ❌ Actual refactoring logic not yet implemented (placeholder in `performInlineVariable`)
-
-### File Targeting
-
-The RefactorEngine supports two targeting methods:
-1. **Position-based**: `--line X --column Y` (1-based indexing)
-2. **Query-based**: `--query "TSQuery selector"` for semantic targeting
-
-Both methods resolve to ts-morph Node objects for manipulation.
 
 ### Development Workflow
 
@@ -96,5 +123,6 @@ Both methods resolve to ts-morph Node objects for manipulation.
 3. Implement refactoring logic in RefactorEngine
 4. Tests automatically validate against `.expected.ts` files
 5. Files matching `*.received.ts` are gitignored and appear only during test failures
+6. Once tests are passing update the `refakts --help`.
 
 The approval testing system drives development - add test cases first, then implement the logic to make them pass.

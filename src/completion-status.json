@@ -1,0 +1,10 @@
+{
+  "inline-variable": {
+    "complete": true,
+    "description": "Inline a variable using TSQuery selector"
+  },
+  "node-finding": {
+    "complete": false,
+    "description": "Find nodes in TypeScript files (development/testing only)"
+  }
+}
