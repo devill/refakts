@@ -1,6 +1,6 @@
 /**
  * @description Inline variable with multiple usages
- * @command refakts inline-variable multiple-usages.input.ts --query "BinaryExpression Identifier[name='sum']:first-of-type"
+ * @command refakts inline-variable multiple-usages.input.ts --query "Identifier[name='sum']"
  */
 
 function processData(x: number, y: number): number {

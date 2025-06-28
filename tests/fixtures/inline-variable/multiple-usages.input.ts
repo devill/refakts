@@ -1,7 +1,6 @@
 /**
  * @description Inline variable with multiple usages
  * @command refakts inline-variable multiple-usages.input.ts --query "Identifier[name='sum']"
- * @skip
  */
 
 function processData(x: number, y: number): number {

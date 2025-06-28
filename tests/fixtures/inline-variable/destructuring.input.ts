@@ -1,7 +1,6 @@
 /**
  * @description Inline variable using destructuring assignment
  * @command refakts inline-variable destructuring.input.ts --query "Identifier[name='x']"
- * @skip
  */
 
 function getCoordinate(point: { x: number; y: number }): number {
