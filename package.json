@@ -9,7 +9,10 @@
     "build": "tsc",
     "test": "jest",
     "test:watch": "jest --watch",
-    "dev": "ts-node src/cli.ts"
+    "dev": "ts-node src/cli.ts",
+    "quality": "ts-node src/quality-tools/quality-check.ts",
+    "check-duplication": "jscpd src --threshold 10 --reporters console",
+    "check-comments": "ts-node src/quality-tools/comment-detector.ts src"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +22,9 @@
     "@types/jest": "^30.0.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.0.7",
+    "complexity-report": "^2.0.0-alpha",
     "jest": "^30.0.3",
+    "jscpd": "^4.0.5",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
