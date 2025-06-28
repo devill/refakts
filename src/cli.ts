@@ -12,20 +12,16 @@ program
 
 program
   .command('inline-variable')
-  .description('Inline a variable at the specified location')
+  .description('Inline a variable using TSQuery selector')
   .argument('<file>', 'TypeScript file to refactor')
-  .option('--line <number>', 'Line number (1-based)')
-  .option('--column <number>', 'Column number (1-based)')  
   .option('--query <selector>', 'TSQuery selector to find the variable')
   .action(async (file: string, options) => {
     const engine = new RefactorEngine();
     
     if (options.query) {
       await engine.inlineVariableByQuery(file, options.query);
-    } else if (options.line && options.column) {
-      await engine.inlineVariableByLocation(file, parseInt(options.line), parseInt(options.column));
     } else {
-      console.error('Either --query or both --line and --column must be specified');
+      console.error('--query must be specified');
       process.exit(1);
     }
   });

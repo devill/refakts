@@ -13,11 +13,13 @@ interface TestCase {
   inputFile: string;
   expectedFile: string;
   receivedFile: string;
+  skip?: boolean;
 }
 
 interface TestMeta {
   description: string;
   commands: string[];
+  skip?: boolean;
 }
 
 describe('Refactoring Integration Tests', () => {
@@ -80,7 +82,8 @@ describe('Refactoring Integration Tests', () => {
               commands: meta.commands,
               inputFile: inputPath,
               expectedFile: path.join(actionPath, expectedFile),
-              receivedFile: path.join(actionPath, receivedFile)
+              receivedFile: path.join(actionPath, receivedFile),
+              skip: meta.skip
             });
           }
         }
@@ -94,6 +97,7 @@ describe('Refactoring Integration Tests', () => {
     const lines = content.split('\n');
     let description = '';
     const commands: string[] = [];
+    let skip = false;
     
     for (const line of lines) {
       const trimmed = line.trim();
@@ -101,10 +105,12 @@ describe('Refactoring Integration Tests', () => {
         description = trimmed.replace('* @description', '').trim();
       } else if (trimmed.startsWith('* @command')) {
         commands.push(trimmed.replace('* @command', '').trim());
+      } else if (trimmed.startsWith('* @skip')) {
+        skip = true;
       }
     }
     
-    return { description, commands };
+    return { description, commands, skip };
   };
 
   const testCases = getTestCases();
@@ -116,7 +122,8 @@ describe('Refactoring Integration Tests', () => {
   }
 
   testCases.forEach(testCase => {
-    it(`${testCase.name}: ${testCase.description}`, async () => {
+    const testFn = testCase.skip ? it.skip : it;
+    testFn(`${testCase.name}: ${testCase.description}`, async () => {
       // Copy input file(s) to received file(s) for processing
       if (fs.statSync(testCase.inputFile).isDirectory()) {
         // Multi-file test case - copy entire directory structure
