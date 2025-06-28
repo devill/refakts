@@ -35,6 +35,8 @@ npm run quality:watch:status # Check watcher status
 
 **Quality Watcher Auto-Start**: On every startup, check if the quality watcher is running and start it if it's not. This ensures continuous code quality monitoring with 2-minute interval checks and automated refactoring prompts.
 
+**Test Reminders**: The quality watcher also monitors test frequency and reminds Claude to run tests if they haven't been run within the last 2 minutes. This ensures code changes are continuously validated.
+
 ## Architecture
 
 ### Core Components
