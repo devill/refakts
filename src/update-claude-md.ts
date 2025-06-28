@@ -50,7 +50,27 @@ ${END_MARKER}`;
 
 function extractCommands(helpOutput: string): string {
   const lines = helpOutput.split('\n');
-  const commandLines = lines.filter(line => line.includes('inline-variable') || line.includes('node-finding'));
+  const commandsSection = findCommandsSection(lines);
+  return formatCommandsForMarkdown(commandsSection);
+}
+
+function findCommandsSection(lines: string[]): string[] {
+  const commandsStartIndex = lines.findIndex(line => line.trim() === 'Commands:');
+  if (commandsStartIndex === -1) return [];
+  
+  const commandLines = [];
+  for (let i = commandsStartIndex + 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line === '' || line.startsWith('Available refactoring commands:')) break;
+    if (line.includes('[options]') && (line.includes('inline-variable') || line.includes('node-finding'))) {
+      commandLines.push(line);
+    }
+  }
+  return commandLines;
+}
+
+function formatCommandsForMarkdown(commandLines: string[]): string {
+  if (commandLines.length === 0) return 'No refactoring commands available';
   return commandLines.map(line => '- ' + line.trim()).join('\n');
 }
 

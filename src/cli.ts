@@ -11,7 +11,6 @@ program
   .description('TypeScript refactoring tool based on ts-morph')
   .version('1.0.0');
 
-program.addHelpText('after', '\n\nAvailable refactoring commands:\n' + generateHelpText());
 const fixtureFolders = getFixtureFolders();
 const completionStatus = getCompletionStatus();
 

@@ -41,7 +41,7 @@ npm run quality:watch:status # Check watcher status
 
 **CRITICAL: Use your tools** when possible. If you find yourself making the same edit in multiple files consider using `sed`, `awk`
 
-**CRITICAL: Dog fooding** `refrakts` is meant for AI agents like you (Claude). Use the already completed functionalities when you refactor. 
+**CRITICAL: Dog fooding** `refrakts` is meant for AI agents like you (Claude). Use the already completed functionalities when you refactor. If you find a bug while using it **add it to the todo list immediately**.
 
 
 <!-- AUTO-GENERATED HELP START -->
@@ -49,8 +49,6 @@ npm run quality:watch:status # Check watcher status
 
 - inline-variable [options] <file>  Replace variable usage with its value
 - node-finding [options] <file>     Find AST nodes in TypeScript files (warning:
-- inline-variable - Replace variable usage with its value
-- node-finding (incomplete) - Find AST nodes in TypeScript files
 
 <!-- AUTO-GENERATED HELP END -->
 
