@@ -47,30 +47,10 @@ npm run quality:watch:status # Check watcher status
 <!-- AUTO-GENERATED HELP START -->
 ## Available RefakTS Commands
 
-```
-Usage: refakts [options] [command]
-
-TypeScript refactoring tool based on ts-morph
-
-Options:
-  -V, --version                     output the version number
-  -h, --help                        display help for command
-
-Commands:
-  inline-variable [options] <file>  Inline a variable using TSQuery selector
-  node-finding [options] <file>     Find nodes in TypeScript files
-                                    (development/testing only) (warning:
-                                    incomplete)
-  help [command]                    display help for command
-
-Available refactoring commands:
-
-  inline-variable
-    Inline a variable using TSQuery selector
-
-  node-finding (warning: incomplete)
-    Find nodes in TypeScript files (development/testing only)
-```
+- inline-variable [options] <file>  Replace variable usage with its value
+- node-finding [options] <file>     Find AST nodes in TypeScript files (warning:
+- inline-variable - Replace variable usage with its value
+- node-finding (incomplete) - Find AST nodes in TypeScript files
 
 <!-- AUTO-GENERATED HELP END -->
 

@@ -11,10 +11,7 @@ program
   .description('TypeScript refactoring tool based on ts-morph')
   .version('1.0.0');
 
-// Add custom help text
-program.addHelpText('after', '\n' + generateHelpText());
-
-// Dynamically add commands based on fixture folders
+program.addHelpText('after', '\n\nAvailable refactoring commands:\n' + generateHelpText());
 const fixtureFolders = getFixtureFolders();
 const completionStatus = getCompletionStatus();
 
@@ -27,7 +24,8 @@ for (const folder of fixtureFolders) {
     .command(folder)
     .description(description + warningText)
     .argument('<file>', 'TypeScript file to refactor')
-    .option('--query <selector>', 'TSQuery selector to find the target')
+    .option('--query <selector>', 'Target identifier or expression to refactor')
+    .addHelpText('after', getDetailedHelp(folder, status))
     .action(async (file: string, options) => {
       if (!options.query) {
         console.error('--query must be specified');
@@ -36,7 +34,6 @@ for (const folder of fixtureFolders) {
       
       const engine = new RefactorEngine();
       
-      // Route to appropriate method based on command
       switch (folder) {
         case 'inline-variable':
           await engine.inlineVariableByQuery(file, options.query);
@@ -51,6 +48,17 @@ for (const folder of fixtureFolders) {
           }
       }
     });
+}
+
+function getDetailedHelp(command: string, status: any): string {
+  switch (command) {
+    case 'inline-variable':
+      return '\nExamples:\n  refakts inline-variable src/file.ts --query "Identifier[name=\'myVar\']"\n  refakts inline-variable src/file.ts --query "VariableDeclaration"';
+    case 'node-finding':
+      return '\nExamples:\n  refakts node-finding src/file.ts --query "FunctionDeclaration"\n  (Currently incomplete - implementation in progress)';
+    default:
+      return '';
+  }
 }
 
 program.parse();
