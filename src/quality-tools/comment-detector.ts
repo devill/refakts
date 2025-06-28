@@ -17,49 +17,63 @@ export function findComments(srcDir: string): CommentIssue[] {
   const issues: CommentIssue[] = [];
   
   for (const sourceFile of project.getSourceFiles()) {
-    const filePath = path.relative(process.cwd(), sourceFile.getFilePath());
+    const filePath = getRelativeFilePath(sourceFile);
     
-    // Skip test files and definition files
-    if (filePath.includes('.test.') || filePath.includes('.spec.') || filePath.endsWith('.d.ts')) {
+    if (shouldSkipFile(filePath)) {
       continue;
     }
     
-    // Get single line comments
-    const singleComments = sourceFile.getDescendantsOfKind(SyntaxKind.SingleLineCommentTrivia);
-    for (const comment of singleComments) {
-      const text = comment.getText().trim();
-      // Skip JSDoc-style comments and simple markers
-      if (!text.startsWith('//') || text.startsWith('// @') || text.length < 10) {
-        continue;
-      }
-      
-      issues.push({
-        file: filePath,
-        line: comment.getStartLineNumber(),
-        text: text,
-        type: 'single'
-      });
-    }
-    
-    // Get multi-line comments (excluding JSDoc)
-    const multiComments = sourceFile.getDescendantsOfKind(SyntaxKind.MultiLineCommentTrivia);
-    for (const comment of multiComments) {
-      const text = comment.getText().trim();
-      // Skip JSDoc comments
-      if (text.startsWith('/**') || text.length < 15) {
-        continue;
-      }
-      
-      issues.push({
-        file: filePath,
-        line: comment.getStartLineNumber(),
-        text: text.substring(0, 50) + '...',
-        type: 'multi'
-      });
-    }
+    collectSingleLineComments(sourceFile, filePath, issues);
+    collectMultiLineComments(sourceFile, filePath, issues);
   }
   
   return issues;
+}
+
+function getRelativeFilePath(sourceFile: any): string {
+  return path.relative(process.cwd(), sourceFile.getFilePath());
+}
+
+function shouldSkipFile(filePath: string): boolean {
+  return filePath.includes('.test.') || filePath.includes('.spec.') || filePath.endsWith('.d.ts');
+}
+
+function collectSingleLineComments(sourceFile: any, filePath: string, issues: CommentIssue[]): void {
+  const singleComments = sourceFile.getDescendantsOfKind(SyntaxKind.SingleLineCommentTrivia);
+  for (const comment of singleComments) {
+    const text = comment.getText().trim();
+    if (isValidSingleLineComment(text)) {
+      issues.push(createCommentIssue(filePath, comment, text, 'single'));
+    }
+  }
+}
+
+function collectMultiLineComments(sourceFile: any, filePath: string, issues: CommentIssue[]): void {
+  const multiComments = sourceFile.getDescendantsOfKind(SyntaxKind.MultiLineCommentTrivia);
+  for (const comment of multiComments) {
+    const text = comment.getText().trim();
+    if (isValidMultiLineComment(text)) {
+      const truncatedText = text.substring(0, 50) + '...';
+      issues.push(createCommentIssue(filePath, comment, truncatedText, 'multi'));
+    }
+  }
+}
+
+function isValidSingleLineComment(text: string): boolean {
+  return text.startsWith('//') && !text.startsWith('// @') && text.length >= 10;
+}
+
+function isValidMultiLineComment(text: string): boolean {
+  return !text.startsWith('/**') && text.length >= 15;
+}
+
+function createCommentIssue(filePath: string, comment: any, text: string, type: 'single' | 'multi'): CommentIssue {
+  return {
+    file: filePath,
+    line: comment.getStartLineNumber(),
+    text: text,
+    type: type
+  };
 }
 
 if (require.main === module) {

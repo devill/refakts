@@ -23,7 +23,17 @@ npm run dev -- <command>
 
 # Example: Test inline-variable refactoring
 npm run dev -- inline-variable src/example.ts --line 5 --column 10
+
+# Quality tools
+npm run quality              # Run all quality checks
+npm run quality:watch        # Start 2-minute quality watcher
+npm run quality:watch:stop   # Stop quality watcher
+npm run quality:watch:status # Check watcher status
 ```
+
+## Startup Behavior
+
+**Quality Watcher Auto-Start**: On every startup, check if the quality watcher is running and start it if it's not. This ensures continuous code quality monitoring with 2-minute interval checks and automated refactoring prompts.
 
 ## Architecture
 

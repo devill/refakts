@@ -3,6 +3,8 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { findComments } from './comment-detector';
+import { checkFileSizes, checkFunctionSizes } from './file-size-checker';
+import { checkGitDiffSize } from './git-diff-checker';
 
 const execAsync = promisify(exec);
 
@@ -72,25 +74,45 @@ async function main() {
     messages: []
   };
   
-  // Check duplication
   const dupResult = await runDuplicationCheck();
   if (dupResult.hasIssues && dupResult.message) {
     report.duplication = true;
     report.messages.push(dupResult.message);
   }
   
-  // Check complexity
   const complexityResult = await runComplexityCheck();
   if (complexityResult.hasIssues && complexityResult.message) {
     report.complexity = true;
     report.messages.push(complexityResult.message);
   }
   
-  // Check comments
   const comments = findComments('src');
   if (comments.length > 0) {
     report.comments = true;
     report.messages.push('👧🏻💬 **NEVER** use comments to explain code, the code should speak for itself. Extract complex logic into well-named functions instead of explaining with comments. Remove **ALL** comments unless they impact functionality');
+  }
+  
+  const fileSizes = checkFileSizes('src');
+  for (const issue of fileSizes) {
+    if (issue.severity === 'critical') {
+      report.messages.push(`👧🏻💬 CRITICAL: ${issue.file} has ${issue.lines} lines! Files over 300 lines MUST be broken up immediately. Split into smaller, focused modules.`);
+    } else {
+      report.messages.push(`👧🏻💬 ${issue.file} has ${issue.lines} lines. Consider breaking this into smaller, focused modules.`);
+    }
+  }
+  
+  const functionSizes = checkFunctionSizes('src');
+  for (const issue of functionSizes) {
+    if (issue.severity === 'critical') {
+      report.messages.push(`👧🏻💬 CRITICAL: Function '${issue.function}' in ${issue.file} has ${issue.lines} lines! Functions over 10 lines MUST be broken down immediately.`);
+    } else {
+      report.messages.push(`👧🏻💬 Function '${issue.function}' in ${issue.file} has ${issue.lines} lines. Consider extracting helper methods.`);
+    }
+  }
+  
+  const diffResult = await checkGitDiffSize();
+  if (diffResult.message) {
+    report.messages.push(diffResult.message);
   }
   
   if (report.messages.length === 0) {
