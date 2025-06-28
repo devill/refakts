@@ -161,6 +161,13 @@ describe('Refactoring Integration Tests', () => {
         const received = fs.readFileSync(testCase.receivedFile, 'utf8');
         expect(received).toBe(expected);
       }
+      
+      // Clean up received files on success
+      if (fs.statSync(testCase.receivedFile).isDirectory()) {
+        fs.rmSync(testCase.receivedFile, { recursive: true, force: true });
+      } else {
+        fs.unlinkSync(testCase.receivedFile);
+      }
     });
   });
 });
