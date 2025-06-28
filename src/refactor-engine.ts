@@ -36,26 +36,30 @@ export class RefactorEngine {
     const matches = this.executeQuery(sourceFile, query);
     this.validateMatches(matches, query);
     
-    // If multiple matches, they should all be identifiers referring to the same variable
     if (matches.length > 1) {
-      const firstNode = this.convertToMorphNode(sourceFile, matches[0]);
-      if (Node.isIdentifier(firstNode)) {
-        const variableName = firstNode.getText();
-        // Verify all matches refer to the same variable
-        for (let i = 1; i < matches.length; i++) {
-          const node = this.convertToMorphNode(sourceFile, matches[i]);
-          if (!Node.isIdentifier(node) || node.getText() !== variableName) {
-            throw new Error(`Multiple matches found for query: ${query}. Please be more specific.`);
-          }
-        }
-        // All matches are the same variable, use the first one
-        return firstNode;
-      } else {
-        throw new Error(`Multiple matches found for query: ${query}. Please be more specific.`);
-      }
+      return this.handleMultipleMatches(sourceFile, matches, query);
     }
     
     return this.convertToMorphNode(sourceFile, matches[0]);
+  }
+
+  private handleMultipleMatches(sourceFile: any, matches: any[], query: string): Node {
+    const firstNode = this.convertToMorphNode(sourceFile, matches[0]);
+    if (!Node.isIdentifier(firstNode)) {
+      throw new Error(`Multiple matches found for query: ${query}. Please be more specific.`);
+    }
+    
+    this.validateSameVariable(sourceFile, matches, firstNode.getText(), query);
+    return firstNode;
+  }
+
+  private validateSameVariable(sourceFile: any, matches: any[], variableName: string, query: string): void {
+    for (let i = 1; i < matches.length; i++) {
+      const node = this.convertToMorphNode(sourceFile, matches[i]);
+      if (!Node.isIdentifier(node) || node.getText() !== variableName) {
+        throw new Error(`Multiple matches found for query: ${query}. Please be more specific.`);
+      }
+    }
   }
 
   private validateIdentifierNode(node: Node): void {
@@ -75,25 +79,33 @@ export class RefactorEngine {
   private getInitializerText(declaration: VariableDeclaration, variableName?: string, context?: Node): string {
     const nameNode = declaration.getNameNode();
     
-    // Handle destructuring patterns
     if (Node.isObjectBindingPattern(nameNode) && variableName) {
-      const initializer = declaration.getInitializer();
-      if (!initializer) {
-        throw new Error('Destructuring declaration has no initializer to inline');
-      }
-      
-      // For destructuring { x } = point, the initializer for x is point.x
-      const initializerText = initializer.getText();
-      return `${initializerText}.${variableName}`;
+      return this.getDestructuringInitializer(declaration, variableName);
     }
     
-    // Handle regular variable declarations
+    return this.getRegularInitializer(declaration, context);
+  }
+
+  private getDestructuringInitializer(declaration: VariableDeclaration, variableName: string): string {
+    const initializer = declaration.getInitializer();
+    if (!initializer) {
+      throw new Error('Destructuring declaration has no initializer to inline');
+    }
+    
+    const initializerText = initializer.getText();
+    return `${initializerText}.${variableName}`;
+  }
+
+  private getRegularInitializer(declaration: VariableDeclaration, context?: Node): string {
     const initializer = declaration.getInitializer();
     if (!initializer) {
       throw new Error('Variable has no initializer to inline');
     }
     
-    // For complex expressions, wrap in parentheses to preserve precedence
+    return this.formatInitializerText(initializer, context);
+  }
+
+  private formatInitializerText(initializer: Node, context?: Node): string {
     const initializerText = initializer.getText();
     if (this.needsParentheses(initializer, context)) {
       return `(${initializerText})`;
@@ -102,20 +114,37 @@ export class RefactorEngine {
   }
 
   private needsParentheses(node: Node, context?: Node): boolean {
-    // Only add parentheses for simple binary expressions with + or -
-    // when they might be used in multiplication contexts
-    if (Node.isBinaryExpression(node)) {
-      const operator = node.getOperatorToken().getKind();
-      // Only wrap simple addition/subtraction expressions (x + y, not complex expressions)
-      if (operator === SyntaxKind.PlusToken || operator === SyntaxKind.MinusToken) {
-        // Check if both operands are simple (identifiers or literals)
-        const left = node.getLeft();
-        const right = node.getRight();
-        return (Node.isIdentifier(left) || Node.isNumericLiteral(left)) &&
-               (Node.isIdentifier(right) || Node.isNumericLiteral(right));
-      }
+    if (!Node.isBinaryExpression(node)) {
+      return false;
     }
-    return false;
+    
+    return this.isSimpleAdditionOrSubtraction(node);
+  }
+
+  private isSimpleAdditionOrSubtraction(node: Node): boolean {
+    const binaryExpr = node.asKindOrThrow(SyntaxKind.BinaryExpression);
+    
+    if (!this.isAdditionOrSubtraction(binaryExpr)) {
+      return false;
+    }
+    
+    return this.hasSimpleOperands(binaryExpr);
+  }
+
+  private isAdditionOrSubtraction(binaryExpr: any): boolean {
+    const operator = binaryExpr.getOperatorToken().getKind();
+    return operator === SyntaxKind.PlusToken || operator === SyntaxKind.MinusToken;
+  }
+
+  private hasSimpleOperands(binaryExpr: any): boolean {
+    const left = binaryExpr.getLeft();
+    const right = binaryExpr.getRight();
+    return this.areSimpleOperands(left, right);
+  }
+
+  private areSimpleOperands(left: Node, right: Node): boolean {
+    return (Node.isIdentifier(left) || Node.isNumericLiteral(left)) &&
+           (Node.isIdentifier(right) || Node.isNumericLiteral(right));
   }
 
   private replaceAllReferences(sourceFile: any, variableName: string, declaration: VariableDeclaration, initializerText: string): void {
@@ -141,12 +170,9 @@ export class RefactorEngine {
   }
 
   private isInDestructuringPattern(node: Node): boolean {
-    // Check if this identifier is part of a destructuring pattern like { x } = point
     let parent = node.getParent();
     while (parent) {
-      if (parent.getKind() === SyntaxKind.ObjectBindingPattern ||
-          parent.getKind() === SyntaxKind.ArrayBindingPattern ||
-          parent.getKind() === SyntaxKind.BindingElement) {
+      if (this.isDestructuringContext(parent)) {
         return true;
       }
       parent = parent.getParent();
@@ -154,19 +180,27 @@ export class RefactorEngine {
     return false;
   }
 
+  private isDestructuringContext(node: Node): boolean {
+    return node.getKind() === SyntaxKind.ObjectBindingPattern ||
+           node.getKind() === SyntaxKind.ArrayBindingPattern ||
+           node.getKind() === SyntaxKind.BindingElement;
+  }
+
   private isInTypeContext(node: Node): boolean {
-    // Check if this identifier is part of a type annotation
     let parent = node.getParent();
     while (parent) {
-      // Check for type literal context (like { x: number; y: number })
-      if (parent.getKind() === SyntaxKind.TypeLiteral ||
-          parent.getKind() === SyntaxKind.PropertySignature ||
-          parent.getKind() === SyntaxKind.TypeReference) {
+      if (this.isTypeContext(parent)) {
         return true;
       }
       parent = parent.getParent();
     }
     return false;
+  }
+
+  private isTypeContext(node: Node): boolean {
+    return node.getKind() === SyntaxKind.TypeLiteral ||
+           node.getKind() === SyntaxKind.PropertySignature ||
+           node.getKind() === SyntaxKind.TypeReference;
   }
 
   private executeQuery(sourceFile: any, query: string) {
@@ -199,23 +233,38 @@ export class RefactorEngine {
     const variableDeclarations = sourceFile.getDescendantsOfKind(SyntaxKind.VariableDeclaration);
     
     for (const decl of variableDeclarations) {
-      // Check regular variable declarations
-      if (decl.getName() === variableName) {
+      if (this.matchesVariableName(decl, variableName)) {
         return decl;
-      }
-      
-      // Check destructuring patterns
-      const nameNode = decl.getNameNode();
-      if (Node.isObjectBindingPattern(nameNode)) {
-        for (const element of nameNode.getElements()) {
-          if (element.getName() === variableName) {
-            // For destructuring, we need to return the declaration that contains the pattern
-            return decl;
-          }
-        }
       }
     }
     return undefined;
+  }
+
+  private matchesVariableName(declaration: VariableDeclaration, variableName: string): boolean {
+    if (declaration.getName() === variableName) {
+      return true;
+    }
+    
+    return this.matchesDestructuredVariable(declaration, variableName);
+  }
+
+  private matchesDestructuredVariable(declaration: VariableDeclaration, variableName: string): boolean {
+    const nameNode = declaration.getNameNode();
+    if (!Node.isObjectBindingPattern(nameNode)) {
+      return false;
+    }
+    
+    return this.hasMatchingElement(nameNode, variableName);
+  }
+
+  private hasMatchingElement(nameNode: Node, variableName: string): boolean {
+    const bindingPattern = nameNode.asKindOrThrow(SyntaxKind.ObjectBindingPattern);
+    for (const element of bindingPattern.getElements()) {
+      if (element.getName() === variableName) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private findAllReferences(sourceFile: any, variableName: string, declaration: VariableDeclaration): Node[] {
