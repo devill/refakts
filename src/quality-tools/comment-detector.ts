@@ -11,9 +11,7 @@ interface CommentIssue {
 }
 
 export function findComments(srcDir: string): CommentIssue[] {
-  const project = new Project();
-  project.addSourceFilesAtPaths(`${srcDir}/**/*.ts`);
-  
+  const project = createProject(srcDir);
   const issues: CommentIssue[] = [];
   
   for (const sourceFile of project.getSourceFiles()) {
@@ -23,11 +21,21 @@ export function findComments(srcDir: string): CommentIssue[] {
       continue;
     }
     
-    collectSingleLineComments(sourceFile, filePath, issues);
-    collectMultiLineComments(sourceFile, filePath, issues);
+    collectAllComments(sourceFile, filePath, issues);
   }
   
   return issues;
+}
+
+function createProject(srcDir: string) {
+  const project = new Project();
+  project.addSourceFilesAtPaths(`${srcDir}/**/*.ts`);
+  return project;
+}
+
+function collectAllComments(sourceFile: any, filePath: string, issues: CommentIssue[]): void {
+  collectSingleLineComments(sourceFile, filePath, issues);
+  collectMultiLineComments(sourceFile, filePath, issues);
 }
 
 function getRelativeFilePath(sourceFile: any): string {

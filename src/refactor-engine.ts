@@ -33,21 +33,9 @@ export class RefactorEngine {
   }
 
   private findNodeByQuery(sourceFile: any, query: string): Node {
-    const ast = sourceFile.compilerNode;
-    const matches = tsquery(ast, query);
-    
-    if (matches.length === 0) {
-      throw new Error(`No matches found for query: ${query}`);
-    }
-    if (matches.length > 1) {
-      throw new Error(`Multiple matches found for query: ${query}. Please be more specific.`);
-    }
-    
-    const node = sourceFile.getDescendantAtPos(matches[0].getStart());
-    if (!node) {
-      throw new Error(`Could not find ts-morph node for query match`);
-    }
-    return node;
+    const matches = this.executeQuery(sourceFile, query);
+    this.validateSingleMatch(matches, query);
+    return this.convertToMorphNode(sourceFile, matches[0]);
   }
 
   private validateIdentifierNode(node: Node): void {
@@ -92,6 +80,35 @@ export class RefactorEngine {
            node !== declarationNode;
   }
 
+  private executeQuery(sourceFile: any, query: string) {
+    return tsquery(sourceFile.compilerNode, query);
+  }
+
+  private validateSingleMatch(matches: any[], query: string): void {
+    if (matches.length === 0) {
+      throw new Error(`No matches found for query: ${query}`);
+    }
+    if (matches.length > 1) {
+      throw new Error(`Multiple matches found for query: ${query}. Please be more specific.`);
+    }
+  }
+
+  private convertToMorphNode(sourceFile: any, match: any): Node {
+    const node = sourceFile.getDescendantAtPos(match.getStart());
+    if (!node) {
+      throw new Error(`Could not find ts-morph node for query match`);
+    }
+    return node;
+  }
+
+  private collectMatchingIdentifiers(sourceFile: any, variableName: string, declarationNode: Node, references: Node[]): void {
+    sourceFile.forEachDescendant((node: Node) => {
+      if (this.isMatchingIdentifier(node, variableName, declarationNode)) {
+        references.push(node);
+      }
+    });
+  }
+
   private findVariableDeclaration(sourceFile: any, variableName: string): VariableDeclaration | undefined {
     const variableDeclarations = sourceFile.getDescendantsOfKind(SyntaxKind.VariableDeclaration);
     
@@ -106,13 +123,7 @@ export class RefactorEngine {
   private findAllReferences(sourceFile: any, variableName: string, declaration: VariableDeclaration): Node[] {
     const references: Node[] = [];
     const declarationNode = declaration.getNameNode();
-    
-    sourceFile.forEachDescendant((node: Node) => {
-      if (this.isMatchingIdentifier(node, variableName, declarationNode)) {
-        references.push(node);
-      }
-    });
-    
+    this.collectMatchingIdentifiers(sourceFile, variableName, declarationNode, references);
     return references;
   }
 

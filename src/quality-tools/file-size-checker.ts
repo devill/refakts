@@ -8,46 +8,56 @@ interface FileSizeIssue {
 }
 
 export function checkFileSizes(srcDir: string): FileSizeIssue[] {
-  const project = new Project();
-  project.addSourceFilesAtPaths(`${srcDir}/**/*.ts`);
-  
+  const project = createTsMorphProject(srcDir);
   const issues: FileSizeIssue[] = [];
   
   for (const sourceFile of project.getSourceFiles()) {
-    const filePath = path.relative(process.cwd(), sourceFile.getFilePath());
-    
-    if (shouldSkipFile(filePath)) {
-      continue;
-    }
-    
-    const lineCount = sourceFile.getEndLineNumber();
-    const issue = createFileSizeIssue(filePath, lineCount);
-    
-    if (issue) {
-      issues.push(issue);
-    }
+    processSourceFileForSizes(sourceFile, issues);
   }
   
   return issues;
 }
 
 export function checkFunctionSizes(srcDir: string): Array<{file: string; function: string; lines: number; severity: 'warn' | 'critical'}> {
-  const project = new Project();
-  project.addSourceFilesAtPaths(`${srcDir}/**/*.ts`);
-  
+  const project = createTsMorphProject(srcDir);
   const issues: Array<{file: string; function: string; lines: number; severity: 'warn' | 'critical'}> = [];
   
   for (const sourceFile of project.getSourceFiles()) {
-    const filePath = path.relative(process.cwd(), sourceFile.getFilePath());
-    
-    if (shouldSkipFile(filePath)) {
-      continue;
-    }
-    
-    collectFunctionIssues(sourceFile, filePath, issues);
+    processSourceFileForFunctions(sourceFile, issues);
   }
   
   return issues;
+}
+
+function createTsMorphProject(srcDir: string) {
+  const project = new Project();
+  project.addSourceFilesAtPaths(`${srcDir}/**/*.ts`);
+  return project;
+}
+
+function processSourceFileForSizes(sourceFile: any, issues: FileSizeIssue[]): void {
+  const filePath = path.relative(process.cwd(), sourceFile.getFilePath());
+  
+  if (shouldSkipFile(filePath)) {
+    return;
+  }
+  
+  const lineCount = sourceFile.getEndLineNumber();
+  const issue = createFileSizeIssue(filePath, lineCount);
+  
+  if (issue) {
+    issues.push(issue);
+  }
+}
+
+function processSourceFileForFunctions(sourceFile: any, issues: any[]): void {
+  const filePath = path.relative(process.cwd(), sourceFile.getFilePath());
+  
+  if (shouldSkipFile(filePath)) {
+    return;
+  }
+  
+  collectFunctionIssues(sourceFile, filePath, issues);
 }
 
 function shouldSkipFile(filePath: string): boolean {
