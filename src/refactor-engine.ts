@@ -1,4 +1,4 @@
-import { Project, Node, VariableDeclaration } from 'ts-morph';
+import { Project, Node, VariableDeclaration, SyntaxKind } from 'ts-morph';
 import { tsquery } from '@phenomnomnominal/tsquery';
 import * as path from 'path';
 
@@ -72,23 +72,27 @@ export class RefactorEngine {
   }
   
   private findVariableDeclaration(sourceFile: any, variableName: string): VariableDeclaration | undefined {
-    const variableStatements = sourceFile.getVariableStatements();
-    console.log(`Found ${variableStatements.length} variable statements`);
+    const variableDeclarations = sourceFile.getDescendantsOfKind(SyntaxKind.VariableDeclaration);
     
-    for (const stmt of variableStatements) {
-      const declarations = stmt.getDeclarations();
-      console.log(`Statement has ${declarations.length} declarations`);
-      for (const decl of declarations) {
-        const declName = decl.getName();
-        console.log(`Declaration name: '${declName}', looking for: '${variableName}'`);
-        if (declName === variableName) {
-          return decl;
-        }
+    for (const decl of variableDeclarations) {
+      if (decl.getName() === variableName) {
+        return decl;
       }
     }
     return undefined;
   }
   
+  private isPartOfVariableDeclaration(node: Node): boolean {
+    let current = node.getParent();
+    while (current) {
+      if (current.getKind() === SyntaxKind.VariableDeclaration) {
+        return true;
+      }
+      current = current.getParent();
+    }
+    return false;
+  }
+
   private findAllReferences(sourceFile: any, variableName: string, declaration: VariableDeclaration): Node[] {
     const references: Node[] = [];
     
