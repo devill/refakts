@@ -20,112 +20,163 @@ async function runDuplicationCheck(): Promise<{ hasIssues: boolean; message?: st
     await execAsync('npx jscpd src --threshold 10 --reporters console --silent');
     return { hasIssues: false };
   } catch (error: any) {
-    if (error.stdout && error.stdout.includes('duplications found')) {
-      return { 
-        hasIssues: true, 
-        message: '👧🏻💬 Code duplication detected. Look for missing abstractions - similar code patterns indicate shared concepts that should be extracted into reusable functions or classes.' 
-      };
-    }
-    return { hasIssues: false };
+    return processDuplicationError(error);
   }
+}
+
+function processDuplicationError(error: any): { hasIssues: boolean; message?: string } {
+  if (error.stdout && error.stdout.includes('duplications found')) {
+    return { 
+      hasIssues: true, 
+      message: '👧🏻💬 Code duplication detected. Look for missing abstractions - similar code patterns indicate shared concepts that should be extracted into reusable functions or classes.' 
+    };
+  }
+  return { hasIssues: false };
 }
 
 async function runComplexityCheck(): Promise<{ hasIssues: boolean; message?: string }> {
   try {
     const { stdout } = await execAsync('npx complexity-report --format json src');
-    const report = JSON.parse(stdout);
-    
-    let hasComplexFunctions = false;
-    let hasManyParams = false;
-    
-    for (const file of report.reports || []) {
-      for (const func of file.functions || []) {
-        if (func.complexity && func.complexity.cyclomatic > 5) {
-          hasComplexFunctions = true;
-        }
-        if (func.params && func.params > 2) {
-          hasManyParams = true;
-        }
-      }
-    }
-    
-    const messages: string[] = [];
-    if (hasComplexFunctions) {
-      messages.push('👧🏻💬 High cyclomatic complexity detected. Break down complex functions into smaller, single-purpose methods.');
-    }
-    if (hasManyParams) {
-      messages.push('👧🏻💬 Functions with more than 2 parameters detected. Consider using parameter objects to group related parameters.');
-    }
-    
-    return { 
-      hasIssues: hasComplexFunctions || hasManyParams,
-      message: messages.join('\n')
-    };
+    return processComplexityReport(stdout);
   } catch (error) {
     return { hasIssues: false };
   }
 }
 
-async function main() {
-  const report: QualityReport = {
-    duplication: false,
-    complexity: false,
-    comments: false,
-    messages: []
-  };
+function processComplexityReport(stdout: string): { hasIssues: boolean; message?: string } {
+  const report = JSON.parse(stdout);
+  const issues = analyzeComplexity(report);
+  const messages = createComplexityMessages(issues);
   
+  return { 
+    hasIssues: issues.hasComplexFunctions || issues.hasManyParams,
+    message: messages.join('\n')
+  };
+}
+
+function analyzeComplexity(report: any): { hasComplexFunctions: boolean; hasManyParams: boolean } {
+  const issues = { hasComplexFunctions: false, hasManyParams: false };
+  
+  for (const file of report.reports || []) {
+    checkFileComplexity(file, issues);
+  }
+  
+  return issues;
+}
+
+function checkFileComplexity(file: any, issues: { hasComplexFunctions: boolean; hasManyParams: boolean }): void {
+  for (const func of file.functions || []) {
+    if (func.complexity && func.complexity.cyclomatic > 5) {
+      issues.hasComplexFunctions = true;
+    }
+    if (func.params && func.params > 2) {
+      issues.hasManyParams = true;
+    }
+  }
+}
+
+function createComplexityMessages(issues: { hasComplexFunctions: boolean; hasManyParams: boolean }): string[] {
+  const messages: string[] = [];
+  if (issues.hasComplexFunctions) {
+    messages.push('👧🏻💬 High cyclomatic complexity detected. Break down complex functions into smaller, single-purpose methods.');
+  }
+  if (issues.hasManyParams) {
+    messages.push('👧🏻💬 Functions with more than 2 parameters detected. Consider using parameter objects to group related parameters.');
+  }
+  return messages;
+}
+
+async function collectQualityIssues(): Promise<string[]> {
+  const messages: string[] = [];
+  
+  await addAllIssues(messages);
+  
+  return messages;
+}
+
+async function addAllIssues(messages: string[]): Promise<void> {
+  await addDuplicationIssues(messages);
+  await addComplexityIssues(messages);
+  addCommentIssues(messages);
+  addFileSizeIssues(messages);
+  addFunctionSizeIssues(messages);
+  await addDiffSizeIssues(messages);
+}
+
+async function addDuplicationIssues(messages: string[]): Promise<void> {
   const dupResult = await runDuplicationCheck();
   if (dupResult.hasIssues && dupResult.message) {
-    report.duplication = true;
-    report.messages.push(dupResult.message);
+    messages.push(dupResult.message);
   }
-  
+}
+
+async function addComplexityIssues(messages: string[]): Promise<void> {
   const complexityResult = await runComplexityCheck();
   if (complexityResult.hasIssues && complexityResult.message) {
-    report.complexity = true;
-    report.messages.push(complexityResult.message);
+    messages.push(complexityResult.message);
   }
-  
+}
+
+function addCommentIssues(messages: string[]): void {
   const comments = findComments('src');
   if (comments.length > 0) {
-    report.comments = true;
-    report.messages.push('👧🏻💬 **NEVER** use comments to explain code, the code should speak for itself. Extract complex logic into well-named functions instead of explaining with comments. Remove **ALL** comments unless they impact functionality');
+    messages.push('👧🏻💬 **NEVER** use comments to explain code, the code should speak for itself. Extract complex logic into well-named functions instead of explaining with comments. Remove **ALL** comments unless they impact functionality');
   }
-  
+}
+
+function addFileSizeIssues(messages: string[]): void {
   const fileSizes = checkFileSizes('src');
   for (const issue of fileSizes) {
     if (issue.severity === 'critical') {
-      report.messages.push(`👧🏻💬 CRITICAL: ${issue.file} has ${issue.lines} lines! Files over 300 lines MUST be broken up immediately. Split into smaller, focused modules.`);
+      messages.push(`👧🏻💬 CRITICAL: ${issue.file} has ${issue.lines} lines! Files over 300 lines MUST be broken up immediately. Split into smaller, focused modules.`);
     } else {
-      report.messages.push(`👧🏻💬 ${issue.file} has ${issue.lines} lines. Consider breaking this into smaller, focused modules.`);
+      messages.push(`👧🏻💬 ${issue.file} has ${issue.lines} lines. Consider breaking this into smaller, focused modules.`);
     }
   }
-  
+}
+
+function addFunctionSizeIssues(messages: string[]): void {
   const functionSizes = checkFunctionSizes('src');
   for (const issue of functionSizes) {
     if (issue.severity === 'critical') {
-      report.messages.push(`👧🏻💬 CRITICAL: Function '${issue.function}' in ${issue.file} has ${issue.lines} lines! Functions over 10 lines MUST be broken down immediately. Long functions may also indicate an opportunity to introduce a new class.`);
+      messages.push(`👧🏻💬 CRITICAL: Function '${issue.function}' in ${issue.file} has ${issue.lines} lines! Functions over 10 lines MUST be broken down immediately. Long functions may also indicate an opportunity to introduce a new class.`);
     } else {
-      report.messages.push(`👧🏻💬 Function '${issue.function}' in ${issue.file} has ${issue.lines} lines. Consider extracting helper methods.`);
+      messages.push(`👧🏻💬 Function '${issue.function}' in ${issue.file} has ${issue.lines} lines. Consider extracting helper methods.`);
     }
   }
-  
+}
+
+async function addDiffSizeIssues(messages: string[]): Promise<void> {
   const diffResult = await checkGitDiffSize();
   if (diffResult.message) {
-    report.messages.push(diffResult.message);
+    messages.push(diffResult.message);
   }
-  
-  if (report.messages.length === 0) {
-    console.log('✅ All quality checks passed');
-    process.exit(0);
+}
+
+function reportResults(messages: string[]): void {
+  if (messages.length === 0) {
+    reportSuccess();
+  } else {
+    reportIssues(messages);
   }
-  
+}
+
+function reportSuccess(): void {
+  console.log('✅ All quality checks passed');
+  process.exit(0);
+}
+
+function reportIssues(messages: string[]): void {
   console.log('❌ Quality issues detected:');
-  for (const message of report.messages) {
+  for (const message of messages) {
     console.log(message);
   }
-  
   process.exit(1);
+}
+
+async function main() {
+  const messages = await collectQualityIssues();
+  reportResults(messages);
 }
 
 if (require.main === module) {

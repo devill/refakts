@@ -42,6 +42,10 @@ function processSourceFileForSizes(sourceFile: any, issues: FileSizeIssue[]): vo
     return;
   }
   
+  addFileSizeIssueIfNeeded(sourceFile, filePath, issues);
+}
+
+function addFileSizeIssueIfNeeded(sourceFile: any, filePath: string, issues: FileSizeIssue[]): void {
   const lineCount = sourceFile.getEndLineNumber();
   const issue = createFileSizeIssue(filePath, lineCount);
   
@@ -74,10 +78,18 @@ function createFileSizeIssue(filePath: string, lineCount: number): FileSizeIssue
 }
 
 function collectFunctionIssues(sourceFile: any, filePath: string, issues: any[]): void {
+  const allFunctions = getAllFunctions(sourceFile);
+  processFunctionSizes(allFunctions, filePath, issues);
+}
+
+function getAllFunctions(sourceFile: any): any[] {
   const functions = sourceFile.getFunctions();
   const methods = sourceFile.getClasses().flatMap((c: any) => c.getMethods());
-  
-  [...functions, ...methods].forEach(func => {
+  return [...functions, ...methods];
+}
+
+function processFunctionSizes(functions: any[], filePath: string, issues: any[]): void {
+  functions.forEach(func => {
     const issue = createFunctionSizeIssue(filePath, func);
     if (issue) {
       issues.push(issue);
@@ -89,6 +101,10 @@ function createFunctionSizeIssue(filePath: string, func: any): any | null {
   const lineCount = func.getEndLineNumber() - func.getStartLineNumber() + 1;
   const functionName = func.getName() || 'anonymous';
   
+  return determineFunctionSizeIssue(filePath, functionName, lineCount);
+}
+
+function determineFunctionSizeIssue(filePath: string, functionName: string, lineCount: number): any | null {
   if (lineCount > 10) {
     return { file: filePath, function: functionName, lines: lineCount, severity: 'critical' };
   } else if (lineCount > 5) {

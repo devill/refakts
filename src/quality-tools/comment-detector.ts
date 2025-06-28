@@ -12,19 +12,27 @@ interface CommentIssue {
 
 export function findComments(srcDir: string): CommentIssue[] {
   const project = createProject(srcDir);
+  return processAllSourceFiles(project);
+}
+
+function processAllSourceFiles(project: any): CommentIssue[] {
   const issues: CommentIssue[] = [];
   
   for (const sourceFile of project.getSourceFiles()) {
-    const filePath = getRelativeFilePath(sourceFile);
-    
-    if (shouldSkipFile(filePath)) {
-      continue;
-    }
-    
-    collectAllComments(sourceFile, filePath, issues);
+    processSourceFile(sourceFile, issues);
   }
   
   return issues;
+}
+
+function processSourceFile(sourceFile: any, issues: CommentIssue[]): void {
+  const filePath = getRelativeFilePath(sourceFile);
+  
+  if (shouldSkipFile(filePath)) {
+    return;
+  }
+  
+  collectAllComments(sourceFile, filePath, issues);
 }
 
 function createProject(srcDir: string) {
