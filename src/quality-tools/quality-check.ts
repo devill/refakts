@@ -5,6 +5,7 @@ import { promisify } from 'util';
 import { findComments } from './comment-detector';
 import { checkFileSizes, checkFunctionSizes } from './file-size-checker';
 import { checkGitDiffSize } from './git-diff-checker';
+import { checkUnusedMethods } from './unused-method-checker';
 import { getIncompleteRefactorings } from '../cli-generator';
 
 const execAsync = promisify(exec);
@@ -101,6 +102,7 @@ async function addAllIssues(messages: string[]): Promise<void> {
   addCommentIssues(messages);
   addFileSizeIssues(messages);
   addFunctionSizeIssues(messages);
+  addUnusedMethodIssues(messages);
   await addDiffSizeIssues(messages);
   addIncompleteRefactoringReminder(messages);
 }
@@ -145,6 +147,13 @@ function addFunctionSizeIssues(messages: string[]): void {
     } else {
       messages.push(`👧🏻💬 Function '${issue.function}' in ${issue.file} has ${issue.lines} lines. Consider extracting helper methods.`);
     }
+  }
+}
+
+function addUnusedMethodIssues(messages: string[]): void {
+  const unusedMethods = checkUnusedMethods('src');
+  for (const issue of unusedMethods) {
+    messages.push(`👧🏻💬 CRITICAL: Unused private method '${issue.method}' in ${issue.file} at line ${issue.line}. Remove dead code to maintain codebase clarity.`);
   }
 }
 

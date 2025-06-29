@@ -4,6 +4,7 @@ import { TSQueryHandler } from './tsquery-handler';
 import { VariableDeclarationFinder } from './variable-declaration-finder';
 import { ExpressionAnalyzer } from './expression-analyzer';
 import { VariableReplacer } from './variable-replacer';
+import { VariableScope } from './variable-scope';
 
 export class RefactorEngine {
   private project: Project;
@@ -11,6 +12,7 @@ export class RefactorEngine {
   private declarationFinder = new VariableDeclarationFinder();
   private expressionAnalyzer = new ExpressionAnalyzer();
   private variableReplacer = new VariableReplacer();
+  private variableScope = new VariableScope();
 
   constructor() {
     this.project = new Project();
@@ -54,112 +56,12 @@ export class RefactorEngine {
   }
 
   private renameAllReferences(sourceFile: any, oldName: string, declarationNode: Node, newName: string): void {
-    const references = this.findAllReferences(sourceFile, oldName, declarationNode);
+    const references = this.variableScope.findReferencesInSameScope(declarationNode, oldName);
     references.forEach(ref => {
       ref.replaceWithText(newName);
     });
   }
 
-  private findAllReferences(sourceFile: any, variableName: string, declarationNode: Node): Node[] {
-    const references: Node[] = [];
-    
-    sourceFile.forEachDescendant((node: Node) => {
-      if (this.isMatchingReference(node, variableName, declarationNode)) {
-        references.push(node);
-      }
-    });
-    return references;
-  }
-
-  private isMatchingReference(node: Node, variableName: string, declarationNode: Node): boolean {
-    return node.getKind() === 80 && 
-           node.getText() === variableName && 
-           node !== declarationNode;
-  }
-
-  private getDeclarationScope(declarationNode: Node): Node {
-    const parameterScope = this.tryGetParameterScope(declarationNode);
-    if (parameterScope) {
-      return parameterScope;
-    }
-    
-    return this.findClosestBlockScope(declarationNode);
-  }
-
-  private tryGetParameterScope(declarationNode: Node): Node | null {
-    const parent = declarationNode.getParent();
-    if (!this.isParameterParent(parent)) {
-      return null;
-    }
-    
-    return this.getFunctionFromParameter(parent!);
-  }
-
-  private isParameterParent(parent: Node | undefined): boolean {
-    return parent !== undefined && Node.isParameterDeclaration(parent);
-  }
-
-  private getFunctionFromParameter(parent: Node): Node | null {
-    const functionNode = parent.getParent();
-    if (functionNode && this.isFunctionNode(functionNode)) {
-      return functionNode;
-    }
-    return null;
-  }
-
-  private isFunctionNode(node: Node): boolean {
-    return Node.isFunctionDeclaration(node) || Node.isArrowFunction(node);
-  }
-
-  private findClosestBlockScope(declarationNode: Node): Node {
-    let current = declarationNode.getParent();
-    while (current) {
-      if (this.isScopeNode(current)) {
-        return current;
-      }
-      current = current.getParent();
-    }
-    return declarationNode.getSourceFile();
-  }
-
-  private isScopeNode(node: Node): boolean {
-    return Node.isFunctionDeclaration(node) || 
-           Node.isArrowFunction(node) || 
-           Node.isBlock(node) ||
-           Node.isSourceFile(node);
-  }
-
-  private isInSameScope(node: Node, targetScope: Node): boolean {
-    let current = node.getParent();
-    while (current) {
-      const scopeResult = this.checkScopeRelation(current, targetScope);
-      if (scopeResult !== null) {
-        return scopeResult;
-      }
-      current = current.getParent();
-    }
-    return false;
-  }
-
-  private checkScopeRelation(current: Node, targetScope: Node): boolean | null {
-    if (this.isTargetScope(current, targetScope)) {
-      return true;
-    }
-    if (this.isScopeBoundary(current)) {
-      return false;
-    }
-    return null;
-  }
-
-  private isTargetScope(current: Node, targetScope: Node): boolean {
-    return current === targetScope;
-  }
-
-  private isScopeBoundary(node: Node): boolean {
-    return Node.isFunctionDeclaration(node) || 
-           Node.isArrowFunction(node) || 
-           Node.isBlock(node);
-  }
 
   private loadSourceFile(filePath: string) {
     const absolutePath = path.resolve(filePath);
