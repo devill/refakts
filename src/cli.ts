@@ -24,6 +24,7 @@ for (const folder of fixtureFolders) {
     .description(description + warningText)
     .argument('<file>', 'TypeScript file to refactor')
     .option('--query <selector>', 'Target identifier or expression to refactor')
+    .option('--to <newName>', 'New name for rename operations')
     .addHelpText('after', getDetailedHelp(folder, status))
     .action(async (file: string, options) => {
       if (!options.query) {
@@ -36,6 +37,13 @@ for (const folder of fixtureFolders) {
       switch (folder) {
         case 'inline-variable':
           await engine.inlineVariableByQuery(file, options.query);
+          break;
+        case 'rename':
+          if (!options.to) {
+            console.error('--to must be specified for rename operations');
+            process.exit(1);
+          }
+          await engine.renameByQuery(file, options.query, options.to);
           break;
         default:
           if (status?.complete === false) {

@@ -1,5 +1,4 @@
 /**
- * @skip
  * @description Rename a simple local variable
  * @command refakts rename simple-variable.input.ts --query "VariableDeclaration Identifier[name='oldName']" --to "newName"
  */

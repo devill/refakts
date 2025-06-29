@@ -1,16 +1,16 @@
 /**
  * @skip
  * @description Rename variable should only affect the targeted scope, not same-named variables in other scopes
- * @command refakts rename scope-isolation.input.ts --query "FunctionDeclaration[name='innerFunction'] VariableDeclaration Identifier[name='data']" --to "processedData"
+ * @command refakts rename scope-isolation.input.ts --query "VariableDeclaration Identifier[name='data']" --to "processedData"
  */
 
 function outerFunction() {
-  const data = "outer";
-  console.log(data);
+  const processedData = "outer";
+  console.log(processedData);
   
   function innerFunction() {
-    const processedData = "inner";
-    return processedData.toUpperCase();
+    const data = "inner";
+    return data.toUpperCase();
   }
   
   return innerFunction();

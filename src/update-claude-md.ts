@@ -55,18 +55,38 @@ function extractCommands(helpOutput: string): string {
 }
 
 function findCommandsSection(lines: string[]): string[] {
-  const commandsStartIndex = lines.findIndex(line => line.trim() === 'Commands:');
+  const commandsStartIndex = findCommandsStartIndex(lines);
   if (commandsStartIndex === -1) return [];
   
-  const commandLines = [];
-  for (let i = commandsStartIndex + 1; i < lines.length; i++) {
+  return extractCommandLines(lines, commandsStartIndex);
+}
+
+function findCommandsStartIndex(lines: string[]): number {
+  return lines.findIndex(line => line.trim() === 'Commands:');
+}
+
+function extractCommandLines(lines: string[], startIndex: number): string[] {
+  const commandLines: string[] = [];
+  processLinesAfterStart(lines, startIndex, commandLines);
+  return commandLines;
+}
+
+function processLinesAfterStart(lines: string[], startIndex: number, commandLines: string[]): void {
+  for (let i = startIndex + 1; i < lines.length; i++) {
     const line = lines[i].trim();
-    if (line === '' || line.startsWith('Available refactoring commands:')) break;
-    if (line.includes('[options]') && (line.includes('inline-variable') || line.includes('node-finding'))) {
+    if (shouldStopExtraction(line)) break;
+    if (isRefactoringCommand(line)) {
       commandLines.push(line);
     }
   }
-  return commandLines;
+}
+
+function shouldStopExtraction(line: string): boolean {
+  return line === '' || line.startsWith('Available refactoring commands:');
+}
+
+function isRefactoringCommand(line: string): boolean {
+  return line.includes('[options]') && (line.includes('inline-variable') || line.includes('node-finding'));
 }
 
 function formatCommandsForMarkdown(commandLines: string[]): string {
@@ -105,11 +125,19 @@ function insertAfterDogFooding(content: string, section: string, dogFoodingIndex
   const nextSectionMatch = afterDogFooding.match(/\n## /);
   
   if (nextSectionMatch) {
-    const insertIndex = dogFoodingIndex + nextSectionMatch.index!;
-    return content.substring(0, insertIndex) + '\n\n' + section + '\n' + content.substring(insertIndex);
+    return insertAtSectionBoundary(content, section, dogFoodingIndex, nextSectionMatch.index!);
   } else {
-    return content + '\n\n' + section;
+    return appendAtEnd(content, section);
   }
+}
+
+function insertAtSectionBoundary(content: string, section: string, dogFoodingIndex: number, matchIndex: number): string {
+  const insertIndex = dogFoodingIndex + matchIndex;
+  return content.substring(0, insertIndex) + '\n\n' + section + '\n' + content.substring(insertIndex);
+}
+
+function appendAtEnd(content: string, section: string): string {
+  return content + '\n\n' + section;
 }
 
 async function main() {

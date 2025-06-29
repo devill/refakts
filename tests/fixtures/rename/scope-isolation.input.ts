@@ -1,7 +1,7 @@
 /**
  * @skip
  * @description Rename variable should only affect the targeted scope, not same-named variables in other scopes
- * @command refakts rename scope-isolation.input.ts --query "FunctionDeclaration[name='innerFunction'] VariableDeclaration Identifier[name='data']" --to "processedData"
+ * @command refakts rename scope-isolation.input.ts --query "VariableDeclaration Identifier[name='data']" --to "processedData"
  */
 
 function outerFunction() {

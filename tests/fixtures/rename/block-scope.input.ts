@@ -1,5 +1,4 @@
 /**
- * @skip
  * @description Rename variable in block scope
  * @command refakts rename block-scope.input.ts --query "IfStatement Block VariableDeclaration Identifier[name='temp']" --to "temporaryValue"
  */
