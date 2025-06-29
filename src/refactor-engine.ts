@@ -45,11 +45,16 @@ export class RefactorEngine {
     const oldName = node.getText();
     const sourceFile = node.getSourceFile();
     
-    // Rename the declaration itself
+    this.renameDeclaration(node, newName);
+    this.renameAllReferences(sourceFile, oldName, node, newName);
+  }
+
+  private renameDeclaration(node: Node, newName: string): void {
     node.replaceWithText(newName);
-    
-    // Find all references to this identifier and rename them
-    const references = this.findAllReferences(sourceFile, oldName, node);
+  }
+
+  private renameAllReferences(sourceFile: any, oldName: string, declarationNode: Node, newName: string): void {
+    const references = this.findAllReferences(sourceFile, oldName, declarationNode);
     references.forEach(ref => {
       ref.replaceWithText(newName);
     });
@@ -59,33 +64,57 @@ export class RefactorEngine {
     const references: Node[] = [];
     
     sourceFile.forEachDescendant((node: Node) => {
-      if (node.getKind() === 80 && 
-          node.getText() === variableName && 
-          node !== declarationNode) {
+      if (this.isMatchingReference(node, variableName, declarationNode)) {
         references.push(node);
       }
     });
     return references;
   }
 
+  private isMatchingReference(node: Node, variableName: string, declarationNode: Node): boolean {
+    return node.getKind() === 80 && 
+           node.getText() === variableName && 
+           node !== declarationNode;
+  }
+
   private getDeclarationScope(declarationNode: Node): Node {
-    // Check if this is a parameter identifier  
-    const parent = declarationNode.getParent();
-    if (parent && Node.isParameterDeclaration(parent)) {
-      // For parameters, scope is the entire function
-      const functionNode = parent.getParent();
-      if (functionNode && (Node.isFunctionDeclaration(functionNode) || Node.isArrowFunction(functionNode))) {
-        return functionNode;
-      }
+    const parameterScope = this.tryGetParameterScope(declarationNode);
+    if (parameterScope) {
+      return parameterScope;
     }
     
-    // Find the closest function or block scope for regular variables
+    return this.findClosestBlockScope(declarationNode);
+  }
+
+  private tryGetParameterScope(declarationNode: Node): Node | null {
+    const parent = declarationNode.getParent();
+    if (!this.isParameterParent(parent)) {
+      return null;
+    }
+    
+    return this.getFunctionFromParameter(parent!);
+  }
+
+  private isParameterParent(parent: Node | undefined): boolean {
+    return parent !== undefined && Node.isParameterDeclaration(parent);
+  }
+
+  private getFunctionFromParameter(parent: Node): Node | null {
+    const functionNode = parent.getParent();
+    if (functionNode && this.isFunctionNode(functionNode)) {
+      return functionNode;
+    }
+    return null;
+  }
+
+  private isFunctionNode(node: Node): boolean {
+    return Node.isFunctionDeclaration(node) || Node.isArrowFunction(node);
+  }
+
+  private findClosestBlockScope(declarationNode: Node): Node {
     let current = declarationNode.getParent();
     while (current) {
-      if (Node.isFunctionDeclaration(current) || 
-          Node.isArrowFunction(current) || 
-          Node.isBlock(current) ||
-          Node.isSourceFile(current)) {
+      if (this.isScopeNode(current)) {
         return current;
       }
       current = current.getParent();
@@ -93,20 +122,43 @@ export class RefactorEngine {
     return declarationNode.getSourceFile();
   }
 
+  private isScopeNode(node: Node): boolean {
+    return Node.isFunctionDeclaration(node) || 
+           Node.isArrowFunction(node) || 
+           Node.isBlock(node) ||
+           Node.isSourceFile(node);
+  }
+
   private isInSameScope(node: Node, targetScope: Node): boolean {
     let current = node.getParent();
     while (current) {
-      if (current === targetScope) {
-        return true;
-      }
-      if (Node.isFunctionDeclaration(current) || 
-          Node.isArrowFunction(current) || 
-          Node.isBlock(current)) {
-        return false;
+      const scopeResult = this.checkScopeRelation(current, targetScope);
+      if (scopeResult !== null) {
+        return scopeResult;
       }
       current = current.getParent();
     }
     return false;
+  }
+
+  private checkScopeRelation(current: Node, targetScope: Node): boolean | null {
+    if (this.isTargetScope(current, targetScope)) {
+      return true;
+    }
+    if (this.isScopeBoundary(current)) {
+      return false;
+    }
+    return null;
+  }
+
+  private isTargetScope(current: Node, targetScope: Node): boolean {
+    return current === targetScope;
+  }
+
+  private isScopeBoundary(node: Node): boolean {
+    return Node.isFunctionDeclaration(node) || 
+           Node.isArrowFunction(node) || 
+           Node.isBlock(node);
   }
 
   private loadSourceFile(filePath: string) {
