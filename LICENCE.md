@@ -2,7 +2,7 @@
 
 <https://polyformproject.org/licenses/noncommercial/1.0.0>
 
-> Required Notice: Copyright Ivett (https://github.com/devill/refakts)
+> Required Notice: Copyright Ivett (https://ivettordog.com)
 
 ## Acceptance
 
@@ -37,7 +37,7 @@ URL for them above, as well as copies of any plain-text lines
 beginning with `Required Notice:` that the licensor provided
 with the software.  For example:
 
-> Required Notice: Copyright Yoyodyne, Inc. (http://example.com)
+> Required Notice: Ivett Ördög. (http://ivettordog.com)
 
 ## Changes and New Works License
 
