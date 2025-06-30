@@ -50,6 +50,25 @@ export class QualityReporter {
   }
 
   private getGroupKey(issue: QualityIssue): string {
+    const sizeGroupKey = this.getSizeGroupKey(issue);
+    if (sizeGroupKey) return sizeGroupKey;
+    
+    return this.getBasicGroupKey(issue);
+  }
+
+  private getSizeGroupKey(issue: QualityIssue): string | null {
+    if (issue.type === 'fileSize') {
+      return issue.severity === 'critical' ? 'criticalFiles' : 'largeFiles';
+    }
+    
+    if (issue.type === 'functionSize') {
+      return issue.severity === 'critical' ? 'criticalFunctions' : 'largeFunctions';
+    }
+
+    return null;
+  }
+
+  private getBasicGroupKey(issue: QualityIssue): string {
     const keyMap = {
       'comment': 'comments',
       'unusedMethod': 'unusedMethods',
@@ -61,14 +80,6 @@ export class QualityReporter {
       'incompleteRefactoring': 'incompleteRefactoring'
     };
 
-    if (issue.type === 'fileSize') {
-      return issue.severity === 'critical' ? 'criticalFiles' : 'largeFiles';
-    }
-    
-    if (issue.type === 'functionSize') {
-      return issue.severity === 'critical' ? 'criticalFunctions' : 'largeFunctions';
-    }
-
     return keyMap[issue.type as keyof typeof keyMap] || 'other';
   }
 
@@ -78,7 +89,13 @@ export class QualityReporter {
   }
 
   private getGroupDefinition(groupKey: string): QualityGroup {
-    const groupCreators = {
+    const groupCreators = this.createGroupCreatorsMap();
+    const creator = groupCreators[groupKey as keyof typeof groupCreators];
+    return creator ? creator() : this.createDefaultGroup();
+  }
+
+  private createGroupCreatorsMap() {
+    return {
       'comments': () => this.createCommentsGroup(),
       'criticalFiles': () => this.createCriticalFilesGroup(),
       'largeFiles': () => this.createLargeFilesGroup(),
@@ -92,9 +109,6 @@ export class QualityReporter {
       'cohesiveChange': () => this.createCohesiveChangeGroup(),
       'incompleteRefactoring': () => this.createIncompleteRefactoringGroup()
     };
-
-    const creator = groupCreators[groupKey as keyof typeof groupCreators];
-    return creator ? creator() : this.createDefaultGroup();
   }
 
   private formatViolation(issue: QualityIssue): string {
@@ -102,18 +116,22 @@ export class QualityReporter {
   }
 
   private formatGroup(group: QualityGroup): string {
-    const lines = [
+    const headerLines = this.buildGroupHeader(group);
+    const violationLines = this.buildViolationList(group.violations);
+    return [...headerLines, ...violationLines].join('\n');
+  }
+
+  private buildGroupHeader(group: QualityGroup): string[] {
+    return [
       `**${group.title}**`,
       group.description,
       group.actionGuidance,
       'Violations:'
     ];
-    
-    for (const violation of group.violations) {
-      lines.push(`- ${violation}`);
-    }
-    
-    return lines.join('\n');
+  }
+
+  private buildViolationList(violations: string[]): string[] {
+    return violations.map(violation => `- ${violation}`);
   }
 
   private createCommentsGroup(): QualityGroup {

@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { RefactorEngine } from './refactor-engine';
 import { generateHelpText, getFixtureFolders, getCompletionStatus } from './cli-generator';
 import { VariableLocator } from './locators/variable-locator';
 import { tsquery } from '@phenomnomnominal/tsquery';
 import * as yaml from 'js-yaml';
+import { CommandRegistry } from './commands/command-registry';
 
 const program = new Command();
 
@@ -16,6 +16,7 @@ program
 
 const fixtureFolders = getFixtureFolders();
 const completionStatus = getCompletionStatus();
+const commandRegistry = new CommandRegistry();
 
 for (const folder of fixtureFolders) {
   const status = completionStatus[folder];
@@ -30,34 +31,37 @@ for (const folder of fixtureFolders) {
     .option('--to <newName>', 'New name for rename operations')
     .addHelpText('after', getDetailedHelp(folder, status))
     .action(async (file: string, options) => {
-      if (!options.query) {
-        console.error('--query must be specified');
-        process.exit(1);
-      }
-      
-      const engine = new RefactorEngine();
-      
-      switch (folder) {
-        case 'inline-variable':
-          await engine.inlineVariableByQuery(file, options.query);
-          break;
-        case 'rename':
-          if (!options.to) {
-            console.error('--to must be specified for rename operations');
-            process.exit(1);
-          }
-          await engine.renameByQuery(file, options.query, options.to);
-          break;
-        default:
-          if (status?.complete === false) {
-            console.error(`Command '${folder}' is not yet implemented (marked as incomplete)`);
-            process.exit(1);
-          } else {
-            console.error(`Command '${folder}' not implemented`);
-            process.exit(1);
-          }
-      }
+      await executeRefactoringCommand(folder, file, options, status);
     });
+}
+
+async function executeRefactoringCommand(commandName: string, file: string, options: any, status: any): Promise<void> {
+  const command = commandRegistry.get(commandName);
+  
+  if (command) {
+    await executeRegisteredCommand(command, file, options);
+  } else {
+    handleUnregisteredCommand(commandName, status);
+  }
+}
+
+async function executeRegisteredCommand(command: any, file: string, options: any): Promise<void> {
+  try {
+    command.validateOptions(options);
+    await command.execute(file, options);
+  } catch (error) {
+    console.error('Error:', (error as Error).message);
+    process.exit(1);
+  }
+}
+
+function handleUnregisteredCommand(commandName: string, status: any): void {
+  if (status?.complete === false) {
+    console.error(`Command '${commandName}' is not yet implemented (marked as incomplete)`);
+  } else {
+    console.error(`Command '${commandName}' not implemented`);
+  }
+  process.exit(1);
 }
 
 function getDetailedHelp(command: string, status: any): string {
