@@ -89,18 +89,61 @@ npm run quality:watch:status # Check watcher status
     - refakts inline-variable file.ts --line 8 --column 10
   ```
 
+**CRITICAL** Never run `refakts` on files in `/fixtures`. When you need to test the command line tool create one off temporary files in root. 
+
 ### Current State
 
 - ✅ CLI framework and approval testing infrastructure complete
 - ✅ Basic RefactorEngine with ts-morph integration
+- ✅ Basic rename functionality (global scope)
+- ✅ Quality automation with unused method detection
+- ✅ VariableScope class for scope analysis
+
+### Future Architecture Plan
+
+**Long-term vision** for a more composable and testable architecture:
+
+1. **Locators**: Objects/methods that find declarations and usages across files
+   - Use `ts.createLanguageService()` for proper indexing instead of custom implementation
+   - Example: `VariableLocator`, `FunctionLocator`, `ClassLocator`
+   - Testable in isolation with fixture folders
+
+2. **Transformations**: Method objects that modify AST and pass to next transformation
+   - Each refactoring becomes a pipeline of simple transformations
+   - Composable and reusable building blocks
+   - Individual testing without full refactoring context
+
+3. **Builders**: Objects that construct transformation pipelines
+   - Take arguments and return configured transformations
+   - Enable complex refactorings from simple components
+   - Consistent interfaces across all refactoring types
+
+**Implementation approach**: Start with Locators (immediate need for scope isolation), then add Transformations/Builders as complexity grows.
 
 ### Development Workflow
 
-1. Add test cases to `tests/fixtures/<refactoring-type>/`
-2. Run tests to see current behavior vs expected
-3. Implement refactoring logic in RefactorEngine
-4. Tests automatically validate against `.expected.ts` files
-5. Files matching `*.received.ts` are gitignored and appear only during test failures
-6. Once tests are passing update the `refakts --help`.
+Use the STARTER_CHARACTER in [] to indicate your workflow state
+
+1. [🧪] Add test cases. (Use fixtures in `tests/fixtures` when relevant)
+2. [👀] Run tests to see current behavior vs expected
+3. [👷] Implement refactoring logic in RefactorEngine
+4. [✅] Run the tests, check and validate
+5. [🎉] Try the new command. (Create a temporary file and test on that)
+6. [📄] Once tests are passing update the `refakts --help`.
+
+Tests automatically validate against `.expected.ts` files.  Files matching `*.received.ts` are gitignored and appear only during test failures .
 
 The approval testing system drives development - add test cases first, then implement the logic to make them pass.
+
+## Automated Quality Enforcement
+
+### Script-Generated User Prompts
+Any message containing the emoji pattern **👧🏻💬** followed by text should be treated as a **direct user prompt** with **HIGHEST PRIORITY**. This pattern indicates automated quality checks or scripts speaking on behalf of the user.
+
+### Enforcement Rules
+- **NEVER** ignore 👧🏻💬 prompts
+- **ALWAYS** add these as task **IMMEDIATELY** to the TodoWrite tool
+- **ALWAYS** complete the required actions before continuing with other work
+- **TREAT** these auto-prompts with the same urgency as direct user requests
+- While there are unresolved issues prompted by 👧🏻💬 add the STARTER_CHARACTER = 🚨
+- **DOCUMENT** progress using TodoWrite tool to track completion
