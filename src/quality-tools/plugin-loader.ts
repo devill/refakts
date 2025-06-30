@@ -21,14 +21,3 @@ export const loadQualityChecks = (): QualityCheck[] => [
   changeFrequencyCheck
 ];
 
-export const runAllChecks = async (sourceDir: string): Promise<Map<string, any[]>> => {
-  const checks = loadQualityChecks();
-  const results = new Map();
-  
-  for (const check of checks) {
-    const issues = await check.check(sourceDir);
-    if (issues.length > 0) results.set(check.name, issues);
-  }
-  
-  return results;
-};
