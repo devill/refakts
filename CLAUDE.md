@@ -126,10 +126,13 @@ Use the STARTER_CHARACTER in [] to indicate your workflow state
 
 1. [🧪] Add test cases. (Use fixtures in `tests/fixtures` when relevant)
 2. [👀] Run tests to see current behavior vs expected
-3. [👷] Implement refactoring logic in RefactorEngine
-4. [✅] Run the tests, check and validate
-5. [🎉] Try the new command. (Create a temporary file and test on that)
-6. [📄] Once tests are passing update the `refakts --help`.
+3. [💭] Imagine what architecutre would make implementation easy.
+4. [♻️] If necessary put test on skip, and refactor to the ideal architecture 
+5. [👷] Unskip tests one by one, and implement the functionality 
+6. [✅] Run the tests, check and validate
+7. [🎉] Try the new command. (Create a temporary file and test on that)
+8. [📄] Once tests are passing update the `refakts --help`.
+9. [♻️] After commiting refactor to resolve qualiy issues.
 
 Tests automatically validate against `.expected.ts` files.  Files matching `*.received.ts` are gitignored and appear only during test failures .
 
