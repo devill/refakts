@@ -4,7 +4,7 @@
  */
 
 function processValue(condition: boolean, input: number): number {
-  const temporaryValue = input; // This should not be renamed
+  const temp = input; // This should not be renamed
   
   if (condition) {
     const temporaryValue = input * 2; // This should be renamed
@@ -12,5 +12,5 @@ function processValue(condition: boolean, input: number): number {
     return temporaryValue + 1;
   }
   
-  return temporaryValue;
+  return temp;
 }

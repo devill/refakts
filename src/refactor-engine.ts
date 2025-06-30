@@ -5,6 +5,7 @@ import { VariableDeclarationFinder } from './variable-declaration-finder';
 import { ExpressionAnalyzer } from './expression-analyzer';
 import { VariableReplacer } from './variable-replacer';
 import { VariableScope } from './variable-scope';
+import { RenameVariableTransformation } from './transformations/rename-variable-transformation';
 
 export class RefactorEngine {
   private project: Project;
@@ -44,23 +45,12 @@ export class RefactorEngine {
 
   private async performRename(node: Node, newName: string): Promise<void> {
     this.validateIdentifierNode(node);
-    const oldName = node.getText();
     const sourceFile = node.getSourceFile();
     
-    this.renameDeclaration(node, newName);
-    this.renameAllReferences(sourceFile, oldName, node, newName);
+    const transformation = new RenameVariableTransformation(node, newName);
+    await transformation.transform(sourceFile);
   }
 
-  private renameDeclaration(node: Node, newName: string): void {
-    node.replaceWithText(newName);
-  }
-
-  private renameAllReferences(sourceFile: any, oldName: string, declarationNode: Node, newName: string): void {
-    const references = this.variableScope.findReferencesInSameScope(declarationNode, oldName);
-    references.forEach(ref => {
-      ref.replaceWithText(newName);
-    });
-  }
 
 
   private loadSourceFile(filePath: string) {

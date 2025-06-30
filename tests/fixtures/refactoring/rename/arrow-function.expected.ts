@@ -8,4 +8,4 @@ const transform = (value: number) => {
   return doubled + value;
 };
 
-const filter = (value: string) => value.length > 0; // Different 'x' - should not be renamed
+const filter = (x: string) => x.length > 0; // Different 'x' - should not be renamed
