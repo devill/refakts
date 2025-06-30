@@ -28,17 +28,28 @@ export class VariableLocator {
   }
 
   async findVariableReferences(filePath: string, variableName: string): Promise<VariableLocationResult> {
+    const sourceFile = this.loadSourceFile(filePath);
+    const declaration = this.getDeclarationOrThrow(sourceFile, variableName);
+    const usages = this.findUsages(sourceFile, variableName, declaration);
+    
+    return this.buildLocationResult(variableName, declaration, usages);
+  }
+
+  private loadSourceFile(filePath: string): SourceFile {
     const fs = require('fs');
     const content = fs.readFileSync(filePath, 'utf8');
-    const sourceFile = this.project.createSourceFile(filePath, content);
-    
+    return this.project.createSourceFile(filePath, content);
+  }
+
+  private getDeclarationOrThrow(sourceFile: SourceFile, variableName: string): Node {
     const declaration = this.findDeclaration(sourceFile, variableName);
     if (!declaration) {
       throw new Error(`Could not find declaration for variable: ${variableName}`);
     }
+    return declaration;
+  }
 
-    const usages = this.findUsages(sourceFile, variableName, declaration);
-
+  private buildLocationResult(variableName: string, declaration: Node, usages: Node[]): VariableLocationResult {
     return {
       variable: variableName,
       declaration: this.createLocation(declaration, 'declaration'),
@@ -50,34 +61,41 @@ export class VariableLocator {
     let declaration: Node | undefined;
     
     sourceFile.forEachDescendant((node: Node) => {
-      if (node.getKind() === ts.SyntaxKind.VariableDeclaration) {
-        const identifier = node.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
-        if (identifier?.getText() === variableName) {
-          declaration = node;
-          return true; // Stop traversal
-        }
+      if (this.isVariableDeclaration(node, variableName)) {
+        declaration = node;
+        return true;
       }
       
-      if (node.getKind() === ts.SyntaxKind.Parameter) {
-        const identifier = node.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
-        if (identifier?.getText() === variableName) {
-          declaration = node;
-          return true; // Stop traversal
-        }
+      if (this.isParameterDeclaration(node, variableName)) {
+        declaration = node;
+        return true;
       }
     });
     
     return declaration;
   }
 
+  private isVariableDeclaration(node: Node, variableName: string): boolean {
+    return node.getKind() === ts.SyntaxKind.VariableDeclaration &&
+           this.hasMatchingIdentifier(node, variableName);
+  }
+
+  private isParameterDeclaration(node: Node, variableName: string): boolean {
+    return node.getKind() === ts.SyntaxKind.Parameter &&
+           this.hasMatchingIdentifier(node, variableName);
+  }
+
+  private hasMatchingIdentifier(node: Node, variableName: string): boolean {
+    const identifier = node.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
+    return identifier?.getText() === variableName;
+  }
+
   private findUsages(sourceFile: SourceFile, variableName: string, declaration: Node): Node[] {
     const usages: Node[] = [];
-    const declarationIdentifier = declaration.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
+    const declarationIdentifier = this.getDeclarationIdentifier(declaration);
     
     sourceFile.forEachDescendant((node: Node) => {
-      if (node.getKind() === ts.SyntaxKind.Identifier && 
-          node.getText() === variableName && 
-          node !== declarationIdentifier) {
+      if (this.isUsageNode(node, variableName, declarationIdentifier)) {
         usages.push(node);
       }
     });
@@ -85,16 +103,30 @@ export class VariableLocator {
     return usages;
   }
 
+  private getDeclarationIdentifier(declaration: Node): Node | undefined {
+    return declaration.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
+  }
+
+  private isUsageNode(node: Node, variableName: string, declarationIdentifier: Node | undefined): boolean {
+    return node.getKind() === ts.SyntaxKind.Identifier && 
+           node.getText() === variableName && 
+           node !== declarationIdentifier;
+  }
+
   private createLocation(node: Node, kind: 'declaration' | 'usage'): VariableLocation {
-    const start = node.getStart();
-    const sourceFile = node.getSourceFile();
-    const lineAndColumn = sourceFile.getLineAndColumnAtPos(start);
+    const position = this.getNodePosition(node);
     
     return {
       kind,
-      line: lineAndColumn.line,
-      column: lineAndColumn.column,
+      line: position.line,
+      column: position.column,
       text: node.getText()
     };
+  }
+
+  private getNodePosition(node: Node): {line: number; column: number} {
+    const start = node.getStart();
+    const sourceFile = node.getSourceFile();
+    return sourceFile.getLineAndColumnAtPos(start);
   }
 }
