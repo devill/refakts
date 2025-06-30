@@ -45,8 +45,8 @@ describe('Locator Integration Tests', () => {
       
       for (const inputFile of inputFiles) {
         const baseName = inputFile.replace('.input.ts', '');
-        const expectedFile = `${baseName}.expected.ts`;
-        const receivedFile = `${baseName}.received.ts`;
+        const expectedFile = `${baseName}.expected.yaml`;
+        const receivedFile = `${baseName}.received.yaml`;
         
         if (files.includes(expectedFile)) {
           const inputPath = path.join(locatorPath, inputFile);
@@ -100,22 +100,33 @@ describe('Locator Integration Tests', () => {
   testCases.forEach(testCase => {
     const testFn = testCase.skip ? it.skip : it;
     testFn(`${testCase.name}: ${testCase.description}`, async () => {
-      // Copy input file to received file for processing
-      fs.copyFileSync(testCase.inputFile, testCase.receivedFile);
-      
-      // Execute locator commands - these should output JSON results
+      // Execute locator commands - these should output YAML results
       for (const command of testCase.commands) {
         let updatedCommand = command;
         const inputFileName = path.basename(testCase.inputFile);
-        updatedCommand = updatedCommand.replace(inputFileName, testCase.receivedFile);
+        updatedCommand = updatedCommand.replace(inputFileName, testCase.inputFile);
         
         const fullCommand = `npm run dev -- ${updatedCommand}`;
         try {
           const { stdout } = await execAsync(fullCommand, { cwd: path.join(__dirname, '..', '..') });
           
-          // For locators, we expect JSON output that we can validate
-          // For now, just ensure the command runs without error
-          expect(stdout).toBeDefined();
+          // Extract only the YAML content (after the npm command output)
+          const lines = stdout.split('\n');
+          const yamlStartIndex = lines.findIndex(line => line.includes('variable:'));
+          const yamlContent = lines.slice(yamlStartIndex).join('\n').trim();
+          
+          // Write the output to received file for comparison
+          fs.writeFileSync(testCase.receivedFile, yamlContent);
+          
+          // Compare received vs expected YAML content
+          const expected = fs.readFileSync(testCase.expectedFile, 'utf8');
+          const received = fs.readFileSync(testCase.receivedFile, 'utf8');
+          
+          // Parse both as YAML to ensure semantic comparison
+          const expectedData = yaml.load(expected);
+          const receivedData = yaml.load(received);
+          
+          expect(receivedData).toEqual(expectedData);
         } catch (error) {
           throw new Error(`Command failed: ${fullCommand}\n${error}`);
         }

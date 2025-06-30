@@ -5,6 +5,7 @@ import { RefactorEngine } from './refactor-engine';
 import { generateHelpText, getFixtureFolders, getCompletionStatus } from './cli-generator';
 import { VariableLocator } from './locators/variable-locator';
 import { tsquery } from '@phenomnomnominal/tsquery';
+import * as yaml from 'js-yaml';
 
 const program = new Command();
 
@@ -111,7 +112,7 @@ program
       }
       
       const result = await locator.findVariableReferences(file, variableName);
-      console.log(JSON.stringify(result, null, 2));
+      console.log(yaml.dump(result, { indent: 2 }));
     } catch (error) {
       console.error('Error:', error);
       process.exit(1);

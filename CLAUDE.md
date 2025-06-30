@@ -98,15 +98,17 @@ npm run quality:watch:status # Check watcher status
 - ✅ Basic rename functionality (global scope)
 - ✅ Quality automation with unused method detection
 - ✅ VariableScope class for scope analysis
+- ✅ **Locators architecture**: VariableLocator with usage type detection (read/write/update)
+- ✅ **YAML-based locator testing**: Structured data validation vs source comparison
 
 ### Future Architecture Plan
 
 **Long-term vision** for a more composable and testable architecture:
 
-1. **Locators**: Objects/methods that find declarations and usages across files
-   - Use `ts.createLanguageService()` for proper indexing instead of custom implementation
-   - Example: `VariableLocator`, `FunctionLocator`, `ClassLocator`
-   - Testable in isolation with fixture folders
+1. **Locators**: Objects/methods that find declarations and usages across files ✅
+   - ✅ VariableLocator implemented with usage type detection
+   - ✅ SourceFileHelper for missing ts-morph functionality
+   - 🔄 Future: `FunctionLocator`, `ClassLocator`, `ImportLocator`
 
 2. **Transformations**: Method objects that modify AST and pass to next transformation
    - Each refactoring becomes a pipeline of simple transformations
@@ -118,7 +120,7 @@ npm run quality:watch:status # Check watcher status
    - Enable complex refactorings from simple components
    - Consistent interfaces across all refactoring types
 
-**Implementation approach**: Start with Locators (immediate need for scope isolation), then add Transformations/Builders as complexity grows.
+**Implementation approach**: ✅ Locators complete, next focus on Transformations as refactoring complexity grows.
 
 ### Development Workflow
 
@@ -134,7 +136,7 @@ Use the STARTER_CHARACTER in [] to indicate your workflow state
 8. [📄] Once tests are passing update the `refakts --help`.
 9. [♻️] After commiting refactor to resolve qualiy issues.
 
-Tests automatically validate against `.expected.ts` files.  Files matching `*.received.ts` are gitignored and appear only during test failures .
+**Refactoring tests** validate against `.expected.ts` files. **Locator tests** use `.expected.yaml` for structured data comparison. Files matching `*.received.*` are gitignored and appear only during test failures.
 
 The approval testing system drives development - add test cases first, then implement the logic to make them pass.
 

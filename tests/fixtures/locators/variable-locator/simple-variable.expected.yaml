@@ -1,0 +1,17 @@
+variable: count
+declaration:
+  kind: declaration
+  line: 7
+  column: 9
+  text: count = 42
+usages:
+  - kind: usage
+    usageType: read
+    line: 8
+    column: 15
+    text: count
+  - kind: usage
+    usageType: read
+    line: 9
+    column: 10
+    text: count

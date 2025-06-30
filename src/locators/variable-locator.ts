@@ -4,6 +4,7 @@ import { SourceFileHelper } from './source-file-helper';
 
 export interface VariableLocation {
   kind: 'declaration' | 'usage';
+  usageType?: 'read' | 'write' | 'update';
   line: number;
   column: number;
   text: string;
@@ -54,7 +55,7 @@ export class VariableLocator {
     return {
       variable: variableName,
       declaration: this.createLocation(declaration, 'declaration'),
-      usages: usages.map(usage => this.createLocation(usage, 'usage'))
+      usages: usages.map(usage => this.createUsageLocation(usage))
     };
   }
 
@@ -115,6 +116,66 @@ export class VariableLocator {
       column: position.column,
       text: node.getText()
     };
+  }
+
+  private createUsageLocation(node: Node): VariableLocation {
+    const position = this.getNodePosition(node);
+    const usageType = this.determineUsageType(node);
+    
+    return {
+      kind: 'usage',
+      usageType,
+      line: position.line,
+      column: position.column,
+      text: node.getText()
+    };
+  }
+
+  private determineUsageType(node: Node): 'read' | 'write' | 'update' {
+    const parent = node.getParent();
+    
+    if (this.isWriteContext(parent, node)) {
+      return 'write';
+    }
+    
+    if (this.isUpdateContext(parent, node)) {
+      return 'update';
+    }
+    
+    return 'read';
+  }
+
+  private isWriteContext(parent: Node | undefined, node: Node): boolean {
+    if (!parent) return false;
+    
+    if (parent.getKind() === ts.SyntaxKind.BinaryExpression) {
+      const binaryExpr = parent as any;
+      return binaryExpr.getOperatorToken().getKind() === ts.SyntaxKind.EqualsToken &&
+             binaryExpr.getLeft() === node;
+    }
+    
+    return false;
+  }
+
+  private isUpdateContext(parent: Node | undefined, node: Node): boolean {
+    if (!parent) return false;
+    
+    if (parent.getKind() === ts.SyntaxKind.PostfixUnaryExpression ||
+        parent.getKind() === ts.SyntaxKind.PrefixUnaryExpression) {
+      return true;
+    }
+    
+    if (parent.getKind() === ts.SyntaxKind.BinaryExpression) {
+      const binaryExpr = parent as any;
+      const operator = binaryExpr.getOperatorToken().getKind();
+      return (operator === ts.SyntaxKind.PlusEqualsToken ||
+              operator === ts.SyntaxKind.MinusEqualsToken ||
+              operator === ts.SyntaxKind.AsteriskEqualsToken ||
+              operator === ts.SyntaxKind.SlashEqualsToken) &&
+             binaryExpr.getLeft() === node;
+    }
+    
+    return false;
   }
 
   private getNodePosition(node: Node): {line: number; column: number} {
