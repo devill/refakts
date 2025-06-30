@@ -37,6 +37,15 @@ export class VariableLocator {
     return this.buildLocationResult(variableName, declaration, usages);
   }
 
+  async findVariableByPosition(filePath: string, line: number, column: number): Promise<VariableLocationResult> {
+    const sourceFile = this.loadSourceFile(filePath);
+    const declaration = this.getDeclarationAtPosition(sourceFile, line, column);
+    const variableName = this.getVariableName(declaration);
+    const usages = this.findUsages(sourceFile, variableName, declaration);
+    
+    return this.buildLocationResult(variableName, declaration, usages);
+  }
+
   private loadSourceFile(filePath: string): SourceFile {
     const fs = require('fs');
     const content = fs.readFileSync(filePath, 'utf8');
@@ -49,6 +58,41 @@ export class VariableLocator {
       throw new Error(`Could not find declaration for variable: ${variableName}`);
     }
     return declaration;
+  }
+
+  private getDeclarationAtPosition(sourceFile: SourceFile, line: number, column: number): Node {
+    // Use the ts-morph method to find node at line/column
+    const lineAndColumn = {line: line, column: column};
+    const position = sourceFile.compilerNode.getPositionOfLineAndCharacter(line - 1, column - 1);
+    const node = sourceFile.getDescendantAtPos(position);
+    
+    if (!node) {
+      throw new Error(`No node found at line ${line}, column ${column}`);
+    }
+    
+    // Find the declaration node that contains this position
+    let current: Node | undefined = node;
+    while (current) {
+      if (this.isAnyDeclaration(current)) {
+        return current;
+      }
+      current = current.getParent();
+    }
+    
+    throw new Error(`No variable declaration found at line ${line}, column ${column}`);
+  }
+
+  private getVariableName(declaration: Node): string {
+    const identifier = declaration.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
+    if (!identifier) {
+      throw new Error('Declaration node does not contain an identifier');
+    }
+    return identifier.getText();
+  }
+
+  private isAnyDeclaration(node: Node): boolean {
+    return node.getKind() === ts.SyntaxKind.VariableDeclaration ||
+           node.getKind() === ts.SyntaxKind.Parameter;
   }
 
   private buildLocationResult(variableName: string, declaration: Node, usages: Node[]): VariableLocationResult {
@@ -89,7 +133,8 @@ export class VariableLocator {
     const declarationIdentifier = this.getDeclarationIdentifier(declaration);
     
     sourceFile.forEachDescendant((node: Node) => {
-      if (this.isUsageNode(node, variableName, declarationIdentifier)) {
+      if (this.isUsageNode(node, variableName, declarationIdentifier) && 
+          this.isUsageInScope(node, declaration)) {
         usages.push(node);
       }
     });
@@ -105,6 +150,99 @@ export class VariableLocator {
     return node.getKind() === ts.SyntaxKind.Identifier && 
            node.getText() === variableName && 
            node !== declarationIdentifier;
+  }
+
+  private isUsageInScope(usage: Node, declaration: Node): boolean {
+    const declarationScope = this.getScope(declaration);
+    const usageScope = this.getScope(usage);
+    
+    // Usage must be in the same scope or a child scope of the declaration
+    if (!this.isScopeContainedIn(usageScope, declarationScope)) {
+      return false;
+    }
+    
+    // Check if there's a shadowing declaration between declaration and usage
+    return !this.isShadowedByDeclaration(usage, declaration);
+  }
+
+  private getScope(node: Node): Node {
+    let current = node.getParent();
+    while (current) {
+      if (this.isScopeNode(current)) {
+        return current;
+      }
+      current = current.getParent();
+    }
+    return node.getSourceFile();
+  }
+
+  private isScopeNode(node: Node): boolean {
+    return node.getKind() === ts.SyntaxKind.FunctionDeclaration ||
+           node.getKind() === ts.SyntaxKind.FunctionExpression ||
+           node.getKind() === ts.SyntaxKind.ArrowFunction ||
+           node.getKind() === ts.SyntaxKind.Block ||
+           node.getKind() === ts.SyntaxKind.SourceFile;
+  }
+
+  private isScopeContainedIn(innerScope: Node, outerScope: Node): boolean {
+    let current: Node | undefined = innerScope;
+    while (current) {
+      if (current === outerScope) {
+        return true;
+      }
+      current = current.getParent();
+    }
+    return false;
+  }
+
+  private isShadowedByDeclaration(usage: Node, declaration: Node): boolean {
+    const variableName = declaration.getFirstDescendantByKind(ts.SyntaxKind.Identifier)?.getText();
+    if (!variableName) return false;
+    
+    const usageScope = this.getScope(usage);
+    const declarationScope = this.getScope(declaration);
+    
+    // If they're in the same scope, no shadowing
+    if (usageScope === declarationScope) {
+      return false;
+    }
+    
+    // Look for shadowing declarations in scopes between declaration and usage
+    let current: Node | undefined = usageScope;
+    while (current && current !== declarationScope) {
+      if (this.hasShadowingDeclaration(current, variableName, declaration)) {
+        return true;
+      }
+      current = this.getParentScope(current);
+    }
+    
+    return false;
+  }
+
+  private getParentScope(scope: Node): Node | undefined {
+    let current = scope.getParent();
+    while (current) {
+      if (this.isScopeNode(current)) {
+        return current;
+      }
+      current = current.getParent();
+    }
+    return undefined;
+  }
+
+  private hasShadowingDeclaration(scope: Node, variableName: string, originalDeclaration: Node): boolean {
+    let hasShadowing = false;
+    
+    scope.forEachDescendant((child: Node) => {
+      if (this.isAnyDeclaration(child) && 
+          this.hasMatchingIdentifier(child, variableName) &&
+          child !== originalDeclaration &&
+          this.getScope(child) === scope) { // Only direct children of this scope
+        hasShadowing = true;
+      }
+    });
+    
+    return hasShadowing;
   }
 
   private createLocation(node: Node, kind: 'declaration' | 'usage'): VariableLocation {

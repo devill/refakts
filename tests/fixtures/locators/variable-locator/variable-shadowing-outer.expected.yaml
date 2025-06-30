@@ -1,0 +1,17 @@
+variable: value
+declaration:
+  kind: declaration
+  line: 7
+  column: 7
+  text: value = 10
+usages:
+  - kind: usage
+    usageType: read
+    line: 8
+    column: 15
+    text: value
+  - kind: usage
+    usageType: read
+    line: 15
+    column: 15
+    text: value
