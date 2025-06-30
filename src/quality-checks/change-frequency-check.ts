@@ -30,27 +30,37 @@ export const changeFrequencyCheck: QualityCheck = {
 
 const analyzeChangeFrequency = async (): Promise<string[]> => {
   try {
-    const fileChanges = await analyzeFileChangeFrequency();
-    const cohesiveChanges = await analyzeCohesiveChanges();
+    const recentlyChangedFiles = await getRecentlyChangedFiles();
+    if (recentlyChangedFiles.length === 0) return [];
+    
+    const fileChanges = await analyzeFileChangeFrequency(recentlyChangedFiles);
+    const cohesiveChanges = await analyzeCohesiveChanges(recentlyChangedFiles);
     return [...fileChanges, ...cohesiveChanges];
   } catch (error) {
     return [];
   }
 };
 
-const analyzeFileChangeFrequency = async (): Promise<string[]> => {
+const getRecentlyChangedFiles = async (): Promise<string[]> => {
+  const { stdout } = await execAsync('git log --oneline --name-only -2');
+  return stdout.split('\n')
+    .filter(line => line.startsWith('src/'))
+    .filter((file, index, array) => array.indexOf(file) === index);
+};
+
+const analyzeFileChangeFrequency = async (recentlyChangedFiles: string[]): Promise<string[]> => {
   const { stdout } = await execAsync('git log --oneline --name-only -100 | grep "^src/" | sort | uniq -c | sort -nr');
   return stdout.split('\n')
     .filter(line => line.trim())
     .map(line => line.trim().split(/\s+/))
-    .filter(([count]) => parseInt(count) >= 10)
+    .filter(([count, file]) => parseInt(count) >= 10 && recentlyChangedFiles.includes(file))
     .map(([count, file]) => `${file} changed ${count} times in last 100 commits`);
 };
 
-const analyzeCohesiveChanges = async (): Promise<string[]> => {
+const analyzeCohesiveChanges = async (recentlyChangedFiles: string[]): Promise<string[]> => {
   const { stdout } = await execAsync('git log --oneline --name-only -100');
   const commits = stdout.split('\n\n').filter(Boolean);
-  const filePairs = generateFilePairs(commits);
+  const filePairs = generateFilePairs(commits, recentlyChangedFiles);
   const frequentPairs = countFilePairs(filePairs);
   
   return Array.from(frequentPairs.entries())
@@ -58,15 +68,17 @@ const analyzeCohesiveChanges = async (): Promise<string[]> => {
     .map(([pair, count]) => `[${pair}] change together ${count} times`);
 };
 
-const generateFilePairs = (commits: string[]): string[] => {
+const generateFilePairs = (commits: string[], recentlyChangedFiles: string[]): string[] => {
   const pairs: string[] = [];
   
   commits.forEach(commit => {
     const files = commit.split('\n').slice(1).filter(f => f.startsWith('src/'));
     for (let i = 0; i < files.length; i++) {
       for (let j = i + 1; j < files.length; j++) {
-        const pair = [files[i], files[j]].sort().join(', ');
-        pairs.push(pair);
+        if (recentlyChangedFiles.includes(files[i]) || recentlyChangedFiles.includes(files[j])) {
+          const pair = [files[i], files[j]].sort().join(', ');
+          pairs.push(pair);
+        }
       }
     }
   });
