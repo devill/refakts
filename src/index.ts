@@ -1,2 +1,2 @@
-// RefactorEngine has been replaced by individual command classes
-// Commands are auto-discovered from the commands/ folder
+export { RefactoringCommand } from './command';
+export { CommandRegistry } from './command-registry';
