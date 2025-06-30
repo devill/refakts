@@ -72,21 +72,34 @@ function extractCommandLines(lines: string[], startIndex: number): string[] {
 }
 
 function processLinesAfterStart(lines: string[], startIndex: number, commandLines: string[]): void {
+  let currentCommand = '';
   for (let i = startIndex + 1; i < lines.length; i++) {
     const line = lines[i].trim();
     if (shouldStopExtraction(line)) break;
+    
     if (isRefactoringCommand(line)) {
-      commandLines.push(line);
+      if (currentCommand) {
+        commandLines.push(currentCommand);
+      }
+      currentCommand = line;
+    } else if (currentCommand && line && !line.includes('-h, --help')) {
+      // This is a continuation line for the current command description
+      currentCommand += ' ' + line;
     }
+  }
+  
+  if (currentCommand) {
+    commandLines.push(currentCommand);
   }
 }
 
 function shouldStopExtraction(line: string): boolean {
-  return line === '' || line.startsWith('Available refactoring commands:');
+  return line === '' || line.startsWith('Available refactoring commands:') || 
+         line.includes('help [command]');
 }
 
 function isRefactoringCommand(line: string): boolean {
-  return line.includes('[options]') && (line.includes('inline-variable') || line.includes('node-finding'));
+  return line.includes('[options]') && !line.includes('help [command]');
 }
 
 function formatCommandsForMarkdown(commandLines: string[]): string {

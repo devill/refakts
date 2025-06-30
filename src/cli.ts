@@ -38,4 +38,19 @@ async function executeRefactoringCommand(command: any, file: string, options: an
   }
 }
 
+// Handle special case of --help <command> by reordering arguments
+const args = process.argv.slice(2);
+const helpIndex = args.findIndex(arg => arg === '--help');
+const commandIndex = args.findIndex(arg => 
+  commandRegistry.getAllCommands().some(cmd => cmd.name === arg)
+);
+
+if (helpIndex !== -1 && commandIndex !== -1 && helpIndex < commandIndex) {
+  // Reorder to <command> --help format
+  const command = args[commandIndex];
+  const newArgs = args.filter((_, i) => i !== helpIndex && i !== commandIndex);
+  newArgs.unshift(command, '--help');
+  process.argv = ['node', 'cli.ts', ...newArgs];
+}
+
 program.parse();
