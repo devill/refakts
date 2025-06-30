@@ -69,7 +69,12 @@ export class QualityReporter {
   }
 
   private getBasicGroupKey(issue: QualityIssue): string {
-    const keyMap = {
+    const keyMap = this.createKeyMap();
+    return keyMap[issue.type as keyof typeof keyMap] || 'other';
+  }
+
+  private createKeyMap() {
+    return {
       'comment': 'comments',
       'unusedMethod': 'unusedMethods',
       'duplication': 'duplication',
@@ -79,8 +84,6 @@ export class QualityReporter {
       'cohesiveChange': 'cohesiveChange',
       'incompleteRefactoring': 'incompleteRefactoring'
     };
-
-    return keyMap[issue.type as keyof typeof keyMap] || 'other';
   }
 
   private createGroup(issue: QualityIssue): QualityGroup {
@@ -96,18 +99,36 @@ export class QualityReporter {
 
   private createGroupCreatorsMap() {
     return {
+      ...this.getBasicCreators(),
+      ...this.getSizeCreators(),
+      ...this.getQualityCreators()
+    };
+  }
+
+  private getBasicCreators() {
+    return {
       'comments': () => this.createCommentsGroup(),
+      'unusedMethods': () => this.createUnusedMethodsGroup(),
+      'incompleteRefactoring': () => this.createIncompleteRefactoringGroup()
+    };
+  }
+
+  private getSizeCreators() {
+    return {
       'criticalFiles': () => this.createCriticalFilesGroup(),
       'largeFiles': () => this.createLargeFilesGroup(),
       'criticalFunctions': () => this.createCriticalFunctionsGroup(),
-      'largeFunctions': () => this.createLargeFunctionsGroup(),
-      'unusedMethods': () => this.createUnusedMethodsGroup(),
+      'largeFunctions': () => this.createLargeFunctionsGroup()
+    };
+  }
+
+  private getQualityCreators() {
+    return {
       'duplication': () => this.createDuplicationGroup(),
       'complexity': () => this.createComplexityGroup(),
       'diffSize': () => this.createDiffSizeGroup(),
       'changeFrequency': () => this.createChangeFrequencyGroup(),
-      'cohesiveChange': () => this.createCohesiveChangeGroup(),
-      'incompleteRefactoring': () => this.createIncompleteRefactoringGroup()
+      'cohesiveChange': () => this.createCohesiveChangeGroup()
     };
   }
 
