@@ -1,5 +1,6 @@
 import * as ts from 'typescript';
 import { Project, Node, SourceFile } from 'ts-morph';
+import { SourceFileHelper } from './source-file-helper';
 
 export interface VariableLocation {
   kind: 'declaration' | 'usage';
@@ -58,21 +59,13 @@ export class VariableLocator {
   }
 
   private findDeclaration(sourceFile: SourceFile, variableName: string): Node | undefined {
-    let declaration: Node | undefined;
-    
-    sourceFile.forEachDescendant((node: Node) => {
-      if (this.isVariableDeclaration(node, variableName)) {
-        declaration = node;
-        return true;
-      }
-      
-      if (this.isParameterDeclaration(node, variableName)) {
-        declaration = node;
-        return true;
-      }
-    });
-    
-    return declaration;
+    return SourceFileHelper.findDescendant(sourceFile, 
+      node => this.isMatchingDeclaration(node, variableName));
+  }
+
+  private isMatchingDeclaration(node: Node, variableName: string): boolean {
+    return this.isVariableDeclaration(node, variableName) || 
+           this.isParameterDeclaration(node, variableName);
   }
 
   private isVariableDeclaration(node: Node, variableName: string): boolean {
