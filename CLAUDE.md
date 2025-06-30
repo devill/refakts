@@ -106,21 +106,25 @@ npm run quality:watch:status # Check watcher status
 **Long-term vision** for a more composable and testable architecture:
 
 1. **Locators**: Objects/methods that find declarations and usages across files ✅
-   - ✅ VariableLocator implemented with usage type detection
+   - ✅ VariableLocator returns actual Node objects for robust transformation pipelines
    - ✅ SourceFileHelper for missing ts-morph functionality
+   - ✅ Location data (line/column) only for testing - transformations use Node objects
    - 🔄 Future: `FunctionLocator`, `ClassLocator`, `ImportLocator`
 
-2. **Transformations**: Method objects that modify AST and pass to next transformation
-   - Each refactoring becomes a pipeline of simple transformations
+2. **Transformations**: Method objects that modify AST and pass to next transformation ✅
+   - ✅ Constructor-based configuration with Node objects (no builders needed)
+   - ✅ Each transformation works directly with Node references
+   - ✅ ts-morph automatically tracks node validity as transformations execute
    - Composable and reusable building blocks
    - Individual testing without full refactoring context
 
-3. **Builders**: Objects that construct transformation pipelines
-   - Take arguments and return configured transformations
-   - Enable complex refactorings from simple components
-   - Consistent interfaces across all refactoring types
+3. **Node-Based Architecture Benefits**:
+   - **Robustness**: Node references remain valid as ts-morph tracks AST changes
+   - **Performance**: No need to re-search for nodes during transformation pipelines
+   - **Composability**: Pass nodes between transformations without position recalculation
+   - **Testing**: Tests convert nodes to positions for comparison, transformations use nodes directly
 
-**Implementation approach**: ✅ Locators complete, next focus on Transformations as refactoring complexity grows.
+**Implementation approach**: ✅ Locators and Transformations architecturally complete, focus on expanding functionality.
 
 ### Development Workflow
 

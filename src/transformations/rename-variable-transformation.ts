@@ -1,15 +1,11 @@
 import { SourceFile, Node } from 'ts-morph';
 import { Transformation, TransformationResult } from './transformation';
-import { VariableLocator, VariableLocationResult } from '../locators/variable-locator';
+import { VariableLocator, VariableNodeResult } from '../locators/variable-locator';
 
-/**
- * Transformation that renames a specific variable declaration and all its usages within the same scope.
- */
 export class RenameVariableTransformation implements Transformation {
-  private variableLocator = new VariableLocator();
-
   constructor(
-    private readonly targetNode: Node,
+    private readonly declaration: Node,
+    private readonly usages: Node[],
     private readonly newName: string
   ) {}
 
@@ -22,74 +18,54 @@ export class RenameVariableTransformation implements Transformation {
 
   async transformWithResult(sourceFile: SourceFile): Promise<TransformationResult> {
     try {
-      const variableName = this.targetNode.getText();
-      
-      // Write the source file to a temporary location so VariableLocator can read it
-      const filePath = sourceFile.getFilePath();
-      await sourceFile.save();
-      
-      // Get the position of the target node to find the specific declaration
-      const targetPosition = sourceFile.getLineAndColumnAtPos(this.targetNode.getStart());
-      
-      const locationResult = await this.variableLocator.findVariableByPosition(
-        filePath,
-        targetPosition.line,
-        targetPosition.column
-      );
-
-      const changesCount = this.performRename(sourceFile, locationResult);
-
-      return {
-        success: true,
-        changesCount,
-        message: `Renamed ${changesCount} occurrences of '${variableName}' to '${this.newName}'`
-      };
+      const variableName = this.declaration.getText();
+      const changesCount = this.performDirectRename();
+      return this.buildSuccessResult(variableName, changesCount);
     } catch (error) {
-      return {
-        success: false,
-        changesCount: 0,
-        message: error instanceof Error ? error.message : 'Unknown error during rename'
-      };
+      return this.buildErrorResult(error);
     }
   }
 
-  private performRename(sourceFile: SourceFile, locationResult: VariableLocationResult): number {
+  private performDirectRename(): number {
     let changesCount = 0;
-
-    // Rename declaration
-    const declarationNode = this.findNodeAtPosition(
-      sourceFile,
-      locationResult.declaration.line,
-      locationResult.declaration.column
-    );
-    if (declarationNode) {
-      declarationNode.replaceWithText(this.newName);
+    
+    const declarationIdentifier = this.findIdentifierInNode(this.declaration);
+    if (declarationIdentifier) {
+      declarationIdentifier.replaceWithText(this.newName);
       changesCount++;
     }
-
-    // Rename all usages
-    for (const usage of locationResult.usages) {
-      const usageNode = this.findNodeAtPosition(sourceFile, usage.line, usage.column);
-      if (usageNode) {
-        usageNode.replaceWithText(this.newName);
+    
+    for (const usage of this.usages) {
+      const usageIdentifier = this.findIdentifierInNode(usage);
+      if (usageIdentifier) {
+        usageIdentifier.replaceWithText(this.newName);
         changesCount++;
       }
     }
-
+    
     return changesCount;
   }
-
-  private findNodeAtPosition(sourceFile: SourceFile, line: number, column: number): Node | undefined {
-    // Convert 1-based line/column to 0-based position
-    const position = sourceFile.compilerNode.getPositionOfLineAndCharacter(line - 1, column - 1);
-    const node = sourceFile.getDescendantAtPos(position);
-    
-    // Find the identifier node if we're at a different kind of node
-    if (node?.getKind() === 80) { // SyntaxKind.Identifier
+  
+  private findIdentifierInNode(node: Node): Node | undefined {
+    if (node.getKind() === 80) {
       return node;
     }
-    
-    // If not an identifier, try to find an identifier child
-    return node?.getFirstChildByKind(80); // SyntaxKind.Identifier
+    return node.getFirstDescendantByKind(80);
+  }
+
+  private buildSuccessResult(variableName: string, changesCount: number): TransformationResult {
+    return {
+      success: true,
+      changesCount,
+      message: `Renamed ${changesCount} occurrences of '${variableName}' to '${this.newName}'`
+    };
+  }
+  
+  private buildErrorResult(error: unknown): TransformationResult {
+    return {
+      success: false,
+      changesCount: 0,
+      message: error instanceof Error ? error.message : 'Unknown error during rename'
+    };
   }
 }

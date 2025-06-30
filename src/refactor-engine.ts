@@ -6,6 +6,7 @@ import { ExpressionAnalyzer } from './expression-analyzer';
 import { VariableReplacer } from './variable-replacer';
 import { VariableScope } from './variable-scope';
 import { RenameVariableTransformation } from './transformations/rename-variable-transformation';
+import { VariableLocator } from './locators/variable-locator';
 
 export class RefactorEngine {
   private project: Project;
@@ -14,9 +15,11 @@ export class RefactorEngine {
   private expressionAnalyzer = new ExpressionAnalyzer();
   private variableReplacer = new VariableReplacer();
   private variableScope = new VariableScope();
+  private variableLocator: VariableLocator;
 
   constructor() {
     this.project = new Project();
+    this.variableLocator = new VariableLocator(this.project);
   }
 
   async inlineVariableByQuery(filePath: string, query: string): Promise<void> {
@@ -47,7 +50,18 @@ export class RefactorEngine {
     this.validateIdentifierNode(node);
     const sourceFile = node.getSourceFile();
     
-    const transformation = new RenameVariableTransformation(node, newName);
+    const targetPosition = sourceFile.getLineAndColumnAtPos(node.getStart());
+    const nodeResult = this.variableLocator.findVariableNodesByPositionSync(
+      sourceFile,
+      targetPosition.line,
+      targetPosition.column
+    );
+    
+    const transformation = new RenameVariableTransformation(
+      nodeResult.declaration,
+      nodeResult.usages.map(u => u.node),
+      newName
+    );
     await transformation.transform(sourceFile);
   }
 

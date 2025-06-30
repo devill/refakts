@@ -19,14 +19,20 @@ export interface VariableLocationResult {
   usages: VariableLocation[];
 }
 
+export interface VariableNodeResult {
+  variable: string;
+  declaration: Node;
+  usages: Array<{node: Node; usageType: 'read' | 'write' | 'update'}>;
+}
+
 export class VariableLocator {
   private project: Project;
   private shadowingDetector = new ShadowingDetector();
   private usageTypeDetector = new UsageTypeDetector();
   private positionFinder = new PositionFinder();
 
-  constructor() {
-    this.project = new Project({
+  constructor(project?: Project) {
+    this.project = project || new Project({
       useInMemoryFileSystem: true,
       compilerOptions: {
         target: ts.ScriptTarget.ES2020,
@@ -43,6 +49,14 @@ export class VariableLocator {
     return this.buildLocationResult(variableName, declaration, usages);
   }
 
+  async findVariableNodes(filePath: string, variableName: string): Promise<VariableNodeResult> {
+    const sourceFile = this.loadSourceFile(filePath);
+    const declaration = this.getDeclarationOrThrow(sourceFile, variableName);
+    const usages = this.findUsages(sourceFile, variableName, declaration);
+    
+    return this.buildNodeResult(variableName, declaration, usages);
+  }
+
   async findVariableByPosition(filePath: string, line: number, column: number): Promise<VariableLocationResult> {
     const sourceFile = this.loadSourceFile(filePath);
     const declaration = this.positionFinder.getDeclarationAtPosition(sourceFile, line, column);
@@ -50,6 +64,23 @@ export class VariableLocator {
     const usages = this.findUsages(sourceFile, variableName, declaration);
     
     return this.buildLocationResult(variableName, declaration, usages);
+  }
+
+  async findVariableNodesByPosition(filePath: string, line: number, column: number): Promise<VariableNodeResult> {
+    const sourceFile = this.loadSourceFile(filePath);
+    const declaration = this.positionFinder.getDeclarationAtPosition(sourceFile, line, column);
+    const variableName = this.getVariableName(declaration);
+    const usages = this.findUsages(sourceFile, variableName, declaration);
+    
+    return this.buildNodeResult(variableName, declaration, usages);
+  }
+
+  findVariableNodesByPositionSync(sourceFile: SourceFile, line: number, column: number): VariableNodeResult {
+    const declaration = this.positionFinder.getDeclarationAtPosition(sourceFile, line, column);
+    const variableName = this.getVariableName(declaration);
+    const usages = this.findUsages(sourceFile, variableName, declaration);
+    
+    return this.buildNodeResult(variableName, declaration, usages);
   }
 
   private loadSourceFile(filePath: string): SourceFile {
@@ -79,6 +110,17 @@ export class VariableLocator {
       variable: variableName,
       declaration: this.createLocation(declaration, 'declaration'),
       usages: usages.map(usage => this.createUsageLocation(usage))
+    };
+  }
+
+  private buildNodeResult(variableName: string, declaration: Node, usages: Node[]): VariableNodeResult {
+    return {
+      variable: variableName,
+      declaration,
+      usages: usages.map(usage => ({
+        node: usage,
+        usageType: this.usageTypeDetector.determineUsageType(usage)
+      }))
     };
   }
 
