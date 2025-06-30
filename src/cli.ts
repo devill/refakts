@@ -19,16 +19,19 @@ for (const command of commandRegistry.getAllCommands()) {
     .description(command.description + warningText)
     .argument('<file>', 'TypeScript file to refactor');
   
-  // Add command-specific options
-  for (const option of command.getOptions()) {
-    cmd.option(option.flags, option.description);
-  }
+  addCommandOptions(cmd, command);
   
   cmd
     .addHelpText('after', command.getHelpText())
     .action(async (file: string, options) => {
       await executeRefactoringCommand(command, file, options);
     });
+}
+
+function addCommandOptions(cmd: any, command: any): void {
+  for (const option of command.getOptions()) {
+    cmd.option(option.flags, option.description);
+  }
 }
 
 async function executeRefactoringCommand(command: any, file: string, options: any): Promise<void> {

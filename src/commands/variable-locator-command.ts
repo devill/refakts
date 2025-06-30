@@ -41,19 +41,31 @@ export class VariableLocatorCommand implements RefactoringCommand {
 
   getOptions(): CommandOption[] {
     return [
-      {
-        flags: '--query <selector>',
-        description: 'Target identifier or expression to locate'
-      },
-      {
-        flags: '--line <number>',
-        description: 'Line number to target variable declaration'
-      },
-      {
-        flags: '--column <number>',
-        description: 'Column number to target variable declaration'
-      }
+      this.createQueryOption(),
+      this.createLineOption(),
+      this.createColumnOption()
     ];
+  }
+
+  private createQueryOption(): CommandOption {
+    return {
+      flags: '--query <selector>',
+      description: 'Target identifier or expression to locate'
+    };
+  }
+
+  private createLineOption(): CommandOption {
+    return {
+      flags: '--line <number>',
+      description: 'Line number to target variable declaration'
+    };
+  }
+
+  private createColumnOption(): CommandOption {
+    return {
+      flags: '--column <number>',
+      description: 'Column number to target variable declaration'
+    };
   }
 
   private async executeLocatorOperation(file: string, options: any, locator: VariableLocator) {

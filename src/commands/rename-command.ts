@@ -41,15 +41,23 @@ export class RenameCommand implements RefactoringCommand {
 
   getOptions(): CommandOption[] {
     return [
-      {
-        flags: '--query <selector>',
-        description: 'Target identifier or expression to refactor'
-      },
-      {
-        flags: '--to <newName>',
-        description: 'New name for rename operations'
-      }
+      this.createQueryOption(),
+      this.createToOption()
     ];
+  }
+
+  private createQueryOption(): CommandOption {
+    return {
+      flags: '--query <selector>',
+      description: 'Target identifier or expression to refactor'
+    };
+  }
+
+  private createToOption(): CommandOption {
+    return {
+      flags: '--to <newName>',
+      description: 'New name for rename operations'
+    };
   }
 
   private loadSourceFile(filePath: string) {
