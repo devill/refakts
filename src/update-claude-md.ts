@@ -74,14 +74,18 @@ function extractCommandLines(lines: string[], startIndex: number): string[] {
 function processLinesAfterStart(lines: string[], startIndex: number, commandLines: string[]): void {
   let currentCommand = '';
   
+  currentCommand = processCommandLines(lines, startIndex, currentCommand, commandLines);
+  addFinalCommand(currentCommand, commandLines);
+}
+
+function processCommandLines(lines: string[], startIndex: number, currentCommand: string, commandLines: string[]): string {
   for (let i = startIndex + 1; i < lines.length; i++) {
     const line = lines[i].trim();
     if (shouldStopExtraction(line)) break;
     
     currentCommand = processCommandLine(line, currentCommand, commandLines);
   }
-  
-  addFinalCommand(currentCommand, commandLines);
+  return currentCommand;
 }
 
 function processCommandLine(line: string, currentCommand: string, commandLines: string[]): string {

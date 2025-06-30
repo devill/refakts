@@ -14,6 +14,10 @@ export function isCheckSnoozed(checkType: string, identifier: string): boolean {
   const snoozeData = loadSnoozeData();
   const checkSnoozes = snoozeData[checkType];
   
+  return validateSnoozeStatus(checkSnoozes, identifier);
+}
+
+function validateSnoozeStatus(checkSnoozes: any, identifier: string): boolean {
   if (!hasActiveSnooze(checkSnoozes, identifier)) {
     return false;
   }
@@ -63,16 +67,25 @@ function removeExpiredSnoozes(snoozeData: SnoozeRecord): boolean {
 }
 
 function cleanupCheckType(snoozeData: SnoozeRecord, checkType: string): boolean {
+  const hasChanges = removeExpiredIdentifiers(snoozeData, checkType);
+  return cleanupEmptyCheckType(snoozeData, checkType) || hasChanges;
+}
+
+function removeExpiredIdentifiers(snoozeData: SnoozeRecord, checkType: string): boolean {
   let hasChanges = false;
   
+  hasChanges = processIdentifiersForExpiration(snoozeData, checkType, hasChanges);
+  return hasChanges;
+}
+
+function processIdentifiersForExpiration(snoozeData: SnoozeRecord, checkType: string, hasChanges: boolean): boolean {
   for (const identifier in snoozeData[checkType]) {
     if (isSnoozeExpired(snoozeData[checkType][identifier])) {
       delete snoozeData[checkType][identifier];
       hasChanges = true;
     }
   }
-  
-  return cleanupEmptyCheckType(snoozeData, checkType) || hasChanges;
+  return hasChanges;
 }
 
 function isSnoozeExpired(snoozeTimestamp: number): boolean {
@@ -88,13 +101,22 @@ function cleanupEmptyCheckType(snoozeData: SnoozeRecord, checkType: string): boo
 }
 
 function loadSnoozeData(): SnoozeRecord {
+  return readSnoozeFile();
+}
+
+function readSnoozeFile(): SnoozeRecord {
   try {
-    if (fs.existsSync(SNOOZE_FILE_PATH)) {
-      const data = fs.readFileSync(SNOOZE_FILE_PATH, 'utf8');
-      return JSON.parse(data);
-    }
+    return attemptFileRead();
   } catch (error) {
     console.warn('Failed to load snooze data:', error);
+    return {};
+  }
+}
+
+function attemptFileRead(): SnoozeRecord {
+  if (fs.existsSync(SNOOZE_FILE_PATH)) {
+    const data = fs.readFileSync(SNOOZE_FILE_PATH, 'utf8');
+    return JSON.parse(data);
   }
   return {};
 }
