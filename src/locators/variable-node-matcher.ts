@@ -15,13 +15,17 @@ export class VariableNodeMatcher {
     const usages: Node[] = [];
     const declarationIdentifier = this.getDeclarationIdentifier(declaration);
     
+    this.collectUsages(sourceFile, usages, variableName, declarationIdentifier, declaration);
+    
+    return usages;
+  }
+
+  private collectUsages(sourceFile: SourceFile, usages: Node[], variableName: string, declarationIdentifier: Node | undefined, declaration: Node): void {
     sourceFile.forEachDescendant((node: Node) => {
       if (this.isValidUsage(node, variableName, declarationIdentifier, declaration)) {
         usages.push(node);
       }
     });
-    
-    return usages;
   }
 
   getVariableName(declaration: Node): string {

@@ -12,13 +12,21 @@ export class VariableLocatorCommand implements RefactoringCommand {
     this.validateOptions(options);
     
     try {
-      const locator = new VariableLocator();
-      const result = await this.executeLocatorOperation(file, options, locator);
+      const result = await this.performLocatorOperation(file, options);
       console.log(yaml.dump(result, { indent: 2 }));
     } catch (error) {
-      console.error('Error:', error);
-      process.exit(1);
+      this.handleExecutionError(error);
     }
+  }
+
+  private async performLocatorOperation(file: string, options: Record<string, any>) {
+    const locator = new VariableLocator();
+    return await this.executeLocatorOperation(file, options, locator);
+  }
+
+  private handleExecutionError(error: unknown): void {
+    console.error('Error:', error);
+    process.exit(1);
   }
 
   validateOptions(options: Record<string, any>): void {

@@ -42,15 +42,28 @@ export class RenameVariableTransformation implements Transformation {
   }
 
   private renameUsages(): number {
+    return this.renameAllUsageNodes();
+  }
+
+  private renameAllUsageNodes(): number {
+    return this.processUsageNodes();
+  }
+
+  private processUsageNodes(): number {
     let changesCount = 0;
     for (const usage of this.usages) {
-      const usageIdentifier = this.findIdentifierInNode(usage);
-      if (usageIdentifier) {
-        usageIdentifier.replaceWithText(this.newName);
-        changesCount++;
-      }
+      if (this.renameUsageNode(usage)) changesCount++;
     }
     return changesCount;
+  }
+
+  private renameUsageNode(usage: Node): boolean {
+    const usageIdentifier = this.findIdentifierInNode(usage);
+    if (usageIdentifier) {
+      usageIdentifier.replaceWithText(this.newName);
+      return true;
+    }
+    return false;
   }
   
   private findIdentifierInNode(node: Node): Node | undefined {

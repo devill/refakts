@@ -16,6 +16,10 @@ export class CommandRegistry {
       return;
     }
 
+    this.loadAllCommandFiles(commandsDir);
+  }
+
+  private loadAllCommandFiles(commandsDir: string): void {
     const commandFiles = this.getCommandFiles(commandsDir);
     for (const file of commandFiles) {
       this.loadCommand(commandsDir, file);

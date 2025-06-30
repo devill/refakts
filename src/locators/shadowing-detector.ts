@@ -21,6 +21,10 @@ export class ShadowingDetector {
     if (!variableName) return false;
     
     const scopes = this.getScopes(usage, declaration);
+    return this.checkForShadowing(scopes, variableName, declaration);
+  }
+
+  private checkForShadowing(scopes: {usage: Node, declaration: Node}, variableName: string, declaration: Node): boolean {
     if (scopes.usage === scopes.declaration) {
       return false;
     }

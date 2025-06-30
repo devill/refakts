@@ -8,20 +8,26 @@ export class UsageTypeDetector {
   }
 
   private classifyUsageByParent(parent: Node | undefined, node: Node): 'read' | 'write' | 'update' {
-    if (this.isWriteContext(parent, node)) {
-      return 'write';
-    }
-    
-    if (this.isUpdateContext(parent, node)) {
-      return 'update';
-    }
-    
+    return this.determineUsageFromContext(parent, node);
+  }
+
+  private determineUsageFromContext(parent: Node | undefined, node: Node): 'read' | 'write' | 'update' {
+    return this.getUsageTypeFromContext(parent, node);
+  }
+
+  private getUsageTypeFromContext(parent: Node | undefined, node: Node): 'read' | 'write' | 'update' {
+    if (this.isWriteContext(parent, node)) return 'write';
+    if (this.isUpdateContext(parent, node)) return 'update';
     return 'read';
   }
 
   private isWriteContext(parent: Node | undefined, node: Node): boolean {
     if (!parent) return false;
     
+    return this.isAssignmentExpression(parent, node);
+  }
+
+  private isAssignmentExpression(parent: Node, node: Node): boolean {
     if (parent.getKind() === ts.SyntaxKind.BinaryExpression) {
       const binaryExpr = parent as any;
       return this.isAssignmentOperator(binaryExpr) &&
