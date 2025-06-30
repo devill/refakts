@@ -16,27 +16,33 @@ export class CommandRegistry {
       return;
     }
 
-    const commandFiles = fs.readdirSync(commandsDir)
-      .filter(file => file.endsWith('.ts') || file.endsWith('.js'))
-      .filter(file => !file.endsWith('.d.ts'));
-
+    const commandFiles = this.getCommandFiles(commandsDir);
     for (const file of commandFiles) {
       this.loadCommand(commandsDir, file);
     }
+  }
+
+  private getCommandFiles(commandsDir: string): string[] {
+    return fs.readdirSync(commandsDir)
+      .filter(file => file.endsWith('.ts') || file.endsWith('.js'))
+      .filter(file => !file.endsWith('.d.ts'));
   }
 
   private loadCommand(commandsDir: string, file: string): void {
     try {
       const commandPath = path.join(commandsDir, file);
       const commandModule = require(commandPath);
-      const commandClass = this.findCommandClass(commandModule);
-      
-      if (commandClass) {
-        const command = new commandClass();
-        this.commands.set(command.name, command);
-      }
+      this.registerCommandFromModule(commandModule);
     } catch (error) {
       console.warn(`Failed to load command from ${file}:`, error);
+    }
+  }
+
+  private registerCommandFromModule(commandModule: any): void {
+    const commandClass = this.findCommandClass(commandModule);
+    if (commandClass) {
+      const command = new commandClass();
+      this.commands.set(command.name, command);
     }
   }
 
