@@ -38,19 +38,33 @@ async function executeRefactoringCommand(command: any, file: string, options: an
   }
 }
 
-// Handle special case of --help <command> by reordering arguments
-const args = process.argv.slice(2);
-const helpIndex = args.findIndex(arg => arg === '--help');
-const commandIndex = args.findIndex(arg => 
-  commandRegistry.getAllCommands().some(cmd => cmd.name === arg)
-);
+function reorderHelpCommandArguments(): void {
+  const args = process.argv.slice(2);
+  const helpIndex = args.findIndex(arg => arg === '--help');
+  const commandIndex = findCommandArgumentIndex(args);
 
-if (helpIndex !== -1 && commandIndex !== -1 && helpIndex < commandIndex) {
-  // Reorder to <command> --help format
-  const command = args[commandIndex];
-  const newArgs = args.filter((_, i) => i !== helpIndex && i !== commandIndex);
-  newArgs.unshift(command, '--help');
-  process.argv = ['node', 'cli.ts', ...newArgs];
+  if (shouldReorderArguments(helpIndex, commandIndex)) {
+    const reorderedArgs = createReorderedArguments(args, helpIndex, commandIndex);
+    process.argv = ['node', 'cli.ts', ...reorderedArgs];
+  }
 }
+
+function findCommandArgumentIndex(args: string[]): number {
+  return args.findIndex(arg => 
+    commandRegistry.getAllCommands().some(cmd => cmd.name === arg)
+  );
+}
+
+function shouldReorderArguments(helpIndex: number, commandIndex: number): boolean {
+  return helpIndex !== -1 && commandIndex !== -1 && helpIndex < commandIndex;
+}
+
+function createReorderedArguments(args: string[], helpIndex: number, commandIndex: number): string[] {
+  const command = args[commandIndex];
+  const filteredArgs = args.filter((_, i) => i !== helpIndex && i !== commandIndex);
+  return [command, '--help', ...filteredArgs];
+}
+
+reorderHelpCommandArguments();
 
 program.parse();

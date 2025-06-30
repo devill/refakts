@@ -29,6 +29,10 @@ npm run quality              # Run all quality checks
 npm run quality:watch        # Start 2-minute quality watcher
 npm run quality:watch:stop   # Stop quality watcher
 npm run quality:watch:status # Check watcher status
+
+# Snooze quality alerts (24 hours)
+npm run snooze incomplete <command>  # Snooze incomplete refactoring alerts
+npm run snooze clear                 # Clear expired snoozes
 ```
 
 ## Startup Behavior

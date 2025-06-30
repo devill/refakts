@@ -73,21 +73,36 @@ function extractCommandLines(lines: string[], startIndex: number): string[] {
 
 function processLinesAfterStart(lines: string[], startIndex: number, commandLines: string[]): void {
   let currentCommand = '';
+  
   for (let i = startIndex + 1; i < lines.length; i++) {
     const line = lines[i].trim();
     if (shouldStopExtraction(line)) break;
     
-    if (isRefactoringCommand(line)) {
-      if (currentCommand) {
-        commandLines.push(currentCommand);
-      }
-      currentCommand = line;
-    } else if (currentCommand && line && !line.includes('-h, --help')) {
-      // This is a continuation line for the current command description
-      currentCommand += ' ' + line;
-    }
+    currentCommand = processCommandLine(line, currentCommand, commandLines);
   }
   
+  addFinalCommand(currentCommand, commandLines);
+}
+
+function processCommandLine(line: string, currentCommand: string, commandLines: string[]): string {
+  if (isRefactoringCommand(line)) {
+    return startNewCommand(line, currentCommand, commandLines);
+  } else if (isCommandDescriptionContinuation(currentCommand, line)) {
+    return extendCurrentCommand(currentCommand, line);
+  }
+  return currentCommand;
+}
+
+function startNewCommand(line: string, currentCommand: string, commandLines: string[]): string {
+  addFinalCommand(currentCommand, commandLines);
+  return line;
+}
+
+function extendCurrentCommand(currentCommand: string, line: string): string {
+  return currentCommand + ' ' + line;
+}
+
+function addFinalCommand(currentCommand: string, commandLines: string[]): void {
   if (currentCommand) {
     commandLines.push(currentCommand);
   }
@@ -100,6 +115,10 @@ function shouldStopExtraction(line: string): boolean {
 
 function isRefactoringCommand(line: string): boolean {
   return line.includes('[options]') && !line.includes('help [command]');
+}
+
+function isCommandDescriptionContinuation(currentCommand: string, line: string): boolean {
+  return Boolean(currentCommand) && Boolean(line) && !line.includes('-h, --help');
 }
 
 function formatCommandsForMarkdown(commandLines: string[]): string {

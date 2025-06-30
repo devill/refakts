@@ -1,11 +1,14 @@
 import { QualityCheck, QualityIssue, QualityGroup } from '../quality-tools/quality-check-interface';
 import { getIncompleteRefactorings } from '../cli-generator';
+import { isCheckSnoozed, clearExpiredSnoozes } from '../quality-tools/snooze-tracker';
 
 export const incompleteRefactoringCheck: QualityCheck = {
   name: 'incompleteRefactoring',
   check: (sourceDir: string): QualityIssue[] => {
+    clearExpiredSnoozes();
     const incompleteRefactorings = getIncompleteRefactorings();
-    return incompleteRefactorings.length > 0 ? [createIncompleteIssue(incompleteRefactorings)] : [];
+    const activelySnoozedRefactorings = filterSnoozedRefactorings(incompleteRefactorings);
+    return activelySnoozedRefactorings.length > 0 ? [createIncompleteIssue(activelySnoozedRefactorings)] : [];
   },
   getGroupDefinition: (groupKey: string) => groupKey === 'incompleteRefactoring' ? {
     title: 'INCOMPLETE REFACTORINGS',
@@ -13,6 +16,10 @@ export const incompleteRefactoringCheck: QualityCheck = {
     actionGuidance: 'Test these refactorings on files outside fixtures and update completion status.'
   } : undefined
 };
+
+function filterSnoozedRefactorings(refactorings: string[]): string[] {
+  return refactorings.filter(refactoring => !isCheckSnoozed('incompleteRefactoring', refactoring));
+}
 
 const createIncompleteIssue = (refactorings: string[]): QualityIssue => ({
   type: 'incompleteRefactoring',
