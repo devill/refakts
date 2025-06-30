@@ -62,9 +62,6 @@ export class CommandRegistry {
            'execute' in exportValue.prototype;
   }
 
-  get(name: string): RefactoringCommand | undefined {
-    return this.commands.get(name);
-  }
 
   getAllCommands(): RefactoringCommand[] {
     return Array.from(this.commands.values());

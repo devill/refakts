@@ -91,22 +91,3 @@ function createCommentIssue(filePath: string, comment: any, text: string, type: 
     type: type
   };
 }
-
-if (require.main === module) {
-  const srcDir = process.argv[2] || 'src';
-  const issues = findComments(srcDir);
-  
-  if (issues.length === 0) {
-    console.log('✅ No explanatory comments found');
-    process.exit(0);
-  }
-  
-  console.log(`❌ Found ${issues.length} explanatory comments:`);
-  for (const issue of issues) {
-    console.log(`  ${issue.file}:${issue.line} - ${issue.text}`);
-  }
-  
-  console.log('\n👧🏻💬 **NEVER** use comments to explain code, the code should speak for itself. Extract complex logic into well-named functions instead of explaining with comments. Remove **ALL** comments unless they impact functionality');
-  
-  process.exit(1);
-}

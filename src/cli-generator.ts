@@ -1,12 +1,5 @@
 import { CommandRegistry } from './command-registry';
 
-export function generateHelpText(): string {
-  const commandRegistry = new CommandRegistry();
-  const commands = commandRegistry.getAllCommands();
-  
-  const commandLines = buildCommandLines(commands);
-  return formatHelpText(commandLines);
-}
 
 function buildCommandLines(commands: any[]): string[] {
   return commands.map(command => {

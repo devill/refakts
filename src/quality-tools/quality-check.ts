@@ -5,7 +5,6 @@ import { promisify } from 'util';
 import { findComments } from './comment-detector';
 import { checkFileSizes, checkFunctionSizes } from './file-size-checker';
 import { checkGitDiffSize } from './git-diff-checker';
-import { checkUnusedMethods } from './unused-method-checker';
 import { checkChangeFrequency } from './change-frequency-checker';
 import { QualityReporter, QualityIssue } from './quality-reporter';
 import { getIncompleteRefactorings } from '../cli-generator';
@@ -104,7 +103,7 @@ async function addAllIssues(reporter: QualityReporter): Promise<void> {
   addCommentIssues(reporter);
   addFileSizeIssues(reporter);
   addFunctionSizeIssues(reporter);
-  addUnusedMethodIssues(reporter);
+  await addUnusedMethodIssues(reporter);
   await addDiffSizeIssues(reporter);
   await addChangeFrequencyIssues(reporter);
   addIncompleteRefactoringReminder(reporter);
@@ -162,13 +161,27 @@ function addFunctionSizeIssues(reporter: QualityReporter): void {
   }
 }
 
-function addUnusedMethodIssues(reporter: QualityReporter): void {
-  const unusedMethods = checkUnusedMethods('src');
-  for (const issue of unusedMethods) {
+async function addUnusedMethodIssues(reporter: QualityReporter): Promise<void> {
+  try {
+    const unusedMembers = await getUnusedClassMembers();
+    addUnusedMemberIssues(unusedMembers, reporter);
+  } catch (error) {
+    // Knip not available or failed, skip unused method checking
+  }
+}
+
+async function getUnusedClassMembers(): Promise<any[]> {
+  const { stdout } = await execAsync('npx knip --include classMembers --reporter json');
+  const results = JSON.parse(stdout);
+  return results.issues?.classMembers || [];
+}
+
+function addUnusedMemberIssues(unusedMembers: any[], reporter: QualityReporter): void {
+  for (const member of unusedMembers) {
     reporter.addIssue({
       type: 'unusedMethod',
       severity: 'critical',
-      message: `Unused private method '${issue.method}' in ${issue.file} at line ${issue.line}`
+      message: `Unused method '${member.name}' in ${member.file}`
     });
   }
 }

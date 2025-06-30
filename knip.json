@@ -1,0 +1,16 @@
+{
+  "entry": [
+    "src/cli.ts",
+    "src/index.ts"
+  ],
+  "project": [
+    "src/**/*.ts"
+  ],
+  "ignore": [
+    "tests/fixtures/**",
+    "src/commands/**"
+  ],
+  "ignoreDependencies": [
+    "complexity-report"
+  ]
+}
