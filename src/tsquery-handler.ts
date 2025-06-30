@@ -13,6 +13,11 @@ export class TSQueryHandler {
     return this.convertToMorphNode(sourceFile, matches[0]);
   }
 
+  findNodesByQuery(sourceFile: any, query: string): Node[] {
+    const matches = this.executeQuery(sourceFile, query);
+    return matches.map(match => this.convertToMorphNode(sourceFile, match));
+  }
+
   private executeQuery(sourceFile: any, query: string) {
     return tsquery(sourceFile.compilerNode, query);
   }
