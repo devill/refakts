@@ -23,7 +23,7 @@ interface TestMeta {
 }
 
 describe('Refactoring Integration Tests', () => {
-  const fixturesDir = path.join(__dirname, '..', 'fixtures');
+  const fixturesDir = path.join(__dirname, '..', 'fixtures', 'refactoring');
   
   const getTestCases = (): TestCase[] => {
     const testCases: TestCase[] = [];

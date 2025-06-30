@@ -9,7 +9,7 @@ interface CompletionStatus {
 }
 
 export function getFixtureFolders(): string[] {
-  const fixturesPath = path.join(__dirname, '..', 'tests', 'fixtures');
+  const fixturesPath = path.join(__dirname, '..', 'tests', 'fixtures', 'refactoring');
   if (!fs.existsSync(fixturesPath)) {
     return [];
   }
