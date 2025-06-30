@@ -6,6 +6,7 @@ import { findComments } from './comment-detector';
 import { checkFileSizes, checkFunctionSizes } from './file-size-checker';
 import { checkGitDiffSize } from './git-diff-checker';
 import { checkUnusedMethods } from './unused-method-checker';
+import { checkChangeFrequency } from './change-frequency-checker';
 import { getIncompleteRefactorings } from '../cli-generator';
 
 const execAsync = promisify(exec);
@@ -104,6 +105,7 @@ async function addAllIssues(messages: string[]): Promise<void> {
   addFunctionSizeIssues(messages);
   addUnusedMethodIssues(messages);
   await addDiffSizeIssues(messages);
+  await addChangeFrequencyIssues(messages);
   addIncompleteRefactoringReminder(messages);
 }
 
@@ -162,6 +164,11 @@ async function addDiffSizeIssues(messages: string[]): Promise<void> {
   if (diffResult.message) {
     messages.push(diffResult.message);
   }
+}
+
+async function addChangeFrequencyIssues(messages: string[]): Promise<void> {
+  const changeIssues = await checkChangeFrequency();
+  messages.push(...changeIssues);
 }
 
 function addIncompleteRefactoringReminder(messages: string[]): void {
