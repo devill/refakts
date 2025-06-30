@@ -3,6 +3,8 @@
 import { Command } from 'commander';
 import { RefactorEngine } from './refactor-engine';
 import { generateHelpText, getFixtureFolders, getCompletionStatus } from './cli-generator';
+import { VariableLocator } from './locators/variable-locator';
+import { tsquery } from '@phenomnomnominal/tsquery';
 
 const program = new Command();
 
@@ -67,5 +69,53 @@ function getDetailedHelp(command: string, status: any): string {
       return '';
   }
 }
+
+// Add locator commands
+program
+  .command('variable-locator')
+  .description('Find variable declarations and all their usages')
+  .argument('<file>', 'TypeScript file to analyze')
+  .option('--query <selector>', 'TSQuery selector to find the target variable')
+  .addHelpText('after', '\nExamples:\n  refakts variable-locator src/file.ts --query "Identifier[name=\'myVar\']"\n  refakts variable-locator src/file.ts --query "Parameter Identifier[name=\'param\']"')
+  .action(async (file: string, options) => {
+    if (!options.query) {
+      console.error('--query must be specified');
+      process.exit(1);
+    }
+    
+    try {
+      const locator = new VariableLocator();
+      const sourceFileContent = require('fs').readFileSync(file, 'utf8');
+      const ast = tsquery.ast(sourceFileContent);
+      const matches = tsquery(ast, options.query);
+      
+      if (matches.length === 0) {
+        console.error('No matches found for query');
+        process.exit(1);
+      }
+      
+      // Extract variable name from the first match
+      const targetNode = matches[0];
+      let variableName: string;
+      
+      if (targetNode.kind === 75) { // SyntaxKind.Identifier
+        variableName = (targetNode as any).text;
+      } else {
+        // Try to find identifier in the matched node
+        const identifiers = tsquery(targetNode, 'Identifier');
+        if (identifiers.length === 0) {
+          console.error('Could not extract variable name from query result');
+          process.exit(1);
+        }
+        variableName = (identifiers[0] as any).text;
+      }
+      
+      const result = await locator.findVariableReferences(file, variableName);
+      console.log(JSON.stringify(result, null, 2));
+    } catch (error) {
+      console.error('Error:', error);
+      process.exit(1);
+    }
+  });
 
 program.parse();

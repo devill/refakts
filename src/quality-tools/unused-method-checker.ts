@@ -66,15 +66,9 @@ function findUnusedFromPrivateMethods(
   privateMethods: Array<{name: string; line: number}>,
   usedMethods: Set<string>
 ): UnusedMethodIssue[] {
-  const issues: UnusedMethodIssue[] = [];
-  
-  for (const method of privateMethods) {
-    if (!usedMethods.has(method.name)) {
-      issues.push(createUnusedMethodIssue(filePath, method));
-    }
-  }
-  
-  return issues;
+  return privateMethods
+    .filter(method => !usedMethods.has(method.name))
+    .map(method => createUnusedMethodIssue(filePath, method));
 }
 
 function createUnusedMethodIssue(

@@ -47,8 +47,8 @@ npm run quality:watch:status # Check watcher status
 <!-- AUTO-GENERATED HELP START -->
 ## Available RefakTS Commands
 
-- inline-variable [options] <file>  Replace variable usage with its value
-- node-finding [options] <file>     Find AST nodes in TypeScript files (warning:
+- inline-variable [options] <file>   Replace variable usage with its value
+- node-finding [options] <file>      Find AST nodes in TypeScript files
 
 <!-- AUTO-GENERATED HELP END -->
 
