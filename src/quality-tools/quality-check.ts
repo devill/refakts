@@ -185,20 +185,21 @@ async function addDiffSizeIssues(reporter: QualityReporter): Promise<void> {
 
 async function addChangeFrequencyIssues(reporter: QualityReporter): Promise<void> {
   const changeIssues = await checkChangeFrequency();
-  
+  processChangeIssues(changeIssues, reporter);
+}
+
+function processChangeIssues(changeIssues: string[], reporter: QualityReporter): void {
   for (const issue of changeIssues) {
-    if (issue.includes('change together')) {
-      reporter.addIssue({
-        type: 'cohesiveChange',
-        message: issue
-      });
-    } else {
-      reporter.addIssue({
-        type: 'changeFrequency',
-        message: issue
-      });
-    }
+    const issueType = classifyChangeIssue(issue);
+    reporter.addIssue({
+      type: issueType,
+      message: issue
+    });
   }
+}
+
+function classifyChangeIssue(issue: string): 'cohesiveChange' | 'changeFrequency' {
+  return issue.includes('change together') ? 'cohesiveChange' : 'changeFrequency';
 }
 
 function addIncompleteRefactoringReminder(reporter: QualityReporter): void {
