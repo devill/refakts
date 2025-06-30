@@ -19,7 +19,7 @@ export const gitDiffCheck: QualityCheck = {
 
 const checkGitDiffSize = async () => {
   try {
-    const { stdout } = await execAsync('git diff --stat HEAD~1 HEAD');
+    const { stdout } = await execAsync('git diff --stat');
     const lines = stdout.split('\n');
     const summaryLine = lines[lines.length - 2];
     
