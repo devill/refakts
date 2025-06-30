@@ -1,4 +1,4 @@
-import { QualityCheck, QualityIssue } from '../quality-tools/quality-check-interface';
+import { QualityCheck, QualityIssue, QualityGroup } from '../quality-tools/quality-check-interface';
 import { Project } from 'ts-morph';
 import * as path from 'path';
 
@@ -11,6 +11,19 @@ export const fileSizeCheck: QualityCheck = {
     return project.getSourceFiles()
       .map(createFileSizeIssue)
       .filter(Boolean) as QualityIssue[];
+  },
+  getGroupDefinition: (groupKey: string) => {
+    if (groupKey === 'criticalFiles') return {
+      title: 'CRITICAL: OVERSIZED FILES',
+      description: 'Files over 300 lines are extremely difficult to maintain.',
+      actionGuidance: 'CRITICAL: Split these files into smaller, focused modules immediately.'
+    };
+    if (groupKey === 'largeFiles') return {
+      title: 'LARGE FILES',
+      description: 'Large files are harder to understand and maintain.',
+      actionGuidance: 'Break these files into smaller, focused modules with single responsibilities.'
+    };
+    return undefined;
   }
 };
 

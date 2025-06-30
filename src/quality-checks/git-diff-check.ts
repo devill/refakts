@@ -1,4 +1,4 @@
-import { QualityCheck, QualityIssue } from '../quality-tools/quality-check-interface';
+import { QualityCheck, QualityIssue, QualityGroup } from '../quality-tools/quality-check-interface';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -9,7 +9,12 @@ export const gitDiffCheck: QualityCheck = {
   check: async (sourceDir: string): Promise<QualityIssue[]> => {
     const diffResult = await checkGitDiffSize();
     return diffResult.message ? [createDiffIssue(diffResult.message)] : [];
-  }
+  },
+  getGroupDefinition: (groupKey: string) => groupKey === 'diffSize' ? {
+    title: 'LARGE CHANGES',
+    description: 'Large diffs are harder to review and more likely to introduce bugs.',
+    actionGuidance: 'Commit smaller incremental changes with passing tests to maintain code quality.'
+  } : undefined
 };
 
 const checkGitDiffSize = async () => {
@@ -35,5 +40,5 @@ const checkGitDiffSize = async () => {
 
 const createDiffIssue = (message: string): QualityIssue => ({
   type: 'diffSize',
-  message: message.replace('👧🏻💬 ', '')
+  message: message
 });

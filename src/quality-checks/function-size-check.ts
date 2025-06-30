@@ -1,4 +1,4 @@
-import { QualityCheck, QualityIssue } from '../quality-tools/quality-check-interface';
+import { QualityCheck, QualityIssue, QualityGroup } from '../quality-tools/quality-check-interface';
 import { Project } from 'ts-morph';
 import * as path from 'path';
 
@@ -11,6 +11,19 @@ export const functionSizeCheck: QualityCheck = {
     return project.getSourceFiles()
       .flatMap(createFunctionSizeIssues)
       .filter(Boolean) as QualityIssue[];
+  },
+  getGroupDefinition: (groupKey: string) => {
+    if (groupKey === 'criticalFunctions') return {
+      title: 'CRITICAL: OVERSIZED FUNCTIONS',
+      description: 'Functions over 10 lines violate single responsibility principle.',
+      actionGuidance: 'CRITICAL: Break down these functions immediately. Long functions may indicate an opportunity to introduce a new class.'
+    };
+    if (groupKey === 'largeFunctions') return {
+      title: 'LARGE FUNCTIONS',
+      description: 'Functions approaching size limits should be refactored.',
+      actionGuidance: 'Consider extracting helper methods to improve readability.'
+    };
+    return undefined;
   }
 };
 

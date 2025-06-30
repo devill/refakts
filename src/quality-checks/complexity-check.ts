@@ -1,4 +1,4 @@
-import { QualityCheck, QualityIssue } from '../quality-tools/quality-check-interface';
+import { QualityCheck, QualityIssue, QualityGroup } from '../quality-tools/quality-check-interface';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -13,7 +13,12 @@ export const complexityCheck: QualityCheck = {
     } catch (error) {
       return [];
     }
-  }
+  },
+  getGroupDefinition: (groupKey: string) => groupKey === 'complexity' ? {
+    title: 'HIGH COMPLEXITY',
+    description: 'Complex functions are harder to understand, test, and maintain.',
+    actionGuidance: 'Break down complex functions into smaller, single-purpose methods.'
+  } : undefined
 };
 
 const analyzeComplexityReport = (stdout: string): QualityIssue[] => {
@@ -41,14 +46,14 @@ const createComplexityIssues = (issues: any): QualityIssue[] => {
   if (issues.hasComplexFunctions) {
     result.push({
       type: 'complexity',
-      message: '👧🏻💬 High cyclomatic complexity detected. Break down complex functions into smaller, single-purpose methods.'
+      message: 'High cyclomatic complexity detected. Break down complex functions into smaller, single-purpose methods.'
     });
   }
   
   if (issues.hasManyParams) {
     result.push({
       type: 'complexity',
-      message: '👧🏻💬 Functions with more than 2 parameters detected. Consider using parameter objects to group related parameters.'
+      message: 'Functions with more than 2 parameters detected. Consider using parameter objects to group related parameters.'
     });
   }
   

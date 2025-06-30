@@ -1,4 +1,4 @@
-import { QualityCheck, QualityIssue } from '../quality-tools/quality-check-interface';
+import { QualityCheck, QualityIssue, QualityGroup } from '../quality-tools/quality-check-interface';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -10,6 +10,21 @@ export const changeFrequencyCheck: QualityCheck = {
     const changeIssues = await analyzeChangeFrequency();
     const filteredIssues = await filterRecentlyFixedIssues(changeIssues);
     return filteredIssues.map(toQualityIssue);
+  },
+  getGroupDefinition: (groupKey: string) => {
+    if (groupKey === 'changeFrequency') return {
+      title: 'OPEN-CLOSED PRINCIPLE VIOLATIONS',
+      description: 'Files changing frequently suggest design should be extensible without modification.',
+      actionGuidance: 'Consider introducing abstractions, dependency injection, or plugin patterns to improve the design. Suggest the improvement to the user starting with the ⚠️ emoji a detailed explanation of your design suggestion.',
+      requiresUserConsultation: true
+    };
+    if (groupKey === 'cohesiveChange') return {
+      title: 'ABSTRACTION LEAKAGE',
+      description: 'Files changing together suggest concerns not properly encapsulated.',
+      actionGuidance: 'Consider extracting shared abstractions or reducing coupling. Suggest the improvement to the user starting with the ⚠️ emoji a detailed explanation of your design suggestion.',
+      requiresUserConsultation: true
+    };
+    return undefined;
   }
 };
 

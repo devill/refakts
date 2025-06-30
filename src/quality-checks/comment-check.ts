@@ -1,4 +1,4 @@
-import { QualityCheck, QualityIssue } from '../quality-tools/quality-check-interface';
+import { QualityCheck, QualityIssue, QualityGroup } from '../quality-tools/quality-check-interface';
 import { Project, SyntaxKind } from 'ts-morph';
 import * as path from 'path';
 
@@ -9,7 +9,12 @@ export const commentCheck: QualityCheck = {
     project.addSourceFilesAtPaths(`${sourceDir}/**/*.ts`);
     
     return project.getSourceFiles().flatMap(findCommentsInFile);
-  }
+  },
+  getGroupDefinition: (groupKey: string) => groupKey === 'comment' ? {
+    title: 'COMMENTS DETECTED',
+    description: 'Comments indicate code that is not self-documenting.',
+    actionGuidance: 'Extract complex logic into well-named functions instead of explaining with comments. Remove ALL comments unless they impact functionality.'
+  } : undefined
 };
 
 const findCommentsInFile = (sourceFile: any): QualityIssue[] => {

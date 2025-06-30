@@ -10,6 +10,7 @@ export interface QualityIssue {
 export interface QualityCheck {
   name: string;
   check: (sourceDir: string) => Promise<QualityIssue[]> | QualityIssue[];
+  getGroupDefinition?: (groupKey: string) => Omit<QualityGroup, 'violations'> | undefined;
 }
 
 export interface QualityGroup {
