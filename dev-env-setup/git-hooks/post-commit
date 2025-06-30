@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Run quality checks after each commit
+cd "$(git rev-parse --show-toplevel)"
+
+echo "Running post-commit quality checks..."
+npm run quality
+
+exit 0
