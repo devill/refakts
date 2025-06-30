@@ -71,63 +71,92 @@ function getDetailedHelp(command: string, status: any): string {
   }
 }
 
-// Add locator commands
-program
-  .command('variable-locator')
-  .description('Find variable declarations and all their usages')
-  .argument('<file>', 'TypeScript file to analyze')
-  .option('--query <selector>', 'TSQuery selector to find the target variable')
-  .option('--line <number>', 'Line number to target variable declaration')
-  .option('--column <number>', 'Column number to target variable declaration')
-  .addHelpText('after', '\nExamples:\n  refakts variable-locator src/file.ts --query "Identifier[name=\'myVar\']"\n  refakts variable-locator src/file.ts --line 10 --column 5\n  refakts variable-locator src/file.ts --query "Parameter Identifier[name=\'param\']"')
-  .action(async (file: string, options) => {
-    if (!options.query && (!options.line || !options.column)) {
-      console.error('Either --query or both --line and --column must be specified');
-      process.exit(1);
-    }
-    
-    try {
-      const locator = new VariableLocator();
-      let result: any;
-      
-      if (options.line && options.column) {
-        // Use line/column targeting
-        result = await locator.findVariableByPosition(file, parseInt(options.line), parseInt(options.column));
-      } else {
-        // Use TSQuery targeting
-        const sourceFileContent = require('fs').readFileSync(file, 'utf8');
-        const ast = tsquery.ast(sourceFileContent);
-        const matches = tsquery(ast, options.query);
-        
-        if (matches.length === 0) {
-          console.error('No matches found for query');
-          process.exit(1);
-        }
-        
-        // Extract variable name from the first match
-        const targetNode = matches[0];
-        let variableName: string;
-        
-        if (targetNode.kind === 75) { // SyntaxKind.Identifier
-          variableName = (targetNode as any).text;
-        } else {
-          // Try to find identifier in the matched node
-          const identifiers = tsquery(targetNode, 'Identifier');
-          if (identifiers.length === 0) {
-            console.error('Could not extract variable name from query result');
-            process.exit(1);
-          }
-          variableName = (identifiers[0] as any).text;
-        }
-        
-        result = await locator.findVariableReferences(file, variableName);
-      }
-      
-      console.log(yaml.dump(result, { indent: 2 }));
-    } catch (error) {
-      console.error('Error:', error);
-      process.exit(1);
-    }
-  });
+addVariableLocatorCommand();
+
+function addVariableLocatorCommand() {
+  const command = createVariableLocatorCommand();
+  command.action(handleVariableLocatorAction);
+}
+
+function createVariableLocatorCommand() {
+  return program
+    .command('variable-locator')
+    .description('Find variable declarations and all their usages')
+    .argument('<file>', 'TypeScript file to analyze')
+    .option('--query <selector>', 'TSQuery selector to find the target variable')
+    .option('--line <number>', 'Line number to target variable declaration')
+    .option('--column <number>', 'Column number to target variable declaration')
+    .addHelpText('after', getVariableLocatorHelpText());
+}
+
+function getVariableLocatorHelpText(): string {
+  return '\nExamples:\n  refakts variable-locator src/file.ts --query "Identifier[name=\'myVar\']"\n  refakts variable-locator src/file.ts --line 10 --column 5\n  refakts variable-locator src/file.ts --query "Parameter Identifier[name=\'param\']"';
+}
+
+async function handleVariableLocatorAction(file: string, options: any) {
+  validateVariableLocatorOptions(options);
+  
+  try {
+    const locator = new VariableLocator();
+    const result = await executeVariableLocatorCommand(file, options, locator);
+    console.log(yaml.dump(result, { indent: 2 }));
+  } catch (error) {
+    console.error('Error:', error);
+    process.exit(1);
+  }
+}
+
+function validateVariableLocatorOptions(options: any) {
+  if (!options.query && (!options.line || !options.column)) {
+    console.error('Either --query or both --line and --column must be specified');
+    process.exit(1);
+  }
+}
+
+async function executeVariableLocatorCommand(file: string, options: any, locator: VariableLocator) {
+  if (options.line && options.column) {
+    return await locator.findVariableByPosition(file, parseInt(options.line), parseInt(options.column));
+  } else {
+    const variableName = extractVariableNameFromQuery(file, options.query);
+    return await locator.findVariableReferences(file, variableName);
+  }
+}
+
+function extractVariableNameFromQuery(file: string, query: string): string {
+  const matches = executeQuery(file, query);
+  const targetNode = getFirstMatch(matches);
+  return extractNameFromNode(targetNode);
+}
+
+function executeQuery(file: string, query: string) {
+  const sourceFileContent = require('fs').readFileSync(file, 'utf8');
+  const ast = tsquery.ast(sourceFileContent);
+  return tsquery(ast, query);
+}
+
+function getFirstMatch(matches: any[]) {
+  if (matches.length === 0) {
+    console.error('No matches found for query');
+    process.exit(1);
+  }
+  return matches[0];
+}
+
+function extractNameFromNode(targetNode: any): string {
+  if (targetNode.kind === 75) {
+    return (targetNode as any).text;
+  } else {
+    return findIdentifierInNode(targetNode);
+  }
+}
+
+function findIdentifierInNode(targetNode: any): string {
+  const identifiers = tsquery(targetNode, 'Identifier');
+  if (identifiers.length === 0) {
+    console.error('Could not extract variable name from query result');
+    process.exit(1);
+  }
+  return (identifiers[0] as any).text;
+}
 
 program.parse();

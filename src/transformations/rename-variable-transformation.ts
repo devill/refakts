@@ -27,14 +27,22 @@ export class RenameVariableTransformation implements Transformation {
   }
 
   private performDirectRename(): number {
-    let changesCount = 0;
-    
+    const declarationChanges = this.renameDeclaration();
+    const usageChanges = this.renameUsages();
+    return declarationChanges + usageChanges;
+  }
+
+  private renameDeclaration(): number {
     const declarationIdentifier = this.findIdentifierInNode(this.declaration);
     if (declarationIdentifier) {
       declarationIdentifier.replaceWithText(this.newName);
-      changesCount++;
+      return 1;
     }
-    
+    return 0;
+  }
+
+  private renameUsages(): number {
+    let changesCount = 0;
     for (const usage of this.usages) {
       const usageIdentifier = this.findIdentifierInNode(usage);
       if (usageIdentifier) {
@@ -42,7 +50,6 @@ export class RenameVariableTransformation implements Transformation {
         changesCount++;
       }
     }
-    
     return changesCount;
   }
   

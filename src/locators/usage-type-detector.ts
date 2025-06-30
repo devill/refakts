@@ -4,7 +4,10 @@ import { Node } from 'ts-morph';
 export class UsageTypeDetector {
   determineUsageType(node: Node): 'read' | 'write' | 'update' {
     const parent = node.getParent();
-    
+    return this.classifyUsageByParent(parent, node);
+  }
+
+  private classifyUsageByParent(parent: Node | undefined, node: Node): 'read' | 'write' | 'update' {
     if (this.isWriteContext(parent, node)) {
       return 'write';
     }

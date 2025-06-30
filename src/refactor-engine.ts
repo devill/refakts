@@ -49,20 +49,26 @@ export class RefactorEngine {
   private async performRename(node: Node, newName: string): Promise<void> {
     this.validateIdentifierNode(node);
     const sourceFile = node.getSourceFile();
-    
+    const nodeResult = this.findVariableNodesAtPosition(node, sourceFile);
+    const transformation = this.createRenameTransformation(nodeResult, newName);
+    await transformation.transform(sourceFile);
+  }
+
+  private findVariableNodesAtPosition(node: Node, sourceFile: any) {
     const targetPosition = sourceFile.getLineAndColumnAtPos(node.getStart());
-    const nodeResult = this.variableLocator.findVariableNodesByPositionSync(
+    return this.variableLocator.findVariableNodesByPositionSync(
       sourceFile,
       targetPosition.line,
       targetPosition.column
     );
-    
-    const transformation = new RenameVariableTransformation(
+  }
+
+  private createRenameTransformation(nodeResult: any, newName: string) {
+    return new RenameVariableTransformation(
       nodeResult.declaration,
-      nodeResult.usages.map(u => u.node),
+      nodeResult.usages.map((u: any) => u.node),
       newName
     );
-    await transformation.transform(sourceFile);
   }
 
 
