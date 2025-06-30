@@ -7,6 +7,7 @@ import { checkFileSizes, checkFunctionSizes } from './file-size-checker';
 import { checkGitDiffSize } from './git-diff-checker';
 import { checkUnusedMethods } from './unused-method-checker';
 import { checkChangeFrequency } from './change-frequency-checker';
+import { QualityReporter, QualityIssue } from './quality-reporter';
 import { getIncompleteRefactorings } from '../cli-generator';
 
 const execAsync = promisify(exec);
@@ -90,114 +91,135 @@ function createComplexityMessages(issues: { hasComplexFunctions: boolean; hasMan
 }
 
 async function collectQualityIssues(): Promise<string[]> {
-  const messages: string[] = [];
+  const reporter = new QualityReporter();
   
-  await addAllIssues(messages);
+  await addAllIssues(reporter);
   
-  return messages;
+  return [reporter.generateReport()];
 }
 
-async function addAllIssues(messages: string[]): Promise<void> {
-  await addDuplicationIssues(messages);
-  await addComplexityIssues(messages);
-  addCommentIssues(messages);
-  addFileSizeIssues(messages);
-  addFunctionSizeIssues(messages);
-  addUnusedMethodIssues(messages);
-  await addDiffSizeIssues(messages);
-  await addChangeFrequencyIssues(messages);
-  addIncompleteRefactoringReminder(messages);
+async function addAllIssues(reporter: QualityReporter): Promise<void> {
+  await addDuplicationIssues(reporter);
+  await addComplexityIssues(reporter);
+  addCommentIssues(reporter);
+  addFileSizeIssues(reporter);
+  addFunctionSizeIssues(reporter);
+  addUnusedMethodIssues(reporter);
+  await addDiffSizeIssues(reporter);
+  await addChangeFrequencyIssues(reporter);
+  addIncompleteRefactoringReminder(reporter);
 }
 
-async function addDuplicationIssues(messages: string[]): Promise<void> {
+async function addDuplicationIssues(reporter: QualityReporter): Promise<void> {
   const dupResult = await runDuplicationCheck();
   if (dupResult.hasIssues && dupResult.message) {
-    messages.push(dupResult.message);
+    reporter.addIssue({
+      type: 'duplication',
+      message: dupResult.message
+    });
   }
 }
 
-async function addComplexityIssues(messages: string[]): Promise<void> {
+async function addComplexityIssues(reporter: QualityReporter): Promise<void> {
   const complexityResult = await runComplexityCheck();
   if (complexityResult.hasIssues && complexityResult.message) {
-    messages.push(complexityResult.message);
+    reporter.addIssue({
+      type: 'complexity',
+      message: complexityResult.message
+    });
   }
 }
 
-function addCommentIssues(messages: string[]): void {
+function addCommentIssues(reporter: QualityReporter): void {
   const comments = findComments('src');
   if (comments.length > 0) {
-    messages.push('👧🏻💬 **NEVER** use comments to explain code, the code should speak for itself. Extract complex logic into well-named functions instead of explaining with comments. Remove **ALL** comments unless they impact functionality');
+    reporter.addIssue({
+      type: 'comment',
+      message: 'Comments found in codebase'
+    });
   }
 }
 
-function addFileSizeIssues(messages: string[]): void {
+function addFileSizeIssues(reporter: QualityReporter): void {
   const fileSizes = checkFileSizes('src');
   for (const issue of fileSizes) {
-    if (issue.severity === 'critical') {
-      messages.push(`👧🏻💬 CRITICAL: ${issue.file} has ${issue.lines} lines! Files over 300 lines MUST be broken up immediately. Split into smaller, focused modules.`);
-    } else {
-      messages.push(`👧🏻💬 ${issue.file} has ${issue.lines} lines. Consider breaking this into smaller, focused modules.`);
-    }
+    reporter.addIssue({
+      type: 'fileSize',
+      severity: issue.severity,
+      message: `${issue.file} has ${issue.lines} lines`
+    });
   }
 }
 
-function addFunctionSizeIssues(messages: string[]): void {
+function addFunctionSizeIssues(reporter: QualityReporter): void {
   const functionSizes = checkFunctionSizes('src');
   for (const issue of functionSizes) {
-    if (issue.severity === 'critical') {
-      messages.push(`👧🏻💬 CRITICAL: Function '${issue.function}' in ${issue.file} has ${issue.lines} lines! Functions over 10 lines MUST be broken down immediately. Long functions may also indicate an opportunity to introduce a new class.`);
+    reporter.addIssue({
+      type: 'functionSize',
+      severity: issue.severity,
+      message: `Function '${issue.function}' in ${issue.file} has ${issue.lines} lines`
+    });
+  }
+}
+
+function addUnusedMethodIssues(reporter: QualityReporter): void {
+  const unusedMethods = checkUnusedMethods('src');
+  for (const issue of unusedMethods) {
+    reporter.addIssue({
+      type: 'unusedMethod',
+      severity: 'critical',
+      message: `Unused private method '${issue.method}' in ${issue.file} at line ${issue.line}`
+    });
+  }
+}
+
+async function addDiffSizeIssues(reporter: QualityReporter): Promise<void> {
+  const diffResult = await checkGitDiffSize();
+  if (diffResult.message) {
+    reporter.addIssue({
+      type: 'diffSize',
+      message: diffResult.message.replace('👧🏻💬 ', '')
+    });
+  }
+}
+
+async function addChangeFrequencyIssues(reporter: QualityReporter): Promise<void> {
+  const changeIssues = await checkChangeFrequency();
+  
+  for (const issue of changeIssues) {
+    if (issue.includes('change together')) {
+      reporter.addIssue({
+        type: 'cohesiveChange',
+        message: issue
+      });
     } else {
-      messages.push(`👧🏻💬 Function '${issue.function}' in ${issue.file} has ${issue.lines} lines. Consider extracting helper methods.`);
+      reporter.addIssue({
+        type: 'changeFrequency',
+        message: issue
+      });
     }
   }
 }
 
-function addUnusedMethodIssues(messages: string[]): void {
-  const unusedMethods = checkUnusedMethods('src');
-  for (const issue of unusedMethods) {
-    messages.push(`👧🏻💬 CRITICAL: Unused private method '${issue.method}' in ${issue.file} at line ${issue.line}. Remove dead code to maintain codebase clarity.`);
-  }
-}
-
-async function addDiffSizeIssues(messages: string[]): Promise<void> {
-  const diffResult = await checkGitDiffSize();
-  if (diffResult.message) {
-    messages.push(diffResult.message);
-  }
-}
-
-async function addChangeFrequencyIssues(messages: string[]): Promise<void> {
-  const changeIssues = await checkChangeFrequency();
-  messages.push(...changeIssues);
-}
-
-function addIncompleteRefactoringReminder(messages: string[]): void {
+function addIncompleteRefactoringReminder(reporter: QualityReporter): void {
   const incompleteRefactorings = getIncompleteRefactorings();
   if (incompleteRefactorings.length > 0) {
     const refactoringList = incompleteRefactorings.join(', ');
-    messages.push(`👧🏻💬 Consider if any incomplete refactorings should be marked complete: ${refactoringList}. To mark complete, test on a file outside fixtures and update src/completion-status.json.`);
+    reporter.addIssue({
+      type: 'incompleteRefactoring',
+      message: `Consider if any incomplete refactorings should be marked complete: ${refactoringList}`
+    });
   }
 }
 
 function reportResults(messages: string[]): void {
-  if (messages.length === 0) {
-    reportSuccess();
+  if (messages.length === 1 && messages[0].includes('✅ All quality checks passed')) {
+    console.log(messages[0]);
+    process.exit(0);
   } else {
-    reportIssues(messages);
+    console.log(messages[0]);
+    process.exit(1);
   }
-}
-
-function reportSuccess(): void {
-  console.log('✅ All quality checks passed');
-  process.exit(0);
-}
-
-function reportIssues(messages: string[]): void {
-  console.log('❌ Quality issues detected:');
-  for (const message of messages) {
-    console.log(message);
-  }
-  process.exit(1);
 }
 
 async function main() {

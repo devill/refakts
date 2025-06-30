@@ -47,7 +47,7 @@ async function findFrequentlyChangedFiles(): Promise<string[]> {
 }
 
 async function getFileChangeData(): Promise<string[]> {
-  const { stdout } = await execAsync('git log --since="30 days ago" --name-only --pretty=format: | sort | uniq -c | sort -nr');
+  const { stdout } = await execAsync('git log -100 --name-only --pretty=format: | sort | uniq -c | sort -nr');
   return stdout.trim().split('\n').filter(line => line.trim());
 }
 
@@ -82,7 +82,7 @@ function shouldReportFile(changeInfo: { count: number; fileName: string }): bool
 }
 
 function createFrequencyWarning(changeInfo: { count: number; fileName: string }): string {
-  return `👧🏻💬 File '${changeInfo.fileName}' has changed ${changeInfo.count} times in the last 30 days. Consider if this violates the open-closed principle - the design should be extensible without frequent modifications.`;
+  return `${changeInfo.fileName} changed ${changeInfo.count} times in last 100 commits`;
 }
 
 async function findCohesiveChanges(): Promise<string[]> {
@@ -95,7 +95,7 @@ async function findCohesiveChanges(): Promise<string[]> {
 }
 
 async function getCommitData(): Promise<CommitFileData[]> {
-  const { stdout } = await execAsync('git log --since="30 days ago" --name-only --pretty=format:"%H" | awk "NF"');
+  const { stdout } = await execAsync('git log -100 --name-only --pretty=format:"%H" | awk "NF"');
   const lines = stdout.trim().split('\n');
   return parseCommitData(lines);
 }
@@ -160,7 +160,7 @@ function analyzeCohesiveChanges(commitData: CommitFileData[]): string[] {
 }
 
 function createCohesionWarning(files: string[], count: number): string {
-  return `👧🏻💬 Files [${files.join(', ')}] frequently change together (${count} times). This suggests abstraction leakage - consider if these concerns should be better encapsulated.`;
+  return `[${files.join(', ')}] change together ${count} times`;
 }
 
 function findFrequentFilePairs(commitData: CommitFileData[]): Map<string[], number> {
