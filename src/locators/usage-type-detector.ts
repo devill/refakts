@@ -52,11 +52,8 @@ export class UsageTypeDetector {
     }
     
     const binaryExpr = parent as any;
-    const operator = binaryExpr.getOperatorToken().getKind();
-    const isCompoundOperator = this.isCompoundAssignmentOperator(operator);
-    const isLeftSide = binaryExpr.getLeft() === node;
-    
-    return isCompoundOperator && isLeftSide;
+    return this.isCompoundAssignmentOperator(binaryExpr.getOperatorToken().getKind()) &&
+           binaryExpr.getLeft() === node;
   }
 
   private isCompoundAssignmentOperator(operator: ts.SyntaxKind): boolean {
