@@ -1,4 +1,4 @@
-import { RefactoringCommand } from '../command';
+import { RefactoringCommand, CommandOption } from '../command';
 import { Project } from 'ts-morph';
 import { TSQueryHandler } from '../tsquery-handler';
 import * as path from 'path';
@@ -30,6 +30,15 @@ export class NodeFindingCommand implements RefactoringCommand {
 
   getHelpText(): string {
     return '\nExamples:\n  refakts node-finding src/file.ts --query "FunctionDeclaration"\n  (Currently incomplete - implementation in progress)';
+  }
+
+  getOptions(): CommandOption[] {
+    return [
+      {
+        flags: '--query <selector>',
+        description: 'Target identifier or expression to find'
+      }
+    ];
   }
 
   private loadSourceFile(filePath: string) {

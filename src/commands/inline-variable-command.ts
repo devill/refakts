@@ -1,4 +1,4 @@
-import { RefactoringCommand } from '../command';
+import { RefactoringCommand, CommandOption } from '../command';
 import { Project, Node, VariableDeclaration } from 'ts-morph';
 import { TSQueryHandler } from '../tsquery-handler';
 import { VariableDeclarationFinder } from '../variable-declaration-finder';
@@ -33,6 +33,15 @@ export class InlineVariableCommand implements RefactoringCommand {
 
   getHelpText(): string {
     return '\nExamples:\n  refakts inline-variable src/file.ts --query "Identifier[name=\'myVar\']"\n  refakts inline-variable src/file.ts --query "VariableDeclaration"';
+  }
+
+  getOptions(): CommandOption[] {
+    return [
+      {
+        flags: '--query <selector>',
+        description: 'Target identifier or expression to refactor'
+      }
+    ];
   }
 
   private loadSourceFile(filePath: string) {

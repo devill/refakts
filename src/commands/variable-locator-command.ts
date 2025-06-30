@@ -1,4 +1,4 @@
-import { RefactoringCommand } from '../command';
+import { RefactoringCommand, CommandOption } from '../command';
 import { VariableLocator } from '../locators/variable-locator';
 import { tsquery } from '@phenomnomnominal/tsquery';
 import * as yaml from 'js-yaml';
@@ -37,6 +37,23 @@ export class VariableLocatorCommand implements RefactoringCommand {
 
   getHelpText(): string {
     return '\nExamples:\n  refakts variable-locator src/file.ts --query "Identifier[name=\'myVar\']"\n  refakts variable-locator src/file.ts --line 10 --column 5\n  refakts variable-locator src/file.ts --query "Parameter Identifier[name=\'param\']"';
+  }
+
+  getOptions(): CommandOption[] {
+    return [
+      {
+        flags: '--query <selector>',
+        description: 'Target identifier or expression to locate'
+      },
+      {
+        flags: '--line <number>',
+        description: 'Line number to target variable declaration'
+      },
+      {
+        flags: '--column <number>',
+        description: 'Column number to target variable declaration'
+      }
+    ];
   }
 
   private async executeLocatorOperation(file: string, options: any, locator: VariableLocator) {

@@ -14,14 +14,17 @@ program
 for (const command of commandRegistry.getAllCommands()) {
   const warningText = !command.complete ? ' (warning: incomplete)' : '';
   
-  program
+  const cmd = program
     .command(command.name)
     .description(command.description + warningText)
-    .argument('<file>', 'TypeScript file to refactor')
-    .option('--query <selector>', 'Target identifier or expression to refactor')
-    .option('--to <newName>', 'New name for rename operations')
-    .option('--line <number>', 'Line number to target variable declaration')
-    .option('--column <number>', 'Column number to target variable declaration')
+    .argument('<file>', 'TypeScript file to refactor');
+  
+  // Add command-specific options
+  for (const option of command.getOptions()) {
+    cmd.option(option.flags, option.description);
+  }
+  
+  cmd
     .addHelpText('after', command.getHelpText())
     .action(async (file: string, options) => {
       await executeRefactoringCommand(command, file, options);
