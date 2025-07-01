@@ -17,6 +17,7 @@
     "check-duplication": "jscpd src --threshold 10 --reporters console",
     "check-comments": "ts-node src/quality-tools/comment-detector.ts src",
     "update-claude-md": "ts-node src/update-claude-md.ts",
+    "update-readme": "ts-node src/update-readme.ts",
     "snooze": "ts-node src/snooze-cli.ts"
   },
   "keywords": [],
