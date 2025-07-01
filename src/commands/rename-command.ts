@@ -37,8 +37,6 @@ export class RenameCommand implements RefactoringCommand {
     return '\nExamples:\n  refakts rename src/file.ts --query "Identifier[name=\'oldName\']" --to newName\n  refakts rename src/file.ts --query "Parameter[name=\'param\']" --to newParam';
   }
 
-
-
   private async performRename(node: Node, newName: string): Promise<void> {
     this.validateIdentifierNode(node);
     const sourceFile = node.getSourceFile();

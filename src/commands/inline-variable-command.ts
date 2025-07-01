@@ -33,8 +33,6 @@ export class InlineVariableCommand implements RefactoringCommand {
     return '\nExamples:\n  refakts inline-variable src/file.ts --query "Identifier[name=\'myVar\']"\n  refakts inline-variable src/file.ts --query "VariableDeclaration"';
   }
 
-
-
   private async performInlineVariable(node: Node): Promise<void> {
     this.validateIdentifierNode(node);
     const variableName = node.getText();
