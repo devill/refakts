@@ -7,19 +7,14 @@ import { promisify } from 'util';
 import { loadQualityChecks } from './quality-tools/plugin-loader';
 
 const execAsync = promisify(exec);
-
 const README_PATH = path.join(__dirname, '..', 'README.md');
-const HELP_START_MARKER = '<!-- AUTO-GENERATED HELP START -->';
-const HELP_END_MARKER = '<!-- AUTO-GENERATED HELP END -->';
-const QUALITY_START_MARKER = '<!-- AUTO-GENERATED QUALITY-CHECKS START -->';
-const QUALITY_END_MARKER = '<!-- AUTO-GENERATED QUALITY-CHECKS END -->';
 
 async function getHelpOutput(): Promise<string> {
   try {
     const { stdout } = await execAsync('ts-node src/cli.ts --help', {
       cwd: path.join(__dirname, '..')
     });
-    return stdout;
+    return extractCommands(stdout);
   } catch (error: any) {
     return 'Error: Could not generate help output';
   }
@@ -37,16 +32,9 @@ function getQualityChecksContent(): string {
 }
 
 function addCheckDescriptions(check: any, descriptions: Set<string>): void {
-  const groupKeys = getGroupKeysForCheck(check);
-  
+  const groupKeys = getValidGroupKeys(check);
   for (const groupKey of groupKeys) {
-    addGroupDescription(check, groupKey, descriptions);
-  }
-}
-
-function addGroupDescription(check: any, groupKey: string, descriptions: Set<string>): void {
-  if (check.getGroupDefinition) {
-    const groupDef = check.getGroupDefinition(groupKey);
+    const groupDef = check.getGroupDefinition?.(groupKey);
     if (groupDef) {
       descriptions.add(`- **${groupDef.title}** (${groupDef.description})`);
     }
@@ -59,10 +47,9 @@ function formatDescriptions(descriptions: Set<string>): string {
     : '- No quality checks configured';
 }
 
-function getGroupKeysForCheck(check: any): string[] {
+function getValidGroupKeys(check: any): string[] {
   const possibleKeys = buildPossibleKeys(check);
-  const validKeys = filterValidKeys(check, possibleKeys);
-  return validKeys.length > 0 ? validKeys : [check.name];
+  return possibleKeys.filter(key => isValidKey(check, key));
 }
 
 function buildPossibleKeys(check: any): string[] {
@@ -76,21 +63,10 @@ function buildPossibleKeys(check: any): string[] {
   ];
 }
 
-function filterValidKeys(check: any, possibleKeys: string[]): string[] {
-  const validKeys: string[] = [];
-  for (const key of possibleKeys) {
-    if (isValidGroupKey(check, key)) {
-      validKeys.push(key);
-    }
-  }
-  return validKeys;
-}
-
-function isValidGroupKey(check: any, key: string): boolean {
+function isValidKey(check: any, key: string): boolean {
   try {
-    const def = check.getGroupDefinition(key);
-    return Boolean(def);
-  } catch (e) {
+    return Boolean(check.getGroupDefinition?.(key));
+  } catch {
     return false;
   }
 }
@@ -98,24 +74,9 @@ function isValidGroupKey(check: any, key: string): boolean {
 async function updateReadme(): Promise<void> {
   validateReadmeExists();
   let content = fs.readFileSync(README_PATH, 'utf8');
-  
-  content = await updateHelpSection(content);
-  content = updateQualitySection(content);
-  
+  content = await updateBothSections(content);
   fs.writeFileSync(README_PATH, content);
   console.log('✅ README.md updated with current help and quality checks');
-}
-
-async function updateHelpSection(content: string): Promise<string> {
-  const helpOutput = await getHelpOutput();
-  const helpSection = createHelpSection(helpOutput);
-  return updateContentWithSection(content, helpSection, HELP_START_MARKER, HELP_END_MARKER);
-}
-
-function updateQualitySection(content: string): string {
-  const qualityContent = getQualityChecksContent();
-  const qualitySection = createQualitySection(qualityContent);
-  return updateContentWithSection(content, qualitySection, QUALITY_START_MARKER, QUALITY_END_MARKER);
 }
 
 function validateReadmeExists(): void {
@@ -125,120 +86,106 @@ function validateReadmeExists(): void {
   }
 }
 
-function createHelpSection(helpOutput: string): string {
-  const commands = extractCommands(helpOutput);
-  return `${HELP_START_MARKER}
-## Available Commands
-
-${commands}
-
-${HELP_END_MARKER}`;
-}
-
-function createQualitySection(qualityContent: string): string {
-  return `${QUALITY_START_MARKER}
-**Quality Checks Include:**
-${qualityContent}
-${QUALITY_END_MARKER}`;
-}
-
-function extractCommands(helpOutput: string): string {
-  const lines = helpOutput.split('\n');
-  const commandsSection = findCommandsSection(lines);
-  return formatCommandsForMarkdown(commandsSection);
-}
-
-function findCommandsSection(lines: string[]): string[] {
-  const commandsStartIndex = findCommandsStartIndex(lines);
-  if (commandsStartIndex === -1) return [];
+async function updateBothSections(content: string): Promise<string> {
+  const helpCommands = await getHelpOutput();
+  const qualityChecks = getQualityChecksContent();
   
-  return extractCommandLines(lines, commandsStartIndex);
-}
-
-function findCommandsStartIndex(lines: string[]): number {
-  return lines.findIndex(line => line.trim() === 'Commands:');
-}
-
-function extractCommandLines(lines: string[], startIndex: number): string[] {
-  const commandLines: string[] = [];
-  let currentCommand = '';
+  content = updateHelpSection(content, helpCommands);
+  content = updateQualitySection(content, qualityChecks);
   
-  currentCommand = processAllLines(lines, startIndex, currentCommand, commandLines);
-  addFinalCommand(currentCommand, commandLines);
-  return commandLines;
+  return content;
 }
 
-function processAllLines(lines: string[], startIndex: number, currentCommand: string, commandLines: string[]): string {
-  for (let i = startIndex + 1; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (shouldStopExtraction(line)) break;
-    
-    currentCommand = processCommandLine(line, currentCommand, commandLines);
-  }
-  return currentCommand;
+function updateHelpSection(content: string, helpCommands: string): string {
+  return replaceSection(content, 
+    '<!-- AUTO-GENERATED HELP START -->',
+    '<!-- AUTO-GENERATED HELP END -->',
+    `## Available Commands\n\n${helpCommands}\n`
+  );
 }
 
-function processCommandLine(line: string, currentCommand: string, commandLines: string[]): string {
-  if (isRefactoringCommand(line)) {
-    return startNewCommand(currentCommand, commandLines, line);
-  } else if (shouldExtendCommand(currentCommand, line)) {
-    return currentCommand + ' ' + line;
-  }
-  return currentCommand;
+function updateQualitySection(content: string, qualityChecks: string): string {
+  return replaceSection(content,
+    '<!-- AUTO-GENERATED QUALITY-CHECKS START -->',
+    '<!-- AUTO-GENERATED QUALITY-CHECKS END -->',
+    `**Quality Checks Include:**\n${qualityChecks}`
+  );
 }
 
-function startNewCommand(currentCommand: string, commandLines: string[], line: string): string {
-  addFinalCommand(currentCommand, commandLines);
-  return line;
-}
-
-function shouldExtendCommand(currentCommand: string, line: string): boolean {
-  return Boolean(currentCommand && line && !line.includes('-h, --help'));
-}
-
-function addFinalCommand(currentCommand: string, commandLines: string[]): void {
-  if (currentCommand) {
-    commandLines.push(currentCommand);
-  }
-}
-
-function shouldStopExtraction(line: string): boolean {
-  return line === '' || line.startsWith('Available refactoring commands:') || 
-         line.includes('help [command]');
-}
-
-function isRefactoringCommand(line: string): boolean {
-  return line.includes('[options]') && !line.includes('help [command]');
-}
-
-function formatCommandsForMarkdown(commandLines: string[]): string {
-  if (commandLines.length === 0) return 'No refactoring commands available';
-  return commandLines.map(line => '- ' + line.trim()).join('\n');
-}
-
-function updateContentWithSection(content: string, section: string, startMarker: string, endMarker: string): string {
+function replaceSection(content: string, startMarker: string, endMarker: string, newContent: string): string {
   const markerPositions = findMarkerPositions(content, startMarker, endMarker);
   
-  if (markerPositions.startIndex !== -1 && markerPositions.endIndex !== -1) {
-    return replaceSection(content, section, markerPositions, endMarker);
-  } else {
+  if (markerPositions.startIndex === -1 || markerPositions.endIndex === -1) {
     console.warn(`Markers ${startMarker}/${endMarker} not found in README.md`);
     return content;
   }
+  
+  return buildReplacementContent(content, markerPositions, startMarker, newContent);
 }
 
-function findMarkerPositions(content: string, startMarker: string, endMarker: string): {startIndex: number, endIndex: number} {
+function findMarkerPositions(content: string, startMarker: string, endMarker: string) {
   return {
     startIndex: content.indexOf(startMarker),
     endIndex: content.indexOf(endMarker)
   };
 }
 
-function replaceSection(content: string, section: string, positions: {startIndex: number, endIndex: number}, endMarker: string): string {
-  const before = content.substring(0, positions.startIndex);
-  const after = content.substring(positions.endIndex + endMarker.length);
-  return before + section + after;
+function buildReplacementContent(content: string, positions: any, startMarker: string, newContent: string): string {
+  return content.substring(0, positions.startIndex) + 
+         startMarker + '\n' + newContent + '\n' + 
+         content.substring(positions.endIndex);
 }
+
+function extractCommands(helpOutput: string): string {
+  const lines = helpOutput.split('\n');
+  const commandsStartIndex = findCommandsStart(lines);
+  
+  if (commandsStartIndex === -1) return 'No refactoring commands available';
+  
+  const commands = parseCommandLines(lines, commandsStartIndex);
+  return formatCommands(commands);
+}
+
+function findCommandsStart(lines: string[]): number {
+  return lines.findIndex(line => line.trim() === 'Commands:');
+}
+
+function parseCommandLines(lines: string[], startIndex: number): string[] {
+  const commands: string[] = [];
+  let currentCommand = '';
+  
+  for (let i = startIndex + 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    if (shouldStop(line)) break;
+    
+    currentCommand = processLine(line, currentCommand, commands);
+  }
+  
+  if (currentCommand) commands.push(currentCommand);
+  return commands;
+}
+
+function shouldStop(line: string): boolean {
+  return !line || line.includes('help [command]');
+}
+
+function processLine(line: string, currentCommand: string, commands: string[]): string {
+  if (line.includes('[options]')) {
+    if (currentCommand) commands.push(currentCommand);
+    return line;
+  } else if (currentCommand && line && !line.includes('-h, --help')) {
+    return currentCommand + ' ' + line;
+  }
+  return currentCommand;
+}
+
+function formatCommands(commands: string[]): string {
+  return commands.length > 0 
+    ? commands.map(cmd => '- ' + cmd).join('\n')
+    : 'No refactoring commands available';
+}
+
 
 async function main() {
   await updateReadme();
