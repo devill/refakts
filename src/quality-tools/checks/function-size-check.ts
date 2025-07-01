@@ -1,4 +1,4 @@
-import { QualityCheck, QualityIssue, QualityGroup } from '../quality-tools/quality-check-interface';
+import { QualityCheck, QualityIssue, QualityGroup } from '../quality-check-interface';
 import { Project } from 'ts-morph';
 import * as path from 'path';
 

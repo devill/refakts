@@ -2,7 +2,7 @@
 
 import { QualityIssue } from './quality-check-interface';
 import { loadQualityChecks } from './plugin-loader';
-import { generateReport } from './functional-reporter';
+import { generateReport } from './quality-reporter';
 
 const runQualityChecks = async (sourceDir: string): Promise<QualityIssue[]> => {
   const checks = loadQualityChecks();

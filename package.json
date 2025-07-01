@@ -10,7 +10,7 @@
     "test": "jest && touch /tmp/refakts-last-test",
     "test:watch": "jest --watch",
     "dev": "ts-node src/cli.ts",
-    "quality": "ts-node src/quality-tools/functional-quality-runner.ts",
+    "quality": "ts-node src/quality-tools/quality-runner.ts",
     "quality:watch": "src/quality-tools/quality-watcher.sh start",
     "quality:watch:stop": "src/quality-tools/quality-watcher.sh stop",
     "quality:watch:status": "src/quality-tools/quality-watcher.sh status",
