@@ -2,6 +2,9 @@
 
 import { Command } from 'commander';
 import { CommandRegistry } from './command-registry';
+import { CommandOption } from './command';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const program = new Command();
 const commandRegistry = new CommandRegistry();
@@ -29,8 +32,20 @@ for (const command of commandRegistry.getAllCommands()) {
 }
 
 function addCommandOptions(cmd: any, command: any): void {
-  for (const option of command.getOptions()) {
+  const options = loadCommandOptions(command.name);
+  for (const option of options) {
     cmd.option(option.flags, option.description);
+  }
+}
+
+function loadCommandOptions(commandName: string): CommandOption[] {
+  const optionsPath = path.join(__dirname, 'commands', `${commandName}-options.json`);
+  try {
+    const optionsData = fs.readFileSync(optionsPath, 'utf8');
+    return JSON.parse(optionsData) as CommandOption[];
+  } catch (error) {
+    console.error(`Failed to load options for command ${commandName}:`, error);
+    return [];
   }
 }
 

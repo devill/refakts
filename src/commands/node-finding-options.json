@@ -1,0 +1,6 @@
+[
+  {
+    "flags": "--query <selector>",
+    "description": "Target identifier or expression to find"
+  }
+]

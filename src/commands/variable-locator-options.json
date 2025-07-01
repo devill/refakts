@@ -1,0 +1,14 @@
+[
+  {
+    "flags": "--query <selector>",
+    "description": "Target identifier or expression to locate"
+  },
+  {
+    "flags": "--line <number>",
+    "description": "Line number to target variable declaration"
+  },
+  {
+    "flags": "--column <number>",
+    "description": "Column number to target variable declaration"
+  }
+]

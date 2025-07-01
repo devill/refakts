@@ -1,4 +1,4 @@
-import { RefactoringCommand, CommandOption } from '../command';
+import { RefactoringCommand } from '../command';
 import { Project, Node } from 'ts-morph';
 import { TSQueryHandler } from '../tsquery-handler';
 import { VariableLocator } from '../locators/variable-locator';
@@ -39,26 +39,6 @@ export class RenameCommand implements RefactoringCommand {
     return '\nExamples:\n  refakts rename src/file.ts --query "Identifier[name=\'oldName\']" --to newName\n  refakts rename src/file.ts --query "Parameter[name=\'param\']" --to newParam';
   }
 
-  getOptions(): CommandOption[] {
-    return [
-      this.createQueryOption(),
-      this.createToOption()
-    ];
-  }
-
-  private createQueryOption(): CommandOption {
-    return {
-      flags: '--query <selector>',
-      description: 'Target identifier or expression to refactor'
-    };
-  }
-
-  private createToOption(): CommandOption {
-    return {
-      flags: '--to <newName>',
-      description: 'New name for rename operations'
-    };
-  }
 
   private loadSourceFile(filePath: string) {
     const absolutePath = path.resolve(filePath);

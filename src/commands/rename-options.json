@@ -1,0 +1,10 @@
+[
+  {
+    "flags": "--query <selector>",
+    "description": "Target identifier or expression to refactor"
+  },
+  {
+    "flags": "--to <newName>",
+    "description": "New name for rename operations"
+  }
+]
