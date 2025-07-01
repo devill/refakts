@@ -14,23 +14,26 @@ export class ExtractVariableCommand implements RefactoringCommand {
   async execute(file: string, options: Record<string, any>): Promise<void> {
     this.validateOptions(options);
     const sourceFile = this.loadSourceFile(file);
+    const targetNode = this.findTargetNode(sourceFile, options.query);
     
-    if (options.all) {
-      const targetNodes = this.tsQueryHandler.findNodesByQuery(sourceFile, options.query);
-      if (targetNodes.length === 0) {
-        throw new Error(`No matches found for query: ${options.query}`);
-      }
-      await this.extractAllOccurrences(targetNodes[0], options.name);
-    } else {
-      // For single extraction, use findNodesByQuery and take the first match
-      const targetNodes = this.tsQueryHandler.findNodesByQuery(sourceFile, options.query);
-      if (targetNodes.length === 0) {
-        throw new Error(`No matches found for query: ${options.query}`);
-      }
-      await this.extractSingleOccurrence(targetNodes[0], options.name);
-    }
-    
+    await this.performExtraction(targetNode, options);
     await sourceFile.save();
+  }
+
+  private async performExtraction(targetNode: Node, options: Record<string, any>): Promise<void> {
+    if (options.all) {
+      await this.extractAllOccurrences(targetNode, options.name);
+    } else {
+      await this.extractSingleOccurrence(targetNode, options.name);
+    }
+  }
+
+  private findTargetNode(sourceFile: any, query: string): Node {
+    const targetNodes = this.tsQueryHandler.findNodesByQuery(sourceFile, query);
+    if (targetNodes.length === 0) {
+      throw new Error(`No matches found for query: ${query}`);
+    }
+    return targetNodes[0];
   }
 
   validateOptions(options: Record<string, any>): void {
@@ -64,39 +67,52 @@ export class ExtractVariableCommand implements RefactoringCommand {
   }
 
   private async extractAllOccurrences(targetNode: Node, variableName: string): Promise<void> {
-    if (!Node.isExpression(targetNode)) {
-      throw new Error('Selected node must be an expression');
-    }
-
+    this.validateExpressionNode(targetNode);
     const sourceFile = targetNode.getSourceFile();
     const expressionText = targetNode.getText();
     
-    // Find all matching expressions in the entire source file
-    const allMatchingExpressions = this.findMatchingExpressions(sourceFile, expressionText);
+    const allExpressions = this.findMatchingExpressions(sourceFile, expressionText);
+    this.validateExpressionsFound(allExpressions);
     
-    if (allMatchingExpressions.length === 0) {
+    const groupedExpressions = this.groupExpressionsByScope(allExpressions);
+    this.extractInEachScope(groupedExpressions, variableName);
+  }
+
+  private validateExpressionNode(node: Node): void {
+    if (!Node.isExpression(node)) {
+      throw new Error('Selected node must be an expression');
+    }
+  }
+
+  private validateExpressionsFound(expressions: Expression[]): void {
+    if (expressions.length === 0) {
       throw new Error('No matching expressions found');
     }
+  }
 
-    // Group expressions by their extraction scope (function/block)
-    const expressionsByScope = new Map<Node, Expression[]>();
+  private groupExpressionsByScope(expressions: Expression[]): Map<Node, Expression[]> {
+    const groupedExpressions = new Map<Node, Expression[]>();
     
-    for (const expression of allMatchingExpressions) {
-      const scope = this.findExtractionScope(expression);
-      if (!expressionsByScope.has(scope)) {
-        expressionsByScope.set(scope, []);
-      }
-      expressionsByScope.get(scope)!.push(expression);
+    for (const expression of expressions) {
+      this.addExpressionToScope(groupedExpressions, expression);
     }
+    
+    return groupedExpressions;
+  }
 
-    // Extract variables in each scope separately
+  private addExpressionToScope(groupedExpressions: Map<Node, Expression[]>, expression: Expression): void {
+    const scope = this.findExtractionScope(expression);
+    if (!groupedExpressions.has(scope)) {
+      groupedExpressions.set(scope, []);
+    }
+    groupedExpressions.get(scope)!.push(expression);
+  }
+
+  private extractInEachScope(expressionsByScope: Map<Node, Expression[]>, variableName: string): void {
     for (const [scope, expressions] of expressionsByScope) {
       const uniqueName = this.generateUniqueName(variableName, scope);
-      
-      // Insert variable declaration before the first expression in this scope
       this.insertVariableDeclaration(expressions[0], uniqueName);
       
-      // Replace all matching expressions in this scope
       for (const expression of expressions) {
         expression.replaceWithText(uniqueName);
       }
@@ -104,7 +120,6 @@ export class ExtractVariableCommand implements RefactoringCommand {
   }
 
   private findExtractionScope(node: Node): Node {
-    // Find the nearest statement that can contain variable declarations
     let current: Node | undefined = node;
     while (current) {
       const parent = current.getParent();
@@ -130,47 +145,74 @@ export class ExtractVariableCommand implements RefactoringCommand {
     const names = new Set<string>();
     
     scope.forEachDescendant((node) => {
-      if (Node.isVariableDeclaration(node)) {
-        const nameNode = node.getNameNode();
-        if (Node.isIdentifier(nameNode)) {
-          names.add(nameNode.getText());
-        }
-      }
-      if (Node.isParameterDeclaration(node)) {
-        const nameNode = node.getNameNode();
-        if (Node.isIdentifier(nameNode)) {
-          names.add(nameNode.getText());
-        }
-      }
+      this.addVariableNameIfExists(node, names);
+      this.addParameterNameIfExists(node, names);
     });
     
     return names;
   }
 
+  private addVariableNameIfExists(node: Node, names: Set<string>): void {
+    if (Node.isVariableDeclaration(node)) {
+      const nameNode = node.getNameNode();
+      if (Node.isIdentifier(nameNode)) {
+        names.add(nameNode.getText());
+      }
+    }
+  }
+
+  private addParameterNameIfExists(node: Node, names: Set<string>): void {
+    if (Node.isParameterDeclaration(node)) {
+      const nameNode = node.getNameNode();
+      if (Node.isIdentifier(nameNode)) {
+        names.add(nameNode.getText());
+      }
+    }
+  }
+
   private insertVariableDeclaration(beforeNode: Node, variableName: string): void {
-    const expressionText = beforeNode.getText();
     const statement = this.findContainingStatement(beforeNode);
-    
     if (!statement) {
       throw new Error('Cannot find containing statement for variable declaration');
     }
 
-    const declarationText = `const ${variableName} = ${expressionText};`;
-    
-    // Insert the variable declaration before the containing statement
+    const declarationText = this.createDeclarationText(beforeNode, variableName);
+    this.insertDeclarationAtStatement(statement, declarationText);
+  }
+
+  private createDeclarationText(node: Node, variableName: string): string {
+    const expressionText = node.getText();
+    return `const ${variableName} = ${expressionText};`;
+  }
+
+  private insertDeclarationAtStatement(statement: Node, declarationText: string): void {
     const parent = statement.getParent();
+    if (Node.isBlock(parent) || Node.isSourceFile(parent)) {
+      this.insertAtStatementIndex(parent, statement, declarationText);
+    }
+  }
+
+  private insertAtStatementIndex(parent: Node, statement: Node, declarationText: string): void {
     if (Node.isBlock(parent)) {
-      const statements = parent.getStatements();
-      const index = statements.findIndex(s => s === statement);
-      if (index !== -1) {
-        parent.insertStatements(index, [declarationText]);
-      }
+      this.insertInBlock(parent, statement, declarationText);
     } else if (Node.isSourceFile(parent)) {
-      const statements = parent.getStatements();
-      const index = statements.findIndex(s => s === statement);
-      if (index !== -1) {
-        parent.insertStatements(index, [declarationText]);
-      }
+      this.insertInSourceFile(parent, statement, declarationText);
+    }
+  }
+
+  private insertInBlock(parent: any, statement: Node, declarationText: string): void {
+    const statements = parent.getStatements();
+    const index = statements.findIndex((s: any) => s === statement);
+    if (index !== -1) {
+      parent.insertStatements(index, [declarationText]);
+    }
+  }
+
+  private insertInSourceFile(parent: any, statement: Node, declarationText: string): void {
+    const statements = parent.getStatements();
+    const index = statements.findIndex((s: any) => s === statement);
+    if (index !== -1) {
+      parent.insertStatements(index, [declarationText]);
     }
   }
 

@@ -12,11 +12,17 @@ export class ExpressionLocatorCommand implements RefactoringCommand {
   async execute(file: string, options: Record<string, any>): Promise<void> {
     this.validateOptions(options);
     const result = await this.locator.findExpressions(file, options.query);
-    
+    this.displayResults(result);
+  }
+
+  private displayResults(result: any): void {
     console.log(`Query: ${result.query}`);
     console.log(`Found ${result.matches.length} expressions:`);
-    
-    for (const match of result.matches) {
+    this.displayMatches(result.matches);
+  }
+
+  private displayMatches(matches: any[]): void {
+    for (const match of matches) {
       console.log(`- ${match.expression} (${match.type}) at ${match.line}:${match.column} in ${match.scope}`);
     }
   }

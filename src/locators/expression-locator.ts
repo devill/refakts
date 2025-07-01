@@ -29,32 +29,42 @@ export class ExpressionLocator {
     try {
       const sourceFile = this.loadSourceFile(filePath);
       const matchingNodes = this.tsQueryHandler.findNodesByQuery(sourceFile, query);
+      const matches = this.createExpressionMatches(sourceFile, matchingNodes);
       
-      const matches: ExpressionMatch[] = [];
-      
-      for (const node of matchingNodes) {
-        if (Node.isExpression(node)) {
-          const location = sourceFile.getLineAndColumnAtPos(node.getStart());
-          const scope = this.findScopeName(node);
-          
-          matches.push({
-            expression: node.getText(),
-            type: node.getKindName(),
-            line: location.line,
-            column: location.column,
-            scope: scope,
-            node: node
-          });
-        }
-      }
-      
-      return {
-        query,
-        matches
-      };
+      return { query, matches };
     } catch (error) {
       throw new Error(`Failed to process file ${filePath}: ${error}`);
     }
+  }
+
+  private createExpressionMatches(sourceFile: SourceFile, nodes: Node[]): ExpressionMatch[] {
+    const matches: ExpressionMatch[] = [];
+    
+    for (const node of nodes) {
+      if (Node.isExpression(node)) {
+        matches.push(this.createExpressionMatch(sourceFile, node));
+      }
+    }
+    
+    return matches;
+  }
+
+  private createExpressionMatch(sourceFile: SourceFile, node: Expression): ExpressionMatch {
+    const location = sourceFile.getLineAndColumnAtPos(node.getStart());
+    const scope = this.findScopeName(node);
+    
+    return this.buildExpressionMatch(node, location, scope);
+  }
+
+  private buildExpressionMatch(node: Expression, location: any, scope: string): ExpressionMatch {
+    return {
+      expression: node.getText(),
+      type: node.getKindName(),
+      line: location.line,
+      column: location.column,
+      scope: scope,
+      node: node
+    };
   }
 
   private loadSourceFile(filePath: string): SourceFile {
@@ -66,25 +76,46 @@ export class ExpressionLocator {
   }
 
   private findScopeName(node: Node): string {
-    let current = node.getParent();
-    
+    const scopeName = this.searchParentScopes(node.getParent());
+    return scopeName || 'unknown scope';
+  }
+
+  private searchParentScopes(current: Node | undefined): string | null {
     while (current) {
-      if (Node.isFunctionDeclaration(current)) {
-        const name = current.getName();
-        return `function ${name || '<anonymous>'}`;
-      } else if (Node.isMethodDeclaration(current)) {
-        const name = current.getName();
-        return `method ${name}`;
-      } else if (Node.isArrowFunction(current)) {
-        return 'arrow function';
-      } else if (Node.isConstructorDeclaration(current)) {
-        return 'constructor';
-      } else if (Node.isSourceFile(current)) {
-        return 'file scope';
+      const scopeName = this.getScopeNameForNode(current);
+      if (scopeName) {
+        return scopeName;
       }
       current = current.getParent();
     }
-    
-    return 'unknown scope';
+    return null;
+  }
+
+  private getScopeNameForNode(node: Node): string | null {
+    if (Node.isFunctionDeclaration(node)) {
+      return this.getFunctionScopeName(node);
+    }
+    if (Node.isMethodDeclaration(node)) {
+      return `method ${node.getName()}`;
+    }
+    return this.getOtherScopeNames(node);
+  }
+
+  private getFunctionScopeName(node: any): string {
+    const name = node.getName();
+    return `function ${name || '<anonymous>'}`;
+  }
+
+  private getOtherScopeNames(node: Node): string | null {
+    if (Node.isArrowFunction(node)) {
+      return 'arrow function';
+    }
+    if (Node.isConstructorDeclaration(node)) {
+      return 'constructor';
+    }
+    if (Node.isSourceFile(node)) {
+      return 'file scope';
+    }
+    return null;
   }
 }

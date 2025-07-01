@@ -48,20 +48,22 @@ export class TSQueryHandler {
   }
 
   private convertToMorphNode(sourceFile: any, match: any): Node {
-    // Use getDescendantAtStartWithWidth to get the exact node, not a child
     const start = match.getStart();
     const end = match.getEnd();
     const width = end - start;
     
-    const node = sourceFile.getDescendantAtStartWithWidth(start, width);
-    if (!node) {
-      // Fallback to getDescendantAtPos if the exact match fails
-      const fallback = sourceFile.getDescendantAtPos(start);
-      if (!fallback) {
-        throw new Error(`Could not find ts-morph node for query match`);
-      }
-      return fallback;
+    return this.findExactNode(sourceFile, start, width) || this.findFallbackNode(sourceFile, start);
+  }
+
+  private findExactNode(sourceFile: any, start: number, width: number): Node | undefined {
+    return sourceFile.getDescendantAtStartWithWidth(start, width);
+  }
+
+  private findFallbackNode(sourceFile: any, start: number): Node {
+    const fallback = sourceFile.getDescendantAtPos(start);
+    if (!fallback) {
+      throw new Error(`Could not find ts-morph node for query match`);
     }
-    return node;
+    return fallback;
   }
 }
