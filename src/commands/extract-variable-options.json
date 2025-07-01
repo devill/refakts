@@ -1,0 +1,14 @@
+[
+  {
+    "flags": "--query <selector>",
+    "description": "Target expression to extract into a variable"
+  },
+  {
+    "flags": "--name <variableName>",
+    "description": "Name for the extracted variable"
+  },
+  {
+    "flags": "--all",
+    "description": "Extract all matching expressions in current scope"
+  }
+]

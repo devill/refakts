@@ -1,0 +1,17 @@
+query: "BinaryExpression"
+matches:
+  - expression: "x + y"
+    type: "BinaryExpression"
+    line: 2
+    column: 18
+    scope: "function calculate"
+  - expression: "result + x * y"
+    type: "BinaryExpression"
+    line: 3
+    column: 10
+    scope: "function calculate"
+  - expression: "x * y"
+    type: "BinaryExpression"
+    line: 3
+    column: 19
+    scope: "function calculate"
