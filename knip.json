@@ -1,8 +1,7 @@
 {
   "entry": [
     "src/cli.ts",
-    "src/index.ts",
-    "src/commands/**/*-command.ts"
+    "src/index.ts"
   ],
   "project": [
     "src/**/*.ts"

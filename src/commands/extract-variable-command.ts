@@ -55,10 +55,7 @@ export class ExtractVariableCommand implements RefactoringCommand {
   }
 
   private async extractSingleOccurrence(targetNode: Node, variableName: string): Promise<void> {
-    if (!Node.isExpression(targetNode)) {
-      throw new Error('Selected node must be an expression');
-    }
-
+    this.validateExpressionNode(targetNode);
     const scope = this.findExtractionScope(targetNode);
     const uniqueName = this.generateUniqueName(variableName, scope);
     
@@ -68,14 +65,17 @@ export class ExtractVariableCommand implements RefactoringCommand {
 
   private async extractAllOccurrences(targetNode: Node, variableName: string): Promise<void> {
     this.validateExpressionNode(targetNode);
-    const sourceFile = targetNode.getSourceFile();
-    const expressionText = targetNode.getText();
-    
-    const allExpressions = this.findMatchingExpressions(sourceFile, expressionText);
+    const allExpressions = this.findAllMatchingExpressions(targetNode);
     this.validateExpressionsFound(allExpressions);
     
     const groupedExpressions = this.groupExpressionsByScope(allExpressions);
     this.extractInEachScope(groupedExpressions, variableName);
+  }
+
+  private findAllMatchingExpressions(targetNode: Node): Expression[] {
+    const expressionText = targetNode.getText();
+    const sourceFile = targetNode.getSourceFile();
+    return this.findMatchingExpressions(sourceFile, expressionText);
   }
 
   private validateExpressionNode(node: Node): void {
@@ -120,15 +120,27 @@ export class ExtractVariableCommand implements RefactoringCommand {
   }
 
   private findExtractionScope(node: Node): Node {
+    const scope = this.searchForValidScope(node);
+    return scope || node.getSourceFile();
+  }
+
+  private searchForValidScope(node: Node): Node | undefined {
     let current: Node | undefined = node;
     while (current) {
-      const parent = current.getParent();
-      if (Node.isBlock(parent) || Node.isSourceFile(parent)) {
-        return parent;
-      }
-      current = parent;
+      const validScope = this.checkCurrentNodeForValidScope(current);
+      if (validScope) return validScope;
+      current = current.getParent();
     }
-    return node.getSourceFile();
+    return undefined;
+  }
+
+  private checkCurrentNodeForValidScope(current: Node): Node | undefined {
+    const parent = current.getParent();
+    return this.isValidExtractionScope(parent) ? parent : undefined;
+  }
+
+  private isValidExtractionScope(parent: Node | undefined): parent is Node {
+    return parent !== undefined && (Node.isBlock(parent) || Node.isSourceFile(parent));
   }
 
   private generateUniqueName(baseName: string, scope: Node): string {
@@ -219,24 +231,32 @@ export class ExtractVariableCommand implements RefactoringCommand {
   private findContainingStatement(node: Node): Node | undefined {
     let current: Node | undefined = node;
     while (current) {
-      const parent = current.getParent();
-      if (Node.isBlock(parent) || Node.isSourceFile(parent)) {
+      if (this.isContainingStatement(current)) {
         return current;
       }
-      current = parent;
+      current = current.getParent();
     }
     return undefined;
+  }
+
+  private isContainingStatement(current: Node): boolean {
+    const parent = current.getParent();
+    return this.isValidExtractionScope(parent);
   }
 
   private findMatchingExpressions(scope: Node, expressionText: string): Expression[] {
     const expressions: Expression[] = [];
     
     scope.forEachDescendant((node) => {
-      if (Node.isExpression(node) && node.getText() === expressionText) {
-        expressions.push(node);
-      }
+      this.addMatchingExpression(node, expressionText, expressions);
     });
     
     return expressions;
+  }
+
+  private addMatchingExpression(node: Node, expressionText: string, expressions: Expression[]): void {
+    if (Node.isExpression(node) && node.getText() === expressionText) {
+      expressions.push(node);
+    }
   }
 }
