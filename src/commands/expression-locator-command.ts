@@ -1,13 +1,18 @@
 import { RefactoringCommand } from '../command';
+import { ASTService } from '../services/ast-service';
 import { ExpressionLocator } from '../locators/expression-locator';
-import * as path from 'path';
 
 export class ExpressionLocatorCommand implements RefactoringCommand {
   readonly name = 'expression-locator';
   readonly description = 'Find expressions in TypeScript files';
   readonly complete = true;
 
-  private locator = new ExpressionLocator();
+  private astService = new ASTService();
+  private locator: ExpressionLocator;
+
+  constructor() {
+    this.locator = new ExpressionLocator(this.astService.getProject());
+  }
 
   async execute(file: string, options: Record<string, any>): Promise<void> {
     this.validateOptions(options);

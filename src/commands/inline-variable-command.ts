@@ -1,28 +1,26 @@
 import { RefactoringCommand } from '../command';
-import { Project, Node, VariableDeclaration } from 'ts-morph';
-import { TSQueryHandler } from '../tsquery-handler';
+import { Node, VariableDeclaration } from 'ts-morph';
+import { ASTService } from '../services/ast-service';
 import { VariableDeclarationFinder } from '../variable-declaration-finder';
 import { ExpressionAnalyzer } from '../expression-analyzer';
 import { VariableReplacer } from '../variable-replacer';
-import * as path from 'path';
 
 export class InlineVariableCommand implements RefactoringCommand {
   readonly name = 'inline-variable';
   readonly description = 'Replace variable usage with its value';
   readonly complete = true;
 
-  private project = new Project();
-  private tsQueryHandler = new TSQueryHandler();
+  private astService = new ASTService();
   private declarationFinder = new VariableDeclarationFinder();
   private expressionAnalyzer = new ExpressionAnalyzer();
   private variableReplacer = new VariableReplacer();
 
   async execute(file: string, options: Record<string, any>): Promise<void> {
     this.validateOptions(options);
-    const sourceFile = this.loadSourceFile(file);
-    const node = this.tsQueryHandler.findNodeByQuery(sourceFile, options.query);
+    const sourceFile = this.astService.loadSourceFile(file);
+    const node = this.astService.findNodeByQuery(sourceFile, options.query);
     await this.performInlineVariable(node);
-    await sourceFile.save();
+    await this.astService.saveSourceFile(sourceFile);
   }
 
   validateOptions(options: Record<string, any>): void {
@@ -36,10 +34,6 @@ export class InlineVariableCommand implements RefactoringCommand {
   }
 
 
-  private loadSourceFile(filePath: string) {
-    const absolutePath = path.resolve(filePath);
-    return this.project.addSourceFileAtPath(absolutePath);
-  }
 
   private async performInlineVariable(node: Node): Promise<void> {
     this.validateIdentifierNode(node);

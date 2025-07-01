@@ -1,6 +1,7 @@
 import * as ts from 'typescript';
 import { Project, Node, SourceFile, Expression } from 'ts-morph';
 import { TSQueryHandler } from '../tsquery-handler';
+import { ScopeAnalyzer } from '../services/scope-analyzer';
 import * as path from 'path';
 
 export interface ExpressionMatch {
@@ -20,6 +21,7 @@ export interface ExpressionLocationResult {
 export class ExpressionLocator {
   private project: Project;
   private tsQueryHandler = new TSQueryHandler();
+  private scopeAnalyzer = new ScopeAnalyzer();
 
   constructor(project?: Project) {
     this.project = project || new Project();
@@ -60,7 +62,7 @@ export class ExpressionLocator {
 
   private createExpressionMatch(sourceFile: SourceFile, node: Expression): ExpressionMatch {
     const location = sourceFile.getLineAndColumnAtPos(node.getStart());
-    const scope = this.findScopeName(node);
+    const scope = this.scopeAnalyzer.findScopeName(node);
     
     return this.buildExpressionMatch(node, location, scope);
   }
@@ -84,51 +86,4 @@ export class ExpressionLocator {
     return this.project.addSourceFileAtPath(absolutePath);
   }
 
-  private findScopeName(node: Node): string {
-    const scopeName = this.searchParentScopes(node.getParent());
-    return scopeName || 'unknown scope';
-  }
-
-  private searchParentScopes(current: Node | undefined): string | null {
-    while (current) {
-      const scopeName = this.getScopeNameForNode(current);
-      if (scopeName) {
-        return scopeName;
-      }
-      current = current.getParent();
-    }
-    return null;
-  }
-
-  private getScopeNameForNode(node: Node): string | null {
-    if (Node.isFunctionDeclaration(node)) {
-      return this.getFunctionScopeName(node);
-    }
-    if (Node.isMethodDeclaration(node)) {
-      return `method ${node.getName()}`;
-    }
-    return this.getOtherScopeNames(node);
-  }
-
-  private getFunctionScopeName(node: any): string {
-    const name = node.getName();
-    return `function ${name || '<anonymous>'}`;
-  }
-
-  private getOtherScopeNames(node: Node): string | null {
-    if (Node.isArrowFunction(node)) {
-      return 'arrow function';
-    }
-    return this.getSpecialScopeNames(node);
-  }
-
-  private getSpecialScopeNames(node: Node): string | null {
-    if (Node.isConstructorDeclaration(node)) {
-      return 'constructor';
-    }
-    if (Node.isSourceFile(node)) {
-      return 'file scope';
-    }
-    return null;
-  }
 }

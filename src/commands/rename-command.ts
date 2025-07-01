@@ -1,29 +1,27 @@
 import { RefactoringCommand } from '../command';
-import { Project, Node } from 'ts-morph';
-import { TSQueryHandler } from '../tsquery-handler';
+import { Node } from 'ts-morph';
+import { ASTService } from '../services/ast-service';
 import { VariableLocator } from '../locators/variable-locator';
 import { RenameVariableTransformation } from '../transformations/rename-variable-transformation';
-import * as path from 'path';
 
 export class RenameCommand implements RefactoringCommand {
   readonly name = 'rename';
   readonly description = 'Rename a variable and all its references';
   readonly complete = true;
 
-  private project = new Project();
-  private tsQueryHandler = new TSQueryHandler();
+  private astService = new ASTService();
   private variableLocator: VariableLocator;
 
   constructor() {
-    this.variableLocator = new VariableLocator(this.project);
+    this.variableLocator = new VariableLocator(this.astService.getProject());
   }
 
   async execute(file: string, options: Record<string, any>): Promise<void> {
     this.validateOptions(options);
-    const sourceFile = this.loadSourceFile(file);
-    const node = this.tsQueryHandler.findNodeByQuery(sourceFile, options.query);
+    const sourceFile = this.astService.loadSourceFile(file);
+    const node = this.astService.findNodeByQuery(sourceFile, options.query);
     await this.performRename(node, options.to);
-    await sourceFile.save();
+    await this.astService.saveSourceFile(sourceFile);
   }
 
   validateOptions(options: Record<string, any>): void {
@@ -40,10 +38,6 @@ export class RenameCommand implements RefactoringCommand {
   }
 
 
-  private loadSourceFile(filePath: string) {
-    const absolutePath = path.resolve(filePath);
-    return this.project.addSourceFileAtPath(absolutePath);
-  }
 
   private async performRename(node: Node, newName: string): Promise<void> {
     this.validateIdentifierNode(node);
