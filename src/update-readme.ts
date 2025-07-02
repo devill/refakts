@@ -152,18 +152,20 @@ function findCommandsStart(lines: string[]): number {
 
 function parseCommandLines(lines: string[], startIndex: number): string[] {
   const commands: string[] = [];
-  let currentCommand = '';
-  
-  for (let i = startIndex + 1; i < lines.length; i++) {
-    const line = lines[i].trim();
-    
-    if (shouldStop(line)) break;
-    
-    currentCommand = processLine(line, currentCommand, commands);
-  }
+  let currentCommand = processLines(lines, startIndex, commands);
   
   if (currentCommand) commands.push(currentCommand);
   return commands;
+}
+
+function processLines(lines: string[], startIndex: number, commands: string[]): string {
+  let currentCommand = '';
+  for (let i = startIndex + 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (shouldStop(line)) break;
+    currentCommand = processLine(line, currentCommand, commands);
+  }
+  return currentCommand;
 }
 
 function shouldStop(line: string): boolean {
