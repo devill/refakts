@@ -207,20 +207,33 @@ function handleAddCommand(manager: RoadmapManager, args: string[]): void {
 }
 
 function parseAddArguments(args: string[]): { name: string; description: string; why?: string } {
-  const nameIndex = args.indexOf('--feature');
-  const descIndex = args.indexOf('--description');
-  const whyIndex = args.indexOf('--why');
+  const indices = extractArgumentIndices(args);
+  validateRequiredArguments(indices, args);
   
-  if (nameIndex === -1 || !args[nameIndex + 1] || descIndex === -1 || !args[descIndex + 1]) {
+  return {
+    name: args[indices.nameIndex + 1],
+    description: args[indices.descIndex + 1],
+    why: extractOptionalWhy(indices.whyIndex, args)
+  };
+}
+
+function extractArgumentIndices(args: string[]): { nameIndex: number; descIndex: number; whyIndex: number } {
+  return {
+    nameIndex: args.indexOf('--feature'),
+    descIndex: args.indexOf('--description'),
+    whyIndex: args.indexOf('--why')
+  };
+}
+
+function validateRequiredArguments(indices: { nameIndex: number; descIndex: number }, args: string[]): void {
+  if (indices.nameIndex === -1 || !args[indices.nameIndex + 1] || indices.descIndex === -1 || !args[indices.descIndex + 1]) {
     console.error('Usage: npm run roadmap:add --feature <name> --description <desc> [--why <reason>]');
     process.exit(1);
   }
-  
-  return {
-    name: args[nameIndex + 1],
-    description: args[descIndex + 1],
-    why: whyIndex !== -1 && args[whyIndex + 1] ? args[whyIndex + 1] : undefined
-  };
+}
+
+function extractOptionalWhy(whyIndex: number, args: string[]): string | undefined {
+  return whyIndex !== -1 && args[whyIndex + 1] ? args[whyIndex + 1] : undefined;
 }
 
 if (require.main === module) {
