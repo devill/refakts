@@ -29,16 +29,20 @@ class RoadmapManager {
 
   private createDefaultRoadmap(): RoadmapData {
     return {
-      features: [
-        { name: 'regex-ast-locator', description: 'Find AST nodes by text content', score: 0, status: 'proposed', tier: 1 },
-        { name: 'selection-tool', description: 'Select AST ranges between two points', score: 0, status: 'proposed', tier: 1, dependencies: ['regex-ast-locator'] },
-        { name: 'function-body-extractor', description: 'Get function body without reading entire files', score: 0, status: 'proposed', tier: 1, dependencies: ['regex-ast-locator'] },
-        { name: 'complete-ast-query-engine', description: 'Complete node-finding-command', score: 0, status: 'in-progress', tier: 1 },
-        { name: 'smart-method-extraction', description: 'Extract methods with automatic parameter detection', score: 0, status: 'proposed', tier: 2, dependencies: ['selection-tool', 'complete-ast-query-engine'] },
-        { name: 'automated-dead-code-elimination', description: 'Safe removal of unused code', score: 0, status: 'proposed', tier: 2, dependencies: ['complete-ast-query-engine'] }
-      ],
+      features: this.getDefaultFeatures(),
       lastUpdated: new Date().toISOString()
     };
+  }
+
+  private getDefaultFeatures(): RoadmapFeature[] {
+    return [
+      { name: 'regex-ast-locator', description: 'Find AST nodes by text content', score: 0, status: 'proposed', tier: 1 },
+      { name: 'selection-tool', description: 'Select AST ranges between two points', score: 0, status: 'proposed', tier: 1, dependencies: ['regex-ast-locator'] },
+      { name: 'function-body-extractor', description: 'Get function body without reading entire files', score: 0, status: 'proposed', tier: 1, dependencies: ['regex-ast-locator'] },
+      { name: 'complete-ast-query-engine', description: 'Complete node-finding-command', score: 0, status: 'in-progress', tier: 1 },
+      { name: 'smart-method-extraction', description: 'Extract methods with automatic parameter detection', score: 0, status: 'proposed', tier: 2, dependencies: ['selection-tool', 'complete-ast-query-engine'] },
+      { name: 'automated-dead-code-elimination', description: 'Safe removal of unused code', score: 0, status: 'proposed', tier: 2, dependencies: ['complete-ast-query-engine'] }
+    ];
   }
 
   private saveRoadmap(data: RoadmapData): void {
@@ -134,14 +138,22 @@ class RoadmapManager {
 
   private printFeature(feature: RoadmapFeature): void {
     const statusIcon = this.getStatusIcon(feature.status);
-    const deps = feature.dependencies ? ` (depends: ${feature.dependencies.join(', ')})` : '';
+    const deps = this.formatDependencies(feature.dependencies);
     
     console.log(`  ${statusIcon} ${feature.name} (${feature.score} votes)${deps}`);
     console.log(`     ${feature.description}`);
-    if (feature.why) {
-      console.log(`     Why: ${feature.why}`);
-    }
+    this.printWhyIfPresent(feature.why);
     console.log();
+  }
+
+  private formatDependencies(dependencies?: string[]): string {
+    return dependencies ? ` (depends: ${dependencies.join(', ')})` : '';
+  }
+
+  private printWhyIfPresent(why?: string): void {
+    if (why) {
+      console.log(`     Why: ${why}`);
+    }
   }
 
   private getStatusIcon(status: string): string {
@@ -174,18 +186,23 @@ function main() {
 }
 
 function executeCommand(manager: RoadmapManager, command: string, args: string[]): void {
+  const commandHandler = getCommandHandler(manager, command, args);
+  
+  if (commandHandler) {
+    commandHandler();
+  } else {
+    showUsage();
+  }
+}
+
+function getCommandHandler(manager: RoadmapManager, command: string, args: string[]): (() => void) | undefined {
   const commandMap: Record<string, () => void> = {
     'vote': () => handleVoteCommand(manager, args),
     'add': () => handleAddCommand(manager, args),
     'status': () => manager.status()
   };
 
-  const commandHandler = commandMap[command];
-  if (commandHandler) {
-    commandHandler();
-  } else {
-    showUsage();
-  }
+  return commandMap[command];
 }
 
 function showUsage(): void {
