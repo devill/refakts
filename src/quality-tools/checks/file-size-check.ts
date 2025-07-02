@@ -20,8 +20,8 @@ export const fileSizeCheck: QualityCheck = {
     };
     if (groupKey === 'largeFiles') return {
       title: 'LARGE FILES',
-      description: 'Large files are harder to understand and maintain.',
-      actionGuidance: 'Break these files into smaller, focused modules with single responsibilities.'
+      description: 'Large files are harder to understand and maintain. They may also point to architectural issues.',
+      actionGuidance: 'Analyze the file to suggest an improved design that break these files into smaller, focused modules with single responsibilities. Suggest the change to the user.'
     };
     return undefined;
   }
