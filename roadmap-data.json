@@ -4,7 +4,7 @@
       "name": "regex-ast-locator",
       "description": "Find AST nodes by text content instead of complex TSQuery patterns",
       "why": "Makes targeting for refactoring operations 10x simpler for AI agents",
-      "score": 2,
+      "score": 3,
       "status": "proposed",
       "tier": 1
     },
@@ -34,7 +34,7 @@
       "name": "complete-ast-query-engine",
       "description": "Complete node-finding-command to replace expression-locator",
       "why": "Foundation for complex refactoring operations",
-      "score": 1,
+      "score": 2,
       "status": "in-progress",
       "tier": 1
     },
@@ -42,7 +42,7 @@
       "name": "smart-method-extraction",
       "description": "Extract methods with automatic parameter/return detection",
       "why": "Most common refactoring operation needs automation",
-      "score": 0,
+      "score": 1,
       "status": "proposed",
       "tier": 2,
       "dependencies": [
@@ -65,10 +65,10 @@
       "name": "optimize-abstraction-leakage-report",
       "description": "Identify highly connected clusters in change frequency graph instead of reporting all pairs",
       "why": "The abstraction leakage report can get huge due to the large amount of possible pairs. This could be improved by identifying highly connected clusters in the graph and reporting on them once.",
-      "score": 0,
+      "score": 1,
       "status": "proposed",
       "tier": 4
     }
   ],
-  "lastUpdated": "2025-07-02T18:29:37.094Z"
+  "lastUpdated": "2025-07-02T18:44:12.001Z"
 }

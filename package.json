@@ -20,9 +20,9 @@
     "update-claude-md": "ts-node src/update-claude-md.ts",
     "update-readme": "ts-node src/update-readme.ts",
     "snooze": "ts-node src/snooze-cli.ts",
-    "roadmap:vote": "ts-node src/roadmap-manager.ts vote",
-    "roadmap:add": "ts-node src/roadmap-manager.ts add",
-    "roadmap:status": "ts-node src/roadmap-manager.ts status"
+    "roadmap:vote": "ts-node src/roadmap/index.ts vote",
+    "roadmap:add": "ts-node src/roadmap/index.ts add",
+    "roadmap:status": "ts-node src/roadmap/index.ts status"
   },
   "keywords": [],
   "author": "",
