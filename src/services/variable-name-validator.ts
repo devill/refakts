@@ -14,20 +14,32 @@ export class VariableNameValidator {
   getExistingVariableNames(scope: Node): Set<string> {
     const names = new Set<string>();
     
-    // If scope is a block, check if its parent is a function and include parameters
+    this.addFunctionParametersIfInBlock(scope, names);
+    this.addDescendantVariableNames(scope, names);
+    
+    return names;
+  }
+
+  private addFunctionParametersIfInBlock(scope: Node, names: Set<string>): void {
     if (Node.isBlock(scope)) {
       const parent = scope.getParent();
-      if (Node.isFunctionDeclaration(parent) || Node.isFunctionExpression(parent) || Node.isArrowFunction(parent) || Node.isMethodDeclaration(parent) || Node.isConstructorDeclaration(parent)) {
+      if (this.isFunctionNode(parent)) {
         this.addFunctionParameterNames(parent, names);
       }
     }
-    
+  }
+
+  private isFunctionNode(node: Node): boolean {
+    return Node.isFunctionDeclaration(node) || Node.isFunctionExpression(node) || 
+           Node.isArrowFunction(node) || Node.isMethodDeclaration(node) || 
+           Node.isConstructorDeclaration(node);
+  }
+
+  private addDescendantVariableNames(scope: Node, names: Set<string>): void {
     scope.forEachDescendant((node) => {
       this.addVariableNameIfExists(node, names);
       this.addParameterNameIfExists(node, names);
     });
-    
-    return names;
   }
 
   private addVariableNameIfExists(node: Node, names: Set<string>): void {
@@ -49,30 +61,49 @@ export class VariableNameValidator {
   }
 
   private addFunctionParameterNames(functionNode: Node, names: Set<string>): void {
-    if (Node.isFunctionDeclaration(functionNode) || Node.isFunctionExpression(functionNode) || Node.isArrowFunction(functionNode) || Node.isMethodDeclaration(functionNode) || Node.isConstructorDeclaration(functionNode)) {
-      const parameters = (functionNode as any).getParameters();
-      for (const param of parameters) {
-        const nameNode = param.getNameNode();
-        if (Node.isIdentifier(nameNode)) {
-          names.add(nameNode.getText());
-        } else {
-          // Handle destructuring parameters
-          this.addDestructuredParameterNames(nameNode, names);
-        }
-      }
+    if (this.isFunctionNode(functionNode)) {
+      this.processParameters(functionNode, names);
+    }
+  }
+
+  private processParameters(functionNode: Node, names: Set<string>): void {
+    const parameters = (functionNode as any).getParameters();
+    for (const param of parameters) {
+      this.processParameter(param, names);
+    }
+  }
+
+  private processParameter(param: any, names: Set<string>): void {
+    const nameNode = param.getNameNode();
+    if (Node.isIdentifier(nameNode)) {
+      names.add(nameNode.getText());
+    } else {
+      this.addDestructuredParameterNames(nameNode, names);
     }
   }
 
   private addDestructuredParameterNames(nameNode: Node, names: Set<string>): void {
     if (Node.isObjectBindingPattern(nameNode)) {
-      nameNode.getElements().forEach(element => {
+      this.addObjectBindingNames(nameNode, names);
+    } else if (Node.isArrayBindingPattern(nameNode)) {
+      this.addArrayBindingNames(nameNode, names);
+    }
+  }
+
+  private addObjectBindingNames(nameNode: Node, names: Set<string>): void {
+    if (Node.isObjectBindingPattern(nameNode)) {
+      nameNode.getElements().forEach((element: any) => {
         const elementName = element.getNameNode();
         if (Node.isIdentifier(elementName)) {
           names.add(elementName.getText());
         }
       });
-    } else if (Node.isArrayBindingPattern(nameNode)) {
-      nameNode.getElements().forEach(element => {
+    }
+  }
+
+  private addArrayBindingNames(nameNode: Node, names: Set<string>): void {
+    if (Node.isArrayBindingPattern(nameNode)) {
+      nameNode.getElements().forEach((element: any) => {
         if (element && Node.isBindingElement(element)) {
           const elementName = element.getNameNode();
           if (Node.isIdentifier(elementName)) {
