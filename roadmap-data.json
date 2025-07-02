@@ -34,7 +34,7 @@
       "name": "complete-ast-query-engine",
       "description": "Complete node-finding-command to replace expression-locator",
       "why": "Foundation for complex refactoring operations",
-      "score": 3,
+      "score": 4,
       "status": "in-progress",
       "tier": 1
     },
@@ -86,5 +86,5 @@
       "tier": 4
     }
   ],
-  "lastUpdated": "2025-07-02T19:08:57.750Z"
+  "lastUpdated": "2025-07-02T20:08:25.645Z"
 }

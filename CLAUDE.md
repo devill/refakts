@@ -110,12 +110,11 @@ Remember: **This tool exists to amplify your capabilities, not replace your reas
 <!-- AUTO-GENERATED HELP START -->
 ## Available RefakTS Commands
 
-- expression-locator [options] <file>  Find expressions in TypeScript files
-- extract-variable [options] <file>    Extract expression into a variable
-- inline-variable [options] <file>     Replace variable usage with its value
-- node-finding [options] <file>        Find AST nodes in TypeScript files (warning: incomplete)
-- rename [options] <file>              Rename a variable and all its references
-- variable-locator [options] <file>    Find variable declarations and all their usages
+- extract-variable [options] <file>  Extract expression into a variable
+- inline-variable [options] <file>   Replace variable usage with its value
+- node-finding [options] <file>      Find AST nodes in TypeScript files
+- rename [options] <file>            Rename a variable and all its references
+- variable-locator [options] <file>  Find variable declarations and all their usages
 
 <!-- AUTO-GENERATED HELP END -->
 

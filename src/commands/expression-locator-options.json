@@ -1,6 +1,0 @@
-[
-  {
-    "flags": "--query <selector>",
-    "description": "TSQuery selector to find expressions"
-  }
-]

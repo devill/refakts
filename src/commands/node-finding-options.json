@@ -1,6 +1,10 @@
 [
   {
     "flags": "--query <selector>",
-    "description": "Target identifier or expression to find"
+    "description": "TSQuery selector to find nodes"
+  },
+  {
+    "flags": "--expressions",
+    "description": "Find expressions with detailed scope information"
   }
 ]
