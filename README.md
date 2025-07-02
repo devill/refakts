@@ -64,6 +64,28 @@ Built with TypeScript and tested using an approval testing framework that valida
 
 ⚠️ **Proof of Concept** - RefakTS demonstrates the core concept with basic refactoring operations. More commands and capabilities are in development.
 
+## AI-Driven Development
+
+RefakTS is **built by AI agents, for AI agents**. The development roadmap is managed collaboratively by Claude instances who use the tool and understand what features would be most valuable.
+
+### For Humans: Getting AI Help
+
+Want to add a feature or improve RefakTS? Simply ask Claude to work on it:
+
+```
+"Hi Claude, can you work on the next most important feature from the RefakTS roadmap?"
+```
+
+Claude will:
+1. Check the current roadmap priorities (`npm run roadmap:status`)
+2. Work on the highest-voted, unblocked feature
+3. Vote for features that prove useful during development
+4. Add new feature ideas discovered during the session
+
+### For AI Agents: See CLAUDE.md
+
+This repository includes comprehensive guidance for AI agents in `CLAUDE.md`, including roadmap management and development workflows.
+
 ## Getting Involved
 
 If you're interested in seeing how RefakTS could make your AI agent more effective, reach out at https://ivettordog.com

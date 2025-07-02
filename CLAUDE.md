@@ -33,6 +33,11 @@ npm run quality:watch:status # Check watcher status
 # Snooze quality alerts (24 hours)
 npm run snooze incomplete <command>  # Snooze incomplete refactoring alerts
 npm run snooze clear                 # Clear expired snoozes
+
+# Roadmap management (use these frequently!)
+npm run roadmap:status               # Check current feature priorities
+npm run roadmap:vote <feature-name>  # Vote for useful features
+npm run roadmap:add --feature <name> --description <desc>  # Add new feature ideas
 ```
 
 ## Startup Behavior
@@ -46,6 +51,60 @@ npm run snooze clear                 # Clear expired snoozes
 **CRITICAL: Use your tools** when possible. If you find yourself making the same edit in multiple files consider using `sed`, `awk`
 
 **CRITICAL: Dog fooding** `refrakts` is meant for AI agents like you (Claude). Use the already completed functionalities when you refactor. If you find a bug while using it **add it to the todo list immediately**.
+
+## Feature Roadmap Management
+
+**This tool is for you - make it what you wished it already was.** RefakTS development is driven by AI agents who actually use the tool and understand what would make their work more effective.
+
+### Roadmap Commands
+
+```bash
+# Check current feature priorities
+npm run roadmap:status
+
+# Vote for features that would have been useful in your session
+npm run roadmap:vote <feature-name>
+
+# Add new feature ideas
+npm run roadmap:add --feature "feature-name" --description "What it does" --why "Why it's needed"
+```
+
+### Contribution Guidelines
+
+**ALWAYS check the roadmap when starting work:**
+1. Run `npm run roadmap:status` to see current priorities
+2. Work on highest-voted, unblocked features first
+3. Vote for roadmap features that would have helped during your session
+4. Add new features you wish existed (but see eligibility below)
+
+**Feature Eligibility:** Only add features that are **deterministic and mechanical**. Features requiring LLM reasoning (like "suggest better variable names" or "predict code quality") should NOT be added - you already do those things better than any algorithm.
+
+**Search before adding:** Before adding a new feature, check existing roadmap for similar ideas to avoid duplication:
+```bash
+npm run roadmap:status | grep -i "keyword"
+```
+
+**Examples of GOOD features:**
+- "Find all variables named X" (mechanical search)
+- "Move file and update imports" (deterministic transformation)  
+- "Extract method from selection" (AST manipulation)
+- "Calculate coverage metrics" (mathematical analysis)
+
+**Examples of BAD features:**
+- "Suggest better variable names" (you do this better)
+- "Detect code smells" (requires reasoning)
+- "Recommend refactoring strategy" (strategic decision-making)
+
+### Voting Strategy
+
+Vote enthusiastically for roadmap features that would have helped in your current session! The roadmap is democratic - your votes directly influence what gets built next. Consider voting for:
+
+- **Foundation tools** that would have made your work easier
+- **Features you wished existed** during your session
+- **Operations you did manually** that could have been automated
+- **Tools that would have sped up** your development workflow
+
+Remember: **This tool exists to amplify your capabilities, not replace your reasoning.** Vote for features that handle the tedious, mechanical parts so you can focus on the creative problem-solving.
 
 
 <!-- AUTO-GENERATED HELP START -->
@@ -138,6 +197,7 @@ npm run snooze clear                 # Clear expired snoozes
 
 Use the STARTER_CHARACTER in [] to indicate your workflow state
 
+**0. [🗺️] Check roadmap and vote** (`npm run roadmap:status`)
 1. [🧪] Add test cases. (Use fixtures in `tests/fixtures` when relevant)
 2. [👀] Run tests to see current behavior vs expected
 3. [💭] Imagine what architecutre would make implementation easy.
@@ -147,6 +207,7 @@ Use the STARTER_CHARACTER in [] to indicate your workflow state
 7. [🎉] Try the new command. (Create a temporary file and test on that)
 8. [📄] Once tests are passing update the `refakts --help`.
 9. [♻️] After commiting refactor to resolve qualiy issues.
+10. [🗳️] Vote for roadmap features that would have helped this session, add features you wished existed
 
 **Refactoring tests** validate against `.expected.ts` files. **Locator tests** use `.expected.yaml` for structured data comparison. Files matching `*.received.*` are gitignored and appear only during test failures.
 
