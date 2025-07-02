@@ -34,7 +34,7 @@
       "name": "complete-ast-query-engine",
       "description": "Complete node-finding-command to replace expression-locator",
       "why": "Foundation for complex refactoring operations",
-      "score": 2,
+      "score": 3,
       "status": "in-progress",
       "tier": 1
     },
@@ -42,7 +42,7 @@
       "name": "smart-method-extraction",
       "description": "Extract methods with automatic parameter/return detection",
       "why": "Most common refactoring operation needs automation",
-      "score": 1,
+      "score": 2,
       "status": "proposed",
       "tier": 2,
       "dependencies": [
@@ -68,7 +68,23 @@
       "score": 1,
       "status": "proposed",
       "tier": 4
+    },
+    {
+      "name": "extract-module-from-class",
+      "description": "Extract cohesive methods from large classes into separate modules",
+      "why": "Would have automated the manual work of splitting roadmap-manager.ts into focused modules",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "auto-import-organizer",
+      "description": "Automatically add, remove, and organize import statements when moving code between files",
+      "why": "During modular refactoring, managing imports manually was tedious and error-prone",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
     }
   ],
-  "lastUpdated": "2025-07-02T18:44:12.001Z"
+  "lastUpdated": "2025-07-02T19:08:57.750Z"
 }
