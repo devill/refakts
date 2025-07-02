@@ -2,6 +2,7 @@ import { RefactoringCommand } from '../command';
 import { ASTService } from '../services/ast-service';
 import { ExpressionLocator } from '../locators/expression-locator';
 import { Node } from 'ts-morph';
+import * as yaml from 'js-yaml';
 
 export class NodeFindingCommand implements RefactoringCommand {
   readonly name = 'node-finding';
@@ -18,32 +19,58 @@ export class NodeFindingCommand implements RefactoringCommand {
   async execute(file: string, options: Record<string, any>): Promise<void> {
     this.validateOptions(options);
     
-    if (options.expressions) {
-      await this.findExpressions(file, options.query);
-    } else {
-      await this.findNodes(file, options.query);
+    try {
+      const result = options.expressions 
+        ? await this.findExpressions(file, options.query)
+        : await this.findNodes(file, options.query);
+      
+      console.log(yaml.dump(result, { indent: 2 }));
+    } catch (error) {
+      this.handleExecutionError(error);
     }
   }
 
-  private async findExpressions(file: string, query: string): Promise<void> {
+  private async findExpressions(file: string, query: string) {
     const result = await this.expressionLocator.findExpressions(file, query);
-    console.log(`Query: ${result.query}`);
-    console.log(`Found ${result.matches.length} expressions:`);
     
-    for (const match of result.matches) {
-      console.log(`- ${match.expression} (${match.type}) at ${match.line}:${match.column} in ${match.scope}`);
-    }
+    // Strip out Node objects for YAML serialization
+    const serializableMatches = result.matches.map(match => ({
+      expression: match.expression,
+      type: match.type,
+      line: match.line,
+      column: match.column,
+      scope: match.scope
+    }));
+
+    return {
+      query: result.query,
+      matches: serializableMatches
+    };
   }
 
-  private async findNodes(file: string, query: string): Promise<void> {
+  private async findNodes(file: string, query: string) {
     const sourceFile = this.astService.loadSourceFile(file);
     const nodes = this.astService.findNodesByQuery(sourceFile, query);
     
-    console.log(`Found ${nodes.length} matching nodes:`);
-    for (const node of nodes) {
+    const matches = nodes.map(node => {
       const location = sourceFile.getLineAndColumnAtPos(node.getStart());
-      console.log(`- ${node.getKindName()}: "${this.truncateText(node.getText())}" at ${location.line}:${location.column}`);
-    }
+      return {
+        kind: node.getKindName(),
+        text: this.truncateText(node.getText()),
+        line: location.line,
+        column: location.column
+      };
+    });
+
+    return {
+      query,
+      matches
+    };
+  }
+
+  private handleExecutionError(error: unknown): void {
+    console.error('Error:', error);
+    process.exit(1);
   }
 
   private truncateText(text: string): string {

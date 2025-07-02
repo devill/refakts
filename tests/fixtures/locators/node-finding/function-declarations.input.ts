@@ -1,6 +1,6 @@
 /**
  * @description Find function declarations
- * @command refakts node-finding basic-nodes.input.ts --query "FunctionDeclaration"
+ * @command node-finding function-declarations.input.ts --query "FunctionDeclaration"
  */
 
 function calculateArea(width: number, height: number): number {

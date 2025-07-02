@@ -1,6 +1,6 @@
 /**
  * @description Find binary expressions with detailed scope info
- * @command refakts node-finding expressions-with-scope.input.ts --query "BinaryExpression" --expressions
+ * @command node-finding binary-expressions.input.ts --query "BinaryExpression" --expressions
  */
 
 function outerFunction() {

@@ -112,7 +112,9 @@ describe('Locator Integration Tests', () => {
             if (commandExecutor.isUsingCli()) {
               // CLI execution - need to extract YAML from stdout
               const lines = output.split('\n');
-              const yamlStartIndex = lines.findIndex(line => line.includes('variable:'));
+              const yamlStartIndex = lines.findIndex(line => 
+                line.includes('variable:') || line.includes('query:')
+              );
               yamlContent = lines.slice(yamlStartIndex).join('\n').trim();
             } else {
               // Direct execution - output is already clean YAML

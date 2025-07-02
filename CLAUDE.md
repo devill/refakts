@@ -133,39 +133,47 @@ Remember: **This tool exists to amplify your capabilities, not replace your reas
 
 ### Testing Architecture
 
-**Approval Testing System**: The project uses a sophisticated approval testing framework located in `tests/integration/refactoring.test.ts` that:
+**Dual Testing System**: The project uses two specialized testing frameworks:
 
-- **Auto-discovers test cases** from `tests/fixtures/` directory structure
-- **Supports two test formats**:
-  - Single-file tests: `name.input.ts` + `name.expected.ts` with metadata in file headers
-  - Multi-file tests: Subdirectories with `meta.yaml` containing test commands
-- **Test execution flow**: Copies `.input.ts` → `.received.ts`, runs CLI commands, compares received vs expected
-- **Test metadata formats**:
-  ```ts
-  // Single file header format
-  /**
-   * @description Test description
-   * @command refakts inline-variable file.ts --line 8 --column 10
-   */
-  ```
-  ```yaml
-  # Multi-file meta.yaml format
-  description: Test description
-  commands:
-    - refakts inline-variable file.ts --line 8 --column 10
-  ```
+**1. Refactoring Tests** (`tests/integration/refactoring.test.ts`):
+- **Location**: `tests/fixtures/refactoring/`
+- **Purpose**: Test commands that modify files (extract-variable, inline-variable, rename)
+- **Format**: `name.input.ts` + `name.expected.ts` with metadata in file headers
+- **Execution**: Copies `.input.ts` → `.received.ts`, runs CLI commands, compares received vs expected
+
+**2. Locator Tests** (`tests/integration/locators.test.ts`):
+- **Location**: `tests/fixtures/locators/`
+- **Purpose**: Test commands that find/analyze code (variable-locator, node-finding)
+- **Format**: `name.input.ts` + `name.expected.yaml` with metadata in file headers
+- **Execution**: Runs CLI commands, captures YAML output, compares structured data
+
+**Test metadata formats**:
+```ts
+// Single file header format
+/**
+ * @description Test description
+ * @command refakts inline-variable file.ts --line 8 --column 10
+ */
+```
+```yaml
+# Multi-file meta.yaml format
+description: Test description
+commands:
+  - refakts inline-variable file.ts --line 8 --column 10
+```
 
 **CRITICAL** Never run `refakts` on files in `/fixtures`. When you need to test the command line tool create one off temporary files in root. 
 
 ### Current State
 
-- ✅ CLI framework and approval testing infrastructure complete
+- ✅ CLI framework and dual testing infrastructure complete
 - ✅ Basic RefactorEngine with ts-morph integration
 - ✅ Basic rename functionality (global scope)
 - ✅ Quality automation with unused method detection
 - ✅ VariableScope class for scope analysis
-- ✅ **Locators architecture**: VariableLocator with usage type detection (read/write/update)
+- ✅ **Locators architecture**: VariableLocator and NodeFinding with usage type detection
 - ✅ **YAML-based locator testing**: Structured data validation vs source comparison
+- ✅ **Consolidated AST query**: node-finding replaces expression-locator per roadmap priorities
 
 ### Future Architecture Plan
 
@@ -173,6 +181,7 @@ Remember: **This tool exists to amplify your capabilities, not replace your reas
 
 1. **Locators**: Objects/methods that find declarations and usages across files ✅
    - ✅ VariableLocator returns actual Node objects for robust transformation pipelines
+   - ✅ NodeFinding provides unified AST query interface with expression support
    - ✅ SourceFileHelper for missing ts-morph functionality
    - ✅ Location data (line/column) only for testing - transformations use Node objects
    - 🔄 Future: `FunctionLocator`, `ClassLocator`, `ImportLocator`
@@ -208,9 +217,13 @@ Use the STARTER_CHARACTER in [] to indicate your workflow state
 9. [♻️] After commiting refactor to resolve qualiy issues.
 10. [🗳️] Vote for roadmap features that would have helped this session, add features you wished existed
 
-**Refactoring tests** validate against `.expected.ts` files. **Locator tests** use `.expected.yaml` for structured data comparison. Files matching `*.received.*` are gitignored and appear only during test failures.
+**Test Selection Guide**:
+- **Refactoring tests** (`fixtures/refactoring/`): For commands that modify files - validate against `.expected.ts` files
+- **Locator tests** (`fixtures/locators/`): For commands that find/analyze code - use `.expected.yaml` for structured data comparison
 
-The approval testing system drives development - add test cases first, then implement the logic to make them pass.
+Files matching `*.received.*` are gitignored and appear only during test failures.
+
+The dual testing system drives development - add test cases first, then implement the logic to make them pass.
 
 ## Automated Quality Enforcement
 
