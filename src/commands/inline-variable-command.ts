@@ -1,9 +1,9 @@
 import { RefactoringCommand } from '../command';
 import { Node, VariableDeclaration } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
-import { VariableDeclarationFinder } from '../variable-declaration-finder';
-import { ExpressionAnalyzer } from '../expression-analyzer';
-import { VariableReplacer } from '../variable-replacer';
+import { VariableDeclarationFinder } from '../services/variable-declaration-finder';
+import { ExpressionAnalyzer } from '../services/expression-analyzer';
+import { VariableReplacer } from '../services/variable-replacer';
 
 export class InlineVariableCommand implements RefactoringCommand {
   readonly name = 'inline-variable';

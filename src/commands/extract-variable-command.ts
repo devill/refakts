@@ -1,7 +1,7 @@
 import { RefactoringCommand } from '../command';
 import { Node, Expression } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
-import { ScopeAnalyzer } from '../services/scope-analyzer';
+import { ExtractionScopeAnalyzer } from '../services/extraction-scope-analyzer';
 import { VariableNameValidator } from '../services/variable-name-validator';
 import { StatementInserter } from '../services/statement-inserter';
 
@@ -11,7 +11,7 @@ export class ExtractVariableCommand implements RefactoringCommand {
   readonly complete = true;
 
   private astService = new ASTService();
-  private scopeAnalyzer = new ScopeAnalyzer();
+  private scopeAnalyzer = new ExtractionScopeAnalyzer();
   private nameValidator = new VariableNameValidator();
   private statementInserter = new StatementInserter();
 

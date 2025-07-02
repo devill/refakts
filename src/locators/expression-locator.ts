@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import { Project, Node, SourceFile, Expression } from 'ts-morph';
 import { TSQueryHandler } from '../tsquery-handler';
-import { ScopeAnalyzer } from '../services/scope-analyzer';
+import { ExtractionScopeAnalyzer } from '../services/extraction-scope-analyzer';
 import * as path from 'path';
 
 export interface ExpressionMatch {
@@ -21,7 +21,7 @@ export interface ExpressionLocationResult {
 export class ExpressionLocator {
   private project: Project;
   private tsQueryHandler = new TSQueryHandler();
-  private scopeAnalyzer = new ScopeAnalyzer();
+  private scopeAnalyzer = new ExtractionScopeAnalyzer();
 
   constructor(project?: Project) {
     this.project = project || new Project();

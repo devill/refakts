@@ -1,6 +1,6 @@
 import { Node } from 'ts-morph';
 
-export class ScopeAnalyzer {
+export class ExtractionScopeAnalyzer {
   findExtractionScope(node: Node): Node {
     const scope = this.searchForValidScope(node);
     return scope || node.getSourceFile();
@@ -58,7 +58,7 @@ export class ScopeAnalyzer {
   }
 
   private getScopeNameForNode(node: Node): string | null {
-    if (Node.isFunctionDeclaration(node)) {
+    if (Node.isFunctionDeclaration(node) || Node.isFunctionExpression(node)) {
       return this.getFunctionScopeName(node);
     }
     if (Node.isMethodDeclaration(node)) {

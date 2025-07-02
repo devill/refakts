@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import { Node } from 'ts-morph';
 
-export class ScopeAnalyzer {
+export class TypeScriptScopeAnalyzer {
   getScope(node: Node): Node {
     let current = node.getParent();
     while (current) {

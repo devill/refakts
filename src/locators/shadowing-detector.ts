@@ -1,9 +1,9 @@
 import * as ts from 'typescript';
 import { Node } from 'ts-morph';
-import { ScopeAnalyzer } from './scope-analyzer';
+import { TypeScriptScopeAnalyzer } from './typescript-scope-analyzer';
 
 export class ShadowingDetector {
-  private scopeAnalyzer = new ScopeAnalyzer();
+  private scopeAnalyzer = new TypeScriptScopeAnalyzer();
 
   isUsageInScope(usage: Node, declaration: Node): boolean {
     const declarationScope = this.scopeAnalyzer.getScope(declaration);

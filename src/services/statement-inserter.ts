@@ -1,11 +1,11 @@
 import { Node } from 'ts-morph';
-import { ScopeAnalyzer } from './scope-analyzer';
+import { ExtractionScopeAnalyzer } from './extraction-scope-analyzer';
 
 export class StatementInserter {
-  private scopeAnalyzer: ScopeAnalyzer;
+  private scopeAnalyzer: ExtractionScopeAnalyzer;
 
   constructor() {
-    this.scopeAnalyzer = new ScopeAnalyzer();
+    this.scopeAnalyzer = new ExtractionScopeAnalyzer();
   }
 
   insertVariableDeclaration(beforeNode: Node, variableName: string): void {
