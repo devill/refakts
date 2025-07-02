@@ -174,23 +174,23 @@ function main() {
 }
 
 function executeCommand(manager: RoadmapManager, command: string, args: string[]): void {
-  switch (command) {
-    case 'vote':
-      handleVoteCommand(manager, args);
-      break;
+  const commandMap: Record<string, () => void> = {
+    'vote': () => handleVoteCommand(manager, args),
+    'add': () => handleAddCommand(manager, args),
+    'status': () => manager.status()
+  };
 
-    case 'add':
-      handleAddCommand(manager, args);
-      break;
-
-    case 'status':
-      manager.status();
-      break;
-
-    default:
-      console.error('Usage: npm run roadmap:vote|add|status');
-      process.exit(1);
+  const commandHandler = commandMap[command];
+  if (commandHandler) {
+    commandHandler();
+  } else {
+    showUsage();
   }
+}
+
+function showUsage(): void {
+  console.error('Usage: npm run roadmap:vote|add|status');
+  process.exit(1);
 }
 
 function handleVoteCommand(manager: RoadmapManager, args: string[]): void {
@@ -202,6 +202,11 @@ function handleVoteCommand(manager: RoadmapManager, args: string[]): void {
 }
 
 function handleAddCommand(manager: RoadmapManager, args: string[]): void {
+  const addArgs = parseAddArguments(args);
+  manager.add(addArgs.name, addArgs.description, addArgs.why);
+}
+
+function parseAddArguments(args: string[]): { name: string; description: string; why?: string } {
   const nameIndex = args.indexOf('--feature');
   const descIndex = args.indexOf('--description');
   const whyIndex = args.indexOf('--why');
@@ -211,8 +216,11 @@ function handleAddCommand(manager: RoadmapManager, args: string[]): void {
     process.exit(1);
   }
   
-  const why = whyIndex !== -1 && args[whyIndex + 1] ? args[whyIndex + 1] : undefined;
-  manager.add(args[nameIndex + 1], args[descIndex + 1], why);
+  return {
+    name: args[nameIndex + 1],
+    description: args[descIndex + 1],
+    why: whyIndex !== -1 && args[whyIndex + 1] ? args[whyIndex + 1] : undefined
+  };
 }
 
 if (require.main === module) {
