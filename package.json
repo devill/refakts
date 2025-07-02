@@ -9,6 +9,7 @@
     "build": "tsc",
     "test": "jest && touch /tmp/refakts-last-test",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage && touch /tmp/refakts-last-test",
     "dev": "ts-node src/cli.ts",
     "quality": "ts-node src/quality-tools/quality-runner.ts",
     "quality:watch": "src/quality-tools/quality-watcher.sh start",

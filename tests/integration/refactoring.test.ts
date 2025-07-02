@@ -1,10 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
+import { CommandExecutor } from '../utils/command-executor';
 
 interface TestCase {
   name: string;
@@ -24,6 +21,7 @@ interface TestMeta {
 
 describe('Refactoring Integration Tests', () => {
   const fixturesDir = path.join(__dirname, '..', 'fixtures', 'refactoring');
+  const commandExecutor = new CommandExecutor();
   
   const getTestCases = (): TestCase[] => {
     const testCases: TestCase[] = [];
@@ -136,18 +134,17 @@ describe('Refactoring Integration Tests', () => {
       // Execute refactoring commands
       for (const command of testCase.commands) {
         // Update file paths in commands to use received files
-        let updatedCommand = command.replace('refakts', '');
+        let updatedCommand = command.replace('refakts', '').trim();
         
         if (fs.statSync(testCase.inputFile).isFile()) {
           const inputFileName = path.basename(testCase.inputFile);
           updatedCommand = updatedCommand.replace(inputFileName, testCase.receivedFile);
         }
         
-        const fullCommand = `npm run dev -- ${updatedCommand}`;
         try {
-          await execAsync(fullCommand, { cwd: path.join(__dirname, '..', '..') });
+          await commandExecutor.executeCommand(updatedCommand);
         } catch (error) {
-          throw new Error(`Command failed: ${fullCommand}\n${error}`);
+          throw new Error(`Command failed: ${updatedCommand}\n${error}`);
         }
       }
       

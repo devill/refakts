@@ -1,10 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
+import { CommandExecutor } from '../utils/command-executor';
 
 interface TestCase {
   name: string;
@@ -24,6 +21,7 @@ interface TestMeta {
 
 describe('Locator Integration Tests', () => {
   const fixturesDir = path.join(__dirname, '..', 'fixtures', 'locators');
+  const commandExecutor = new CommandExecutor();
   
   const getTestCases = (): TestCase[] => {
     const testCases: TestCase[] = [];
@@ -106,14 +104,24 @@ describe('Locator Integration Tests', () => {
         const inputFileName = path.basename(testCase.inputFile);
         updatedCommand = updatedCommand.replace(inputFileName, testCase.inputFile);
         
-        const fullCommand = `npm run dev -- ${updatedCommand}`;
         try {
-          const { stdout } = await execAsync(fullCommand, { cwd: path.join(__dirname, '..', '..') });
+          const output = await commandExecutor.executeCommand(updatedCommand);
+          let yamlContent: string;
           
-          // Extract only the YAML content (after the npm command output)
-          const lines = stdout.split('\n');
-          const yamlStartIndex = lines.findIndex(line => line.includes('variable:'));
-          const yamlContent = lines.slice(yamlStartIndex).join('\n').trim();
+          if (typeof output === 'string') {
+            if (commandExecutor.isUsingCli()) {
+              // CLI execution - need to extract YAML from stdout
+              const lines = output.split('\n');
+              const yamlStartIndex = lines.findIndex(line => line.includes('variable:'));
+              yamlContent = lines.slice(yamlStartIndex).join('\n').trim();
+            } else {
+              // Direct execution - output is already clean YAML
+              yamlContent = output;
+            }
+          } else {
+            // This shouldn't happen for locator commands, but handle gracefully
+            yamlContent = '';
+          }
           
           // Write the output to received file for comparison
           fs.writeFileSync(testCase.receivedFile, yamlContent);
@@ -128,7 +136,7 @@ describe('Locator Integration Tests', () => {
           
           expect(receivedData).toEqual(expectedData);
         } catch (error) {
-          throw new Error(`Command failed: ${fullCommand}\n${error}`);
+          throw new Error(`Command failed: ${updatedCommand}\n${error}`);
         }
       }
       
