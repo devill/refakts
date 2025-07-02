@@ -38,6 +38,10 @@ npm run snooze clear                 # Clear expired snoozes
 npm run roadmap:status               # Check current feature priorities
 npm run roadmap:vote <feature-name>  # Vote for useful features
 npm run roadmap:add --feature <name> --description <desc>  # Add new feature ideas
+
+# Usage tracking (automatic via git hooks)
+npm run usage:report                 # View command usage statistics
+npm run usage:consolidate            # Manually consolidate usage logs
 ```
 
 ## Startup Behavior
@@ -45,6 +49,14 @@ npm run roadmap:add --feature <name> --description <desc>  # Add new feature ide
 **Quality Watcher Auto-Start**: On every startup, check if the quality watcher is running and start it if it's not. This ensures continuous code quality monitoring with 2-minute interval checks and automated refactoring prompts.
 
 **Test Reminders**: The quality watcher also monitors test frequency and reminds Claude to run tests if they haven't been run within the last 2 minutes. This ensures code changes are continuously validated.
+
+## Git Integration
+
+**Usage Tracking**: Every refakts command usage is automatically logged. Git hooks consolidate usage statistics:
+- **Pre-commit**: Consolidates usage logs into `.refakts-stats.json` 
+- **Post-commit**: Displays usage report showing session and total command usage
+
+This provides visibility into which refakts features are actually being used vs. just implemented.
 
 ## Use your tools
 

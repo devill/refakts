@@ -4,7 +4,7 @@
       "name": "regex-ast-locator",
       "description": "Find AST nodes by text content instead of complex TSQuery patterns",
       "why": "Makes targeting for refactoring operations 10x simpler for AI agents",
-      "score": 4,
+      "score": 5,
       "status": "proposed",
       "tier": 1
     },
@@ -69,7 +69,7 @@
       "name": "auto-import-organizer",
       "description": "Automatically add, remove, and organize import statements when moving code between files",
       "why": "During modular refactoring, managing imports manually was tedious and error-prone",
-      "score": 0,
+      "score": 1,
       "status": "proposed",
       "tier": 4
     },
@@ -96,7 +96,167 @@
       "score": 0,
       "status": "proposed",
       "tier": 4
+    },
+    {
+      "name": "extract-constant",
+      "description": "Extract literal values and expressions into named constants",
+      "why": "Essential refactoring for improving code readability and maintainability - converts magic numbers/strings into meaningful constants",
+      "score": 1,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "extract-parameter",
+      "description": "Convert local variables or expressions into method parameters",
+      "why": "Core refactoring for making functions more flexible and reusable - essential for method generalization",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "extract-field",
+      "description": "Extract expressions into class fields/properties",
+      "why": "Allows converting method-local computations into class-level properties for better encapsulation and reusability",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "extract-type-alias",
+      "description": "Extract complex type annotations into named type aliases",
+      "why": "Critical for TypeScript codebases - improves type reusability and reduces complex inline type definitions",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "extract-interface",
+      "description": "Extract object type patterns into reusable interfaces",
+      "why": "Essential TypeScript refactoring for creating clean abstractions from inline object types and improving type system organization",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "extract-superclass",
+      "description": "Extract common functionality from multiple classes into a shared base class",
+      "why": "Fundamental OOP refactoring for eliminating code duplication and establishing proper inheritance hierarchies",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "introduce-destructuring",
+      "description": "Convert property access patterns to destructuring assignments",
+      "why": "Modern JavaScript/TypeScript practice - improves code conciseness and readability by eliminating repetitive property access",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "change-signature",
+      "description": "Modify function signatures by adding/removing/reordering parameters and updating all call sites",
+      "why": "Critical refactoring for API evolution - safely changes function contracts across entire codebase",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "pull-members-up",
+      "description": "Move class methods/properties up the inheritance hierarchy to superclass or interface",
+      "why": "Essential OOP refactoring for code organization - moves shared functionality to appropriate abstraction levels",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "convert-export-type",
+      "description": "Convert between default and named exports/imports",
+      "why": "Module system refactoring - essential for organizing TypeScript module boundaries and improving import ergonomics",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "safe-delete",
+      "description": "Delete files/symbols with dependency analysis to prevent breaking references",
+      "why": "Essential safety feature - ensures deletions don't break code by checking all references before removal",
+      "score": 1,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "move-method-between-classes",
+      "description": "Move methods from one class to another with automatic reference updates",
+      "why": "Common refactoring for better class organization - moves methods to their most appropriate class based on data usage",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "make-method-static",
+      "description": "Convert instance methods to static methods when they don't use instance data",
+      "why": "Performance and clarity improvement - makes method dependencies explicit and enables usage without instantiation",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "make-method-non-static",
+      "description": "Convert static methods to instance methods when they need access to instance data",
+      "why": "Enables better encapsulation when static methods need to become instance-aware",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "transform-parameter",
+      "description": "Wrap/unwrap parameters with adapter objects to hide complexity or change interfaces",
+      "why": "Essential for legacy code modernization - hides complex dependencies behind clean interfaces and enables gradual API evolution",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "detect-feature-envy",
+      "description": "Identify methods that use more data/methods from other classes than their own class",
+      "why": "Quality check that suggests move-method or make-non-static refactorings - helps identify misplaced functionality through mechanical analysis of method calls and field access",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "detect-long-parameter-list",
+      "description": "Identify functions with excessive parameters that could be grouped into objects",
+      "why": "Quality check that suggests extract-parameter-object refactoring - improves function readability and maintainability by grouping related parameters",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "extract-parameter-object",
+      "description": "Group related parameters into a single object parameter",
+      "why": "Refactoring to fix long parameter lists - improves function signatures and enables easier parameter evolution",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "detect-data-class",
+      "description": "Identify classes that only contain data with getters/setters but no behavior",
+      "why": "Quality check that suggests moving related behavior into the data class - helps identify anemic domain models",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "detect-large-class",
+      "description": "Identify classes with too many responsibilities based on method count and complexity metrics",
+      "why": "Quality check that suggests extract-class or extract-module refactorings - helps identify single responsibility principle violations",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
     }
   ],
-  "lastUpdated": "2025-07-02T20:40:32.886Z"
+  "lastUpdated": "2025-07-02T21:17:43.691Z"
 }

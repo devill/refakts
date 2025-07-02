@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 import { CommandRegistry } from './command-registry';
 import { CommandOption } from './command';
+import { UsageTracker } from './usage-tracker';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -27,6 +28,7 @@ for (const command of commandRegistry.getAllCommands()) {
   cmd
     .addHelpText('after', command.getHelpText())
     .action(async (file: string, options) => {
+      UsageTracker.logUsage(command.name, process.argv.slice(2));
       await executeRefactoringCommand(command, file, options);
     });
 }
