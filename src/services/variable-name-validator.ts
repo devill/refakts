@@ -104,13 +104,17 @@ export class VariableNameValidator {
   private addArrayBindingNames(nameNode: Node, names: Set<string>): void {
     if (Node.isArrayBindingPattern(nameNode)) {
       nameNode.getElements().forEach((element: any) => {
-        if (element && Node.isBindingElement(element)) {
-          const elementName = element.getNameNode();
-          if (Node.isIdentifier(elementName)) {
-            names.add(elementName.getText());
-          }
-        }
+        this.processArrayBindingElement(element, names);
       });
+    }
+  }
+
+  private processArrayBindingElement(element: any, names: Set<string>): void {
+    if (element && Node.isBindingElement(element)) {
+      const elementName = element.getNameNode();
+      if (Node.isIdentifier(elementName)) {
+        names.add(elementName.getText());
+      }
     }
   }
 }

@@ -60,7 +60,15 @@
       "dependencies": [
         "complete-ast-query-engine"
       ]
+    },
+    {
+      "name": "optimize-abstraction-leakage-report",
+      "description": "Identify highly connected clusters in change frequency graph instead of reporting all pairs",
+      "why": "The abstraction leakage report can get huge due to the large amount of possible pairs. This could be improved by identifying highly connected clusters in the graph and reporting on them once.",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
     }
   ],
-  "lastUpdated": "2025-07-02T18:07:21.322Z"
+  "lastUpdated": "2025-07-02T18:29:37.094Z"
 }
