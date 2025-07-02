@@ -4,14 +4,14 @@
       "name": "regex-ast-locator",
       "description": "Find AST nodes by text content instead of complex TSQuery patterns",
       "why": "Makes targeting for refactoring operations 10x simpler for AI agents",
-      "score": 3,
+      "score": 4,
       "status": "proposed",
       "tier": 1
     },
     {
       "name": "selection-tool",
-      "description": "Select AST ranges between two points for range-based operations",
-      "why": "Enables extract-method, comment-region, and other range operations",
+      "description": "Select code ranges by specifying start/end boundaries using TSQuery selectors or regex patterns",
+      "why": "Enables extract-method, comment-region, and other range operations by allowing precise boundary specification",
       "score": 2,
       "status": "proposed",
       "tier": 1,
@@ -31,23 +31,14 @@
       ]
     },
     {
-      "name": "complete-ast-query-engine",
-      "description": "Complete node-finding-command to replace expression-locator",
-      "why": "Foundation for complex refactoring operations",
-      "score": 4,
-      "status": "in-progress",
-      "tier": 1
-    },
-    {
       "name": "smart-method-extraction",
       "description": "Extract methods with automatic parameter/return detection",
       "why": "Most common refactoring operation needs automation",
-      "score": 2,
+      "score": 3,
       "status": "proposed",
       "tier": 2,
       "dependencies": [
-        "selection-tool",
-        "complete-ast-query-engine"
+        "selection-tool"
       ]
     },
     {
@@ -56,10 +47,7 @@
       "why": "Quality maintenance automation - removes manual analysis",
       "score": 0,
       "status": "proposed",
-      "tier": 2,
-      "dependencies": [
-        "complete-ast-query-engine"
-      ]
+      "tier": 2
     },
     {
       "name": "optimize-abstraction-leakage-report",
@@ -84,7 +72,31 @@
       "score": 0,
       "status": "proposed",
       "tier": 4
+    },
+    {
+      "name": "validate-test-architecture-consistency",
+      "description": "Quality check to ensure locator commands use YAML tests and refactoring commands use TS tests",
+      "why": "Would have caught the architecture mistake where node-finding tests were placed in wrong directory with wrong format",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "automated-command-type-validation",
+      "description": "Quality check to verify commands are correctly categorized as locators vs refactorings vs transformations",
+      "why": "Would help maintain testing consistency and prevent mixing command types in wrong frameworks",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
+    },
+    {
+      "name": "roadmap-tagging-system",
+      "description": "Add tags to roadmap items to categorize as: command, quality-check, infrastructure, tool, etc.",
+      "why": "Would help organize roadmap features by type and make it clearer what kind of contribution each item represents",
+      "score": 0,
+      "status": "proposed",
+      "tier": 4
     }
   ],
-  "lastUpdated": "2025-07-02T20:08:25.645Z"
+  "lastUpdated": "2025-07-02T20:40:32.886Z"
 }
