@@ -12,31 +12,13 @@ export class UsageTracker {
   private static readonly LOG_FILE = path.join(os.homedir(), '.refakts-usage.jsonl');
 
   static logUsage(command: string, args: string[]): void {
-    const entry: UsageEntry = {
-      command,
-      timestamp: new Date().toISOString(),
-      args: args.filter(arg => !arg.includes('/') && !path.isAbsolute(arg)) // Filter out file paths for privacy
-    };
-
-    try {
-      const logLine = JSON.stringify(entry) + '\n';
-      fs.appendFileSync(this.LOG_FILE, logLine);
-    } catch (error) {
-      // Silently fail - we don't want usage tracking to break functionality
-    }
+    const entry = this.createUsageEntry(command, args);
+    this.writeLogEntry(entry);
   }
 
   static getUsageLog(): UsageEntry[] {
     try {
-      if (!fs.existsSync(this.LOG_FILE)) {
-        return [];
-      }
-      
-      const content = fs.readFileSync(this.LOG_FILE, 'utf8');
-      return content
-        .split('\n')
-        .filter(line => line.trim())
-        .map(line => JSON.parse(line));
+      return this.readLogFile();
     } catch (error) {
       return [];
     }
@@ -55,11 +37,51 @@ export class UsageTracker {
 
   static clearUsageLog(): void {
     try {
-      if (fs.existsSync(this.LOG_FILE)) {
-        fs.unlinkSync(this.LOG_FILE);
-      }
+      this.removeLogFile();
     } catch (error) {
-      // Silently fail
+      this.handleLogError(error);
     }
+  }
+
+  private static createUsageEntry(command: string, args: string[]): UsageEntry {
+    return {
+      command,
+      timestamp: new Date().toISOString(),
+      args: this.filterPrivateArgs(args)
+    };
+  }
+
+  private static writeLogEntry(entry: UsageEntry): void {
+    try {
+      const logLine = JSON.stringify(entry) + '\n';
+      fs.appendFileSync(this.LOG_FILE, logLine);
+    } catch (error) {
+      this.handleLogError(error);
+    }
+  }
+
+  private static readLogFile(): UsageEntry[] {
+    if (!fs.existsSync(this.LOG_FILE)) {
+      return [];
+    }
+    
+    const content = fs.readFileSync(this.LOG_FILE, 'utf8');
+    return content
+      .split('\n')
+      .filter(line => line.trim())
+      .map(line => JSON.parse(line));
+  }
+
+  private static removeLogFile(): void {
+    if (fs.existsSync(this.LOG_FILE)) {
+      fs.unlinkSync(this.LOG_FILE);
+    }
+  }
+
+  private static filterPrivateArgs(args: string[]): string[] {
+    return args.filter(arg => !arg.includes('/') && !path.isAbsolute(arg));
+  }
+
+  private static handleLogError(error: unknown): void {
   }
 }

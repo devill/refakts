@@ -20,11 +20,8 @@ export class NodeFindingCommand implements RefactoringCommand {
     this.validateOptions(options);
     
     try {
-      const result = options.expressions 
-        ? await this.findExpressions(file, options.query)
-        : await this.findNodes(file, options.query);
-      
-      console.log(yaml.dump(result, { indent: 2 }));
+      const result = this.getQueryResult(file, options);
+      this.outputResult(result);
     } catch (error) {
       this.handleExecutionError(error);
     }
@@ -32,15 +29,7 @@ export class NodeFindingCommand implements RefactoringCommand {
 
   private async findExpressions(file: string, query: string) {
     const result = await this.expressionLocator.findExpressions(file, query);
-    
-    // Strip out Node objects for YAML serialization
-    const serializableMatches = result.matches.map(match => ({
-      expression: match.expression,
-      type: match.type,
-      line: match.line,
-      column: match.column,
-      scope: match.scope
-    }));
+    const serializableMatches = this.createSerializableExpressionMatches(result.matches);
 
     return {
       query: result.query,
@@ -51,16 +40,7 @@ export class NodeFindingCommand implements RefactoringCommand {
   private async findNodes(file: string, query: string) {
     const sourceFile = this.astService.loadSourceFile(file);
     const nodes = this.astService.findNodesByQuery(sourceFile, query);
-    
-    const matches = nodes.map(node => {
-      const location = sourceFile.getLineAndColumnAtPos(node.getStart());
-      return {
-        kind: node.getKindName(),
-        text: this.truncateText(node.getText()),
-        line: location.line,
-        column: location.column
-      };
-    });
+    const matches = this.createNodeMatches(sourceFile, nodes);
 
     return {
       query,
@@ -87,5 +67,37 @@ export class NodeFindingCommand implements RefactoringCommand {
 
   getHelpText(): string {
     return '\nExamples:\n  refakts node-finding src/file.ts --query "FunctionDeclaration"\n  refakts node-finding src/file.ts --query "BinaryExpression" --expressions\n  refakts node-finding src/file.ts --query "CallExpression" --expressions';
+  }
+
+  private async getQueryResult(file: string, options: Record<string, any>) {
+    return options.expressions 
+      ? await this.findExpressions(file, options.query)
+      : await this.findNodes(file, options.query);
+  }
+
+  private outputResult(result: any): void {
+    console.log(yaml.dump(result, { indent: 2 }));
+  }
+
+  private createSerializableExpressionMatches(matches: any[]) {
+    return matches.map(match => ({
+      expression: match.expression,
+      type: match.type,
+      line: match.line,
+      column: match.column,
+      scope: match.scope
+    }));
+  }
+
+  private createNodeMatches(sourceFile: any, nodes: Node[]) {
+    return nodes.map(node => {
+      const location = sourceFile.getLineAndColumnAtPos(node.getStart());
+      return {
+        kind: node.getKindName(),
+        text: this.truncateText(node.getText()),
+        line: location.line,
+        column: location.column
+      };
+    });
   }
 }
