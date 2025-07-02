@@ -60,7 +60,13 @@ const analyzeFileChangeFrequency = async (recentlyChangedFiles: string[]): Promi
 const analyzeCohesiveChanges = async (recentlyChangedFiles: string[]): Promise<string[]> => {
   const { stdout } = await execAsync('git log --oneline --name-only -100');
   const commits = stdout.split('\n\n').filter(Boolean);
-  const filePairs = generateFilePairs(commits, recentlyChangedFiles);
+  
+  const fileAges = await getFileAges(recentlyChangedFiles);
+  const matureFiles = recentlyChangedFiles.filter(file => (fileAges.get(file) || 0) >= 20);
+  
+  if (matureFiles.length < 2) return [];
+  
+  const filePairs = generateFilePairs(commits, matureFiles);
   const frequentPairs = countFilePairs(filePairs);
   
   return Array.from(frequentPairs.entries())
@@ -93,10 +99,13 @@ const countFilePairs = (pairs: string[]): Map<string, number> => {
 };
 
 const filterRecentlyFixedIssues = async (issues: string[]): Promise<string[]> => {
-  const recentCommits = await getRecentCommitMessages(3);
+  const recentCommits = await getRecentCommitMessages(5);
   const hasQualityFix = recentCommits.some(isQualityFixCommit);
   
-  return hasQualityFix ? [] : issues;
+  if (hasQualityFix) {
+    return issues.filter(issue => !isLikelyFalsePositive(issue, recentCommits));
+  }
+  return issues;
 };
 
 const getRecentCommitMessages = async (count: number): Promise<string[]> => {
@@ -109,8 +118,32 @@ const getRecentCommitMessages = async (count: number): Promise<string[]> => {
 };
 
 const isQualityFixCommit = (message: string): boolean => {
-  const keywords = ['refactor', 'quality', 'extract', 'simplify', 'cleanup', 'structure'];
+  const keywords = ['refactor', 'quality', 'extract', 'simplify', 'cleanup', 'structure', 'break down', 'break', 'functions'];
   return keywords.some(keyword => message.toLowerCase().includes(keyword));
+};
+
+const getFileAges = async (files: string[]): Promise<Map<string, number>> => {
+  const ages = new Map<string, number>();
+  
+  for (const file of files) {
+    try {
+      const { stdout } = await execAsync(`git log --oneline --follow "${file}" | wc -l`);
+      ages.set(file, parseInt(stdout.trim()) || 0);
+    } catch {
+      ages.set(file, 0);
+    }
+  }
+  
+  return ages;
+};
+
+const isLikelyFalsePositive = (issue: string, recentCommits: string[]): boolean => {
+  const hasRecentRefactoring = recentCommits.some(commit => 
+    isQualityFixCommit(commit) && commit.toLowerCase().includes('function')
+  );
+  
+  return hasRecentRefactoring && issue.includes('change together') && 
+         parseInt(issue.match(/(\d+) times$/)?.[1] || '0') < 20;
 };
 
 const toQualityIssue = (issue: string): QualityIssue => ({
