@@ -40,6 +40,11 @@ export class DefinitionRangeDetector {
   }
 
   private processLineForEndDetection(line: string, tracker: { endLine: number; braceCount: number; foundOpenBrace: boolean }, lineIndex: number): void {
+    this.processCharacters(line, tracker, lineIndex);
+    this.setEndLine(tracker, lineIndex);
+  }
+
+  private processCharacters(line: string, tracker: { endLine: number; braceCount: number; foundOpenBrace: boolean }, lineIndex: number): void {
     for (const char of line) {
       this.updateBraceTracking(char, tracker);
       
@@ -48,8 +53,6 @@ export class DefinitionRangeDetector {
         return;
       }
     }
-    
-    this.setEndLine(tracker, lineIndex);
   }
 
   private setEndLine(tracker: { endLine: number }, lineIndex: number): void {

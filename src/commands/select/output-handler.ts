@@ -13,15 +13,14 @@ export class SelectOutputHandler {
   }
 
   private determineOutputType(result: SelectResult): string {
-    if (this.hasPreviewContent(result)) {
-      return 'preview';
-    } else if (this.isMultiLineResult(result)) {
-      return 'multiline';
-    } else if (result.content) {
-      return 'withContent';
-    } else {
-      return 'locationOnly';
-    }
+    const typeChecks = [
+      { check: this.hasPreviewContent(result), type: 'preview' },
+      { check: this.isMultiLineResult(result), type: 'multiline' },
+      { check: !!result.content, type: 'withContent' }
+    ];
+    
+    const found = typeChecks.find(check => check.check);
+    return found ? found.type : 'locationOnly';
   }
 
   private hasPreviewContent(result: SelectResult): boolean {

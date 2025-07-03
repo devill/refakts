@@ -51,15 +51,14 @@ export class SelectCommand implements RefactoringCommand {
   }
 
   private getFormatterType(options: Record<string, any>): string {
-    if (this.hasDefinitionOption(options)) {
-      return 'definition';
-    } else if (this.hasLineOption(options)) {
-      return 'line';
-    } else if (this.hasPreviewOption(options)) {
-      return 'preview';
-    } else {
-      return 'basic';
-    }
+    const optionChecks = [
+      { check: this.hasDefinitionOption(options), type: 'definition' },
+      { check: this.hasLineOption(options), type: 'line' },
+      { check: this.hasPreviewOption(options), type: 'preview' }
+    ];
+    
+    const found = optionChecks.find(option => option.check);
+    return found ? found.type : 'basic';
   }
 
   private hasDefinitionOption(options: Record<string, any>): boolean {
