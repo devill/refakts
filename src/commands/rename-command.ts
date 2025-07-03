@@ -3,6 +3,7 @@ import { Node } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
 import { VariableLocator } from '../locators/variable-locator';
 import { RenameVariableTransformation } from '../transformations/rename-variable-transformation';
+import { LocationRange } from '../utils/location-parser';
 
 export class RenameCommand implements RefactoringCommand {
   readonly name = 'rename';
@@ -19,14 +20,21 @@ export class RenameCommand implements RefactoringCommand {
   async execute(file: string, options: Record<string, any>): Promise<void> {
     this.validateOptions(options);
     const sourceFile = this.astService.loadSourceFile(file);
-    const node = this.astService.findNodeByQuery(sourceFile, options.query);
+    
+    let node: Node;
+    if (options.location) {
+      node = this.astService.findNodeByLocation(options.location);
+    } else {
+      node = this.astService.findNodeByQuery(sourceFile, options.query);
+    }
+    
     await this.performRename(node, options.to);
     await this.astService.saveSourceFile(sourceFile);
   }
 
   validateOptions(options: Record<string, any>): void {
-    if (!options.query) {
-      throw new Error('--query must be specified');
+    if (!options.query && !options.location) {
+      throw new Error('Either --query or location format must be specified');
     }
     if (!options.to) {
       throw new Error('--to must be specified for rename operations');
@@ -34,7 +42,7 @@ export class RenameCommand implements RefactoringCommand {
   }
 
   getHelpText(): string {
-    return '\nExamples:\n  refakts rename src/file.ts --query "Identifier[name=\'oldName\']" --to newName\n  refakts rename src/file.ts --query "Parameter[name=\'param\']" --to newParam';
+    return '\nExamples:\n  refakts rename src/file.ts --query "Identifier[name=\'oldName\']" --to newName\n  refakts rename "[src/file.ts 5:8-5:18]" --to newName';
   }
 
   private async performRename(node: Node, newName: string): Promise<void> {

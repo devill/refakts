@@ -26,12 +26,12 @@ RefakTS provides surgical refactoring operations via command line, allowing AI a
 <!-- AUTO-GENERATED HELP START -->
 ## Available Commands
 
-- extract-variable [options] <file>  Extract expression into a variable
-- inline-variable [options] <file>   Replace variable usage with its value
-- node-finding [options] <file>      Find AST nodes in TypeScript files
-- rename [options] <file>            Rename a variable and all its references
-- select [options] <file>            Find code elements and return their locations with content preview
-- variable-locator [options] <file>  Find variable declarations and all their usages
+- extract-variable [options] <target>  Extract expression into a variable
+- inline-variable [options] <target>   Replace variable usage with its value
+- node-finding [options] <target>      Find AST nodes in TypeScript files
+- rename [options] <target>            Rename a variable and all its references
+- select [options] <target>            Find code elements and return their locations with content preview
+- variable-locator [options] <target>  Find variable declarations and all their usages
 
 <!-- AUTO-GENERATED HELP END -->
 
@@ -44,14 +44,19 @@ npm install -g refakts
 ## Usage Examples
 
 ```bash
-# Inline a variable at a specific location
-refakts inline-variable src/example.ts --line 5 --column 10
+# Location-based workflow: find then refactor
+refakts select src/example.ts --regex "tempResult"
+# Output: [src/example.ts 5:8-5:18] tempResult
+refakts inline-variable "[src/example.ts 5:8-5:18]"
 
-# Rename a variable and all its references
-refakts rename src/example.ts --line 3 --column 5 --new-name "newVariableName"
+# Extract variable with location
+refakts extract-variable "[src/example.ts 8:15-8:29]" --name "result"
+
+# Rename a variable and all its references  
+refakts rename "[src/example.ts 3:5-3:15]" --to "newVariableName"
 
 # Find variable usages
-refakts variable-locator src/example.ts --line 8 --column 12
+refakts variable-locator src/example.ts --regex "myVariable"
 
 # Advanced selection with range, structural, and boundary modes
 refakts select src/example.ts --regex "tempResult"

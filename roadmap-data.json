@@ -9,17 +9,14 @@
       "tier": 1
     },
     {
-      "name": "selection-tool",
-      "description": "Select code ranges by specifying start/end boundaries using TSQuery selectors or regex patterns",
-      "why": "Enables extract-method, comment-region, and other range operations by allowing precise boundary specification",
+      "name": "location-based-refactoring-api",
+      "description": "Complete workflow where select command output can be used directly in refactoring operations",
+      "why": "Enables precise surgical refactoring with seamless select→refactor workflow, eliminating the gap between finding and transforming code",
       "score": 3,
       "status": "completed",
       "tier": 1,
-      "dependencies": [
-        "regex-ast-locator"
-      ],
       "completedDate": "2025-07-03",
-      "implementation": "Implemented as 'select' command with --range, --structural, --boundaries options using ts-morph AST parsing"
+      "implementation": "Implemented location parser, updated inline-variable/extract-variable/rename commands to accept [file.ts line:col-line:col] format, comprehensive test coverage with location-based fixtures"
     },
     {
       "name": "function-body-extractor",
@@ -40,7 +37,7 @@
       "status": "proposed",
       "tier": 2,
       "dependencies": [
-        "selection-tool"
+        "location-based-refactoring-api"
       ]
     },
     {

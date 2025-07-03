@@ -1,5 +1,6 @@
 import { Project, Node, SourceFile } from 'ts-morph';
 import { TSQueryHandler } from '../tsquery-handler';
+import { LocationParser, LocationRange } from '../utils/location-parser';
 import * as path from 'path';
 
 export class ASTService {
@@ -41,5 +42,38 @@ export class ASTService {
 
   getProject(): Project {
     return this.project;
+  }
+
+  findNodeByLocation(location: LocationRange): Node {
+    const sourceFile = this.loadSourceFile(location.file);
+    return this.findNodeInRange(sourceFile, location);
+  }
+
+  private findNodeInRange(sourceFile: SourceFile, location: LocationRange): Node {
+    const startPos = sourceFile.compilerNode.getPositionOfLineAndCharacter(location.startLine - 1, location.startColumn - 1);
+    
+    // Start with the node at the position and traverse upward to find the best match
+    let node = sourceFile.getDescendantAtPos(startPos);
+    if (!node) {
+      throw new Error(`No node found at position ${location.startLine}:${location.startColumn}`);
+    }
+    
+    // Traverse up the AST to find a node that best fits the expected range
+    let current: Node | undefined = node;
+    while (current) {
+      const nodeStart = current.getStart();
+      const nodeEnd = current.getEnd();
+      const expectedEnd = sourceFile.compilerNode.getPositionOfLineAndCharacter(location.endLine - 1, location.endColumn - 1);
+      
+      // If this node's end is close to our expected end, use it
+      if (Math.abs(nodeEnd - expectedEnd) <= 3) { // Allow some tolerance
+        return current;
+      }
+      
+      current = current.getParent();
+    }
+    
+    // If no good match found, return the original node
+    return node;
   }
 }

@@ -4,6 +4,7 @@ import { ASTService } from '../services/ast-service';
 import { VariableDeclarationFinder } from '../services/variable-declaration-finder';
 import { ExpressionAnalyzer } from '../services/expression-analyzer';
 import { VariableReplacer } from '../services/variable-replacer';
+import { LocationRange } from '../utils/location-parser';
 
 export class InlineVariableCommand implements RefactoringCommand {
   readonly name = 'inline-variable';
@@ -18,19 +19,26 @@ export class InlineVariableCommand implements RefactoringCommand {
   async execute(file: string, options: Record<string, any>): Promise<void> {
     this.validateOptions(options);
     const sourceFile = this.astService.loadSourceFile(file);
-    const node = this.astService.findNodeByQuery(sourceFile, options.query);
+    
+    let node: Node;
+    if (options.location) {
+      node = this.astService.findNodeByLocation(options.location);
+    } else {
+      node = this.astService.findNodeByQuery(sourceFile, options.query);
+    }
+    
     await this.performInlineVariable(node);
     await this.astService.saveSourceFile(sourceFile);
   }
 
   validateOptions(options: Record<string, any>): void {
-    if (!options.query) {
-      throw new Error('--query must be specified');
+    if (!options.query && !options.location) {
+      throw new Error('Either --query or location format must be specified');
     }
   }
 
   getHelpText(): string {
-    return '\nExamples:\n  refakts inline-variable src/file.ts --query "Identifier[name=\'myVar\']"\n  refakts inline-variable src/file.ts --query "VariableDeclaration"';
+    return '\nExamples:\n  refakts inline-variable src/file.ts --query "Identifier[name=\'myVar\']"\n  refakts inline-variable "[src/file.ts 5:8-5:18]"';
   }
 
   private async performInlineVariable(node: Node): Promise<void> {

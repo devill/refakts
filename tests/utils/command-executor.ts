@@ -100,8 +100,34 @@ export class CommandExecutor {
     }
 
     const commandName = args[startIndex];
-    const file = args[startIndex + 1];
+    const target = args[startIndex + 1];
     const options: any = {};
+    
+    // Handle location format [file.ts line:col-line:col]
+    let file: string;
+    if (target.startsWith('[') && target.endsWith(']')) {
+      // Extract file from location format
+      const locationMatch = target.match(/^\[([^\]]+)\s+/);
+      if (locationMatch) {
+        file = locationMatch[1];
+        // Parse the location and add to options
+        const locationRegex = /^\[([^\]]+)\s+(\d+):(\d+)-(\d+):(\d+)\]$/;
+        const match = target.match(locationRegex);
+        if (match) {
+          options.location = {
+            file: match[1],
+            startLine: parseInt(match[2], 10),
+            startColumn: parseInt(match[3], 10),
+            endLine: parseInt(match[4], 10),
+            endColumn: parseInt(match[5], 10)
+          };
+        }
+      } else {
+        throw new Error(`Invalid location format: ${target}`);
+      }
+    } else {
+      file = target;
+    }
 
     // Parse options like --line 5 --column 10
     for (let i = startIndex + 2; i < args.length; i++) {

@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import { CommandRegistry } from './command-registry';
 import { CommandOption } from './command';
 import { UsageTracker } from './usage-tracker';
+import { LocationParser } from './utils/location-parser';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -21,15 +22,15 @@ for (const command of commandRegistry.getAllCommands()) {
   const cmd = program
     .command(command.name)
     .description(command.description + warningText)
-    .argument('<file>', 'TypeScript file to refactor');
+    .argument('<target>', 'TypeScript file or location format [file.ts line:col-line:col]');
   
   addCommandOptions(cmd, command);
   
   cmd
     .addHelpText('after', command.getHelpText())
-    .action(async (file: string, options) => {
+    .action(async (target: string, options) => {
       UsageTracker.logUsage(command.name, process.argv.slice(2));
-      await executeRefactoringCommand(command, file, options);
+      await executeRefactoringCommand(command, target, options);
     });
 }
 
@@ -51,10 +52,16 @@ function loadCommandOptions(commandName: string): CommandOption[] {
   }
 }
 
-async function executeRefactoringCommand(command: any, file: string, options: any): Promise<void> {
+async function executeRefactoringCommand(command: any, target: string, options: any): Promise<void> {
   try {
     command.validateOptions(options);
-    await command.execute(file, options);
+    
+    if (LocationParser.isLocationFormat(target)) {
+      const location = LocationParser.parseLocation(target);
+      await command.execute(location.file, { ...options, location });
+    } else {
+      await command.execute(target, options);
+    }
   } catch (error) {
     console.error('Error:', (error as Error).message);
     process.exit(1);

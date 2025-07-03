@@ -4,6 +4,7 @@ import { ASTService } from '../services/ast-service';
 import { ExtractionScopeAnalyzer } from '../services/extraction-scope-analyzer';
 import { VariableNameValidator } from '../services/variable-name-validator';
 import { StatementInserter } from '../services/statement-inserter';
+import { LocationRange } from '../utils/location-parser';
 
 export class ExtractVariableCommand implements RefactoringCommand {
   readonly name = 'extract-variable';
@@ -18,15 +19,21 @@ export class ExtractVariableCommand implements RefactoringCommand {
   async execute(file: string, options: Record<string, any>): Promise<void> {
     this.validateOptions(options);
     const sourceFile = this.astService.loadSourceFile(file);
-    const targetNode = this.astService.findTargetNode(sourceFile, options.query);
+    
+    let targetNode: Node;
+    if (options.location) {
+      targetNode = this.astService.findNodeByLocation(options.location);
+    } else {
+      targetNode = this.astService.findTargetNode(sourceFile, options.query);
+    }
     
     await this.performExtraction(targetNode, options);
     await this.astService.saveSourceFile(sourceFile);
   }
 
   validateOptions(options: Record<string, any>): void {
-    if (!options.query) {
-      throw new Error('--query must be specified');
+    if (!options.query && !options.location) {
+      throw new Error('Either --query or location format must be specified');
     }
     if (!options.name) {
       throw new Error('--name must be specified');
@@ -34,7 +41,7 @@ export class ExtractVariableCommand implements RefactoringCommand {
   }
 
   getHelpText(): string {
-    return '\nExamples:\n  refakts extract-variable src/file.ts --query "BinaryExpression" --name "result"\n  refakts extract-variable src/file.ts --query "CallExpression" --name "result" --all';
+    return '\nExamples:\n  refakts extract-variable src/file.ts --query "BinaryExpression" --name "result"\n  refakts extract-variable "[src/file.ts 8:15-8:29]" --name "result"';
   }
 
   private async performExtraction(targetNode: Node, options: Record<string, any>): Promise<void> {

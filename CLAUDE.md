@@ -22,7 +22,7 @@ npm test:watch
 npm run dev -- <command>
 
 # Example: Test inline-variable refactoring
-npm run dev -- inline-variable src/example.ts --line 5 --column 10
+npm run dev -- inline-variable "[src/example.ts 5:8-5:18]"
 
 # Quality tools
 npm run quality              # Run all quality checks
@@ -122,12 +122,12 @@ Remember: **This tool exists to amplify your capabilities, not replace your reas
 <!-- AUTO-GENERATED HELP START -->
 ## Available RefakTS Commands
 
-- extract-variable [options] <file>  Extract expression into a variable
-- inline-variable [options] <file>   Replace variable usage with its value
-- node-finding [options] <file>      Find AST nodes in TypeScript files
-- rename [options] <file>            Rename a variable and all its references
-- select [options] <file>            Find code elements and return their locations with content preview
-- variable-locator [options] <file>  Find variable declarations and all their usages
+- extract-variable [options] <target>  Extract expression into a variable
+- inline-variable [options] <target>   Replace variable usage with its value
+- node-finding [options] <target>      Find AST nodes in TypeScript files
+- rename [options] <target>            Rename a variable and all its references
+- select [options] <target>            Find code elements and return their locations with content preview
+- variable-locator [options] <target>  Find variable declarations and all their usages
 
 <!-- AUTO-GENERATED HELP END -->
 
@@ -165,14 +165,14 @@ Remember: **This tool exists to amplify your capabilities, not replace your reas
 // Single file header format
 /**
  * @description Test description
- * @command refakts inline-variable file.ts --line 8 --column 10
+ * @command refakts inline-variable "[file.ts 8:10-8:14]"
  */
 ```
 ```yaml
 # Multi-file meta.yaml format
 description: Test description
 commands:
-  - refakts inline-variable file.ts --line 8 --column 10
+  - refakts inline-variable "[file.ts 8:10-8:14]"
 ```
 
 **CRITICAL** Never run `refakts` on files in `/fixtures`. When you need to test the command line tool create one off temporary files in root. 
@@ -188,6 +188,7 @@ commands:
 - ✅ **YAML-based locator testing**: Structured data validation vs source comparison
 - ✅ **Consolidated AST query**: node-finding replaces expression-locator per roadmap priorities
 - ✅ **Advanced select command**: Complete with range, structural, and boundary selection modes using ts-morph AST parsing
+- ✅ **Location-based refactoring API**: All refactoring commands now accept `[file.ts line:col-line:col]` format from select command output
 
 ### Future Architecture Plan
 

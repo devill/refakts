@@ -40,21 +40,21 @@ refakts locate file.ts --pattern "handle.*Error" --type function
 **Why Critical**: Makes targeting for refactoring operations 10x simpler
 **Dependencies**: None
 
-#### 2. **Selection Tool**
+#### 2. **Location-Based Refactoring API**
 **Status**: ✅ Completed (2025-07-03)  
-**Description**: Select AST ranges between two points for range-based operations
+**Description**: Complete location-based workflow where select command output can be used directly in refactoring operations
 ```bash
-# Range selection with regex patterns
-refakts select file.ts --range --start-regex "const.*=" --end-regex "return.*"
+# Find locations with select command
+refakts select file.ts --regex "tempResult"
+# Output: [file.ts 5:8-5:18] tempResult
 
-# Structural selection with AST parsing
-refakts select file.ts --structural --regex "user.*" --include-methods --include-fields
-
-# Smart boundary selection
-refakts select file.ts --regex "pattern" --boundaries "function"
+# Use location directly in refactoring commands
+refakts inline-variable "[file.ts 5:8-5:18]"
+refakts extract-variable "[file.ts 8:15-8:29]" --name "result"
+refakts rename "[file.ts 3:5-3:15]" --to "newName"
 ```
-**Why Critical**: Enables extract-method, comment-region, and other range operations
-**Implementation**: Built using ts-morph AST parsing with support for range, structural, and boundary-based selection modes
+**Why Critical**: Enables precise surgical refactoring with seamless select→refactor workflow
+**Implementation**: Built comprehensive location parser, updated all refactoring commands to accept `[file.ts line:col-line:col]` format, includes range, structural, and boundary-based selection modes
 
 #### 3. **Function Body Extractor**
 **Status**: 🆕 Proposed  
@@ -86,7 +86,7 @@ refakts extract-method file.ts --selection @last --name "processData"
 # Automatically handles: parameters, return values, scope analysis
 ```
 **Why Critical**: Most common refactoring operation needs automation
-**Dependencies**: #2 (Selection), #4 (Query Engine)
+**Dependencies**: #2 (Location-based API), #4 (Query Engine)
 
 #### 6. **Automated Dead Code Elimination**
 **Status**: 🆕 Proposed  
