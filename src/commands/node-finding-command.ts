@@ -42,21 +42,26 @@ export class NodeFindingCommand implements RefactoringCommand {
     const nodes = this.astService.findNodesByQuery(sourceFile, query);
     const matches = this.createNodeMatches(sourceFile, nodes);
 
-    return {
-      query,
-      matches
-    };
+    return this.createQueryResult(query, matches);
   }
 
   private findNodesByRegex(file: string, pattern: string) {
     const sourceFile = this.astService.loadSourceFile(file);
-    const regex = new RegExp(pattern);
-    const allNodes = this.getAllNodes(sourceFile);
-    const matchingNodes = allNodes.filter(node => regex.test(node.getText()));
+    const matchingNodes = this.filterNodesByRegex(sourceFile, pattern);
     const matches = this.createNodeMatches(sourceFile, matchingNodes);
 
+    return this.createQueryResult(pattern, matches);
+  }
+
+  private filterNodesByRegex(sourceFile: any, pattern: string): Node[] {
+    const regex = new RegExp(pattern);
+    const allNodes = this.getAllNodes(sourceFile);
+    return allNodes.filter(node => regex.test(node.getText()));
+  }
+
+  private createQueryResult(query: string, matches: any[]) {
     return {
-      query: pattern,
+      query,
       matches
     };
   }
@@ -96,15 +101,21 @@ export class NodeFindingCommand implements RefactoringCommand {
   }
 
   private async getQueryResult(file: string, options: Record<string, any>) {
-    if (options.regex) {
-      return options.expressions 
-        ? await this.findExpressionsByRegex(file, options.regex)
-        : this.findNodesByRegex(file, options.regex);
-    } else {
-      return options.expressions 
-        ? await this.findExpressions(file, options.query)
-        : this.findNodes(file, options.query);
-    }
+    return options.regex 
+      ? await this.executeRegexQuery(file, options)
+      : await this.executeTSQuery(file, options);
+  }
+
+  private async executeRegexQuery(file: string, options: Record<string, any>) {
+    return options.expressions 
+      ? await this.findExpressionsByRegex(file, options.regex)
+      : this.findNodesByRegex(file, options.regex);
+  }
+
+  private async executeTSQuery(file: string, options: Record<string, any>) {
+    return options.expressions 
+      ? await this.findExpressions(file, options.query)
+      : this.findNodes(file, options.query);
   }
 
   private outputResult(result: any): void {
