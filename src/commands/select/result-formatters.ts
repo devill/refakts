@@ -7,10 +7,31 @@ export interface SelectResultFormatter {
 
 export class BasicFormatter implements SelectResultFormatter {
   format(matches: SelectMatch[], fileName: string): SelectResult[] {
-    return matches.map(match => ({
-      location: `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`,
+    return matches.map(match => this.formatMatch(match, fileName));
+  }
+
+  private formatMatch(match: SelectMatch, fileName: string): SelectResult {
+    const location = `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`;
+    
+    if (this.isMultilineMatch(match)) {
+      return this.formatMultilineMatch(match, location);
+    }
+    
+    return {
+      location,
       content: match.text
-    }));
+    };
+  }
+
+  private isMultilineMatch(match: SelectMatch): boolean {
+    return match.line !== match.endLine;
+  }
+
+  private formatMultilineMatch(match: SelectMatch, location: string): SelectResult {
+    return {
+      location: `\n${location}`,
+      content: `${match.text}\n${location}\n`
+    };
   }
 }
 

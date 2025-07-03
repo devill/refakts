@@ -33,9 +33,34 @@ export class SelectCommand implements RefactoringCommand {
 
   private async findMatches(file: string, options: Record<string, any>): Promise<SelectResult[]> {
     const content = fs.readFileSync(file, 'utf8');
-    const pattern = new RegExp(options.regex, 'g');
-    const matches = this.matcher.findMatches(content, pattern);
-    return this.processMatches(matches, file, options);
+    const patterns = this.createRegexPatterns(options.regex);
+    const allMatches = this.findAllPatternMatches(content, patterns);
+    return this.processMatches(allMatches, file, options);
+  }
+
+  private createRegexPatterns(regexOption: string | string[]): RegExp[] {
+    const regexStrings = Array.isArray(regexOption) ? regexOption : [regexOption];
+    return regexStrings.map(regex => new RegExp(regex, 'g'));
+  }
+
+  private findAllPatternMatches(content: string, patterns: RegExp[]): SelectMatch[] {
+    const allMatches: SelectMatch[] = [];
+    
+    for (const pattern of patterns) {
+      const matches = this.matcher.findMatches(content, pattern);
+      allMatches.push(...matches);
+    }
+    
+    return this.sortMatchesByPosition(allMatches);
+  }
+
+  private sortMatchesByPosition(matches: SelectMatch[]): SelectMatch[] {
+    return matches.sort((a, b) => {
+      if (a.line !== b.line) {
+        return a.line - b.line;
+      }
+      return a.column - b.column;
+    });
   }
 
 
@@ -54,6 +79,7 @@ export class SelectCommand implements RefactoringCommand {
     const optionChecks = [
       { check: this.hasDefinitionOption(options), type: 'definition' },
       { check: this.hasLineOption(options), type: 'line' },
+      { check: this.hasPreviewMatchOption(options), type: 'preview' },
       { check: this.hasPreviewOption(options), type: 'preview' }
     ];
     
@@ -71,6 +97,10 @@ export class SelectCommand implements RefactoringCommand {
 
   private hasPreviewOption(options: Record<string, any>): boolean {
     return options.previewLine || options['preview-line'];
+  }
+
+  private hasPreviewMatchOption(options: Record<string, any>): boolean {
+    return options.previewMatch || options['preview-match'];
   }
 
 

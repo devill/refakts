@@ -119,9 +119,18 @@ export class CommandExecutor {
           // Flag with value
           const value = nextArg;
           
-          // Try to parse as number, otherwise keep as string
-          const numValue = Number(value);
-          options[optionName] = isNaN(numValue) ? value : numValue;
+          // Handle multiple values for the same flag (like multiple --regex)
+          if (options[optionName] !== undefined) {
+            // Convert to array if not already
+            if (!Array.isArray(options[optionName])) {
+              options[optionName] = [options[optionName]];
+            }
+            options[optionName].push(value);
+          } else {
+            // Try to parse as number, otherwise keep as string
+            const numValue = Number(value);
+            options[optionName] = isNaN(numValue) ? value : numValue;
+          }
           i++; // Skip the value argument
         }
       }

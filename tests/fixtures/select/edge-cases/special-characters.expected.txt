@@ -1,2 +1,2 @@
-[special-characters.input.ts 8:29-8:35] ${name}
-[special-characters.input.ts 8:49-8:59] ${location}
+[special-characters.input.ts 7:29-7:36] ${name}
+[special-characters.input.ts 7:49-7:60] ${location}

@@ -1,13 +1,12 @@
-[multiline-matches.input.ts 7:0-9:1]
-function simple() {
+[multiline-matches.input.ts 6:1-8:2] function simple() {
     return 42;
 }
-[multiline-matches.input.ts 7:0-9:1]
+[multiline-matches.input.ts 6:1-8:2]
 
-[multiline-matches.input.ts 11:0-15:1]
-function complex() {
+
+[multiline-matches.input.ts 10:1-14:2] function complex() {
     const value = calculate();
     const result = process(value);
     return result;
 }
-[multiline-matches.input.ts 11:0-15:1]
+[multiline-matches.input.ts 10:1-14:2]

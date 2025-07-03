@@ -1,7 +1,6 @@
 /**
  * @description Test selection spanning multiple lines
- * @command refakts select multiline-matches.input.ts --regex "function.*\\{[\\s\\S]*?\\}"
- * @skip
+ * @command refakts select multiline-matches.input.ts --regex "function.*\{[\s\S]*?\}"
  */
 
 function simple() {

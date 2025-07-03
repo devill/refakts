@@ -1,7 +1,6 @@
 /**
  * @description Test multiple regex patterns in single command
  * @command refakts select multiple-regex-patterns.input.ts --regex "width" --regex "height"
- * @skip
  */
 
 function calculateArea() {
