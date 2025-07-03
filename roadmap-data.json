@@ -4,7 +4,7 @@
       "name": "regex-ast-locator",
       "description": "Find AST nodes by text content instead of complex TSQuery patterns",
       "why": "Makes targeting for refactoring operations 10x simpler for AI agents",
-      "score": 6,
+      "score": 7,
       "status": "proposed",
       "tier": 1
     },
@@ -181,7 +181,7 @@
       "name": "safe-delete",
       "description": "Delete files/symbols with dependency analysis to prevent breaking references",
       "why": "Essential safety feature - ensures deletions don't break code by checking all references before removal",
-      "score": 2,
+      "score": 3,
       "status": "proposed",
       "tier": 4
     },
@@ -261,10 +261,10 @@
       "name": "auto-extract-helper-methods",
       "description": "Automatically extract complex expressions and nested logic into well-named helper methods",
       "why": "During quality refactoring, I manually broke down oversized functions by extracting helper methods. This could be automated by identifying complex expressions, nested conditionals, and repetitive code patterns that should become separate methods.",
-      "score": 0,
+      "score": 1,
       "status": "proposed",
       "tier": 4
     }
   ],
-  "lastUpdated": "2025-07-02T21:34:04.984Z"
+  "lastUpdated": "2025-07-03T06:41:44.276Z"
 }

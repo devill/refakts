@@ -66,6 +66,10 @@ export class UsageTracker {
     }
     
     const content = fs.readFileSync(this.LOG_FILE, 'utf8');
+    return this.parseLogContent(content);
+  }
+
+  private static parseLogContent(content: string): UsageEntry[] {
     return content
       .split('\n')
       .filter(line => line.trim())

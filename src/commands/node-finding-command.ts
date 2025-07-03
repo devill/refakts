@@ -90,14 +90,16 @@ export class NodeFindingCommand implements RefactoringCommand {
   }
 
   private createNodeMatches(sourceFile: any, nodes: Node[]) {
-    return nodes.map(node => {
-      const location = sourceFile.getLineAndColumnAtPos(node.getStart());
-      return {
-        kind: node.getKindName(),
-        text: this.truncateText(node.getText()),
-        line: location.line,
-        column: location.column
-      };
-    });
+    return nodes.map(node => this.createNodeMatch(sourceFile, node));
+  }
+
+  private createNodeMatch(sourceFile: any, node: Node) {
+    const location = sourceFile.getLineAndColumnAtPos(node.getStart());
+    return {
+      kind: node.getKindName(),
+      text: this.truncateText(node.getText()),
+      line: location.line,
+      column: location.column
+    };
   }
 }
