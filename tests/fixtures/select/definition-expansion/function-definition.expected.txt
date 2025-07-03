@@ -1,6 +1,6 @@
-[function-definition.input.ts 11:-14:]
+[function-definition.input.ts 10:-13:]
 function calculateTotal(a: number, b: number): number {
     const result = a + b;
     return result;
 }
-[function-definition.input.ts 11:-14:]
+[function-definition.input.ts 10:-13:]

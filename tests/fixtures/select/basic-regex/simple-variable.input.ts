@@ -1,7 +1,6 @@
 /**
  * @description Select simple variable declaration by name
  * @command refakts select simple-variable.input.ts --regex "tempResult"
- * @skip
  */
 
 function calculateSomething() {

@@ -30,6 +30,7 @@ RefakTS provides surgical refactoring operations via command line, allowing AI a
 - inline-variable [options] <file>   Replace variable usage with its value
 - node-finding [options] <file>      Find AST nodes in TypeScript files
 - rename [options] <file>            Rename a variable and all its references
+- select [options] <file>            Find code elements and return their locations with content preview
 - variable-locator [options] <file>  Find variable declarations and all their usages
 
 <!-- AUTO-GENERATED HELP END -->

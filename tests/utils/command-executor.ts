@@ -66,7 +66,7 @@ export class CommandExecutor {
   }
 
   private isLocatorCommand(commandName: string): boolean {
-    return commandName.includes('locator') || commandName === 'node-finding';
+    return commandName.includes('locator') || commandName === 'node-finding' || commandName === 'select';
   }
 
   private async captureConsoleOutput(executeFn: () => Promise<void>): Promise<string> {
@@ -92,12 +92,19 @@ export class CommandExecutor {
       throw new Error(`Invalid command format: ${commandString}`);
     }
 
-    const commandName = args[0];
-    const file = args[1];
+    // Skip 'refakts' if it's the first argument
+    const startIndex = args[0] === 'refakts' ? 1 : 0;
+    
+    if (args.length < startIndex + 2) {
+      throw new Error(`Invalid command format: ${commandString}`);
+    }
+
+    const commandName = args[startIndex];
+    const file = args[startIndex + 1];
     const options: any = {};
 
     // Parse options like --line 5 --column 10
-    for (let i = 2; i < args.length; i++) {
+    for (let i = startIndex + 2; i < args.length; i++) {
       const arg = args[i];
       
       if (arg.startsWith('--')) {

@@ -1,7 +1,6 @@
 /**
  * @description Select variable with full line context
  * @command refakts select include-line.input.ts --regex "tempResult" --include-line
- * @skip
  */
 
 function processData() {

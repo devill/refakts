@@ -1,0 +1,18 @@
+[
+  {
+    "flags": "--regex <pattern>",
+    "description": "Regular expression pattern to match in code"
+  },
+  {
+    "flags": "--include-line",
+    "description": "Include full line containing the match"
+  },
+  {
+    "flags": "--include-definition",
+    "description": "Include full definition context for matches"
+  },
+  {
+    "flags": "--preview-line",
+    "description": "Show line context as preview without including in selection"
+  }
+]

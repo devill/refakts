@@ -1,2 +1,2 @@
-[preview-line.input.ts 5:11-5:21] const tempResult = transform(input);
-[preview-line.input.ts 6:29-6:39] const output = validate(tempResult);
+[preview-line.input.ts 8:11-8:21] const tempResult = transform(input);
+[preview-line.input.ts 9:29-9:39] const output = validate(tempResult);
