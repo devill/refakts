@@ -1,0 +1,27 @@
+[structural-selection.input.ts 9:12-9:20] userData
+[structural-selection.input.ts 10:12-10:21] userCache
+
+[structural-selection.input.ts 12:-14:]
+    getUserById(id: string) {
+        return this.userData[id];
+    }
+[structural-selection.input.ts 12:-14:]
+
+[structural-selection.input.ts 16:-19:]
+    updateUserData(id: string, data: any) {
+        this.userData[id] = data;
+        this.userCache.set(id, data);
+    }
+[structural-selection.input.ts 16:-19:]
+
+[structural-selection.input.ts 21:-23:]
+    clearUserCache() {
+        this.userCache.clear();
+    }
+[structural-selection.input.ts 21:-23:]
+
+[structural-selection.input.ts 25:-27:]
+    fetchUserFromAPI(id: string) {
+        return fetch(`/api/users/${id}`);
+    }
+[structural-selection.input.ts 25:-27:]

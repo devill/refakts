@@ -1,0 +1,6 @@
+[multiple-regex-patterns.input.ts 8:11-8:16] width
+[multiple-regex-patterns.input.ts 9:11-9:17] height
+[multiple-regex-patterns.input.ts 10:18-10:23] width
+[multiple-regex-patterns.input.ts 10:26-10:32] height
+[multiple-regex-patterns.input.ts 11:28-11:33] width
+[multiple-regex-patterns.input.ts 11:36-11:42] height

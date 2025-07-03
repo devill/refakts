@@ -1,0 +1,2 @@
+[special-characters.input.ts 8:29-8:35] ${name}
+[special-characters.input.ts 8:49-8:59] ${location}

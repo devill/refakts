@@ -1,0 +1,1 @@
+[include-line.input.ts 9:11-9:21] tempResult

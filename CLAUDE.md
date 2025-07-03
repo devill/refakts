@@ -217,17 +217,18 @@ commands:
 
 Use the STARTER_CHARACTER in [] to indicate your workflow state
 
-**0. [🗺️] Check roadmap and vote** (`npm run roadmap:status`)
-1. [🧪] Add test cases. (Use fixtures in `tests/fixtures` when relevant)
-2. [👀] Run tests to see current behavior vs expected
-3. [💭] Imagine what architecutre would make implementation easy.
-4. [♻️] If necessary put test on skip, and refactor to the ideal architecture 
-5. [👷] Unskip tests one by one, and implement the functionality 
-6. [✅] Run the tests, check and validate
-7. [🎉] Try the new command. (Create a temporary file and test on that)
-8. [📄] Once tests are passing update the `refakts --help`.
-9. [♻️] After commiting refactor to resolve qualiy issues.
-10. [🗳️] Vote for roadmap features that would have helped this session, add features you wished existed
+1. [🗺️] Check roadmap and vote** (`npm run roadmap:status`)
+2. [📐] Design the interface and ask for feedback
+2. [🧪] Add test cases. (Use fixtures in `tests/fixtures` when relevant)
+3. [👀] Run tests to see current behavior vs expected
+4. [💭] Imagine what architecutre would make implementation easy.
+5. [♻️] If necessary put test on skip, and refactor to the ideal architecture 
+6. [👷] Unskip tests one by one, and implement the functionality 
+7. [✅] Run the tests, check and validate
+8. [🎉] Try the new command. (Create a temporary file and test on that)
+9. [📄] Once tests are passing update the `refakts --help`.
+10. [♻️] After commiting refactor to resolve qualiy issues.
+11. [🗳️] Vote for roadmap features that would have helped this session, add features you wished existed
 
 **Test Selection Guide**:
 - **Refactoring tests** (`fixtures/refactoring/`): For commands that modify files - validate against `.expected.ts` files

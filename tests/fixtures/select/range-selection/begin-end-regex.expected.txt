@@ -1,0 +1,14 @@
+
+[begin-end-regex.input.ts 5:4-8:19]
+const input = getData();
+    const processed = transform(input);
+    const validated = validate(processed);
+    return validated;
+[begin-end-regex.input.ts 5:4-8:19]
+
+[begin-end-regex.input.ts 12:4-15:16]
+const sum = items.reduce((acc, item) => acc + item, 0);
+    const tax = sum * 0.1;
+    const total = sum + tax;
+    return total;
+[begin-end-regex.input.ts 12:4-15:16]
