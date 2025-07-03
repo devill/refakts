@@ -60,9 +60,17 @@ export class RangeAnalyzer {
 
   private processLine(sourceFile: SourceFile, lines: string[], patterns: any, i: number) {
     if (this.shouldSkipLine(sourceFile, i + 1)) {
-      return { range: null, newIndex: i };
+      return this.createSkipResult(i);
     }
     
+    return this.createRangeResult(sourceFile, lines, patterns, i);
+  }
+
+  private createSkipResult(index: number) {
+    return { range: null, newIndex: index };
+  }
+
+  private createRangeResult(sourceFile: SourceFile, lines: string[], patterns: any, i: number) {
     const range = this.findRangeFromStartLine(sourceFile, lines, patterns, i);
     return { 
       range, 

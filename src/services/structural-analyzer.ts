@@ -45,8 +45,12 @@ export class StructuralAnalyzer {
   }
 
   private findASTFieldMatches(sourceFile: SourceFile, regex: RegExp, fileName: string): SelectResult[] {
-    const results: SelectResult[] = [];
     const classes = sourceFile.getClasses();
+    return this.collectFieldsFromClasses(classes, regex, fileName);
+  }
+
+  private collectFieldsFromClasses(classes: any[], regex: RegExp, fileName: string): SelectResult[] {
+    const results: SelectResult[] = [];
     
     for (const classDecl of classes) {
       const fieldMatches = this.getMatchingFields(classDecl, regex, fileName);
@@ -62,15 +66,24 @@ export class StructuralAnalyzer {
   }
 
   private filterAndFormatProperties(properties: any[], regex: RegExp, fileName: string): SelectResult[] {
+    return this.processAllProperties(properties, regex, fileName);
+  }
+
+  private processAllProperties(properties: any[], regex: RegExp, fileName: string): SelectResult[] {
     const results: SelectResult[] = [];
     
     for (const prop of properties) {
-      if (this.propertyMatches(prop, regex)) {
-        results.push(this.formatFieldResult(prop, fileName));
-      }
+      const result = this.processProperty(prop, regex, fileName);
+      if (result) results.push(result);
     }
     
     return results;
+  }
+
+  private processProperty(prop: any, regex: RegExp, fileName: string): SelectResult | null {
+    return this.propertyMatches(prop, regex) 
+      ? this.formatFieldResult(prop, fileName) 
+      : null;
   }
 
   private propertyMatches(prop: any, regex: RegExp): boolean {
@@ -98,8 +111,12 @@ export class StructuralAnalyzer {
   }
 
   private findASTMethodMatches(sourceFile: SourceFile, regex: RegExp, fileName: string): SelectResult[] {
-    const results: SelectResult[] = [];
     const classes = sourceFile.getClasses();
+    return this.collectMethodsFromClasses(classes, regex, fileName);
+  }
+
+  private collectMethodsFromClasses(classes: any[], regex: RegExp, fileName: string): SelectResult[] {
+    const results: SelectResult[] = [];
     
     for (const classDecl of classes) {
       const methodMatches = this.getMatchingMethods(classDecl, regex, fileName);
@@ -115,15 +132,24 @@ export class StructuralAnalyzer {
   }
 
   private filterAndFormatMethods(methods: any[], regex: RegExp, fileName: string): SelectResult[] {
+    return this.processAllMethods(methods, regex, fileName);
+  }
+
+  private processAllMethods(methods: any[], regex: RegExp, fileName: string): SelectResult[] {
     const results: SelectResult[] = [];
     
     for (const method of methods) {
-      if (this.methodMatches(method, regex)) {
-        results.push(this.formatMethodResult(method, fileName));
-      }
+      const result = this.processMethod(method, regex, fileName);
+      if (result) results.push(result);
     }
     
     return results;
+  }
+
+  private processMethod(method: any, regex: RegExp, fileName: string): SelectResult | null {
+    return this.methodMatches(method, regex) 
+      ? this.formatMethodResult(method, fileName) 
+      : null;
   }
 
   private methodMatches(method: any, regex: RegExp): boolean {

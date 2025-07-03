@@ -4,14 +4,23 @@ import * as path from 'path';
 
 export class BoundaryAnalyzer {
   findBoundaryMatches(sourceFile: SourceFile, options: Record<string, any>): SelectResult[] {
-    const pattern = options.regex;
-    const boundaryType = options.boundaries;
-    const fileName = path.basename(sourceFile.getFilePath());
-    
-    if (boundaryType === 'function') {
-      return this.findFunctionBoundaryMatches(sourceFile, pattern, fileName);
+    const matchContext = this.prepareBoundaryContext(sourceFile, options);
+    return this.executeBoundaryMatching(matchContext);
+  }
+
+  private prepareBoundaryContext(sourceFile: SourceFile, options: Record<string, any>) {
+    return {
+      sourceFile,
+      pattern: options.regex,
+      boundaryType: options.boundaries,
+      fileName: path.basename(sourceFile.getFilePath())
+    };
+  }
+
+  private executeBoundaryMatching(context: any): SelectResult[] {
+    if (context.boundaryType === 'function') {
+      return this.findFunctionBoundaryMatches(context.sourceFile, context.pattern, context.fileName);
     }
-    
     return [];
   }
 
@@ -31,15 +40,24 @@ export class BoundaryAnalyzer {
   }
 
   private filterAndFormatMatches(functions: Node[], regex: RegExp, fileName: string): SelectResult[] {
+    return this.processAllFunctions(functions, regex, fileName);
+  }
+
+  private processAllFunctions(functions: Node[], regex: RegExp, fileName: string): SelectResult[] {
     const results: SelectResult[] = [];
     
     for (const func of functions) {
-      if (this.functionMatchesPattern(func, regex)) {
-        results.push(this.formatFunctionResult(func, fileName));
-      }
+      const result = this.processFunction(func, regex, fileName);
+      if (result) results.push(result);
     }
     
     return results;
+  }
+
+  private processFunction(func: Node, regex: RegExp, fileName: string): SelectResult | null {
+    return this.functionMatchesPattern(func, regex) 
+      ? this.formatFunctionResult(func, fileName) 
+      : null;
   }
 
   private functionMatchesPattern(func: Node, regex: RegExp): boolean {
