@@ -1,15 +1,15 @@
-[code-block-boundaries.input.ts 8:-11:]
+[code-block-boundaries.input.ts 6:-10:]
 function getUserData() {
     const userInfo = fetchUser();
     const userPrefs = loadPreferences();
     return { userInfo, userPrefs };
 }
-[code-block-boundaries.input.ts 8:-11:]
+[code-block-boundaries.input.ts 6:-10:]
 
-[code-block-boundaries.input.ts 13:-17:]
+[code-block-boundaries.input.ts 12:-16:]
 function processUserAction(action: string) {
     const userData = getUserData();
     const result = executeAction(action, userData);
     return result;
 }
-[code-block-boundaries.input.ts 13:-17:]
+[code-block-boundaries.input.ts 12:-16:]

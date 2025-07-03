@@ -1,7 +1,6 @@
 /**
  * @description Test structural selection with related elements
- * @command refakts select structural-selection.input.ts --structural --regex "user.*" --include-methods --include-fields
- * @skip
+ * @command refakts select structural-selection.input.ts --structural --regex ".*[Uu]ser.*" --include-methods --include-fields
  */
 
 class UserService {

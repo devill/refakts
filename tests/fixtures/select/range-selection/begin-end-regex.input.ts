@@ -1,7 +1,6 @@
 /**
  * @description Select range with begin and end regex patterns
  * @command refakts select begin-end-regex.input.ts --range --start-regex "const.*=" --end-regex "return.*"
- * @skip
  */
 
 function processData() {

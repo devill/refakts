@@ -1,7 +1,6 @@
 /**
  * @description Select with intelligent boundaries respecting code blocks
  * @command refakts select code-block-boundaries.input.ts --regex "user.*" --boundaries "function"
- * @skip
  */
 
 function getUserData() {

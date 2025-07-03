@@ -14,5 +14,33 @@
   {
     "flags": "--preview-line",
     "description": "Show line context as preview without including in selection"
+  },
+  {
+    "flags": "--structural",
+    "description": "Enable structural selection with related elements"
+  },
+  {
+    "flags": "--include-methods",
+    "description": "Include methods when using structural selection"
+  },
+  {
+    "flags": "--include-fields",
+    "description": "Include fields when using structural selection"
+  },
+  {
+    "flags": "--range",
+    "description": "Enable range selection with start and end patterns"
+  },
+  {
+    "flags": "--start-regex <pattern>",
+    "description": "Start regex pattern for range selection"
+  },
+  {
+    "flags": "--end-regex <pattern>",
+    "description": "End regex pattern for range selection"
+  },
+  {
+    "flags": "--boundaries <type>",
+    "description": "Intelligent boundaries type (e.g., 'function')"
   }
 ]

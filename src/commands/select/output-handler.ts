@@ -7,8 +7,17 @@ export class SelectOutputHandler {
       return;
     }
     
-    for (const result of results) {
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
       this.outputSingleResult(result);
+      
+      // Add newline between multiline results or before first multiline result
+      if (i < results.length - 1) {
+        const nextResult = results[i + 1];
+        if (this.isMultiLineResult(result) || this.isMultiLineResult(nextResult)) {
+          console.log('');
+        }
+      }
     }
   }
 
