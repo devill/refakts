@@ -13,11 +13,13 @@
       "description": "Select code ranges by specifying start/end boundaries using TSQuery selectors or regex patterns",
       "why": "Enables extract-method, comment-region, and other range operations by allowing precise boundary specification",
       "score": 3,
-      "status": "proposed",
+      "status": "completed",
       "tier": 1,
       "dependencies": [
         "regex-ast-locator"
-      ]
+      ],
+      "completedDate": "2025-07-03",
+      "implementation": "Implemented as 'select' command with --range, --structural, --boundaries options using ts-morph AST parsing"
     },
     {
       "name": "function-body-extractor",
@@ -69,7 +71,7 @@
       "name": "auto-import-organizer",
       "description": "Automatically add, remove, and organize import statements when moving code between files",
       "why": "During modular refactoring, managing imports manually was tedious and error-prone",
-      "score": 2,
+      "score": 3,
       "status": "proposed",
       "tier": 4
     },
@@ -261,10 +263,10 @@
       "name": "auto-extract-helper-methods",
       "description": "Automatically extract complex expressions and nested logic into well-named helper methods",
       "why": "During quality refactoring, I manually broke down oversized functions by extracting helper methods. This could be automated by identifying complex expressions, nested conditionals, and repetitive code patterns that should become separate methods.",
-      "score": 1,
+      "score": 2,
       "status": "proposed",
       "tier": 4
     }
   ],
-  "lastUpdated": "2025-07-03T06:57:35.238Z"
+  "lastUpdated": "2025-07-03T20:28:29.275Z"
 }

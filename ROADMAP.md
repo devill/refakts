@@ -41,14 +41,20 @@ refakts locate file.ts --pattern "handle.*Error" --type function
 **Dependencies**: None
 
 #### 2. **Selection Tool**
-**Status**: 🆕 Proposed  
+**Status**: ✅ Completed (2025-07-03)  
 **Description**: Select AST ranges between two points for range-based operations
 ```bash
-refakts select file.ts --start-text "function process" --end-text "return result"
-refakts extract-method file.ts --selection @last --name "processCore"
+# Range selection with regex patterns
+refakts select file.ts --range --start-regex "const.*=" --end-regex "return.*"
+
+# Structural selection with AST parsing
+refakts select file.ts --structural --regex "user.*" --include-methods --include-fields
+
+# Smart boundary selection
+refakts select file.ts --regex "pattern" --boundaries "function"
 ```
 **Why Critical**: Enables extract-method, comment-region, and other range operations
-**Dependencies**: #1 (Regex-based locator)
+**Implementation**: Built using ts-morph AST parsing with support for range, structural, and boundary-based selection modes
 
 #### 3. **Function Body Extractor**
 **Status**: 🆕 Proposed  

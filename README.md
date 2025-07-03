@@ -52,6 +52,12 @@ refakts rename src/example.ts --line 3 --column 5 --new-name "newVariableName"
 
 # Find variable usages
 refakts variable-locator src/example.ts --line 8 --column 12
+
+# Advanced selection with range, structural, and boundary modes
+refakts select src/example.ts --regex "tempResult"
+refakts select src/example.ts --range --start-regex "const.*=" --end-regex "return.*"
+refakts select src/example.ts --structural --regex ".*[Uu]ser.*" --include-methods --include-fields
+refakts select src/example.ts --regex "user.*" --boundaries "function"
 ```
 
 ## Technical Details

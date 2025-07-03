@@ -187,6 +187,7 @@ commands:
 - ✅ **Locators architecture**: VariableLocator and NodeFinding with usage type detection
 - ✅ **YAML-based locator testing**: Structured data validation vs source comparison
 - ✅ **Consolidated AST query**: node-finding replaces expression-locator per roadmap priorities
+- ✅ **Advanced select command**: Complete with range, structural, and boundary selection modes using ts-morph AST parsing
 
 ### Future Architecture Plan
 

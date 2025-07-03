@@ -183,8 +183,12 @@ refakts select src/file.ts --range --start-regex "const.*=" --end-regex "return.
 # Finds complete statement blocks
 
 # Select related elements
-refakts select src/file.ts --structural --regex "user.*" --include-methods --include-fields
+refakts select src/file.ts --structural --regex ".*[Uu]ser.*" --include-methods --include-fields
 # Returns all user-related methods and fields
+
+# Function-scoped boundary selection
+refakts select src/file.ts --regex "user.*" --boundaries "function"
+# Returns matches within intelligent function boundaries
 ```
 
 ## Utility Commands
