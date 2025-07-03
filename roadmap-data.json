@@ -4,7 +4,7 @@
       "name": "regex-ast-locator",
       "description": "Find AST nodes by text content instead of complex TSQuery patterns",
       "why": "Makes targeting for refactoring operations 10x simpler for AI agents",
-      "score": 7,
+      "score": 8,
       "status": "proposed",
       "tier": 1
     },
@@ -266,5 +266,5 @@
       "tier": 4
     }
   ],
-  "lastUpdated": "2025-07-03T06:41:44.276Z"
+  "lastUpdated": "2025-07-03T06:57:35.238Z"
 }

@@ -36,12 +36,31 @@ export class ExpressionLocator {
     }
   }
 
+  async findExpressionsByRegex(filePath: string, pattern: string): Promise<ExpressionLocationResult> {
+    try {
+      const result = await this.processExpressionRegex(filePath, pattern);
+      return result;
+    } catch (error) {
+      throw new Error(`Failed to process file ${filePath}: ${error}`);
+    }
+  }
+
   private async processExpressionQuery(filePath: string, query: string): Promise<ExpressionLocationResult> {
     const sourceFile = this.loadSourceFile(filePath);
     const matchingNodes = this.tsQueryHandler.findNodesByQuery(sourceFile, query);
     const matches = this.createExpressionMatches(sourceFile, matchingNodes);
     
     return { query, matches };
+  }
+
+  private async processExpressionRegex(filePath: string, pattern: string): Promise<ExpressionLocationResult> {
+    const sourceFile = this.loadSourceFile(filePath);
+    const regex = new RegExp(pattern);
+    const allNodes = this.getAllExpressionNodes(sourceFile);
+    const matchingNodes = allNodes.filter(node => regex.test(node.getText()));
+    const matches = this.createExpressionMatches(sourceFile, matchingNodes);
+    
+    return { query: pattern, matches };
   }
 
   private createExpressionMatches(sourceFile: SourceFile, nodes: Node[]): ExpressionMatch[] {
@@ -84,6 +103,16 @@ export class ExpressionLocator {
       return this.project.getSourceFile(absolutePath)!;
     }
     return this.project.addSourceFileAtPath(absolutePath);
+  }
+
+  private getAllExpressionNodes(sourceFile: SourceFile): Node[] {
+    const nodes: Node[] = [];
+    
+    sourceFile.forEachDescendant((node: Node) => {
+      nodes.push(node);
+    });
+    
+    return nodes;
   }
 
 }

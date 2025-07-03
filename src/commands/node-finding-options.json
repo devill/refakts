@@ -4,6 +4,10 @@
     "description": "TSQuery selector to find nodes"
   },
   {
+    "flags": "--regex <pattern>",
+    "description": "Regular expression pattern to match node text content"
+  },
+  {
     "flags": "--expressions",
     "description": "Find expressions with detailed scope information"
   }

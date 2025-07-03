@@ -20,7 +20,7 @@ export class NodeFindingCommand implements RefactoringCommand {
     this.validateOptions(options);
     
     try {
-      const result = this.getQueryResult(file, options);
+      const result = await this.getQueryResult(file, options);
       this.outputResult(result);
     } catch (error) {
       this.handleExecutionError(error);
@@ -37,7 +37,7 @@ export class NodeFindingCommand implements RefactoringCommand {
     };
   }
 
-  private async findNodes(file: string, query: string) {
+  private findNodes(file: string, query: string) {
     const sourceFile = this.astService.loadSourceFile(file);
     const nodes = this.astService.findNodesByQuery(sourceFile, query);
     const matches = this.createNodeMatches(sourceFile, nodes);
@@ -45,6 +45,29 @@ export class NodeFindingCommand implements RefactoringCommand {
     return {
       query,
       matches
+    };
+  }
+
+  private findNodesByRegex(file: string, pattern: string) {
+    const sourceFile = this.astService.loadSourceFile(file);
+    const regex = new RegExp(pattern);
+    const allNodes = this.getAllNodes(sourceFile);
+    const matchingNodes = allNodes.filter(node => regex.test(node.getText()));
+    const matches = this.createNodeMatches(sourceFile, matchingNodes);
+
+    return {
+      query: pattern,
+      matches
+    };
+  }
+
+  private async findExpressionsByRegex(file: string, pattern: string) {
+    const result = await this.expressionLocator.findExpressionsByRegex(file, pattern);
+    const serializableMatches = this.createSerializableExpressionMatches(result.matches);
+
+    return {
+      query: result.query,
+      matches: serializableMatches
     };
   }
 
@@ -60,19 +83,28 @@ export class NodeFindingCommand implements RefactoringCommand {
   }
 
   validateOptions(options: Record<string, any>): void {
-    if (!options.query) {
-      throw new Error('--query must be specified');
+    if (!options.query && !options.regex) {
+      throw new Error('Either --query or --regex must be specified');
+    }
+    if (options.query && options.regex) {
+      throw new Error('Cannot specify both --query and --regex');
     }
   }
 
   getHelpText(): string {
-    return '\nExamples:\n  refakts node-finding src/file.ts --query "FunctionDeclaration"\n  refakts node-finding src/file.ts --query "BinaryExpression" --expressions\n  refakts node-finding src/file.ts --query "CallExpression" --expressions';
+    return '\nExamples:\n  refakts node-finding src/file.ts --query "FunctionDeclaration"\n  refakts node-finding src/file.ts --query "BinaryExpression" --expressions\n  refakts node-finding src/file.ts --regex "function calculate\\w+"\n  refakts node-finding src/file.ts --regex "result" --expressions';
   }
 
   private async getQueryResult(file: string, options: Record<string, any>) {
-    return options.expressions 
-      ? await this.findExpressions(file, options.query)
-      : await this.findNodes(file, options.query);
+    if (options.regex) {
+      return options.expressions 
+        ? await this.findExpressionsByRegex(file, options.regex)
+        : this.findNodesByRegex(file, options.regex);
+    } else {
+      return options.expressions 
+        ? await this.findExpressions(file, options.query)
+        : this.findNodes(file, options.query);
+    }
   }
 
   private outputResult(result: any): void {
@@ -101,5 +133,15 @@ export class NodeFindingCommand implements RefactoringCommand {
       line: location.line,
       column: location.column
     };
+  }
+
+  private getAllNodes(sourceFile: any): Node[] {
+    const nodes: Node[] = [];
+    
+    sourceFile.forEachDescendant((node: Node) => {
+      nodes.push(node);
+    });
+    
+    return nodes;
   }
 }
