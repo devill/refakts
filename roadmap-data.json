@@ -4,7 +4,7 @@
       "name": "regex-ast-locator",
       "description": "Find AST nodes by text content instead of complex TSQuery patterns",
       "why": "Makes targeting for refactoring operations 10x simpler for AI agents",
-      "score": 8,
+      "score": 9,
       "status": "proposed",
       "tier": 1
     },
@@ -36,7 +36,7 @@
       "name": "smart-method-extraction",
       "description": "Extract methods with automatic parameter/return detection",
       "why": "Most common refactoring operation needs automation",
-      "score": 4,
+      "score": 5,
       "status": "proposed",
       "tier": 2,
       "dependencies": [
@@ -103,7 +103,7 @@
       "name": "extract-constant",
       "description": "Extract literal values and expressions into named constants",
       "why": "Essential refactoring for improving code readability and maintainability - converts magic numbers/strings into meaningful constants",
-      "score": 2,
+      "score": 3,
       "status": "proposed",
       "tier": 4
     },
@@ -263,10 +263,10 @@
       "name": "auto-extract-helper-methods",
       "description": "Automatically extract complex expressions and nested logic into well-named helper methods",
       "why": "During quality refactoring, I manually broke down oversized functions by extracting helper methods. This could be automated by identifying complex expressions, nested conditionals, and repetitive code patterns that should become separate methods.",
-      "score": 2,
+      "score": 3,
       "status": "proposed",
       "tier": 4
     }
   ],
-  "lastUpdated": "2025-07-03T20:28:29.275Z"
+  "lastUpdated": "2025-07-03T20:44:29.806Z"
 }
