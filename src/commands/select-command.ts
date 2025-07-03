@@ -1,5 +1,4 @@
 import { RefactoringCommand } from '../command';
-import { SelectResult } from './select/select-types';
 import { SelectOutputHandler } from './select/output-handler';
 import { ASTService } from '../services/ast-service';
 import { SelectionStrategyFactory } from '../strategies/selection-strategy-factory';
