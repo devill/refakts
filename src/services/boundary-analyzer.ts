@@ -57,10 +57,21 @@ export class BoundaryAnalyzer {
 
   private getFunctionPositions(func: Node) {
     const sourceFile = func.getSourceFile();
-    const start = func.getStart();
-    const end = func.getEnd();
-    const startPos = sourceFile.getLineAndColumnAtPos(start);
-    const endPos = sourceFile.getLineAndColumnAtPos(end);
+    const nodePositions = this.getNodePositions(func);
+    
+    return this.createLinePositions(sourceFile, nodePositions);
+  }
+
+  private getNodePositions(func: Node) {
+    return {
+      start: func.getStart(),
+      end: func.getEnd()
+    };
+  }
+
+  private createLinePositions(sourceFile: any, nodePositions: any) {
+    const startPos = sourceFile.getLineAndColumnAtPos(nodePositions.start);
+    const endPos = sourceFile.getLineAndColumnAtPos(nodePositions.end);
     
     return {
       startLine: startPos.line,

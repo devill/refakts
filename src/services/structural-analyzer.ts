@@ -57,8 +57,12 @@ export class StructuralAnalyzer {
   }
 
   private getMatchingFields(classDecl: any, regex: RegExp, fileName: string): SelectResult[] {
-    const results: SelectResult[] = [];
     const properties = classDecl.getProperties();
+    return this.filterAndFormatProperties(properties, regex, fileName);
+  }
+
+  private filterAndFormatProperties(properties: any[], regex: RegExp, fileName: string): SelectResult[] {
+    const results: SelectResult[] = [];
     
     for (const prop of properties) {
       if (this.propertyMatches(prop, regex)) {
@@ -106,8 +110,12 @@ export class StructuralAnalyzer {
   }
 
   private getMatchingMethods(classDecl: any, regex: RegExp, fileName: string): SelectResult[] {
-    const results: SelectResult[] = [];
     const methods = classDecl.getMethods();
+    return this.filterAndFormatMethods(methods, regex, fileName);
+  }
+
+  private filterAndFormatMethods(methods: any[], regex: RegExp, fileName: string): SelectResult[] {
+    const results: SelectResult[] = [];
     
     for (const method of methods) {
       if (this.methodMatches(method, regex)) {

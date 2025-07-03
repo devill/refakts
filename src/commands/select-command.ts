@@ -40,12 +40,16 @@ export class SelectCommand implements RefactoringCommand {
     this.validateOptions(options);
     
     try {
-      const sourceFile = this.astService.loadSourceFile(file);
-      const results = await this.selectionService.findSelections(sourceFile, options);
-      this.outputHandler.outputResults(results);
+      await this.performSelection(file, options);
     } catch (error) {
       this.handleExecutionError(error);
     }
+  }
+
+  private async performSelection(file: string, options: Record<string, any>): Promise<void> {
+    const sourceFile = this.astService.loadSourceFile(file);
+    const results = await this.selectionService.findSelections(sourceFile, options);
+    this.outputHandler.outputResults(results);
   }
 
   private handleExecutionError(error: unknown): void {
