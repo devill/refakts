@@ -1,6 +1,6 @@
 /**
  * @description Test selection with special characters in regex
- * @command refakts select special-characters.input.ts --regex "\\$\\{.*\\}"
+ * @command refakts select special-characters.input.ts --regex "\\\\$\\\\{.*?\\\\}"
  * @skip
  */
 
