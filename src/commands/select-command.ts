@@ -37,39 +37,49 @@ export class SelectCommand implements RefactoringCommand {
     const content = fs.readFileSync(file, 'utf8');
     const lines = content.split('\n');
     const pattern = new RegExp(options.regex, 'g');
-    const matches: SelectMatch[] = [];
+    const matches = this.findRegexMatches(lines, pattern);
+    return this.processMatches(matches, file, options);
+  }
 
-    // Find all matches, excluding comments
+  private findRegexMatches(lines: string[], pattern: RegExp): SelectMatch[] {
+    const matches: SelectMatch[] = [];
+    
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
       const line = lines[lineIndex];
       
-      // Skip lines that are comments
-      const trimmedLine = line.trim();
-      if (trimmedLine.startsWith('//') || trimmedLine.startsWith('*') || trimmedLine.startsWith('/*')) {
+      if (this.isCommentLine(line)) {
         continue;
       }
       
-      let match;
-      
-      // Reset regex lastIndex for each line
-      pattern.lastIndex = 0;
-      
-      while ((match = pattern.exec(line)) !== null) {
-        const startColumn = match.index + 1; // 1-based
-        const endColumn = match.index + match[0].length + 1; // 1-based
-        
-        matches.push({
-          line: lineIndex + 1, // 1-based
-          column: startColumn,
-          endLine: lineIndex + 1,
-          endColumn: endColumn,
-          text: match[0],
-          fullLine: line
-        });
-      }
+      this.extractMatchesFromLine(line, lineIndex, pattern, matches);
     }
+    
+    return matches;
+  }
 
-    return this.processMatches(matches, file, options);
+  private isCommentLine(line: string): boolean {
+    const trimmedLine = line.trim();
+    return trimmedLine.startsWith('//') || trimmedLine.startsWith('*') || trimmedLine.startsWith('/*');
+  }
+
+  private extractMatchesFromLine(line: string, lineIndex: number, pattern: RegExp, matches: SelectMatch[]): void {
+    let match;
+    pattern.lastIndex = 0;
+    
+    while ((match = pattern.exec(line)) !== null) {
+      matches.push(this.createSelectMatch(match, lineIndex, line));
+    }
+  }
+
+  private createSelectMatch(match: RegExpExecArray, lineIndex: number, line: string): SelectMatch {
+    return {
+      line: lineIndex + 1,
+      column: match.index + 1,
+      endLine: lineIndex + 1,
+      endColumn: match.index + match[0].length + 1,
+      text: match[0],
+      fullLine: line
+    };
   }
 
   private processMatches(matches: SelectMatch[], file: string, options: Record<string, any>): SelectResult[] {
@@ -77,111 +87,146 @@ export class SelectCommand implements RefactoringCommand {
     const results: SelectResult[] = [];
 
     for (const match of matches) {
-      if (options.includeDefinition || options['include-definition']) {
-        const definitionRange = this.findDefinitionRange(match, file);
-        if (definitionRange) {
-          results.push({
-            location: `[${fileName} ${definitionRange.startLine}:-${definitionRange.endLine}:]`,
-            content: definitionRange.content
-          });
-        }
-      } else if (options.includeLine || options['include-line']) {
-        results.push({
-          location: `[${fileName} ${match.line}:-${match.line}:]`,
-          content: match.fullLine.trim()
-        });
-      } else if (options.previewLine || options['preview-line']) {
-        results.push({
-          location: `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`,
-          content: match.fullLine.trim()
-        });
-      } else {
-        results.push({
-          location: `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`,
-          content: match.text
-        });
+      const result = this.createSelectResult(match, fileName, file, options);
+      if (result) {
+        results.push(result);
       }
     }
 
     return results;
   }
 
+  private createSelectResult(match: SelectMatch, fileName: string, file: string, options: Record<string, any>): SelectResult | null {
+    if (options.includeDefinition || options['include-definition']) {
+      return this.createDefinitionResult(match, fileName, file);
+    } else if (options.includeLine || options['include-line']) {
+      return this.createLineResult(match, fileName);
+    } else if (options.previewLine || options['preview-line']) {
+      return this.createPreviewResult(match, fileName);
+    } else {
+      return this.createBasicResult(match, fileName);
+    }
+  }
+
+  private createDefinitionResult(match: SelectMatch, fileName: string, file: string): SelectResult | null {
+    const definitionRange = this.findDefinitionRange(match, file);
+    if (definitionRange) {
+      return {
+        location: `[${fileName} ${definitionRange.startLine}:-${definitionRange.endLine}:]`,
+        content: definitionRange.content
+      };
+    }
+    return null;
+  }
+
+  private createLineResult(match: SelectMatch, fileName: string): SelectResult {
+    return {
+      location: `[${fileName} ${match.line}:-${match.line}:]`,
+      content: match.fullLine.trim()
+    };
+  }
+
+  private createPreviewResult(match: SelectMatch, fileName: string): SelectResult {
+    return {
+      location: `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`,
+      content: match.fullLine.trim()
+    };
+  }
+
+  private createBasicResult(match: SelectMatch, fileName: string): SelectResult {
+    return {
+      location: `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`,
+      content: match.text
+    };
+  }
+
   private findDefinitionRange(match: SelectMatch, file: string): { startLine: number; endLine: number; content: string } | null {
     const content = fs.readFileSync(file, 'utf8');
     const lines = content.split('\n');
-    const matchLine = match.line - 1; // Convert to 0-based
+    const matchLine = match.line - 1;
     
-    // Simple heuristic: if the match is part of a function declaration, find the entire function
-    const currentLine = lines[matchLine];
+    if (!this.isDefinitionLine(lines[matchLine])) {
+      return null;
+    }
     
-    if (currentLine.includes('function ') || currentLine.includes('const ') || currentLine.includes('let ') || currentLine.includes('var ')) {
-      // Find the start of the definition
-      let startLine = matchLine;
+    const endLine = this.findDefinitionEndLine(lines, matchLine);
+    const definitionContent = lines.slice(matchLine, endLine + 1).join('\n');
+    
+    return {
+      startLine: matchLine + 1,
+      endLine: endLine + 1,
+      content: definitionContent
+    };
+  }
+
+  private isDefinitionLine(line: string): boolean {
+    return line.includes('function ') || line.includes('const ') || line.includes('let ') || line.includes('var ');
+  }
+
+  private findDefinitionEndLine(lines: string[], startLine: number): number {
+    let endLine = startLine;
+    let braceCount = 0;
+    let foundOpenBrace = false;
+    
+    for (let i = startLine; i < lines.length; i++) {
+      const line = lines[i];
       
-      // Find the end by looking for the closing brace
-      let endLine = matchLine;
-      let braceCount = 0;
-      let foundOpenBrace = false;
-      
-      for (let i = matchLine; i < lines.length; i++) {
-        const line = lines[i];
-        
-        for (const char of line) {
-          if (char === '{') {
-            braceCount++;
-            foundOpenBrace = true;
-          } else if (char === '}') {
-            braceCount--;
-            if (foundOpenBrace && braceCount === 0) {
-              endLine = i;
-              break;
-            }
+      for (const char of line) {
+        if (char === '{') {
+          braceCount++;
+          foundOpenBrace = true;
+        } else if (char === '}') {
+          braceCount--;
+          if (foundOpenBrace && braceCount === 0) {
+            endLine = i;
+            break;
           }
-        }
-        
-        if (foundOpenBrace && braceCount === 0) {
-          break;
         }
       }
       
-      const definitionContent = lines.slice(startLine, endLine + 1).join('\n');
-      
-      return {
-        startLine: startLine + 1, // Convert back to 1-based
-        endLine: endLine + 1,
-        content: definitionContent
-      };
+      if (foundOpenBrace && braceCount === 0) {
+        break;
+      }
     }
     
-    return null;
+    return endLine;
   }
 
   private outputResults(results: SelectResult[]): void {
     for (const result of results) {
-      if (result.content && result.context) {
-        // Preview mode: show location and content, then context
-        console.log(`${result.location} ${result.content}`);
-        console.log(`Context: ${result.context}`);
-      } else if (result.content && result.location.includes(':-') && result.location.includes(':')) {
-        // Check if this is include-definition mode (multi-line) vs include-line mode (single line)
-        const hasMultiLineRange = result.location.match(/(\d+):-(\d+):/);
-        if (hasMultiLineRange && hasMultiLineRange[1] !== hasMultiLineRange[2]) {
-          // Multi-line content: show location, then content, then location again
-          console.log(result.location);
-          console.log(result.content);
-          console.log(result.location);
-        } else {
-          // Single line with content: show location and content on same line
-          console.log(`${result.location} ${result.content}`);
-        }
-      } else if (result.content) {
-        // Single line with content: show location and content on same line
-        console.log(`${result.location} ${result.content}`);
-      } else {
-        // Just location
-        console.log(result.location);
-      }
+      this.outputSingleResult(result);
     }
+  }
+
+  private outputSingleResult(result: SelectResult): void {
+    if (result.content && result.context) {
+      this.outputPreviewResult(result);
+    } else if (this.isMultiLineResult(result)) {
+      this.outputMultiLineResult(result);
+    } else if (result.content) {
+      console.log(`${result.location} ${result.content}`);
+    } else {
+      console.log(result.location);
+    }
+  }
+
+  private outputPreviewResult(result: SelectResult): void {
+    console.log(`${result.location} ${result.content}`);
+    console.log(`Context: ${result.context}`);
+  }
+
+  private isMultiLineResult(result: SelectResult): boolean {
+    if (!result.content || !result.location.includes(':-') || !result.location.includes(':')) {
+      return false;
+    }
+    const hasMultiLineRange = result.location.match(/(\d+):-(\d+):/);
+    return hasMultiLineRange ? hasMultiLineRange[1] !== hasMultiLineRange[2] : false;
+  }
+
+  private outputMultiLineResult(result: SelectResult): void {
+    console.log(result.location);
+    console.log(result.content);
+    console.log(result.location);
   }
 
   private handleExecutionError(error: unknown): void {
