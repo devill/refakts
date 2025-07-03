@@ -1,54 +1,33 @@
 import { RefactoringCommand } from '../command';
 import { SelectResult } from './select/select-types';
 import { SelectOutputHandler } from './select/output-handler';
-import { SelectionService } from '../services/selection-service';
 import { ASTService } from '../services/ast-service';
-import { ContextAnalyzer } from '../services/context-analyzer';
-import { RangeAnalyzer } from '../services/range-analyzer';
-import { BoundaryAnalyzer } from '../services/boundary-analyzer';
-import { StructuralAnalyzer } from '../services/structural-analyzer';
-import { RegexPatternMatcher } from '../services/regex-pattern-matcher';
+import { SelectionStrategyFactory } from '../strategies/selection-strategy-factory';
+import { SelectionStrategy } from '../strategies/selection-strategy';
 
 export class SelectCommand implements RefactoringCommand {
   readonly name = 'select';
   readonly description = 'Find code elements and return their locations with content preview';
   readonly complete = true;
 
-  private selectionService: SelectionService;
-  private astService: ASTService;
+  private astService = new ASTService();
+  private strategyFactory = new SelectionStrategyFactory();
   private outputHandler = new SelectOutputHandler();
 
-  constructor() {
-    this.astService = new ASTService();
-    const contextAnalyzer = new ContextAnalyzer();
-    const rangeAnalyzer = new RangeAnalyzer();
-    const boundaryAnalyzer = new BoundaryAnalyzer();
-    const structuralAnalyzer = new StructuralAnalyzer();
-    const regexMatcher = new RegexPatternMatcher();
-    
-    this.selectionService = new SelectionService(
-      this.astService,
-      contextAnalyzer,
-      rangeAnalyzer,
-      boundaryAnalyzer,
-      structuralAnalyzer,
-      regexMatcher
-    );
-  }
-
   async execute(file: string, options: Record<string, any>): Promise<void> {
-    this.validateOptions(options);
-    
     try {
-      await this.performSelection(file, options);
+      const strategy = this.strategyFactory.getStrategy(options);
+      strategy.validateOptions(options);
+      
+      await this.performSelection(file, options, strategy);
     } catch (error) {
       this.handleExecutionError(error);
     }
   }
 
-  private async performSelection(file: string, options: Record<string, any>): Promise<void> {
+  private async performSelection(file: string, options: Record<string, any>, strategy: SelectionStrategy): Promise<void> {
     const sourceFile = this.astService.loadSourceFile(file);
-    const results = await this.selectionService.findSelections(sourceFile, options);
+    const results = await strategy.select(sourceFile, options);
     this.outputHandler.outputResults(results);
   }
 
@@ -58,28 +37,8 @@ export class SelectCommand implements RefactoringCommand {
   }
 
   validateOptions(options: Record<string, any>): void {
-    if (options.range) {
-      this.validateRangeOptions(options);
-    } else if (options.structural) {
-      this.validateStructuralOptions(options);
-    } else if (!options.regex) {
-      throw new Error('--regex must be specified');
-    }
-  }
-
-  private validateRangeOptions(options: Record<string, any>): void {
-    if (!options.startRegex && !options['start-regex']) {
-      throw new Error('--start-regex must be specified with --range');
-    }
-    if (!options.endRegex && !options['end-regex']) {
-      throw new Error('--end-regex must be specified with --range');
-    }
-  }
-
-  private validateStructuralOptions(options: Record<string, any>): void {
-    if (!options.regex) {
-      throw new Error('--regex must be specified with --structural');
-    }
+    const strategy = this.strategyFactory.getStrategy(options);
+    strategy.validateOptions(options);
   }
 
   getHelpText(): string {
