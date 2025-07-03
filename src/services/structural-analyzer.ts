@@ -4,20 +4,36 @@ import * as path from 'path';
 
 export class StructuralAnalyzer {
   findStructuralMatches(sourceFile: SourceFile, options: Record<string, any>): SelectResult[] {
+    const { regex, fileName } = this.prepareMatchingContext(sourceFile, options);
+    return this.collectAllMatches(sourceFile, regex, fileName, options);
+  }
+
+  private prepareMatchingContext(sourceFile: SourceFile, options: Record<string, any>) {
     const pattern = options.regex;
     const fileName = path.basename(sourceFile.getFilePath());
     const regex = new RegExp(pattern);
+    return { regex, fileName };
+  }
+
+  private collectAllMatches(sourceFile: SourceFile, regex: RegExp, fileName: string, options: Record<string, any>): SelectResult[] {
     const results: SelectResult[] = [];
     
+    this.addFieldMatches(sourceFile, regex, fileName, options, results);
+    this.addMethodMatches(sourceFile, regex, fileName, options, results);
+    
+    return results;
+  }
+
+  private addFieldMatches(sourceFile: SourceFile, regex: RegExp, fileName: string, options: Record<string, any>, results: SelectResult[]): void {
     if (this.shouldIncludeFields(options)) {
       results.push(...this.findASTFieldMatches(sourceFile, regex, fileName));
     }
-    
+  }
+
+  private addMethodMatches(sourceFile: SourceFile, regex: RegExp, fileName: string, options: Record<string, any>, results: SelectResult[]): void {
     if (this.shouldIncludeMethods(options)) {
       results.push(...this.findASTMethodMatches(sourceFile, regex, fileName));
     }
-    
-    return results;
   }
 
   private shouldIncludeFields(options: Record<string, any>): boolean {

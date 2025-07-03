@@ -40,17 +40,22 @@ export class RangeAnalyzer {
   }
 
   private processAllLines(sourceFile: SourceFile, lines: string[], patterns: any): any[] {
-    const ranges = [];
+    const ranges: any[] = [];
     
     for (let i = 0; i < lines.length; i++) {
       const result = this.processLine(sourceFile, lines, patterns, i);
-      if (result.range) {
-        ranges.push(result.range);
-        i = result.newIndex;
-      }
+      i = this.handleLineResult(result, ranges, i);
     }
     
     return ranges;
+  }
+
+  private handleLineResult(result: any, ranges: any[], currentIndex: number): number {
+    if (result.range) {
+      ranges.push(result.range);
+      return result.newIndex;
+    }
+    return currentIndex;
   }
 
   private processLine(sourceFile: SourceFile, lines: string[], patterns: any, i: number) {

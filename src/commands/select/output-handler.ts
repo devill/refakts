@@ -2,22 +2,38 @@ import { SelectResult } from './select-types';
 
 export class SelectOutputHandler {
   outputResults(results: SelectResult[]): void {
-    if (results.length === 0) {
+    if (this.hasNoResults(results)) {
       console.log('No Matches');
       return;
     }
     
+    this.processAllResults(results);
+  }
+
+  private hasNoResults(results: SelectResult[]): boolean {
+    return results.length === 0;
+  }
+
+  private processAllResults(results: SelectResult[]): void {
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       this.outputSingleResult(result);
-      
-      if (i < results.length - 1) {
-        const nextResult = results[i + 1];
-        if (this.isMultiLineResult(result) || this.isMultiLineResult(nextResult)) {
-          console.log('');
-        }
+      this.addSpacingIfNeeded(results, i);
+    }
+  }
+
+  private addSpacingIfNeeded(results: SelectResult[], index: number): void {
+    if (index < results.length - 1) {
+      const currentResult = results[index];
+      const nextResult = results[index + 1];
+      if (this.needsSpacing(currentResult, nextResult)) {
+        console.log('');
       }
     }
+  }
+
+  private needsSpacing(currentResult: SelectResult, nextResult: SelectResult): boolean {
+    return this.isMultiLineResult(currentResult) || this.isMultiLineResult(nextResult);
   }
 
   private outputSingleResult(result: SelectResult): void {
