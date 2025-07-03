@@ -3,14 +3,22 @@ import { SelectMatch, DefinitionRange } from './select-types';
 
 export class DefinitionRangeDetector {
   findDefinitionRange(match: SelectMatch, file: string): DefinitionRange | null {
-    const content = fs.readFileSync(file, 'utf8');
-    const lines = content.split('\n');
+    const lines = this.readFileLines(file);
     const matchLine = match.line - 1;
     
     if (!this.isDefinitionLine(lines[matchLine])) {
       return null;
     }
     
+    return this.buildDefinitionRange(lines, matchLine);
+  }
+
+  private readFileLines(file: string): string[] {
+    const content = fs.readFileSync(file, 'utf8');
+    return content.split('\n');
+  }
+
+  private buildDefinitionRange(lines: string[], matchLine: number): DefinitionRange {
     const endLine = this.findDefinitionEndLine(lines, matchLine);
     const definitionContent = lines.slice(matchLine, endLine + 1).join('\n');
     
@@ -26,58 +34,56 @@ export class DefinitionRangeDetector {
   }
 
   private findDefinitionEndLine(lines: string[], startLine: number): number {
-    let endLine = startLine;
-    let braceCount = 0;
-    let foundOpenBrace = false;
+    const tracker = this.createBraceTracker(startLine);
+    this.scanLinesForDefinitionEnd(lines, startLine, tracker);
+    return tracker.endLine;
+  }
+
+  private processLineForEndDetection(line: string, tracker: { endLine: number; braceCount: number; foundOpenBrace: boolean }, lineIndex: number): void {
+    for (const char of line) {
+      this.updateBraceTracking(char, tracker);
+      
+      if (this.shouldStopProcessing(tracker)) {
+        this.setEndLine(tracker, lineIndex);
+        return;
+      }
+    }
     
+    this.setEndLine(tracker, lineIndex);
+  }
+
+  private setEndLine(tracker: { endLine: number }, lineIndex: number): void {
+    tracker.endLine = lineIndex;
+  }
+
+  private scanLinesForDefinitionEnd(lines: string[], startLine: number, tracker: { endLine: number; braceCount: number; foundOpenBrace: boolean }): void {
     for (let i = startLine; i < lines.length; i++) {
-      const line = lines[i];
-      endLine = this.processLineForBraces(line, braceCount, foundOpenBrace, i);
+      this.processLineForEndDetection(lines[i], tracker, i);
       
-      const braceResult = this.countBraces(line, braceCount, foundOpenBrace);
-      braceCount = braceResult.braceCount;
-      foundOpenBrace = braceResult.foundOpenBrace;
-      
-      if (foundOpenBrace && braceCount === 0) {
+      if (this.isDefinitionComplete(tracker)) {
         break;
       }
     }
-    
-    return endLine;
   }
 
-  private processLineForBraces(line: string, braceCount: number, foundOpenBrace: boolean, lineIndex: number): number {
-    let currentBraceCount = braceCount;
-    let currentFoundOpenBrace = foundOpenBrace;
-    
-    for (const char of line) {
-      if (char === '{') {
-        currentBraceCount++;
-        currentFoundOpenBrace = true;
-      } else if (char === '}') {
-        currentBraceCount--;
-        if (currentFoundOpenBrace && currentBraceCount === 0) {
-          return lineIndex;
-        }
-      }
-    }
-    
-    return lineIndex;
+  private createBraceTracker(startLine: number): { endLine: number; braceCount: number; foundOpenBrace: boolean } {
+    return { endLine: startLine, braceCount: 0, foundOpenBrace: false };
   }
 
-  private countBraces(line: string, initialBraceCount: number, initialFoundOpenBrace: boolean): { braceCount: number; foundOpenBrace: boolean } {
-    let braceCount = initialBraceCount;
-    let foundOpenBrace = initialFoundOpenBrace;
-    
-    for (const char of line) {
-      if (char === '{') {
-        braceCount++;
-        foundOpenBrace = true;
-      } else if (char === '}') {
-        braceCount--;
-      }
+  private shouldStopProcessing(tracker: { braceCount: number; foundOpenBrace: boolean }): boolean {
+    return tracker.foundOpenBrace && tracker.braceCount === 0;
+  }
+
+  private isDefinitionComplete(tracker: { braceCount: number; foundOpenBrace: boolean }): boolean {
+    return tracker.foundOpenBrace && tracker.braceCount === 0;
+  }
+
+  private updateBraceTracking(char: string, tracker: { braceCount: number; foundOpenBrace: boolean }): void {
+    if (char === '{') {
+      tracker.braceCount++;
+      tracker.foundOpenBrace = true;
+    } else if (char === '}') {
+      tracker.braceCount--;
     }
-    
-    return { braceCount, foundOpenBrace };
   }
 }

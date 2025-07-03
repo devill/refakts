@@ -10,16 +10,18 @@ export class SelectPatternMatcher {
     const matches: SelectMatch[] = [];
     
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-      const line = lines[lineIndex];
-      
-      if (this.isCommentLine(line)) {
-        continue;
-      }
-      
-      this.extractMatchesFromLine(line, lineIndex, pattern, matches);
+      this.processLineForMatches(lines[lineIndex], lineIndex, pattern, matches);
     }
     
     return matches;
+  }
+
+  private processLineForMatches(line: string, lineIndex: number, pattern: RegExp, matches: SelectMatch[]): void {
+    if (this.isCommentLine(line)) {
+      return;
+    }
+    
+    this.extractMatchesFromLine(line, lineIndex, pattern, matches);
   }
 
   private isCommentLine(line: string): boolean {

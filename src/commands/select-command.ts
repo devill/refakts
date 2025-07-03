@@ -46,15 +46,32 @@ export class SelectCommand implements RefactoringCommand {
   }
 
   private determineFormatter(options: Record<string, any>): SelectResultFormatter {
-    if (options.includeDefinition || options['include-definition']) {
-      return this.formatters.get('definition')!;
-    } else if (options.includeLine || options['include-line']) {
-      return this.formatters.get('line')!;
-    } else if (options.previewLine || options['preview-line']) {
-      return this.formatters.get('preview')!;
+    const formatterType = this.getFormatterType(options);
+    return this.formatters.get(formatterType)!;
+  }
+
+  private getFormatterType(options: Record<string, any>): string {
+    if (this.hasDefinitionOption(options)) {
+      return 'definition';
+    } else if (this.hasLineOption(options)) {
+      return 'line';
+    } else if (this.hasPreviewOption(options)) {
+      return 'preview';
     } else {
-      return this.formatters.get('basic')!;
+      return 'basic';
     }
+  }
+
+  private hasDefinitionOption(options: Record<string, any>): boolean {
+    return options.includeDefinition || options['include-definition'];
+  }
+
+  private hasLineOption(options: Record<string, any>): boolean {
+    return options.includeLine || options['include-line'];
+  }
+
+  private hasPreviewOption(options: Record<string, any>): boolean {
+    return options.previewLine || options['preview-line'];
   }
 
 

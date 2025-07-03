@@ -35,19 +35,36 @@ export class PreviewFormatter implements SelectResultFormatter {
 export class DefinitionFormatter implements SelectResultFormatter {
   private detector = new DefinitionRangeDetector();
 
+  private createDefinitionResult(match: SelectMatch, fileName: string, file: string): SelectResult | null {
+    const definitionRange = this.detector.findDefinitionRange(match, file);
+    if (!definitionRange) {
+      return null;
+    }
+    
+    return this.buildDefinitionResult(definitionRange, fileName);
+  }
+
+  private buildDefinitionResult(definitionRange: any, fileName: string): SelectResult {
+    return {
+      location: `[${fileName} ${definitionRange.startLine}:-${definitionRange.endLine}:]`,
+      content: definitionRange.content
+    };
+  }
+
   format(matches: SelectMatch[], fileName: string, file: string): SelectResult[] {
     const results: SelectResult[] = [];
     
     for (const match of matches) {
-      const definitionRange = this.detector.findDefinitionRange(match, file);
-      if (definitionRange) {
-        results.push({
-          location: `[${fileName} ${definitionRange.startLine}:-${definitionRange.endLine}:]`,
-          content: definitionRange.content
-        });
-      }
+      this.processMatchForDefinition(match, fileName, file, results);
     }
     
     return results;
+  }
+
+  private processMatchForDefinition(match: SelectMatch, fileName: string, file: string, results: SelectResult[]): void {
+    const result = this.createDefinitionResult(match, fileName, file);
+    if (result) {
+      results.push(result);
+    }
   }
 }

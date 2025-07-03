@@ -8,15 +8,41 @@ export class SelectOutputHandler {
   }
 
   private outputSingleResult(result: SelectResult): void {
-    if (result.content && result.context) {
-      this.outputPreviewResult(result);
+    const outputType = this.determineOutputType(result);
+    this.executeOutput(result, outputType);
+  }
+
+  private determineOutputType(result: SelectResult): string {
+    if (this.hasPreviewContent(result)) {
+      return 'preview';
     } else if (this.isMultiLineResult(result)) {
-      this.outputMultiLineResult(result);
+      return 'multiline';
     } else if (result.content) {
-      console.log(`${result.location} ${result.content}`);
+      return 'withContent';
     } else {
-      console.log(result.location);
+      return 'locationOnly';
     }
+  }
+
+  private hasPreviewContent(result: SelectResult): boolean {
+    return !!(result.content && result.context);
+  }
+
+  private executeOutput(result: SelectResult, outputType: string): void {
+    const outputHandlers = this.getOutputHandlers(result);
+    const handler = outputHandlers[outputType];
+    if (handler) {
+      handler();
+    }
+  }
+
+  private getOutputHandlers(result: SelectResult): Record<string, () => void> {
+    return {
+      preview: () => this.outputPreviewResult(result),
+      multiline: () => this.outputMultiLineResult(result),
+      withContent: () => console.log(`${result.location} ${result.content}`),
+      locationOnly: () => console.log(result.location)
+    };
   }
 
   private outputPreviewResult(result: SelectResult): void {
