@@ -1,7 +1,6 @@
 /**
  * @description Test case where regex pattern finds no matches
  * @command refakts select no-regex-matches.input.ts --regex "nonExistentPattern"
- * @skip
  */
 
 function calculateSomething() {

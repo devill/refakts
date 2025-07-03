@@ -2,6 +2,11 @@ import { SelectResult } from './select-types';
 
 export class SelectOutputHandler {
   outputResults(results: SelectResult[]): void {
+    if (results.length === 0) {
+      console.log('No Matches');
+      return;
+    }
+    
     for (const result of results) {
       this.outputSingleResult(result);
     }

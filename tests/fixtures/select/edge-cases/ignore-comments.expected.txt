@@ -1,2 +1,2 @@
-[simple-variable.input.ts 9:11-9:21] tempResult
-[simple-variable.input.ts 11:12-11:22] tempResult
+[ignore-comments.input.ts 9:11-9:21] tempResult
+[ignore-comments.input.ts 11:12-11:22] tempResult

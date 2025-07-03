@@ -1,7 +1,6 @@
 /**
  * @description Select expressions matching a pattern
  * @command refakts select expression-pattern.input.ts --regex "width.*height"
- * @skip
  */
 
 function calculateSomething() {

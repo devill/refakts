@@ -1,7 +1,6 @@
 /**
  * @description Commented out code is ignore
- * @command refakts select simple-variable.input.ts --regex "tempResult"
- * @skip
+ * @command refakts select ignore-comments.input.ts --regex "tempResult"
  */
 
 function calculateSomething() {
