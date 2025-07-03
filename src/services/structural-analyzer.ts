@@ -9,67 +9,119 @@ export class StructuralAnalyzer {
     const regex = new RegExp(pattern);
     const results: SelectResult[] = [];
     
-    if (options.includeFields || options['include-fields']) {
-      const fieldMatches = this.findASTFieldMatches(sourceFile, regex, fileName);
+    if (this.shouldIncludeFields(options)) {
+      results.push(...this.findASTFieldMatches(sourceFile, regex, fileName));
+    }
+    
+    if (this.shouldIncludeMethods(options)) {
+      results.push(...this.findASTMethodMatches(sourceFile, regex, fileName));
+    }
+    
+    return results;
+  }
+
+  private shouldIncludeFields(options: Record<string, any>): boolean {
+    return options.includeFields || options['include-fields'];
+  }
+
+  private shouldIncludeMethods(options: Record<string, any>): boolean {
+    return options.includeMethods || options['include-methods'];
+  }
+
+  private findASTFieldMatches(sourceFile: SourceFile, regex: RegExp, fileName: string): SelectResult[] {
+    const results: SelectResult[] = [];
+    const classes = sourceFile.getClasses();
+    
+    for (const classDecl of classes) {
+      const fieldMatches = this.getMatchingFields(classDecl, regex, fileName);
       results.push(...fieldMatches);
     }
     
-    if (options.includeMethods || options['include-methods']) {
-      const methodMatches = this.findASTMethodMatches(sourceFile, regex, fileName);
+    return results;
+  }
+
+  private getMatchingFields(classDecl: any, regex: RegExp, fileName: string): SelectResult[] {
+    const results: SelectResult[] = [];
+    const properties = classDecl.getProperties();
+    
+    for (const prop of properties) {
+      if (this.propertyMatches(prop, regex)) {
+        results.push(this.formatFieldResult(prop, fileName));
+      }
+    }
+    
+    return results;
+  }
+
+  private propertyMatches(prop: any, regex: RegExp): boolean {
+    return regex.test(prop.getName());
+  }
+
+  private formatFieldResult(prop: any, fileName: string): SelectResult {
+    const positions = this.getPropertyPositions(prop);
+    
+    return {
+      location: `[${fileName} ${positions.startLine}:${positions.startColumn}-${positions.endLine}:${positions.endColumn}]`,
+      content: prop.getName()
+    };
+  }
+
+  private getPropertyPositions(prop: any) {
+    const nameNode = prop.getNameNode();
+    const start = nameNode.getStart();
+    const end = nameNode.getEnd();
+    const sourceFile = prop.getSourceFile();
+    const startPos = sourceFile.getLineAndColumnAtPos(start);
+    const endPos = sourceFile.getLineAndColumnAtPos(end);
+    
+    return { startLine: startPos.line, startColumn: startPos.column, endLine: endPos.line, endColumn: endPos.column };
+  }
+
+  private findASTMethodMatches(sourceFile: SourceFile, regex: RegExp, fileName: string): SelectResult[] {
+    const results: SelectResult[] = [];
+    const classes = sourceFile.getClasses();
+    
+    for (const classDecl of classes) {
+      const methodMatches = this.getMatchingMethods(classDecl, regex, fileName);
       results.push(...methodMatches);
     }
     
     return results;
   }
 
-  private findASTFieldMatches(sourceFile: SourceFile, regex: RegExp, fileName: string): SelectResult[] {
+  private getMatchingMethods(classDecl: any, regex: RegExp, fileName: string): SelectResult[] {
     const results: SelectResult[] = [];
+    const methods = classDecl.getMethods();
     
-    const classes = sourceFile.getClasses();
-    for (const classDecl of classes) {
-      const properties = classDecl.getProperties();
-      for (const prop of properties) {
-        const name = prop.getName();
-        if (regex.test(name)) {
-          const nameNode = prop.getNameNode();
-          const start = nameNode.getStart();
-          const end = nameNode.getEnd();
-          const startPos = sourceFile.getLineAndColumnAtPos(start);
-          const endPos = sourceFile.getLineAndColumnAtPos(end);
-          
-          results.push({
-            location: `[${fileName} ${startPos.line}:${startPos.column}-${endPos.line}:${endPos.column}]`,
-            content: name
-          });
-        }
+    for (const method of methods) {
+      if (this.methodMatches(method, regex)) {
+        results.push(this.formatMethodResult(method, fileName));
       }
     }
     
     return results;
   }
 
-  private findASTMethodMatches(sourceFile: SourceFile, regex: RegExp, fileName: string): SelectResult[] {
-    const results: SelectResult[] = [];
+  private methodMatches(method: any, regex: RegExp): boolean {
+    return regex.test(method.getName());
+  }
+
+  private formatMethodResult(method: any, fileName: string): SelectResult {
+    const positions = this.getMethodPositions(method);
     
-    const classes = sourceFile.getClasses();
-    for (const classDecl of classes) {
-      const methods = classDecl.getMethods();
-      for (const method of methods) {
-        const name = method.getName();
-        if (regex.test(name)) {
-          const start = method.getStart();
-          const end = method.getEnd();
-          const startPos = sourceFile.getLineAndColumnAtPos(start);
-          const endPos = sourceFile.getLineAndColumnAtPos(end);
-          
-          results.push({
-            location: `[${fileName} ${startPos.line}:-${endPos.line}:]`,
-            content: method.getText()
-          });
-        }
-      }
-    }
+    return {
+      location: `[${fileName} ${positions.startLine}:-${positions.endLine}:]`,
+      content: method.getText()
+    };
+  }
+
+  private getMethodPositions(method: any) {
+    const start = method.getStart();
+    const end = method.getEnd();
+    const sourceFile = method.getSourceFile();
+    const startPos = sourceFile.getLineAndColumnAtPos(start);
+    const endPos = sourceFile.getLineAndColumnAtPos(end);
     
-    return results;
+    return { startLine: startPos.line, endLine: endPos.line };
   }
 }

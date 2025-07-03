@@ -17,30 +17,54 @@ export class BoundaryAnalyzer {
 
   private findFunctionBoundaryMatches(sourceFile: SourceFile, pattern: string, fileName: string): SelectResult[] {
     const regex = new RegExp(pattern);
-    const results: SelectResult[] = [];
+    const allFunctions = this.getAllFunctions(sourceFile);
     
-    // Use AST to find function declarations
+    return this.filterAndFormatMatches(allFunctions, regex, fileName);
+  }
+
+  private getAllFunctions(sourceFile: SourceFile): Node[] {
     const functions = sourceFile.getDescendantsOfKind(SyntaxKind.FunctionDeclaration);
     const methods = sourceFile.getDescendantsOfKind(SyntaxKind.MethodDeclaration);
     const arrowFunctions = sourceFile.getDescendantsOfKind(SyntaxKind.ArrowFunction);
     
-    const allFunctions = [...functions, ...methods, ...arrowFunctions];
+    return [...functions, ...methods, ...arrowFunctions];
+  }
+
+  private filterAndFormatMatches(functions: Node[], regex: RegExp, fileName: string): SelectResult[] {
+    const results: SelectResult[] = [];
     
-    for (const func of allFunctions) {
-      const funcText = func.getText();
-      if (regex.test(funcText)) {
-        const start = func.getStart();
-        const end = func.getEnd();
-        const startPos = sourceFile.getLineAndColumnAtPos(start);
-        const endPos = sourceFile.getLineAndColumnAtPos(end);
-        
-        results.push({
-          location: `[${fileName} ${startPos.line}:-${endPos.line}:]`,
-          content: funcText
-        });
+    for (const func of functions) {
+      if (this.functionMatchesPattern(func, regex)) {
+        results.push(this.formatFunctionResult(func, fileName));
       }
     }
     
     return results;
+  }
+
+  private functionMatchesPattern(func: Node, regex: RegExp): boolean {
+    return regex.test(func.getText());
+  }
+
+  private formatFunctionResult(func: Node, fileName: string): SelectResult {
+    const positions = this.getFunctionPositions(func);
+    
+    return {
+      location: `[${fileName} ${positions.startLine}:-${positions.endLine}:]`,
+      content: func.getText()
+    };
+  }
+
+  private getFunctionPositions(func: Node) {
+    const sourceFile = func.getSourceFile();
+    const start = func.getStart();
+    const end = func.getEnd();
+    const startPos = sourceFile.getLineAndColumnAtPos(start);
+    const endPos = sourceFile.getLineAndColumnAtPos(end);
+    
+    return {
+      startLine: startPos.line,
+      endLine: endPos.line
+    };
   }
 }

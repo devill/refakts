@@ -4,80 +4,139 @@ import * as path from 'path';
 
 export class RangeAnalyzer {
   findRangeMatches(sourceFile: SourceFile, options: Record<string, any>): SelectResult[] {
-    const startRegex = options.startRegex || options['start-regex'];
-    const endRegex = options.endRegex || options['end-regex'];
+    const regexOptions = this.extractRegexOptions(options);
     const fileName = path.basename(sourceFile.getFilePath());
+    const ranges = this.findContentRanges(sourceFile, regexOptions.start, regexOptions.end);
     
-    const ranges = this.findContentRanges(sourceFile, startRegex, endRegex);
+    return this.formatRangeResults(ranges, fileName);
+  }
+
+  private extractRegexOptions(options: Record<string, any>) {
+    return {
+      start: options.startRegex || options['start-regex'],
+      end: options.endRegex || options['end-regex']
+    };
+  }
+
+  private formatRangeResults(ranges: any[], fileName: string): SelectResult[] {
+    if (ranges.length === 0) return [{ location: 'No Matches' }];
     
-    if (ranges.length === 0) {
-      return [{ location: 'No Matches' }];
-    }
-    
-    return ranges.map(range => ({
-      location: `\n[${fileName} ${range.startLine}:${range.startColumn}-${range.endLine}:${range.endColumn}]`,
+    return ranges.map(range => this.formatSingleRange(range, fileName));
+  }
+
+  private formatSingleRange(range: any, fileName: string): SelectResult {
+    const location = `\n[${fileName} ${range.startLine}:${range.startColumn}-${range.endLine}:${range.endColumn}]`;
+    return {
+      location,
       content: `${range.content}\n[${fileName} ${range.startLine}:${range.startColumn}-${range.endLine}:${range.endColumn}]`
-    }));
+    };
   }
 
   private findContentRanges(sourceFile: SourceFile, startRegex: string, endRegex: string): any[] {
-    const content = sourceFile.getFullText();
-    const lines = content.split('\n');
+    const lines = sourceFile.getFullText().split('\n');
+    const patterns = this.createPatterns(startRegex, endRegex);
+    
+    return this.processAllLines(sourceFile, lines, patterns);
+  }
+
+  private processAllLines(sourceFile: SourceFile, lines: string[], patterns: any): any[] {
     const ranges = [];
-    const startPattern = new RegExp(startRegex);
-    const endPattern = new RegExp(endRegex);
     
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      
-      if (this.isCommentLine(sourceFile, i + 1)) {
-        continue;
-      }
-      
-      const startMatch = startPattern.exec(line);
-      if (startMatch) {
-        const rangeStart = { line: i + 1, column: startMatch.index + 1 };
-        
-        for (let j = i; j < lines.length; j++) {
-          const endLine = lines[j];
-          
-          if (this.isCommentLine(sourceFile, j + 1)) {
-            continue;
-          }
-          
-          const endMatch = endPattern.exec(endLine);
-          if (endMatch) {
-            const rangeEnd = { line: j + 1, column: endMatch.index + endMatch[0].length + 1 };
-            const contentLines = lines.slice(i, j + 1);
-            
-            ranges.push({
-              startLine: rangeStart.line,
-              startColumn: rangeStart.column,
-              endLine: rangeEnd.line,
-              endColumn: rangeEnd.column,
-              content: contentLines.join('\n')
-            });
-            
-            i = j;
-            break;
-          }
-        }
+      const result = this.processLine(sourceFile, lines, patterns, i);
+      if (result.range) {
+        ranges.push(result.range);
+        i = result.newIndex;
       }
     }
     
     return ranges;
   }
 
-  private isCommentLine(sourceFile: SourceFile, lineNumber: number): boolean {
-    // Simple approach: check if line content starts with comment markers
-    const content = sourceFile.getFullText();
-    const lines = content.split('\n');
-    if (lineNumber <= 0 || lineNumber > lines.length) {
-      return false;
+  private processLine(sourceFile: SourceFile, lines: string[], patterns: any, i: number) {
+    if (this.shouldSkipLine(sourceFile, i + 1)) {
+      return { range: null, newIndex: i };
     }
     
+    const range = this.findRangeFromStartLine(sourceFile, lines, patterns, i);
+    return { 
+      range, 
+      newIndex: range ? range.endLineIndex : i 
+    };
+  }
+
+  private createPatterns(startRegex: string, endRegex: string) {
+    return {
+      start: new RegExp(startRegex),
+      end: new RegExp(endRegex)
+    };
+  }
+
+  private shouldSkipLine(sourceFile: SourceFile, lineNumber: number): boolean {
+    return this.isCommentLine(sourceFile, lineNumber);
+  }
+
+  private findRangeFromStartLine(sourceFile: SourceFile, lines: string[], patterns: any, startIndex: number) {
+    const startMatch = patterns.start.exec(lines[startIndex]);
+    if (!startMatch) return null;
+    
+    const rangeStart = { line: startIndex + 1, column: startMatch.index + 1 };
+    const endResult = this.findEndMatch(sourceFile, lines, patterns.end, startIndex);
+    
+    return endResult ? this.createRange(rangeStart, endResult.match, lines, startIndex, endResult.index) : null;
+  }
+
+  private findEndMatch(sourceFile: SourceFile, lines: string[], endPattern: RegExp, startIndex: number) {
+    for (let j = startIndex; j < lines.length; j++) {
+      if (this.shouldSkipLine(sourceFile, j + 1)) continue;
+      
+      const endMatch = endPattern.exec(lines[j]);
+      if (endMatch) return { match: endMatch, index: j };
+    }
+    
+    return null;
+  }
+
+
+  private createRange(rangeStart: any, endMatch: RegExpExecArray, lines: string[], startIndex: number, endIndex: number) {
+    const rangeEnd = this.calculateRangeEnd(endMatch, endIndex);
+    const content = this.extractRangeContent(lines, startIndex, endIndex);
+    
+    return this.buildRangeObject(rangeStart, rangeEnd, content, endIndex);
+  }
+
+  private calculateRangeEnd(endMatch: RegExpExecArray, endIndex: number) {
+    return { line: endIndex + 1, column: endMatch.index + endMatch[0].length + 1 };
+  }
+
+  private extractRangeContent(lines: string[], startIndex: number, endIndex: number): string {
+    return lines.slice(startIndex, endIndex + 1).join('\n');
+  }
+
+  private buildRangeObject(rangeStart: any, rangeEnd: any, content: string, endIndex: number) {
+    return {
+      startLine: rangeStart.line,
+      startColumn: rangeStart.column,
+      endLine: rangeEnd.line,
+      endColumn: rangeEnd.column,
+      content,
+      endLineIndex: endIndex
+    };
+  }
+
+  private isCommentLine(sourceFile: SourceFile, lineNumber: number): boolean {
+    const lines = sourceFile.getFullText().split('\n');
+    if (this.isInvalidLineNumber(lineNumber, lines.length)) return false;
+    
     const line = lines[lineNumber - 1];
-    const trimmedLine = line.trim();
+    return this.startsWithCommentMarker(line.trim());
+  }
+
+  private isInvalidLineNumber(lineNumber: number, totalLines: number): boolean {
+    return lineNumber <= 0 || lineNumber > totalLines;
+  }
+
+  private startsWithCommentMarker(trimmedLine: string): boolean {
     return trimmedLine.startsWith('//') || trimmedLine.startsWith('*') || trimmedLine.startsWith('/*');
   }
 }

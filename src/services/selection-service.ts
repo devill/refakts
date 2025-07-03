@@ -18,18 +18,25 @@ export class SelectionService {
   ) {}
 
   async findSelections(sourceFile: SourceFile, options: Record<string, any>): Promise<SelectResult[]> {
-    if (options.range) {
-      return this.rangeAnalyzer.findRangeMatches(sourceFile, options);
-    }
+    const selectionType = this.determineSelectionType(options);
+    return this.executeSelection(sourceFile, options, selectionType);
+  }
+
+  private determineSelectionType(options: Record<string, any>): string {
+    if (options.range) return 'range';
+    if (options.structural) return 'structural';
+    if (options.boundaries) return 'boundaries';
+    return 'regex';
+  }
+
+  private executeSelection(sourceFile: SourceFile, options: Record<string, any>, type: string): Promise<SelectResult[]> {
+    const handlers: Record<string, () => SelectResult[]> = {
+      range: () => this.rangeAnalyzer.findRangeMatches(sourceFile, options),
+      structural: () => this.structuralAnalyzer.findStructuralMatches(sourceFile, options),
+      boundaries: () => this.boundaryAnalyzer.findBoundaryMatches(sourceFile, options),
+      regex: () => this.regexMatcher.findRegexMatches(sourceFile, options)
+    };
     
-    if (options.structural) {
-      return this.structuralAnalyzer.findStructuralMatches(sourceFile, options);
-    }
-    
-    if (options.boundaries) {
-      return this.boundaryAnalyzer.findBoundaryMatches(sourceFile, options);
-    }
-    
-    return this.regexMatcher.findRegexMatches(sourceFile, options);
+    return Promise.resolve(handlers[type]());
   }
 }
