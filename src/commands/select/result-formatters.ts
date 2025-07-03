@@ -11,12 +11,20 @@ export class BasicFormatter implements SelectResultFormatter {
   }
 
   private formatMatch(match: SelectMatch, fileName: string): SelectResult {
-    const location = `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`;
+    const location = this.createLocationString(match, fileName);
     
     if (this.isMultilineMatch(match)) {
       return this.formatMultilineMatch(match, location);
     }
     
+    return this.formatSingleLineMatch(match, location);
+  }
+
+  private createLocationString(match: SelectMatch, fileName: string): string {
+    return `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`;
+  }
+
+  private formatSingleLineMatch(match: SelectMatch, location: string): SelectResult {
     return {
       location,
       content: match.text

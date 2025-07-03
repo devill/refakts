@@ -4,7 +4,6 @@ export class SelectPatternMatcher {
   findMatches(content: string, pattern: RegExp): SelectMatch[] {
     const lines = content.split('\n');
     
-    // Check if the pattern might be multiline (contains \s or \S)
     if (this.isMultilinePattern(pattern)) {
       return this.findMultilineMatches(content, pattern, lines);
     }
@@ -21,22 +20,24 @@ export class SelectPatternMatcher {
     let match;
     
     while ((match = pattern.exec(content)) !== null) {
-      const selectMatch = this.createMultilineMatch(match, content, lines);
-      if (selectMatch && !this.isMatchInComment(selectMatch, content)) {
-        matches.push(selectMatch);
-      }
+      this.processMultilineMatch(match, content, lines, matches);
     }
     
     return matches;
   }
 
+  private processMultilineMatch(match: RegExpExecArray, content: string, lines: string[], matches: SelectMatch[]): void {
+    const selectMatch = this.createMultilineMatch(match, content, lines);
+    if (selectMatch && !this.isMatchInComment(selectMatch, content)) {
+      matches.push(selectMatch);
+    }
+  }
+
   private isMatchInComment(selectMatch: SelectMatch, content: string): boolean {
-    // Check if the match starts within a comment block
     const beforeMatch = content.substring(0, this.getIndexFromLineColumn(content, selectMatch.line, selectMatch.column));
     const commentStartIndex = beforeMatch.lastIndexOf('/**');
     const commentEndIndex = beforeMatch.lastIndexOf('*/');
     
-    // If there's a comment start after the last comment end, we're in a comment
     return commentStartIndex > commentEndIndex;
   }
 
@@ -45,24 +46,32 @@ export class SelectPatternMatcher {
     let index = 0;
     
     for (let i = 0; i < line - 1; i++) {
-      index += lines[i].length + 1; // +1 for the newline character
+      index += lines[i].length + 1;
     }
     
     return index + column - 1;
   }
 
   private createMultilineMatch(match: RegExpExecArray, content: string, lines: string[]): SelectMatch | null {
+    const positions = this.getMatchPositions(match, content);
+    if (!positions) return null;
+    
+    const { textToUse, adjustedStartPos } = this.extractMultilineMatchDetails(match, positions.startPos, content);
+    
+    return this.buildMultilineSelectMatch(adjustedStartPos, positions.endPos, textToUse, lines);
+  }
+
+  private getMatchPositions(match: RegExpExecArray, content: string) {
     const startIndex = match.index;
     const endIndex = match.index + match[0].length;
     
-    // Convert character positions to line/column
     const startPos = this.getLineColumnFromIndex(content, startIndex);
     const endPos = this.getLineColumnFromIndex(content, endIndex);
     
-    if (!startPos || !endPos) return null;
-    
-    const { textToUse, adjustedStartPos } = this.extractMultilineMatchDetails(match, startPos, content);
-    
+    return startPos && endPos ? { startPos, endPos } : null;
+  }
+
+  private buildMultilineSelectMatch(adjustedStartPos: any, endPos: any, textToUse: string, lines: string[]): SelectMatch {
     return {
       line: adjustedStartPos.line,
       column: adjustedStartPos.column,
@@ -85,13 +94,19 @@ export class SelectPatternMatcher {
     const hasCapture = match.length > 1 && match[1] !== undefined;
     const textToUse = hasCapture ? match[1] : match[0];
     
+    const adjustedStartPos = this.calculateAdjustedStartPos(match, hasCapture, startPos, content);
+    
+    return { textToUse, adjustedStartPos };
+  }
+
+  private calculateAdjustedStartPos(match: RegExpExecArray, hasCapture: boolean, startPos: { line: number; column: number }, content: string): { line: number; column: number } {
     if (hasCapture) {
       const captureStart = match.index + match[0].indexOf(match[1]);
       const adjustedStartPos = this.getLineColumnFromIndex(content, captureStart);
-      return { textToUse, adjustedStartPos: adjustedStartPos || startPos };
+      return adjustedStartPos || startPos;
     }
     
-    return { textToUse, adjustedStartPos: startPos };
+    return startPos;
   }
 
   private findRegexMatches(lines: string[], pattern: RegExp): SelectMatch[] {

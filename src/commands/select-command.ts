@@ -76,15 +76,18 @@ export class SelectCommand implements RefactoringCommand {
   }
 
   private getFormatterType(options: Record<string, any>): string {
-    const optionChecks = [
+    const optionChecks = this.createOptionChecks(options);
+    const found = optionChecks.find(option => option.check);
+    return found ? found.type : 'basic';
+  }
+
+  private createOptionChecks(options: Record<string, any>) {
+    return [
       { check: this.hasDefinitionOption(options), type: 'definition' },
       { check: this.hasLineOption(options), type: 'line' },
       { check: this.hasPreviewMatchOption(options), type: 'preview' },
       { check: this.hasPreviewOption(options), type: 'preview' }
     ];
-    
-    const found = optionChecks.find(option => option.check);
-    return found ? found.type : 'basic';
   }
 
   private hasDefinitionOption(options: Record<string, any>): boolean {
