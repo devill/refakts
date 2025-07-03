@@ -1,7 +1,6 @@
 /**
  * @description Select variable
  * @command refakts select narrow-down-with-capture-group.input.ts --regex "(tempResult).*input"
- * @skip
  */
 
 function processData() {

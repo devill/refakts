@@ -39,12 +39,16 @@ export class SelectPatternMatcher {
   }
 
   private createSelectMatch(match: RegExpExecArray, lineIndex: number, line: string): SelectMatch {
+    const hasCapture = match.length > 1 && match[1] !== undefined;
+    const textToUse = hasCapture ? match[1] : match[0];
+    const startIndex = hasCapture ? match.index + match[0].indexOf(match[1]) : match.index;
+    
     return {
       line: lineIndex + 1,
-      column: match.index + 1,
+      column: startIndex + 1,
       endLine: lineIndex + 1,
-      endColumn: match.index + match[0].length + 1,
-      text: match[0],
+      endColumn: startIndex + textToUse.length + 1,
+      text: textToUse,
       fullLine: line
     };
   }
