@@ -2,11 +2,11 @@ import { SelectMatch, SelectResult } from './select-types';
 import { DefinitionRangeDetector } from './definition-range-detector';
 
 export interface SelectResultFormatter {
-  format(matches: SelectMatch[], fileName: string, file?: string): SelectResult[];
+  format(_matches: SelectMatch[], _fileName: string, _file?: string): SelectResult[];
 }
 
 export class BasicFormatter implements SelectResultFormatter {
-  format(matches: SelectMatch[], fileName: string, _file?: string): SelectResult[] {
+  format(matches: SelectMatch[], fileName: string): SelectResult[] {
     return matches.map(match => this.formatMatch(match, fileName));
   }
 
@@ -44,7 +44,7 @@ export class BasicFormatter implements SelectResultFormatter {
 }
 
 export class LineFormatter implements SelectResultFormatter {
-  format(matches: SelectMatch[], fileName: string, _file?: string): SelectResult[] {
+  format(matches: SelectMatch[], fileName: string): SelectResult[] {
     return matches.map(match => ({
       location: `[${fileName} ${match.line}:-${match.line}:]`,
       content: match.fullLine.trim()
@@ -53,7 +53,7 @@ export class LineFormatter implements SelectResultFormatter {
 }
 
 export class PreviewFormatter implements SelectResultFormatter {
-  format(matches: SelectMatch[], fileName: string, _file?: string): SelectResult[] {
+  format(matches: SelectMatch[], fileName: string): SelectResult[] {
     return matches.map(match => ({
       location: `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`,
       content: match.fullLine.trim()
@@ -73,7 +73,7 @@ export class DefinitionFormatter implements SelectResultFormatter {
     return this.buildDefinitionResult(definitionRange, fileName);
   }
 
-  private buildDefinitionResult(definitionRange: any, fileName: string): SelectResult {
+  private buildDefinitionResult(definitionRange: {startLine: number, endLine: number, content: string}, fileName: string): SelectResult {
     return {
       location: `[${fileName} ${definitionRange.startLine}:-${definitionRange.endLine}:]`,
       content: definitionRange.content

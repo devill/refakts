@@ -90,6 +90,7 @@ export class VariableLocatorCommand implements RefactoringCommand {
   }
 
   private outputResults(results: string[]): void {
+    // eslint-disable-next-line no-console
     results.forEach(result => console.log(result));
   }
 

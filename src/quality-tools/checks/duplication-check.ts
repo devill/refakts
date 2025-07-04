@@ -4,13 +4,18 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
+interface ExecError extends Error {
+  stdout?: string;
+  stderr?: string;
+}
+
 export const duplicationCheck: QualityCheck = {
   name: 'duplication',
   check: async (): Promise<QualityIssue[]> => {
     try {
       await execAsync('npx jscpd src --threshold 10 --reporters console --silent');
       return [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       return hasDuplication(error) ? createDuplicationIssue() : [];
     }
   },
@@ -21,8 +26,13 @@ export const duplicationCheck: QualityCheck = {
   } : undefined
 };
 
-const hasDuplication = (error: any): boolean =>
-  error.stdout?.includes('duplications found');
+const hasDuplication = (error: unknown): boolean => {
+  if (error && typeof error === 'object' && 'stdout' in error) {
+    const execError = error as ExecError;
+    return execError.stdout?.includes('duplications found') ?? false;
+  }
+  return false;
+};
 
 const createDuplicationIssue = (): QualityIssue[] => [{
   type: 'duplication',

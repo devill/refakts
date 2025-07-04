@@ -12,7 +12,7 @@ export interface RefactoringCommand {
   readonly description: string;
   readonly complete: boolean;
   
-  execute(file: string, options: CommandOptions): Promise<void>;
-  validateOptions(options: CommandOptions): void;
+  execute(_file: string, _options: CommandOptions): Promise<void>;
+  validateOptions(_options: CommandOptions): void;
   getHelpText(): string;
 }

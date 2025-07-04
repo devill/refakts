@@ -10,7 +10,7 @@ export const unusedMethodCheck: QualityCheck = {
     try {
       const members = await getUnusedClassMembers();
       return members.map(toQualityIssue);
-    } catch (error) {
+    } catch {
       return [];
     }
   },

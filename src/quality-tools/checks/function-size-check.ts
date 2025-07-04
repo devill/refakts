@@ -1,5 +1,5 @@
 import { QualityCheck, QualityIssue } from '../quality-check-interface';
-import { Project } from 'ts-morph';
+import { Project, SourceFile, FunctionDeclaration, MethodDeclaration, ClassDeclaration } from 'ts-morph';
 import * as path from 'path';
 
 export const functionSizeCheck: QualityCheck = {
@@ -27,20 +27,20 @@ export const functionSizeCheck: QualityCheck = {
   }
 };
 
-const createFunctionSizeIssues = (sourceFile: any): QualityIssue[] => {
+const createFunctionSizeIssues = (sourceFile: SourceFile): QualityIssue[] => {
   const filePath = path.relative(process.cwd(), sourceFile.getFilePath());
   
   if (shouldSkipFile(filePath)) return [];
   
   const functions = sourceFile.getFunctions();
-  const methods = sourceFile.getClasses().flatMap((c: any) => c.getMethods());
+  const methods = sourceFile.getClasses().flatMap((c: ClassDeclaration) => c.getMethods());
   
   return [...functions, ...methods]
     .map(func => createFunctionSizeIssue(filePath, func))
     .filter(Boolean) as QualityIssue[];
 };
 
-const createFunctionSizeIssue = (filePath: string, func: any): QualityIssue | null => {
+const createFunctionSizeIssue = (filePath: string, func: FunctionDeclaration | MethodDeclaration): QualityIssue | null => {
   const lineCount = func.getEndLineNumber() - func.getStartLineNumber() + 1;
   const functionName = func.getName() || 'anonymous';
   const severity = lineCount > 12 ? 'critical' : lineCount > 10 ? 'warn' : null;

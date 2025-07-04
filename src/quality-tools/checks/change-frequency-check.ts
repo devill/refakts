@@ -36,7 +36,7 @@ const analyzeChangeFrequency = async (): Promise<string[]> => {
     const fileChanges = await analyzeFileChangeFrequency(recentlyChangedFiles);
     const cohesiveChanges = await analyzeCohesiveChanges(recentlyChangedFiles);
     return [...fileChanges, ...cohesiveChanges];
-  } catch (error) {
+  } catch {
     return [];
   }
 };
@@ -112,7 +112,7 @@ const getRecentCommitMessages = async (count: number): Promise<string[]> => {
   try {
     const { stdout } = await execAsync(`git log --oneline -${count} --pretty=format:"%s"`);
     return stdout.split('\n').filter(Boolean);
-  } catch (error) {
+  } catch {
     return [];
   }
 };

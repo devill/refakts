@@ -1,5 +1,5 @@
 import { QualityCheck, QualityIssue } from '../quality-check-interface';
-import { Project } from 'ts-morph';
+import { Project, SourceFile } from 'ts-morph';
 import * as path from 'path';
 
 export const fileSizeCheck: QualityCheck = {
@@ -27,7 +27,7 @@ export const fileSizeCheck: QualityCheck = {
   }
 };
 
-const createFileSizeIssue = (sourceFile: any): QualityIssue | null => {
+const createFileSizeIssue = (sourceFile: SourceFile): QualityIssue | null => {
   const filePath = path.relative(process.cwd(), sourceFile.getFilePath());
   
   if (shouldSkipFile(filePath)) return null;

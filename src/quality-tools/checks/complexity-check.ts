@@ -10,7 +10,7 @@ export const complexityCheck: QualityCheck = {
     try {
       const { stdout } = await execAsync('npx complexity-report --format json src');
       return analyzeComplexityReport(stdout);
-    } catch (error) {
+    } catch {
       return [];
     }
   },
@@ -27,12 +27,21 @@ const analyzeComplexityReport = (stdout: string): QualityIssue[] => {
   return createComplexityIssues(issues);
 };
 
-const findComplexityIssues = (report: any) => {
+interface ComplexityReport {
+  reports?: Array<{
+    functions?: Array<{
+      complexity?: { cyclomatic: number };
+      params: number;
+    }>;
+  }>;
+}
+
+const findComplexityIssues = (report: ComplexityReport) => {
   const issues = { hasComplexFunctions: false, hasManyParams: false };
   
   for (const file of report.reports || []) {
     for (const func of file.functions || []) {
-      if (func.complexity?.cyclomatic > 5) issues.hasComplexFunctions = true;
+      if (func.complexity?.cyclomatic && func.complexity.cyclomatic > 5) issues.hasComplexFunctions = true;
       if (func.params > 2) issues.hasManyParams = true;
     }
   }
@@ -40,7 +49,7 @@ const findComplexityIssues = (report: any) => {
   return issues;
 };
 
-const createComplexityIssues = (issues: any): QualityIssue[] => {
+const createComplexityIssues = (issues: {hasComplexFunctions: boolean, hasManyParams: boolean}): QualityIssue[] => {
   const result: QualityIssue[] = [];
   
   if (issues.hasComplexFunctions) {

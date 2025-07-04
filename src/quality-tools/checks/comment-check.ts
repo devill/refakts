@@ -1,5 +1,5 @@
 import { QualityCheck, QualityIssue } from '../quality-check-interface';
-import { Project, SyntaxKind } from 'ts-morph';
+import { Project, SyntaxKind, SourceFile, Node } from 'ts-morph';
 import * as path from 'path';
 
 export const commentCheck: QualityCheck = {
@@ -17,25 +17,25 @@ export const commentCheck: QualityCheck = {
   } : undefined
 };
 
-const findCommentsInFile = (sourceFile: any): QualityIssue[] => {
+const findCommentsInFile = (sourceFile: SourceFile): QualityIssue[] => {
   const filePath = path.relative(process.cwd(), sourceFile.getFilePath());
   
   if (shouldSkipFile(filePath)) return [];
   
   const singleComments = sourceFile.getDescendantsOfKind(SyntaxKind.SingleLineCommentTrivia)
-    .filter((comment: any) => isValidSingleComment(comment.getText().trim()))
-    .filter((comment: any) => isEsLintDisable(comment.getText()))
-    .map((comment: any) => createCommentIssue(filePath, comment, 'single'));
+    .filter((comment: Node) => isValidSingleComment(comment.getText().trim()))
+    .filter((comment: Node) => isEsLintDisable(comment.getText()))
+    .map((comment: Node) => createCommentIssue(filePath, comment, 'single'));
     
   const multiComments = sourceFile.getDescendantsOfKind(SyntaxKind.MultiLineCommentTrivia)
-    .filter((comment: any) => isValidMultiComment(comment.getText().trim()))
-    .filter((comment: any) => isEsLintDisable(comment.getText()))
-    .map((comment: any) => createCommentIssue(filePath, comment, 'multi'));
+    .filter((comment: Node) => isValidMultiComment(comment.getText().trim()))
+    .filter((comment: Node) => isEsLintDisable(comment.getText()))
+    .map((comment: Node) => createCommentIssue(filePath, comment, 'multi'));
     
   return [...singleComments, ...multiComments];
 };
 
-const createCommentIssue = (filePath: string, comment: any, type: string): QualityIssue => ({
+const createCommentIssue = (filePath: string, comment: Node, type: string): QualityIssue => ({
   type: 'comment',
   message: `${type}-line comment: "${truncateText(comment.getText().trim())}"`,
   file: filePath,

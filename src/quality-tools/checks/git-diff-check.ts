@@ -33,7 +33,7 @@ const checkGitDiffSize = async () => {
     return totalChanges > 200 ? {
       message: 'STOP! Your diff is over 200 lines. This is too much change at once. Revert to last commit and break this into smaller steps with passing tests between each step.'
     } : {};
-  } catch (error) {
+  } catch {
     return {};
   }
 };

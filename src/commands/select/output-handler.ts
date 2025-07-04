@@ -1,4 +1,4 @@
- 
+/* eslint-disable no-console */
 import { SelectResult } from './select-types';
 
 export class SelectOutputHandler {
