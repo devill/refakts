@@ -46,9 +46,7 @@ npm run usage:consolidate            # Manually consolidate usage logs
 ## Available RefakTS Commands
 
 ```
-- extract-variable [options] <target>  Extract expression into a variable
-- inline-variable [options] <target>   Replace variable usage with its value
-- node-finding [options] <target>      Find AST nodes in TypeScript files
+- extract-variable [options] <target>  Extract expression into a variable inline-variable <target>             Replace variable usage with its value
 - rename [options] <target>            Rename a variable and all its references
 - select [options] <target>            Find code elements and return their locations with content preview
 - variable-locator [options] <target>  Find variable declarations and all their usages

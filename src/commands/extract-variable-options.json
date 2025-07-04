@@ -1,9 +1,5 @@
 [
   {
-    "flags": "--query <selector>",
-    "description": "Target expression to extract into a variable"
-  },
-  {
     "flags": "--name <variableName>",
     "description": "Name for the extracted variable"
   },

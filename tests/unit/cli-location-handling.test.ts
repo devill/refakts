@@ -16,7 +16,7 @@ describe('CLI Location Handling', () => {
       expect(() => command.validateOptions(finalOptions)).not.toThrow();
       
       // But if we validate the original options (what the bug causes), it should throw
-      expect(() => command.validateOptions(options)).toThrow('Either --query or location format must be specified');
+      expect(() => command.validateOptions(options)).toThrow('Location format must be specified');
     }
   });
 

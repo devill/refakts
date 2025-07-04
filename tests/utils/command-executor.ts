@@ -66,7 +66,7 @@ export class CommandExecutor {
   }
 
   private isLocatorCommand(commandName: string): boolean {
-    return commandName.includes('locator') || commandName === 'node-finding' || commandName === 'select';
+    return commandName.includes('locator') || commandName === 'select';
   }
 
   private async captureConsoleOutput(executeFn: () => Promise<void>): Promise<string> {

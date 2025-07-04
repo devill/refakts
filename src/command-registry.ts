@@ -1,7 +1,6 @@
 import { RefactoringCommand } from './command';
 import { ExtractVariableCommand } from './commands/extract-variable-command';
 import { InlineVariableCommand } from './commands/inline-variable-command';
-import { NodeFindingCommand } from './commands/node-finding-command';
 import { RenameCommand } from './commands/rename-command';
 import { SelectCommand } from './commands/select-command';
 import { VariableLocatorCommand } from './commands/variable-locator-command';
@@ -9,7 +8,6 @@ import { VariableLocatorCommand } from './commands/variable-locator-command';
 const loadCommands = (): RefactoringCommand[] => [
   new ExtractVariableCommand(),
   new InlineVariableCommand(),
-  new NodeFindingCommand(),
   new RenameCommand(),
   new SelectCommand(),
   new VariableLocatorCommand()

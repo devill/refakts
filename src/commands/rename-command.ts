@@ -26,14 +26,12 @@ export class RenameCommand implements RefactoringCommand {
   }
 
   private findTargetNode(sourceFile: any, options: Record<string, any>): Node {
-    return options.location 
-      ? this.astService.findNodeByLocation(options.location)
-      : this.astService.findNodeByQuery(sourceFile, options.query);
+    return this.astService.findNodeByLocation(options.location);
   }
 
   validateOptions(options: Record<string, any>): void {
-    if (!options.query && !options.location) {
-      throw new Error('Either --query or location format must be specified');
+    if (!options.location) {
+      throw new Error('Location format must be specified');
     }
     if (!options.to) {
       throw new Error('--to must be specified for rename operations');
@@ -41,7 +39,7 @@ export class RenameCommand implements RefactoringCommand {
   }
 
   getHelpText(): string {
-    return '\nExamples:\n  refakts rename src/file.ts --query "Identifier[name=\'oldName\']" --to newName\n  refakts rename "[src/file.ts 5:8-5:18]" --to newName';
+    return '\nExamples:\n  refakts rename "[src/file.ts 5:8-5:18]" --to newName';
   }
 
   private async performRename(node: Node, newName: string): Promise<void> {

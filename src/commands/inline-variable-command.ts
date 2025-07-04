@@ -25,19 +25,17 @@ export class InlineVariableCommand implements RefactoringCommand {
   }
 
   private findTargetNode(sourceFile: any, options: Record<string, any>): Node {
-    return options.location 
-      ? this.astService.findNodeByLocation(options.location)
-      : this.astService.findNodeByQuery(sourceFile, options.query);
+    return this.astService.findNodeByLocation(options.location);
   }
 
   validateOptions(options: Record<string, any>): void {
-    if (!options.query && !options.location) {
-      throw new Error('Either --query or location format must be specified');
+    if (!options.location) {
+      throw new Error('Location format must be specified');
     }
   }
 
   getHelpText(): string {
-    return '\nExamples:\n  refakts inline-variable src/file.ts --query "Identifier[name=\'myVar\']"\n  refakts inline-variable "[src/file.ts 5:8-5:18]"';
+    return '\nExamples:\n  refakts inline-variable "[src/file.ts 5:8-5:18]"';
   }
 
   private async performInlineVariable(node: Node): Promise<void> {

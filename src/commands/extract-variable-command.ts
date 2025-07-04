@@ -25,14 +25,12 @@ export class ExtractVariableCommand implements RefactoringCommand {
   }
 
   private findTargetNode(sourceFile: any, options: Record<string, any>): Node {
-    return options.location 
-      ? this.astService.findNodeByLocation(options.location)
-      : this.astService.findTargetNode(sourceFile, options.query);
+    return this.astService.findNodeByLocation(options.location);
   }
 
   validateOptions(options: Record<string, any>): void {
-    if (!options.query && !options.location) {
-      throw new Error('Either --query or location format must be specified');
+    if (!options.location) {
+      throw new Error('Location format must be specified');
     }
     if (!options.name) {
       throw new Error('--name must be specified');
@@ -40,7 +38,7 @@ export class ExtractVariableCommand implements RefactoringCommand {
   }
 
   getHelpText(): string {
-    return '\nExamples:\n  refakts extract-variable src/file.ts --query "BinaryExpression" --name "result"\n  refakts extract-variable "[src/file.ts 8:15-8:29]" --name "result"';
+    return '\nExamples:\n  refakts extract-variable "[src/file.ts 8:15-8:29]" --name "result"';
   }
 
   private async performExtraction(targetNode: Node, options: Record<string, any>): Promise<void> {
