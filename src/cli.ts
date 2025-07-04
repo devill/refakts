@@ -55,17 +55,24 @@ function loadCommandOptions(commandName: string): CommandOption[] {
 async function executeRefactoringCommand(command: any, target: string, options: any): Promise<void> {
   try {
     command.validateOptions(options);
-    
-    if (LocationParser.isLocationFormat(target)) {
-      const location = LocationParser.parseLocation(target);
-      await command.execute(location.file, { ...options, location });
-    } else {
-      await command.execute(target, options);
-    }
+    await executeCommandWithTarget(command, target, options);
   } catch (error) {
-    console.error('Error:', (error as Error).message);
-    process.exit(1);
+    handleCommandError(error);
   }
+}
+
+async function executeCommandWithTarget(command: any, target: string, options: any): Promise<void> {
+  if (LocationParser.isLocationFormat(target)) {
+    const location = LocationParser.parseLocation(target);
+    await command.execute(location.file, { ...options, location });
+  } else {
+    await command.execute(target, options);
+  }
+}
+
+function handleCommandError(error: unknown): void {
+  console.error('Error:', (error as Error).message);
+  process.exit(1);
 }
 
 function reorderHelpCommandArguments(): void {

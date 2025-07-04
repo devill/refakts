@@ -50,30 +50,38 @@ export class ASTService {
   }
 
   private findNodeInRange(sourceFile: SourceFile, location: LocationRange): Node {
-    const startPos = sourceFile.compilerNode.getPositionOfLineAndCharacter(location.startLine - 1, location.startColumn - 1);
-    
-    // Start with the node at the position and traverse upward to find the best match
-    let node = sourceFile.getDescendantAtPos(startPos);
+    const startPos = this.getStartPosition(sourceFile, location);
+    const node = this.getNodeAtPosition(sourceFile, startPos, location);
+    return this.findBestMatchingNode(sourceFile, node, location) || node;
+  }
+
+  private getStartPosition(sourceFile: SourceFile, location: LocationRange): number {
+    return sourceFile.compilerNode.getPositionOfLineAndCharacter(location.startLine - 1, location.startColumn - 1);
+  }
+
+  private getNodeAtPosition(sourceFile: SourceFile, startPos: number, location: LocationRange): Node {
+    const node = sourceFile.getDescendantAtPos(startPos);
     if (!node) {
       throw new Error(`No node found at position ${location.startLine}:${location.startColumn}`);
     }
+    return node;
+  }
+
+  private findBestMatchingNode(sourceFile: SourceFile, node: Node, location: LocationRange): Node | null {
+    const expectedEnd = sourceFile.compilerNode.getPositionOfLineAndCharacter(location.endLine - 1, location.endColumn - 1);
     
-    // Traverse up the AST to find a node that best fits the expected range
     let current: Node | undefined = node;
     while (current) {
-      const nodeStart = current.getStart();
-      const nodeEnd = current.getEnd();
-      const expectedEnd = sourceFile.compilerNode.getPositionOfLineAndCharacter(location.endLine - 1, location.endColumn - 1);
-      
-      // If this node's end is close to our expected end, use it
-      if (Math.abs(nodeEnd - expectedEnd) <= 3) { // Allow some tolerance
+      if (this.isNodeEndCloseToExpected(current, expectedEnd)) {
         return current;
       }
-      
       current = current.getParent();
     }
     
-    // If no good match found, return the original node
-    return node;
+    return null;
+  }
+
+  private isNodeEndCloseToExpected(node: Node, expectedEnd: number): boolean {
+    return Math.abs(node.getEnd() - expectedEnd) <= 3;
   }
 }

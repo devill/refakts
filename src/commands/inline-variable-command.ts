@@ -19,16 +19,15 @@ export class InlineVariableCommand implements RefactoringCommand {
   async execute(file: string, options: Record<string, any>): Promise<void> {
     this.validateOptions(options);
     const sourceFile = this.astService.loadSourceFile(file);
-    
-    let node: Node;
-    if (options.location) {
-      node = this.astService.findNodeByLocation(options.location);
-    } else {
-      node = this.astService.findNodeByQuery(sourceFile, options.query);
-    }
-    
+    const node = this.findTargetNode(sourceFile, options);
     await this.performInlineVariable(node);
     await this.astService.saveSourceFile(sourceFile);
+  }
+
+  private findTargetNode(sourceFile: any, options: Record<string, any>): Node {
+    return options.location 
+      ? this.astService.findNodeByLocation(options.location)
+      : this.astService.findNodeByQuery(sourceFile, options.query);
   }
 
   validateOptions(options: Record<string, any>): void {

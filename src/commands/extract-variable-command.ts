@@ -19,16 +19,15 @@ export class ExtractVariableCommand implements RefactoringCommand {
   async execute(file: string, options: Record<string, any>): Promise<void> {
     this.validateOptions(options);
     const sourceFile = this.astService.loadSourceFile(file);
-    
-    let targetNode: Node;
-    if (options.location) {
-      targetNode = this.astService.findNodeByLocation(options.location);
-    } else {
-      targetNode = this.astService.findTargetNode(sourceFile, options.query);
-    }
-    
+    const targetNode = this.findTargetNode(sourceFile, options);
     await this.performExtraction(targetNode, options);
     await this.astService.saveSourceFile(sourceFile);
+  }
+
+  private findTargetNode(sourceFile: any, options: Record<string, any>): Node {
+    return options.location 
+      ? this.astService.findNodeByLocation(options.location)
+      : this.astService.findTargetNode(sourceFile, options.query);
   }
 
   validateOptions(options: Record<string, any>): void {

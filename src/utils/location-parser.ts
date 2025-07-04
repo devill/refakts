@@ -13,54 +13,44 @@ export class LocationParser {
   private static readonly FROM_LINE_START_REGEX = /^\[([^\]]+)\s+(\d+)-(\d+):(\d+)\]$/;
 
   static parseLocation(locationStr: string): LocationRange {
-    // Character-precise selection: [filename.ts line:column-line:column]
-    const charMatch = locationStr.match(this.LOCATION_REGEX);
-    if (charMatch) {
-      return {
-        file: charMatch[1],
-        startLine: parseInt(charMatch[2], 10),
-        startColumn: parseInt(charMatch[3], 10),
-        endLine: parseInt(charMatch[4], 10),
-        endColumn: parseInt(charMatch[5], 10)
-      };
-    }
+    return this.tryParseCharacterPrecise(locationStr) ||
+           this.tryParseFullLine(locationStr) ||
+           this.tryParseToEndOfLine(locationStr) ||
+           this.tryParseFromLineStart(locationStr) ||
+           this.throwInvalidFormat(locationStr);
+  }
 
-    // Full line selection: [filename.ts line:-line:]
-    const fullLineMatch = locationStr.match(this.FULL_LINE_REGEX);
-    if (fullLineMatch) {
-      return {
-        file: fullLineMatch[1],
-        startLine: parseInt(fullLineMatch[2], 10),
-        startColumn: 0,
-        endLine: parseInt(fullLineMatch[3], 10),
-        endColumn: Number.MAX_SAFE_INTEGER
-      };
-    }
+  private static tryParseCharacterPrecise(locationStr: string): LocationRange | null {
+    const match = locationStr.match(this.LOCATION_REGEX);
+    return match ? this.createLocationRange(match[1], match[2], match[3], match[4], match[5]) : null;
+  }
 
-    // From position to end of line: [filename.ts line:column-]
-    const toEndMatch = locationStr.match(this.TO_END_OF_LINE_REGEX);
-    if (toEndMatch) {
-      return {
-        file: toEndMatch[1],
-        startLine: parseInt(toEndMatch[2], 10),
-        startColumn: parseInt(toEndMatch[3], 10),
-        endLine: parseInt(toEndMatch[2], 10),
-        endColumn: Number.MAX_SAFE_INTEGER
-      };
-    }
+  private static tryParseFullLine(locationStr: string): LocationRange | null {
+    const match = locationStr.match(this.FULL_LINE_REGEX);
+    return match ? this.createLocationRange(match[1], match[2], '0', match[3], Number.MAX_SAFE_INTEGER.toString()) : null;
+  }
 
-    // From line start to position: [filename.ts line-line:column]
-    const fromStartMatch = locationStr.match(this.FROM_LINE_START_REGEX);
-    if (fromStartMatch) {
-      return {
-        file: fromStartMatch[1],
-        startLine: parseInt(fromStartMatch[2], 10),
-        startColumn: 0,
-        endLine: parseInt(fromStartMatch[3], 10),
-        endColumn: parseInt(fromStartMatch[4], 10)
-      };
-    }
+  private static tryParseToEndOfLine(locationStr: string): LocationRange | null {
+    const match = locationStr.match(this.TO_END_OF_LINE_REGEX);
+    return match ? this.createLocationRange(match[1], match[2], match[3], match[2], Number.MAX_SAFE_INTEGER.toString()) : null;
+  }
 
+  private static tryParseFromLineStart(locationStr: string): LocationRange | null {
+    const match = locationStr.match(this.FROM_LINE_START_REGEX);
+    return match ? this.createLocationRange(match[1], match[2], '0', match[3], match[4]) : null;
+  }
+
+  private static createLocationRange(file: string, startLine: string, startColumn: string, endLine: string, endColumn: string): LocationRange {
+    return {
+      file,
+      startLine: parseInt(startLine, 10),
+      startColumn: parseInt(startColumn, 10),
+      endLine: parseInt(endLine, 10),
+      endColumn: parseInt(endColumn, 10)
+    };
+  }
+
+  private static throwInvalidFormat(locationStr: string): never {
     throw new Error(`Invalid location format: ${locationStr}`);
   }
 

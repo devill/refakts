@@ -65,76 +65,36 @@ npm run usage:consolidate            # Manually consolidate usage logs
 
 ## Feature Roadmap 
 
-**This tool is for you - make it what you wished it already was.** RefakTS development is driven by AI agents who actually use the tool and understand what would make their work more effective.
+**This tool is for you - make it what you wished it already was.** RefakTS development is driven by AI agents who actually use the tool.
 
-### Roadmap Commands
+### Core Principles & Commands
 
-#### 🎯 Core Principles
-
-- **Deterministic over Stochastic**: Tools should do what algorithms do best, leaving reasoning to AI
-- **Precise over General**: Sharp tools for specific tasks beat blunt general-purpose tools
-- **Chainable over Monolithic**: Small, composable operations that can be combined
-- **Fast over Comprehensive**: Sub-second feedback loops for interactive AI workflows
-
-#### Commands
+**Deterministic over Stochastic** • **Precise over General** • **Chainable over Monolithic** • **Fast over Comprehensive**
 
 ```bash
-# Check current feature priorities
-npm run roadmap:status
-
-# Vote for features that would have been useful in your session
-npm run roadmap:vote <feature-name>
-
-# Add new feature ideas
-npm run roadmap:add --feature "feature-name" --description "What it does" --why "Why it's needed"
+npm run roadmap:status               # Check current priorities
+npm run roadmap:vote <feature-name>  # Vote for useful features  
+npm run roadmap:add --feature "name" --description "desc" --why "reason"
 ```
 
 ### Contribution Guidelines
 
-**ALWAYS check the roadmap when starting work:**
-1. Run `npm run roadmap:status` to see current priorities
-2. Work on highest-voted, unblocked features first
-3. Vote for roadmap features that would have helped during your session
-4. Add new features you wish existed (but see eligibility below)
+**Always check roadmap first:** `npm run roadmap:status` → Work on highest-voted features → Vote for features that would have helped your session
 
-**Feature Eligibility:** Only add features that are **deterministic and mechanical**. Features requiring LLM reasoning (like "suggest better variable names" or "predict code quality") should NOT be added - you already do those things better than any algorithm.
+**Feature Eligibility:** Only **deterministic and mechanical** features (search, transform, analyze). NOT reasoning tasks (naming, code quality, strategy) - you do those better.
 
-**Search before adding:** Before adding a new feature, check existing roadmap for similar ideas to avoid duplication:
-```bash
-npm run roadmap:status | grep -i "keyword"
-```
+**Examples:** ✅ "Find all variables named X" ✅ "Move file and update imports" ✅ "Extract method from selection" ✅ "Calculate coverage metrics"  
+❌ "Suggest better names" ❌ "Detect code smells" ❌ "Recommend refactoring strategy"
 
-**Examples of GOOD features:**
-- "Find all variables named X" (mechanical search)
-- "Move file and update imports" (deterministic transformation)  
-- "Extract method from selection" (AST manipulation)
-- "Calculate coverage metrics" (mathematical analysis)
-
-**Examples of BAD features:**
-- "Suggest better variable names" (you do this better)
-- "Detect code smells" (requires reasoning)
-- "Recommend refactoring strategy" (strategic decision-making)
-
-### Voting Strategy
-
-Vote enthusiastically for roadmap features that would have helped in your current session! The roadmap is democratic - your votes directly influence what gets built next. Consider voting for:
-
-- **Foundation tools** that would have made your work easier
-- **Features you wished existed** during your session
-- **Operations you did manually** that could have been automated
-- **Tools that would have sped up** your development workflow
-
-Remember: **This tool exists to amplify your capabilities, not replace your reasoning.** Vote for features that handle the tedious, mechanical parts so you can focus on the creative problem-solving.
-
-### Git Integration
-
-**Usage Tracking**: Every refakts command usage is automatically logged. Git hooks consolidate usage statistics:
-- **Pre-commit**: Consolidates usage logs into `.refakts-stats.json`
-- **Post-commit**: Displays usage report showing session and total command usage
-
-This provides visibility into which refakts features are actually being used vs. just implemented.
+**Usage Tracking:** Every refakts command usage is automatically logged. Git hooks show usage statistics after commits.
 
 ## Architecture
+
+RefakTS follows a **command-based architecture** with clear separation of concerns. Commands implement `RefactoringCommand` interface and are registered through `CommandRegistry`. Each command encapsulates a specific refactoring operation and leverages shared services for AST manipulation.
+
+The architecture is built on **ts-morph** for AST manipulation and **@phenomnomnominal/tsquery** for node selection. `ASTService` provides unified interface for loading TypeScript files, while `TSQueryHandler` bridges between tsquery results and ts-morph nodes. Supporting services like `VariableNameValidator`, `StatementInserter`, and scope analyzers provide reusable functionality.
+
+A **strategy pattern** powers flexible selection, where different `SelectionStrategy` implementations handle various code selection methods. Key insight: RefakTS separates **what to find** (selection strategies) from **what to do** (command implementations).
 
 ### Test Selection Guide:
 - **Refactoring tests** (`fixtures/refactoring/`): For commands that modify files - validate against `.expected.ts` files
