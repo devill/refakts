@@ -14,8 +14,7 @@ export class TSQueryHandler {
   }
 
   findNodesByQuery(sourceFile: any, query: string): Node[] {
-    const matches = this.executeQuery(sourceFile, query);
-    return matches.map(match => this.convertToMorphNode(sourceFile, match));
+    return this.executeQuery(sourceFile, query).map(match => this.convertToMorphNode(sourceFile, match));
   }
 
   private executeQuery(sourceFile: any, query: string) {

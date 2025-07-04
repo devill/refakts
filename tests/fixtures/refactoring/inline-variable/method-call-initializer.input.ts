@@ -1,6 +1,6 @@
 /**
  * @description Inline variable with method call initializer when same variable name exists in different scopes
- * @command refakts inline-variable "[method-call-initializer.input.ts 11:9-11:15]"
+ * @command refakts inline-variable "[method-call-initializer.input.ts 12:11-12:17]"
  */
 class TestClass {
   method1() {
