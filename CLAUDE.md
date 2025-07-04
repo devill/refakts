@@ -26,6 +26,7 @@ npm run dev -- inline-variable "[src/example.ts 5:8-5:18]"
 
 # Quality tools
 npm run quality              # Run all quality checks
+npm run tolerance:status     # Check current linter tolerance progress
 
 # Snooze quality alerts (24 hours)
 npm run snooze incomplete <command>  # Snooze incomplete refactoring alerts
