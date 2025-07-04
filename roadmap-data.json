@@ -1,180 +1,22 @@
 {
   "features": [
     {
-      "name": "regex-ast-locator",
-      "description": "Find AST nodes by text content instead of complex TSQuery patterns",
-      "why": "Makes targeting for refactoring operations 10x simpler for AI agents",
-      "score": 9,
-      "status": "proposed",
-      "tier": 1
-    },
-    {
-      "name": "location-based-refactoring-api",
-      "description": "Complete workflow where select command output can be used directly in refactoring operations",
-      "why": "Enables precise surgical refactoring with seamless select→refactor workflow, eliminating the gap between finding and transforming code",
-      "score": 3,
-      "status": "completed",
-      "tier": 1,
-      "completedDate": "2025-07-03",
-      "implementation": "Implemented location parser, updated inline-variable/extract-variable/rename commands to accept [file.ts line:col-line:col] format, comprehensive test coverage with location-based fixtures"
-    },
-    {
-      "name": "function-body-extractor",
-      "description": "Get just the body of a function without reading entire files",
-      "why": "Massive performance improvement for AI agents analyzing code",
-      "score": 1,
-      "status": "proposed",
-      "tier": 1,
-      "dependencies": [
-        "regex-ast-locator"
-      ]
-    },
-    {
-      "name": "smart-method-extraction",
+      "name": "extract-method",
       "description": "Extract methods with automatic parameter/return detection",
       "why": "Most common refactoring operation needs automation",
-      "score": 5,
+      "score": 8,
       "status": "proposed",
-      "tier": 2,
       "dependencies": [
         "location-based-refactoring-api"
       ]
     },
     {
-      "name": "automated-dead-code-elimination",
-      "description": "Safe removal of unused code with impact analysis",
-      "why": "Quality maintenance automation - removes manual analysis",
-      "score": 0,
-      "status": "proposed",
-      "tier": 2
-    },
-    {
-      "name": "optimize-abstraction-leakage-report",
-      "description": "Identify highly connected clusters in change frequency graph instead of reporting all pairs",
-      "why": "The abstraction leakage report can get huge due to the large amount of possible pairs. This could be improved by identifying highly connected clusters in the graph and reporting on them once.",
-      "score": 1,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "extract-module-from-class",
-      "description": "Extract cohesive methods from large classes into separate modules",
-      "why": "Would have automated the manual work of splitting roadmap-manager.ts into focused modules",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "auto-import-organizer",
-      "description": "Automatically add, remove, and organize import statements when moving code between files",
-      "why": "During modular refactoring, managing imports manually was tedious and error-prone",
+      "name": "find-usages",
+      "description": "Finds all usages of a symbol or file in a code base. **IMPORTANT**: Research existing tools before implementing. Ideally we should integrate something",
+      "why": "Helps with identifying where a symbol is defined as well as where it is used. Unlocks critical features",
       "score": 3,
       "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "validate-test-architecture-consistency",
-      "description": "Quality check to ensure locator commands use YAML tests and refactoring commands use TS tests",
-      "why": "Would have caught the architecture mistake where node-finding tests were placed in wrong directory with wrong format",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "automated-command-type-validation",
-      "description": "Quality check to verify commands are correctly categorized as locators vs refactorings vs transformations",
-      "why": "Would help maintain testing consistency and prevent mixing command types in wrong frameworks",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "roadmap-tagging-system",
-      "description": "Add tags to roadmap items to categorize as: command, quality-check, infrastructure, tool, etc.",
-      "why": "Would help organize roadmap features by type and make it clearer what kind of contribution each item represents",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "extract-constant",
-      "description": "Extract literal values and expressions into named constants",
-      "why": "Essential refactoring for improving code readability and maintainability - converts magic numbers/strings into meaningful constants",
-      "score": 3,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "extract-parameter",
-      "description": "Convert local variables or expressions into method parameters",
-      "why": "Core refactoring for making functions more flexible and reusable - essential for method generalization",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "extract-field",
-      "description": "Extract expressions into class fields/properties",
-      "why": "Allows converting method-local computations into class-level properties for better encapsulation and reusability",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "extract-type-alias",
-      "description": "Extract complex type annotations into named type aliases",
-      "why": "Critical for TypeScript codebases - improves type reusability and reduces complex inline type definitions",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "extract-interface",
-      "description": "Extract object type patterns into reusable interfaces",
-      "why": "Essential TypeScript refactoring for creating clean abstractions from inline object types and improving type system organization",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "extract-superclass",
-      "description": "Extract common functionality from multiple classes into a shared base class",
-      "why": "Fundamental OOP refactoring for eliminating code duplication and establishing proper inheritance hierarchies",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "introduce-destructuring",
-      "description": "Convert property access patterns to destructuring assignments",
-      "why": "Modern JavaScript/TypeScript practice - improves code conciseness and readability by eliminating repetitive property access",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "change-signature",
-      "description": "Modify function signatures by adding/removing/reordering parameters and updating all call sites",
-      "why": "Critical refactoring for API evolution - safely changes function contracts across entire codebase",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "pull-members-up",
-      "description": "Move class methods/properties up the inheritance hierarchy to superclass or interface",
-      "why": "Essential OOP refactoring for code organization - moves shared functionality to appropriate abstraction levels",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
-    },
-    {
-      "name": "convert-export-type",
-      "description": "Convert between default and named exports/imports",
-      "why": "Module system refactoring - essential for organizing TypeScript module boundaries and improving import ergonomics",
-      "score": 0,
-      "status": "proposed",
-      "tier": 4
+      "note": "Replaces variable-locator. **IMPORTANT**: Once this is implemented variable-locator should be removed."
     },
     {
       "name": "safe-delete",
@@ -182,88 +24,191 @@
       "why": "Essential safety feature - ensures deletions don't break code by checking all references before removal",
       "score": 3,
       "status": "proposed",
-      "tier": 4
+      "dependencies": [
+        "find-usages"
+      ]
+    },
+    {
+      "name": "safe-delete-auto",
+      "description": "Safe removal of unused code with impact analysis. When safe-delete is ran with --auto it should remove all unused code automatically",
+      "why": "Quality maintenance automation - removes manual analysis",
+      "score": 0,
+      "status": "proposed",
+      "dependencies": [
+        "safe-delete"
+      ]
+    },
+    {
+      "name": "optimize-abstraction-leakage-report",
+      "description": "Identify highly connected clusters in change frequency graph instead of reporting all pairs",
+      "why": "The abstraction leakage report can get huge due to the large amount of possible pairs. This could be improved by identifying highly connected clusters in the graph and reporting on them once.",
+      "score": 1,
+      "status": "proposed"
+    },
+    {
+      "name": "extract-delegate-class",
+      "description": "Extract cohesive methods and member from large classes into separate classes/modules",
+      "why": "Would have automated the manual work of splitting roadmap-manager.ts into focused modules",
+      "score": 0,
+      "status": "proposed"
+    },
+    {
+      "name": "auto-import-organizer",
+      "description": "Automatically add, remove, and organize import statements when moving code between files **IMPORTANT** research existing tools. There might already be command line tools that do this.",
+      "why": "During modular refactoring, managing imports manually was tedious and error-prone",
+      "score": 3,
+      "status": "proposed"
+    },
+    {
+      "name": "extract-constant",
+      "description": "Extract literal values and expressions into named constants",
+      "why": "Essential refactoring for improving code readability and maintainability - converts magic numbers/strings into meaningful constants",
+      "score": 3,
+      "status": "proposed"
+    },
+    {
+      "name": "extract-parameter",
+      "description": "Convert local variables or expressions into method parameters",
+      "why": "Core refactoring for making functions more flexible and reusable - essential for method generalization",
+      "score": 0,
+      "status": "proposed"
+    },
+    {
+      "name": "extract-field",
+      "description": "Extract expressions into class fields/properties",
+      "why": "Allows converting method-local computations into class-level properties for better encapsulation and reusability",
+      "score": 0,
+      "status": "proposed"
+    },
+    {
+      "name": "extract-type-alias",
+      "description": "Extract complex type annotations into named type aliases",
+      "why": "Critical for TypeScript codebases - improves type reusability and reduces complex inline type definitions",
+      "score": 0,
+      "status": "proposed"
+    },
+    {
+      "name": "extract-interface",
+      "description": "Extract object type patterns into reusable interfaces",
+      "why": "Essential TypeScript refactoring for creating clean abstractions from inline object types and improving type system organization",
+      "score": 0,
+      "status": "proposed"
+    },
+    {
+      "name": "extract-superclass",
+      "description": "Extract common functionality from multiple classes into a shared base class",
+      "why": "Fundamental OOP refactoring for eliminating code duplication and establishing proper inheritance hierarchies",
+      "score": 0,
+      "status": "proposed"
+    },
+    {
+      "name": "introduce-wrapper-class",
+      "description": "Introduce a wrapper class that delegates to an existing class",
+      "why": "Natural counter part of extract delegate class. Helps with separating concerns.",
+      "score": 0,
+      "status": "proposed"
+    },
+    {
+      "name": "introduce-destructuring",
+      "description": "Convert property access patterns to destructuring assignments",
+      "why": "Modern JavaScript/TypeScript practice - improves code conciseness and readability by eliminating repetitive property access",
+      "score": 0,
+      "status": "proposed"
+    },
+    {
+      "name": "change-signature",
+      "description": "Modify function signatures by adding/removing/reordering parameters and updating all call sites",
+      "why": "Critical refactoring for API evolution - safely changes function contracts across entire codebase",
+      "score": 0,
+      "status": "proposed"
+    },
+    {
+      "name": "pull-members-up",
+      "description": "Move class methods/properties up the inheritance hierarchy to superclass or interface",
+      "why": "Essential OOP refactoring for code organization - moves shared functionality to appropriate abstraction levels",
+      "score": 0,
+      "status": "proposed"
+    },
+    {
+      "name": "convert-export-type",
+      "description": "Convert between default and named exports/imports",
+      "why": "Module system refactoring - essential for organizing TypeScript module boundaries and improving import ergonomics",
+      "score": 0,
+      "status": "proposed"
     },
     {
       "name": "move-method-between-classes",
       "description": "Move methods from one class to another with automatic reference updates",
       "why": "Common refactoring for better class organization - moves methods to their most appropriate class based on data usage",
       "score": 0,
-      "status": "proposed",
-      "tier": 4
+      "status": "proposed"
     },
     {
       "name": "make-method-static",
       "description": "Convert instance methods to static methods when they don't use instance data",
       "why": "Performance and clarity improvement - makes method dependencies explicit and enables usage without instantiation",
       "score": 0,
-      "status": "proposed",
-      "tier": 4
+      "status": "proposed"
     },
     {
       "name": "make-method-non-static",
       "description": "Convert static methods to instance methods when they need access to instance data",
       "why": "Enables better encapsulation when static methods need to become instance-aware",
       "score": 0,
-      "status": "proposed",
-      "tier": 4
+      "status": "proposed"
     },
     {
       "name": "transform-parameter",
       "description": "Wrap/unwrap parameters with adapter objects to hide complexity or change interfaces",
       "why": "Essential for legacy code modernization - hides complex dependencies behind clean interfaces and enables gradual API evolution",
       "score": 0,
-      "status": "proposed",
-      "tier": 4
+      "status": "proposed"
     },
     {
       "name": "detect-feature-envy",
       "description": "Identify methods that use more data/methods from other classes than their own class",
       "why": "Quality check that suggests move-method or make-non-static refactorings - helps identify misplaced functionality through mechanical analysis of method calls and field access",
       "score": 0,
-      "status": "proposed",
-      "tier": 4
+      "status": "proposed"
     },
     {
       "name": "detect-long-parameter-list",
       "description": "Identify functions with excessive parameters that could be grouped into objects",
       "why": "Quality check that suggests extract-parameter-object refactoring - improves function readability and maintainability by grouping related parameters",
       "score": 0,
-      "status": "proposed",
-      "tier": 4
+      "status": "proposed"
     },
     {
       "name": "extract-parameter-object",
       "description": "Group related parameters into a single object parameter",
       "why": "Refactoring to fix long parameter lists - improves function signatures and enables easier parameter evolution",
       "score": 0,
-      "status": "proposed",
-      "tier": 4
+      "status": "proposed"
     },
     {
       "name": "detect-data-class",
       "description": "Identify classes that only contain data with getters/setters but no behavior",
       "why": "Quality check that suggests moving related behavior into the data class - helps identify anemic domain models",
       "score": 0,
-      "status": "proposed",
-      "tier": 4
+      "status": "proposed"
     },
     {
-      "name": "detect-large-class",
-      "description": "Identify classes with too many responsibilities based on method count and complexity metrics",
+      "name": "detect-low-cohesion",
+      "description": "Identify classes with too many responsibilities by detecting member and function clusters that operate independently",
       "why": "Quality check that suggests extract-class or extract-module refactorings - helps identify single responsibility principle violations",
       "score": 0,
-      "status": "proposed",
-      "tier": 4
+      "status": "proposed"
     },
     {
-      "name": "auto-extract-helper-methods",
-      "description": "Automatically extract complex expressions and nested logic into well-named helper methods",
-      "why": "During quality refactoring, I manually broke down oversized functions by extracting helper methods. This could be automated by identifying complex expressions, nested conditionals, and repetitive code patterns that should become separate methods.",
-      "score": 3,
+      "name": "rename-symbol",
+      "description": "Rename any symbol (functions, classes, interfaces, types, properties, methods, modules) and update all references",
+      "why": "Current rename command only handles variables. Need generalized renaming for all symbol types to enable comprehensive refactoring workflows",
+      "score": 0,
       "status": "proposed",
-      "tier": 4
+      "dependencies": [
+        "find-usages"
+      ]
     }
   ],
-  "lastUpdated": "2025-07-03T20:44:29.806Z"
+  "lastUpdated": "2025-07-04T14:29:34.089Z"
 }

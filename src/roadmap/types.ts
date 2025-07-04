@@ -4,7 +4,6 @@ export interface RoadmapFeature {
   why?: string;
   score: number;
   status: 'proposed' | 'in-progress' | 'completed';
-  tier: number;
   dependencies?: string[];
 }
 

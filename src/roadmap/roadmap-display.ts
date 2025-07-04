@@ -3,7 +3,7 @@ import { RoadmapData, RoadmapFeature } from './types';
 export class RoadmapDisplay {
   showStatus(data: RoadmapData): void {
     this.printHeader();
-    this.printTierFeatures(data);
+    this.printAllFeatures(data);
     this.printTopFeatures(data);
     this.printLastUpdated(data);
   }
@@ -13,21 +13,17 @@ export class RoadmapDisplay {
     console.log('='.repeat(50));
   }
 
-  private printTierFeatures(data: RoadmapData): void {
-    for (let tier = 1; tier <= 4; tier++) {
-      const tierFeatures = this.getTierFeatures(data, tier);
-      
-      if (tierFeatures.length === 0) continue;
-      
-      console.log(`\n📊 Tier ${tier} Features:`);
-      this.printFeatureList(tierFeatures);
-    }
-  }
-
-  private getTierFeatures(data: RoadmapData, tier: number): RoadmapFeature[] {
-    return data.features
-      .filter(f => f.tier === tier)
+  private printAllFeatures(data: RoadmapData): void {
+    const sortedFeatures = data.features
       .sort((a, b) => b.score - a.score);
+    
+    if (sortedFeatures.length === 0) {
+      console.log('\n🎉 No pending features - roadmap is clear!');
+      return;
+    }
+    
+    console.log('\n📊 All Features (by votes):');
+    this.printFeatureList(sortedFeatures);
   }
 
   private printFeatureList(features: RoadmapFeature[]): void {

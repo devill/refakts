@@ -14,18 +14,29 @@ export class RoadmapService {
     console.log(`✅ Voted for '${featureName}' (now ${feature.score} votes)`);
   }
 
-  add(featureName: string, description: string, why?: string, tier: number = 4): void {
+  add(featureName: string, description: string, why?: string): void {
     const data = this.storage.loadRoadmap();
     
     this.validateFeatureDoesNotExist(data, featureName);
-    this.addFeatureToRoadmap(data, featureName, description, why, tier);
+    this.addFeatureToRoadmap(data, featureName, description, why);
     
     this.storage.saveRoadmap(data);
     console.log(`✅ Added feature '${featureName}' to roadmap`);
   }
 
   getRoadmapData(): RoadmapData {
-    return this.storage.loadRoadmap();
+    const data = this.storage.loadRoadmap();
+    this.removeCompletedFeatures(data);
+    return data;
+  }
+
+  private removeCompletedFeatures(data: RoadmapData): void {
+    const initialCount = data.features.length;
+    data.features = data.features.filter(f => f.status !== 'completed');
+    
+    if (data.features.length < initialCount) {
+      this.storage.saveRoadmap(data);
+    }
   }
 
   private findFeature(data: RoadmapData, featureName: string): RoadmapFeature {
@@ -46,14 +57,13 @@ export class RoadmapService {
     }
   }
 
-  private addFeatureToRoadmap(data: RoadmapData, featureName: string, description: string, why?: string, tier: number = 4): void {
+  private addFeatureToRoadmap(data: RoadmapData, featureName: string, description: string, why?: string): void {
     data.features.push({
       name: featureName,
       description,
       why,
       score: 0,
-      status: 'proposed',
-      tier
+      status: 'proposed'
     });
   }
 }
