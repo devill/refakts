@@ -17,22 +17,34 @@ export class VariableLocatorCommand implements RefactoringCommand {
     this.validateOptions(finalOptions);
     
     try {
-      const result = await this.performLocatorOperation(finalOptions);
-      this.outputResults(result);
+      await this.executeLocatorOperation(finalOptions);
     } catch (error) {
       this.handleExecutionError(error);
     }
   }
 
+  private async executeLocatorOperation(options: CommandOptions): Promise<void> {
+    const result = await this.performLocatorOperation(options);
+    this.outputResults(result);
+  }
+
   private async performLocatorOperation(options: CommandOptions) {
     const location = options.location as LocationRange;
+    const node = await this.findTargetNode(location);
+    const variableName = this.getVariableName(node);
     
+    return await this.findAndFormatReferences(location, variableName);
+  }
+
+  private async findTargetNode(location: LocationRange): Promise<Node> {
     const node = await this.astService.findNodeByLocation(location);
     if (!node) {
       throw new Error('Could not find node at specified location');
     }
-    
-    const variableName = this.getVariableName(node);
+    return node;
+  }
+
+  private async findAndFormatReferences(location: LocationRange, variableName: string): Promise<string[]> {
     const locator = new VariableLocator();
     const result = await locator.findVariableReferences(location.file, variableName);
     const fileName = path.basename(location.file);
@@ -95,16 +107,17 @@ export class VariableLocatorCommand implements RefactoringCommand {
   }
 
   private getVariableName(node: Node): string {
-    if (this.isIdentifierNode(node)) {
-      return node.getText();
-    }
-    
+    return this.isIdentifierNode(node) 
+      ? node.getText() 
+      : this.extractCandidateNameOrThrow(node);
+  }
+
+  private extractCandidateNameOrThrow(node: Node): string {
     const candidateName = this.extractCandidateName(node);
-    if (candidateName) {
-      return candidateName;
+    if (!candidateName) {
+      throw new Error('Could not extract variable name from node');
     }
-    
-    throw new Error('Could not extract variable name from node');
+    return candidateName;
   }
 
   private isIdentifierNode(node: Node): boolean {
@@ -112,17 +125,9 @@ export class VariableLocatorCommand implements RefactoringCommand {
   }
 
   private extractCandidateName(node: Node): string | null {
-    const simpleTextName = this.trySimpleTextExtraction(node);
-    if (simpleTextName) {
-      return simpleTextName;
-    }
-    
-    const declarationName = this.tryVariableDeclarationExtraction(node);
-    if (declarationName) {
-      return declarationName;
-    }
-    
-    return this.tryIdentifierDescendantExtraction(node);
+    return this.trySimpleTextExtraction(node) ||
+           this.tryVariableDeclarationExtraction(node) ||
+           this.tryIdentifierDescendantExtraction(node);
   }
 
   private trySimpleTextExtraction(node: Node): string | null {

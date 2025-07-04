@@ -42,12 +42,19 @@ function addCommandOptions(cmd: Command, command: RefactoringCommand): void {
 }
 
 function loadCommandOptions(commandName: string): CommandOption[] {
-  const optionsPath = path.join(__dirname, 'commands', `${commandName}-options.json`);
+  const optionsPath = getOptionsPath(commandName);
+  return readOptionsFile(optionsPath, commandName);
+}
+
+function getOptionsPath(commandName: string): string {
+  return path.join(__dirname, 'commands', `${commandName}-options.json`);
+}
+
+function readOptionsFile(optionsPath: string, commandName: string): CommandOption[] {
   try {
     const optionsData = fs.readFileSync(optionsPath, 'utf8');
     return JSON.parse(optionsData) as CommandOption[];
   } catch (error) {
-     
     process.stderr.write(`Failed to load options for command ${commandName}: ${error}\n`);
     return [];
   }
@@ -63,14 +70,22 @@ async function executeRefactoringCommand(command: RefactoringCommand, target: st
 
 async function executeCommandWithTarget(command: RefactoringCommand, target: string, options: CommandOptions): Promise<void> {
   if (LocationParser.isLocationFormat(target)) {
-    const location = LocationParser.parseLocation(target);
-    const optionsWithLocation = { ...options, location };
-    command.validateOptions(optionsWithLocation);
-    await command.execute(location.file, optionsWithLocation);
+    await executeWithLocationTarget(command, target, options);
   } else {
-    command.validateOptions(options);
-    await command.execute(target, options);
+    await executeWithFileTarget(command, target, options);
   }
+}
+
+async function executeWithLocationTarget(command: RefactoringCommand, target: string, options: CommandOptions): Promise<void> {
+  const location = LocationParser.parseLocation(target);
+  const optionsWithLocation = { ...options, location };
+  command.validateOptions(optionsWithLocation);
+  await command.execute(location.file, optionsWithLocation);
+}
+
+async function executeWithFileTarget(command: RefactoringCommand, target: string, options: CommandOptions): Promise<void> {
+  command.validateOptions(options);
+  await command.execute(target, options);
 }
 
 function handleCommandError(error: unknown): void {

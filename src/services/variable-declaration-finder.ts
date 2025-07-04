@@ -35,15 +35,19 @@ export class VariableDeclarationFinder {
 
   private findDeclarationInSameScope(contextNode: Node, declarations: VariableDeclaration[]): VariableDeclaration | undefined {
     const contextMethod = this.findContainingMethod(contextNode);
+    const sameScopeDeclaration = this.findDeclarationInMethod(declarations, contextMethod);
     
+    return sameScopeDeclaration || declarations[0];
+  }
+
+  private findDeclarationInMethod(declarations: VariableDeclaration[], targetMethod: Node | undefined): VariableDeclaration | undefined {
     for (const decl of declarations) {
       const declMethod = this.findContainingMethod(decl);
-      if (contextMethod === declMethod) {
+      if (declMethod === targetMethod) {
         return decl;
       }
     }
-    
-    return declarations[0];
+    return undefined;
   }
 
   private findContainingMethod(node: Node): Node | undefined {

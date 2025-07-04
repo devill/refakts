@@ -14,16 +14,23 @@ export class RoadmapDisplay {
   }
 
   private printAllFeatures(data: RoadmapData): void {
-    const sortedFeatures = data.features
-      .sort((a, b) => b.score - a.score);
+    const sortedFeatures = this.getSortedFeatures(data);
     
     if (sortedFeatures.length === 0) {
       process.stdout.write('\n🎉 No pending features - roadmap is clear!\n');
       return;
     }
     
+    this.printSortedFeatureList(sortedFeatures);
+  }
+
+  private printSortedFeatureList(sortedFeatures: RoadmapFeature[]): void {
     process.stdout.write('\n📊 All Features (by votes):\n');
     this.printFeatureList(sortedFeatures);
+  }
+
+  private getSortedFeatures(data: RoadmapData): RoadmapFeature[] {
+    return data.features.sort((a, b) => b.score - a.score);
   }
 
   private printFeatureList(features: RoadmapFeature[]): void {
