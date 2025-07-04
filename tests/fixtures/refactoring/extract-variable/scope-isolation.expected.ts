@@ -1,6 +1,6 @@
 /**
  * @description Extract variable should respect function scope boundaries
- * @command refakts extract-variable scope-isolation.input.ts --query "BinaryExpression[left.name='a'][right.name='b']" --name "sum" --all
+ * @command refakts extract-variable "[scope-isolation.input.ts 7:10-7:15]" --name "sum" --all
  */
 
 function first(a: number, b: number): number {

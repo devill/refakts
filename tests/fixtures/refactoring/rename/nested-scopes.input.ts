@@ -1,6 +1,6 @@
 /**
  * @description Rename variable in nested scopes with multiple usages
- * @command refakts rename nested-scopes.input.ts --query "Parameter Identifier[name='items']" --to "itemList"
+ * @command refakts rename "[nested-scopes.input.ts 6:23-6:28]" --to "itemList"
  */
 
 function processItems(items: string[]): string[] {

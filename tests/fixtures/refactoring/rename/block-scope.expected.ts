@@ -1,6 +1,6 @@
 /**
  * @description Rename variable in block scope
- * @command refakts rename block-scope.input.ts --query "IfStatement Block VariableDeclaration Identifier[name='temp']" --to "temporaryValue"
+ * @command refakts rename "[block-scope.input.ts 10:11-10:15]" --to "temporaryValue"
  */
 
 function processValue(condition: boolean, input: number): number {

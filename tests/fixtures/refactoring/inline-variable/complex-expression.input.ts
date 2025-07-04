@@ -1,6 +1,6 @@
 /**
  * @description Inline variable with complex expression
- * @command refakts inline-variable complex-expression.input.ts --query "ReturnStatement Identifier[name='expr']"
+ * @command refakts inline-variable "[complex-expression.input.ts 8:10-8:14]"
  */
 
 function complexCalc(a: number, b: number, c: number): number {

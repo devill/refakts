@@ -1,6 +1,6 @@
 /**
  * @description Inline variable with multiple usages
- * @command refakts inline-variable multiple-usages.input.ts --query "Identifier[name='sum']"
+ * @command refakts inline-variable "[multiple-usages.input.ts 8:18-8:21]"
  */
 
 function processData(x: number, y: number): number {
