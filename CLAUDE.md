@@ -26,9 +26,6 @@ npm run dev -- inline-variable "[src/example.ts 5:8-5:18]"
 
 # Quality tools
 npm run quality              # Run all quality checks
-npm run quality:watch        # Start 2-minute quality watcher
-npm run quality:watch:stop   # Stop quality watcher
-npm run quality:watch:status # Check watcher status
 
 # Snooze quality alerts (24 hours)
 npm run snooze incomplete <command>  # Snooze incomplete refactoring alerts
@@ -44,19 +41,21 @@ npm run usage:report                 # View command usage statistics
 npm run usage:consolidate            # Manually consolidate usage logs
 ```
 
-## Startup Behavior
 
-**Quality Watcher Auto-Start**: On every startup, check if the quality watcher is running and start it if it's not. This ensures continuous code quality monitoring with 2-minute interval checks and automated refactoring prompts.
+<!-- AUTO-GENERATED HELP START -->
+## Available RefakTS Commands
 
-**Test Reminders**: The quality watcher also monitors test frequency and reminds Claude to run tests if they haven't been run within the last 2 minutes. This ensures code changes are continuously validated.
+```
+- extract-variable [options] <target>  Extract expression into a variable
+- inline-variable [options] <target>   Replace variable usage with its value
+- node-finding [options] <target>      Find AST nodes in TypeScript files
+- rename [options] <target>            Rename a variable and all its references
+- select [options] <target>            Find code elements and return their locations with content preview
+- variable-locator [options] <target>  Find variable declarations and all their usages
+```
 
-## Git Integration
+<!-- AUTO-GENERATED HELP END -->
 
-**Usage Tracking**: Every refakts command usage is automatically logged. Git hooks consolidate usage statistics:
-- **Pre-commit**: Consolidates usage logs into `.refakts-stats.json` 
-- **Post-commit**: Displays usage report showing session and total command usage
-
-This provides visibility into which refakts features are actually being used vs. just implemented.
 
 ## Use your tools
 
@@ -64,11 +63,20 @@ This provides visibility into which refakts features are actually being used vs.
 
 **CRITICAL: Dog fooding** `refrakts` is meant for AI agents like you (Claude). Use the already completed functionalities when you refactor. If you find a bug while using it **add it to the todo list immediately**.
 
-## Feature Roadmap Management
+## Feature Roadmap 
 
 **This tool is for you - make it what you wished it already was.** RefakTS development is driven by AI agents who actually use the tool and understand what would make their work more effective.
 
 ### Roadmap Commands
+
+#### 🎯 Core Principles
+
+- **Deterministic over Stochastic**: Tools should do what algorithms do best, leaving reasoning to AI
+- **Precise over General**: Sharp tools for specific tasks beat blunt general-purpose tools
+- **Chainable over Monolithic**: Small, composable operations that can be combined
+- **Fast over Comprehensive**: Sub-second feedback loops for interactive AI workflows
+
+#### Commands
 
 ```bash
 # Check current feature priorities
@@ -118,105 +126,24 @@ Vote enthusiastically for roadmap features that would have helped in your curren
 
 Remember: **This tool exists to amplify your capabilities, not replace your reasoning.** Vote for features that handle the tedious, mechanical parts so you can focus on the creative problem-solving.
 
+### Git Integration
 
-<!-- AUTO-GENERATED HELP START -->
-## Available RefakTS Commands
+**Usage Tracking**: Every refakts command usage is automatically logged. Git hooks consolidate usage statistics:
+- **Pre-commit**: Consolidates usage logs into `.refakts-stats.json`
+- **Post-commit**: Displays usage report showing session and total command usage
 
-- extract-variable [options] <target>  Extract expression into a variable
-- inline-variable [options] <target>   Replace variable usage with its value
-- node-finding [options] <target>      Find AST nodes in TypeScript files
-- rename [options] <target>            Rename a variable and all its references
-- select [options] <target>            Find code elements and return their locations with content preview
-- variable-locator [options] <target>  Find variable declarations and all their usages
-
-<!-- AUTO-GENERATED HELP END -->
+This provides visibility into which refakts features are actually being used vs. just implemented.
 
 ## Architecture
 
-### Core Components
+### Test Selection Guide:
+- **Refactoring tests** (`fixtures/refactoring/`): For commands that modify files - validate against `.expected.ts` files
+- **Locator tests** (`fixtures/locators/`): For commands that find/analyze code - use `.expected.yaml` for structured data comparison
+- **Select tests** (`fixtures/select`): For commands that help identify source code locations base on string matchers - validate against `.expected.txt`.
 
-**RefactorEngine** (`src/refactor-engine.ts`): Central refactoring engine that:
-- Creates ts-morph Project instances for file manipulation
-- Supports node targeting by line/column position or TSQuery selectors
-- Contains refactoring implementations (currently placeholder logic in `performInlineVariable`)
+Files matching `*.received.*` are gitignored and appear only during test failures.
 
-**CLI Interface** (`src/cli.ts`): Commander.js-based CLI that:
-- Provides subcommands for each refactoring type (currently `inline-variable`)
-- Acts as thin wrapper around RefactorEngine methods
-
-### Testing Architecture
-
-**Dual Testing System**: The project uses two specialized testing frameworks:
-
-**1. Refactoring Tests** (`tests/integration/refactoring.test.ts`):
-- **Location**: `tests/fixtures/refactoring/`
-- **Purpose**: Test commands that modify files (extract-variable, inline-variable, rename)
-- **Format**: `name.input.ts` + `name.expected.ts` with metadata in file headers
-- **Execution**: Copies `.input.ts` → `.received.ts`, runs CLI commands, compares received vs expected
-
-**2. Locator Tests** (`tests/integration/locators.test.ts`):
-- **Location**: `tests/fixtures/locators/`
-- **Purpose**: Test commands that find/analyze code (variable-locator, node-finding)
-- **Format**: `name.input.ts` + `name.expected.yaml` with metadata in file headers
-- **Execution**: Runs CLI commands, captures YAML output, compares structured data
-
-**Test metadata formats**:
-```ts
-// Single file header format
-/**
- * @description Test description
- * @command refakts inline-variable "[file.ts 8:10-8:14]"
- */
-```
-```yaml
-# Multi-file meta.yaml format
-description: Test description
-commands:
-  - refakts inline-variable "[file.ts 8:10-8:14]"
-```
-
-**CRITICAL** Never run `refakts` on files in `/fixtures`. When you need to test the command line tool create one off temporary files in root. 
-
-### Current State
-
-- ✅ CLI framework and dual testing infrastructure complete
-- ✅ Basic RefactorEngine with ts-morph integration
-- ✅ Basic rename functionality (global scope)
-- ✅ Quality automation with unused method detection
-- ✅ VariableScope class for scope analysis
-- ✅ **Locators architecture**: VariableLocator and NodeFinding with usage type detection
-- ✅ **YAML-based locator testing**: Structured data validation vs source comparison
-- ✅ **Consolidated AST query**: node-finding replaces expression-locator per roadmap priorities
-- ✅ **Advanced select command**: Complete with range, structural, and boundary selection modes using ts-morph AST parsing
-- ✅ **Location-based refactoring API**: All refactoring commands now accept `[file.ts line:col-line:col]` format from select command output
-
-### Future Architecture Plan
-
-**Long-term vision** for a more composable and testable architecture:
-
-1. **Locators**: Objects/methods that find declarations and usages across files ✅
-   - ✅ VariableLocator returns actual Node objects for robust transformation pipelines
-   - ✅ NodeFinding provides unified AST query interface with expression support
-   - ✅ SourceFileHelper for missing ts-morph functionality
-   - ✅ Location data (line/column) only for testing - transformations use Node objects
-   - 🔄 Future: `FunctionLocator`, `ClassLocator`, `ImportLocator`
-
-2. **Transformations**: Method objects that modify AST and pass to next transformation ✅
-   - ✅ Constructor-based configuration with Node objects (no builders needed)
-   - ✅ Each transformation works directly with Node references
-   - ✅ ts-morph automatically tracks node validity as transformations execute
-   - Composable and reusable building blocks
-   - Individual testing without full refactoring context
-
-3. **Node-Based Architecture Benefits**:
-   - **Robustness**: Node references remain valid as ts-morph tracks AST changes
-   - **Performance**: No need to re-search for nodes during transformation pipelines
-   - **Composability**: Pass nodes between transformations without position recalculation
-   - **Testing**: Tests convert nodes to positions for comparison, transformations use nodes directly
-
-**Implementation approach**: ✅ Locators and Transformations architecturally complete, focus on expanding functionality.
-
-### Development Workflow
+## Development Workflow
 
 Use the STARTER_CHARACTER in [] to indicate your workflow state
 
@@ -233,13 +160,6 @@ Use the STARTER_CHARACTER in [] to indicate your workflow state
 10. [♻️] After commiting refactor to resolve qualiy issues.
 11. [🗳️] Vote for roadmap features that would have helped this session, add features you wished existed
 
-**Test Selection Guide**:
-- **Refactoring tests** (`fixtures/refactoring/`): For commands that modify files - validate against `.expected.ts` files
-- **Locator tests** (`fixtures/locators/`): For commands that find/analyze code - use `.expected.yaml` for structured data comparison
-
-Files matching `*.received.*` are gitignored and appear only during test failures.
-
-The dual testing system drives development - add test cases first, then implement the logic to make them pass.
 
 ## Automated Quality Enforcement
 

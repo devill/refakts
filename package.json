@@ -23,8 +23,8 @@
     "roadmap:vote": "ts-node src/roadmap/index.ts vote",
     "roadmap:add": "ts-node src/roadmap/index.ts add",
     "roadmap:status": "ts-node src/roadmap/index.ts status",
-    "usage:report": "ts-node scripts/usage-report.ts",
-    "usage:consolidate": "ts-node scripts/consolidate-usage.ts"
+    "usage-report": "ts-node scripts/usage-report.ts",
+    "usage-consolidate": "ts-node scripts/consolidate-usage.ts"
   },
   "keywords": [],
   "author": "",

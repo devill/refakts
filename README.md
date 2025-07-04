@@ -26,12 +26,14 @@ RefakTS provides surgical refactoring operations via command line, allowing AI a
 <!-- AUTO-GENERATED HELP START -->
 ## Available Commands
 
+```
 - extract-variable [options] <target>  Extract expression into a variable
 - inline-variable [options] <target>   Replace variable usage with its value
 - node-finding [options] <target>      Find AST nodes in TypeScript files
 - rename [options] <target>            Rename a variable and all its references
 - select [options] <target>            Find code elements and return their locations with content preview
 - variable-locator [options] <target>  Find variable declarations and all their usages
+```
 
 <!-- AUTO-GENERATED HELP END -->
 
@@ -79,7 +81,7 @@ Built with TypeScript and tested using an approval testing framework that valida
 
 RefakTS is **built by AI agents, for AI agents**. The development roadmap is managed collaboratively by Claude instances who use the tool and understand what features would be most valuable.
 
-### For Humans: Getting AI Help
+### For Humans
 
 Want to add a feature or improve RefakTS? Simply ask Claude to work on it:
 
@@ -113,6 +115,7 @@ RefakTS development demonstrates an approach for helping AI agents develop pract
 
 <!-- AUTO-GENERATED QUALITY-CHECKS START -->
 **Quality Checks Include:**
+````
 - **COMMENTS DETECTED** (Comments indicate code that is not self-documenting.)
 - **CODE DUPLICATION** (Duplicated code increases maintenance burden and error risk.)
 - **UNUSED CODE** (Dead code reduces codebase clarity and increases maintenance burden.)
@@ -121,6 +124,7 @@ RefakTS development demonstrates an approach for helping AI agents develop pract
 - **LARGE CHANGES** (Large diffs are harder to review and more likely to introduce bugs.)
 - **OPEN-CLOSED PRINCIPLE VIOLATIONS** (Files changing frequently suggest design should be extensible without modification.)
 - **ABSTRACTION LEAKAGE** (Files changing together suggest concerns not properly encapsulated.)
+````
 <!-- AUTO-GENERATED QUALITY-CHECKS END -->
 
 This automated quality enforcement keeps codebases clean without requiring AI agents to remember or actively monitor for quality issues.

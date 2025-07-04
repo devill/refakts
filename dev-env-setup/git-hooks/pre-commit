@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Update CLAUDE.md and README.md with current --help output before commit
+cd "$(git rev-parse --show-toplevel)"
+
+echo "Updating CLAUDE.md with current --help output..."
+npm run update-claude-md
+
+echo "Updating README.md with current help and quality checks..."
+npm run update-readme
+
+echo "Consolidating refakts usage statistics..."
+npm run usage-consilidate
+
+# Add modified files to staging
+git add CLAUDE.md README.md .refakts-stats.json
+
+exit 0

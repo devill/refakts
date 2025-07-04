@@ -6,4 +6,7 @@ cd "$(git rev-parse --show-toplevel)"
 echo "Running post-commit quality checks..."
 npm run quality
 
+echo "Generating usage report..."
+npm run usage-report
+
 exit 0

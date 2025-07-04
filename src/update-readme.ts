@@ -100,7 +100,7 @@ function updateHelpSection(content: string, helpCommands: string): string {
   return replaceSection(content, 
     '<!-- AUTO-GENERATED HELP START -->',
     '<!-- AUTO-GENERATED HELP END -->',
-    `## Available Commands\n\n${helpCommands}\n`
+    `## Available Commands\n\n\`\`\`\n${helpCommands}\n\`\`\`\n`
   );
 }
 
@@ -108,7 +108,7 @@ function updateQualitySection(content: string, qualityChecks: string): string {
   return replaceSection(content,
     '<!-- AUTO-GENERATED QUALITY-CHECKS START -->',
     '<!-- AUTO-GENERATED QUALITY-CHECKS END -->',
-    `**Quality Checks Include:**\n${qualityChecks}`
+    `**Quality Checks Include:**\n\`\`\`\`\n${qualityChecks}\n\`\`\`\``
   );
 }
 
