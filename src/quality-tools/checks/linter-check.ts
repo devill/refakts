@@ -69,7 +69,6 @@ export const linterCheck: QualityCheck = {
       return issues;
     } catch (error) {
       if (error instanceof Error && error.message.includes('Command failed')) {
-        // ESLint found issues and exited with error code
         try {
           const { stdout } = await execAsync('npx eslint src --ext .ts --format json').catch(err => ({ stdout: err.stdout }));
           
@@ -101,7 +100,6 @@ export const linterCheck: QualityCheck = {
             return issues;
           }
         } catch {
-          // If we can't parse, return a generic error
         }
       }
       

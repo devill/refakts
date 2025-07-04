@@ -17,7 +17,6 @@ const getToleranceFilePath = (): string => {
 };
 
 const getInitialToleranceCount = (): number => {
-  // Default starting point - you mentioned about 100 errors currently
   return 100;
 };
 
@@ -29,7 +28,6 @@ const getCurrentTolerance = (): number => {
   const toleranceFile = getToleranceFilePath();
   
   if (!fs.existsSync(toleranceFile)) {
-    // First time running - create tolerance file with current timestamp
     const initialData = {
       startTime: Date.now(),
       initialCount: getInitialToleranceCount()
@@ -44,7 +42,6 @@ const getCurrentTolerance = (): number => {
     const currentTolerance = Math.max(0, data.initialCount - hoursPassed);
     return currentTolerance;
   } catch {
-    // If file is corrupted, reset with current values
     const initialData = {
       startTime: Date.now(),
       initialCount: getInitialToleranceCount()
@@ -79,20 +76,16 @@ const shouldFailOnLinterIssues = (linterIssues: QualityIssue[]): boolean => {
 const main = async (): Promise<void> => {
   const issues = await runQualityChecks('src');
   
-  // Separate linter issues from other quality issues
   const linterIssues = issues.filter(issue => issue.type === 'linter-violation' || issue.type === 'linter-error');
   const otherIssues = issues.filter(issue => issue.type !== 'linter-violation' && issue.type !== 'linter-error');
   
-  // Check if linter violations exceed tolerance
   const shouldFailOnLinter = shouldFailOnLinterIssues(linterIssues);
   
-  // Filter out tolerated linter violations from the report
   const reportIssues = shouldFailOnLinter ? issues : otherIssues.concat(linterIssues.filter(issue => issue.type === 'linter-error'));
   
   const report = generateReport(reportIssues);
   process.stdout.write(report + '\n');
   
-  // Always fail on non-linter issues and linter errors (not violations)
   const shouldFailOnOther = otherIssues.length > 0 || linterIssues.some(issue => issue.type === 'linter-error');
   
   process.exit((shouldFailOnOther || shouldFailOnLinter) ? 1 : 0);
