@@ -54,7 +54,6 @@ function loadCommandOptions(commandName: string): CommandOption[] {
 
 async function executeRefactoringCommand(command: any, target: string, options: any): Promise<void> {
   try {
-    command.validateOptions(options);
     await executeCommandWithTarget(command, target, options);
   } catch (error) {
     handleCommandError(error);
@@ -64,8 +63,11 @@ async function executeRefactoringCommand(command: any, target: string, options: 
 async function executeCommandWithTarget(command: any, target: string, options: any): Promise<void> {
   if (LocationParser.isLocationFormat(target)) {
     const location = LocationParser.parseLocation(target);
-    await command.execute(location.file, { ...options, location });
+    const optionsWithLocation = { ...options, location };
+    command.validateOptions(optionsWithLocation);
+    await command.execute(location.file, optionsWithLocation);
   } else {
+    command.validateOptions(options);
     await command.execute(target, options);
   }
 }
