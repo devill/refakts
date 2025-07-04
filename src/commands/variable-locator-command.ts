@@ -25,20 +25,16 @@ export class VariableLocatorCommand implements RefactoringCommand {
   private async performLocatorOperation(options: Record<string, any>) {
     const { location } = options;
     
-    // Get the variable name from the selected location
     const node = await this.astService.findNodeByLocation(location);
     if (!node) {
       throw new Error('Could not find node at specified location');
     }
     
     const variableName = this.getVariableName(node);
-    
-    // Use the variable locator to find all references
     const locator = new VariableLocator();
     const result = await locator.findVariableReferences(location.file, variableName);
-    
-    // Use basename for consistent output format like select command
     const fileName = path.basename(location.file);
+    
     return this.formatAsLocations(result, fileName);
   }
 
@@ -64,27 +60,31 @@ export class VariableLocatorCommand implements RefactoringCommand {
       return { ...options, location };
     }
     
-    // For backwards compatibility during migration
     return { ...options, target };
   }
 
   private formatAsLocations(result: any, fileName: string): string[] {
     const locations: string[] = [];
     
-    // Add declaration
+    this.addDeclarationLocation(result, fileName, locations);
+    this.addUsageLocations(result, fileName, locations);
+    
+    return locations;
+  }
+
+  private addDeclarationLocation(result: any, fileName: string, locations: string[]): void {
     if (result.declaration) {
       const decl = result.declaration;
       locations.push(`[${fileName} ${decl.line}:${decl.column}-${decl.line}:${decl.column + decl.text.length}] ${decl.text}`);
     }
-    
-    // Add usages
+  }
+
+  private addUsageLocations(result: any, fileName: string, locations: string[]): void {
     if (result.usages) {
       for (const usage of result.usages) {
         locations.push(`[${fileName} ${usage.line}:${usage.column}-${usage.line}:${usage.column + usage.text.length}] ${usage.text}`);
       }
     }
-    
-    return locations;
   }
 
   private outputResults(results: string[]): void {
@@ -92,34 +92,51 @@ export class VariableLocatorCommand implements RefactoringCommand {
   }
 
   private getVariableName(node: any): string {
-    // If it's already an identifier, return its text
-    if (node.getKind() === 75) { // Identifier
+    if (this.isIdentifierNode(node)) {
       return node.getText();
     }
     
-    // For simplicity, just return the text of the node
-    // This works for most cases where we select a variable name
-    const text = node.getText().trim();
-    
-    // If the text looks like a variable name (alphanumeric + underscore), use it
-    if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(text)) {
-      return text;
-    }
-    
-    // Handle variable declarations, parameters, etc.
-    if (node.getKind() === 261) { // VariableDeclarationList
-      const variableDeclaration = node.getDeclarations()[0];
-      if (variableDeclaration) {
-        return variableDeclaration.getName();
-      }
-    }
-    
-    // Look for an identifier in the node
-    const identifiers = node.getDescendantsOfKind(75); // Identifier
-    if (identifiers.length > 0) {
-      return identifiers[0].getText();
+    const candidateName = this.extractCandidateName(node);
+    if (candidateName) {
+      return candidateName;
     }
     
     throw new Error('Could not extract variable name from node');
+  }
+
+  private isIdentifierNode(node: any): boolean {
+    return node.getKind() === 75;
+  }
+
+  private extractCandidateName(node: any): string | null {
+    const simpleTextName = this.trySimpleTextExtraction(node);
+    if (simpleTextName) {
+      return simpleTextName;
+    }
+    
+    const declarationName = this.tryVariableDeclarationExtraction(node);
+    if (declarationName) {
+      return declarationName;
+    }
+    
+    return this.tryIdentifierDescendantExtraction(node);
+  }
+
+  private trySimpleTextExtraction(node: any): string | null {
+    const text = node.getText().trim();
+    return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(text) ? text : null;
+  }
+
+  private tryVariableDeclarationExtraction(node: any): string | null {
+    if (node.getKind() === 261) {
+      const variableDeclaration = node.getDeclarations()[0];
+      return variableDeclaration ? variableDeclaration.getName() : null;
+    }
+    return null;
+  }
+
+  private tryIdentifierDescendantExtraction(node: any): string | null {
+    const identifiers = node.getDescendantsOfKind(75);
+    return identifiers.length > 0 ? identifiers[0].getText() : null;
   }
 }

@@ -30,31 +30,6 @@ export class VariableLocator {
     return this.resultBuilder.buildLocationResult(variableName, declaration, usages);
   }
 
-  async findVariableNodes(filePath: string, variableName: string): Promise<VariableNodeResult> {
-    const sourceFile = this.loadSourceFile(filePath);
-    const declaration = this.getDeclarationOrThrow(sourceFile, variableName);
-    const usages = this.nodeMatcher.findUsages(sourceFile, variableName, declaration);
-    
-    return this.resultBuilder.buildNodeResult(variableName, declaration, usages);
-  }
-
-  async findVariableByPosition(filePath: string, line: number, column: number): Promise<VariableLocationResult> {
-    const sourceFile = this.loadSourceFile(filePath);
-    const declaration = this.positionFinder.getDeclarationAtPosition(sourceFile, line, column);
-    const variableName = this.nodeMatcher.getVariableName(declaration);
-    const usages = this.nodeMatcher.findUsages(sourceFile, variableName, declaration);
-    
-    return this.resultBuilder.buildLocationResult(variableName, declaration, usages);
-  }
-
-  async findVariableNodesByPosition(filePath: string, line: number, column: number): Promise<VariableNodeResult> {
-    const sourceFile = this.loadSourceFile(filePath);
-    const declaration = this.positionFinder.getDeclarationAtPosition(sourceFile, line, column);
-    const variableName = this.nodeMatcher.getVariableName(declaration);
-    const usages = this.nodeMatcher.findUsages(sourceFile, variableName, declaration);
-    
-    return this.resultBuilder.buildNodeResult(variableName, declaration, usages);
-  }
 
   findVariableNodesByPositionSync(sourceFile: SourceFile, line: number, column: number): VariableNodeResult {
     const declaration = this.positionFinder.getDeclarationAtPosition(sourceFile, line, column);
