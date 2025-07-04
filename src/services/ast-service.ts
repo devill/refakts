@@ -68,8 +68,15 @@ export class ASTService {
   }
 
   private findBestMatchingNode(sourceFile: SourceFile, node: Node, location: LocationRange): Node | null {
-    const expectedEnd = sourceFile.compilerNode.getPositionOfLineAndCharacter(location.endLine - 1, location.endColumn - 1);
-    
+    const expectedEnd = this.calculateExpectedEnd(sourceFile, location);
+    return this.traverseToFindMatchingNode(node, expectedEnd);
+  }
+
+  private calculateExpectedEnd(sourceFile: SourceFile, location: LocationRange): number {
+    return sourceFile.compilerNode.getPositionOfLineAndCharacter(location.endLine - 1, location.endColumn - 1);
+  }
+
+  private traverseToFindMatchingNode(node: Node, expectedEnd: number): Node | null {
     let current: Node | undefined = node;
     while (current) {
       if (this.isNodeEndCloseToExpected(current, expectedEnd)) {
@@ -77,7 +84,6 @@ export class ASTService {
       }
       current = current.getParent();
     }
-    
     return null;
   }
 
