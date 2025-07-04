@@ -26,13 +26,13 @@ export class RoadmapCLI {
   }
 
   private showUsage(): void {
-    console.error('Usage: npm run roadmap:vote|add|status');
+    process.stderr.write('Usage: npm run roadmap:vote|add|status\n');
     process.exit(1);
   }
 
   private handleVoteCommand(args: string[]): void {
     if (!args[1]) {
-      console.error('Usage: npm run roadmap:vote <feature-name>');
+      process.stderr.write('Usage: npm run roadmap:vote <feature-name>\n');
       process.exit(1);
     }
     this.service.vote(args[1]);
@@ -69,7 +69,7 @@ export class RoadmapCLI {
 
   private validateRequiredArguments(indices: { nameIndex: number; descIndex: number }, args: string[]): void {
     if (indices.nameIndex === -1 || !args[indices.nameIndex + 1] || indices.descIndex === -1 || !args[indices.descIndex + 1]) {
-      console.error('Usage: npm run roadmap:add --feature <name> --description <desc> [--why <reason>]');
+      process.stderr.write('Usage: npm run roadmap:add --feature <name> --description <desc> [--why <reason>]\n');
       process.exit(1);
     }
   }

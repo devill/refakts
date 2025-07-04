@@ -1,8 +1,9 @@
-import { RefactoringCommand } from '../command';
+import { RefactoringCommand, CommandOptions } from '../command';
 import { Node, SourceFile } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
 import { VariableLocator, VariableNodeResult } from '../locators/variable-locator';
 import { RenameVariableTransformation } from '../transformations/rename-variable-transformation';
+import { LocationRange } from '../utils/location-parser';
 
 export class RenameCommand implements RefactoringCommand {
   readonly name = 'rename';
@@ -16,19 +17,19 @@ export class RenameCommand implements RefactoringCommand {
     this.variableLocator = new VariableLocator(this.astService.getProject());
   }
 
-  async execute(file: string, options: Record<string, any>): Promise<void> {
+  async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
     const sourceFile = this.astService.loadSourceFile(file);
     const node = this.findTargetNode(sourceFile, options);
-    await this.performRename(node, options.to);
+    await this.performRename(node, options.to as string);
     await this.astService.saveSourceFile(sourceFile);
   }
 
-  private findTargetNode(sourceFile: SourceFile, options: Record<string, any>): Node {
-    return this.astService.findNodeByLocation(options.location);
+  private findTargetNode(sourceFile: SourceFile, options: CommandOptions): Node {
+    return this.astService.findNodeByLocation(options.location as LocationRange);
   }
 
-  validateOptions(options: Record<string, any>): void {
+  validateOptions(options: CommandOptions): void {
     if (!options.location) {
       throw new Error('Location format must be specified');
     }
@@ -67,7 +68,7 @@ export class RenameCommand implements RefactoringCommand {
   private createRenameTransformation(nodeResult: VariableNodeResult, newName: string) {
     return new RenameVariableTransformation(
       nodeResult.declaration,
-      nodeResult.usages.map((u: any) => u.node),
+      nodeResult.usages.map((u: { node: Node }) => u.node),
       newName
     );
   }

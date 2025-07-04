@@ -19,13 +19,13 @@ program
     const incompleteRefactorings = getIncompleteRefactorings();
     
     if (!incompleteRefactorings.includes(commandName)) {
-      console.error(`❌ Command '${commandName}' is not currently marked as incomplete.`);
-      console.log(`Available incomplete commands: ${incompleteRefactorings.join(', ')}`);
+      process.stderr.write(`❌ Command '${commandName}' is not currently marked as incomplete.\n`);
+      process.stdout.write(`Available incomplete commands: ${incompleteRefactorings.join(', ')}\n`);
       process.exit(1);
     }
     
     snoozeCheck('incompleteRefactoring', commandName);
-    console.log(`✅ Snoozed incomplete refactoring alerts for '${commandName}' for 24 hours.`);
+    process.stdout.write(`✅ Snoozed incomplete refactoring alerts for '${commandName}' for 24 hours.\n`);
   });
 
 program
@@ -33,7 +33,7 @@ program
   .description('Clear all expired snoozes')
   .action(() => {
     clearExpiredSnoozes();
-    console.log('✅ Cleared all expired snoozes.');
+    process.stdout.write('✅ Cleared all expired snoozes.\n');
   });
 
 program.parse();

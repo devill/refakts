@@ -108,7 +108,7 @@ function readSnoozeFile(): SnoozeRecord {
   try {
     return attemptFileRead();
   } catch (error) {
-    console.warn('Failed to load snooze data:', error);
+    process.stderr.write(`Warning: Failed to load snooze data: ${error}\n`);
     return {};
   }
 }
@@ -125,6 +125,6 @@ function saveSnoozeData(data: SnoozeRecord): void {
   try {
     fs.writeFileSync(SNOOZE_FILE_PATH, JSON.stringify(data, null, 2));
   } catch (error) {
-    console.warn('Failed to save snooze data:', error);
+    process.stderr.write(`Warning: Failed to save snooze data: ${error}\n`);
   }
 }

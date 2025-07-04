@@ -6,15 +6,15 @@ import { StructuralAnalyzer } from '../services/structural-analyzer';
 export class StructuralSelectionStrategy implements SelectionStrategy {
   private structuralAnalyzer = new StructuralAnalyzer();
 
-  canHandle(options: Record<string, any>): boolean {
+  canHandle(options: Record<string, unknown>): boolean {
     return !!options.structural;
   }
 
-  async select(sourceFile: SourceFile, options: Record<string, any>): Promise<SelectResult[]> {
+  async select(sourceFile: SourceFile, options: Record<string, unknown>): Promise<SelectResult[]> {
     return this.structuralAnalyzer.findStructuralMatches(sourceFile, options);
   }
 
-  validateOptions(options: Record<string, any>): void {
+  validateOptions(options: Record<string, unknown>): void {
     if (!options.regex) {
       throw new Error('--regex must be specified with --structural');
     }

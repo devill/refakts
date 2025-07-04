@@ -1,21 +1,21 @@
-import { SourceFile } from 'ts-morph';
+import { SourceFile, ClassDeclaration, PropertyDeclaration, MethodDeclaration } from 'ts-morph';
 import { SelectResult } from '../commands/select/select-types';
 import * as path from 'path';
 
 export class StructuralAnalyzer {
-  findStructuralMatches(sourceFile: SourceFile, options: Record<string, any>): SelectResult[] {
+  findStructuralMatches(sourceFile: SourceFile, options: Record<string, unknown>): SelectResult[] {
     const { regex, fileName } = this.prepareMatchingContext(sourceFile, options);
     return this.collectAllMatches(sourceFile, regex, fileName, options);
   }
 
-  private prepareMatchingContext(sourceFile: SourceFile, options: Record<string, any>) {
-    const pattern = options.regex;
+  private prepareMatchingContext(sourceFile: SourceFile, options: Record<string, unknown>) {
+    const pattern = options.regex as string;
     const fileName = path.basename(sourceFile.getFilePath());
     const regex = new RegExp(pattern);
     return { regex, fileName };
   }
 
-  private collectAllMatches(sourceFile: SourceFile, regex: RegExp, fileName: string, options: Record<string, any>): SelectResult[] {
+  private collectAllMatches(sourceFile: SourceFile, regex: RegExp, fileName: string, options: Record<string, unknown>): SelectResult[] {
     const results: SelectResult[] = [];
     
     this.addFieldMatches(sourceFile, regex, fileName, options, results);
@@ -24,24 +24,24 @@ export class StructuralAnalyzer {
     return results;
   }
 
-  private addFieldMatches(sourceFile: SourceFile, regex: RegExp, fileName: string, options: Record<string, any>, results: SelectResult[]): void {
+  private addFieldMatches(sourceFile: SourceFile, regex: RegExp, fileName: string, options: Record<string, unknown>, results: SelectResult[]): void {
     if (this.shouldIncludeFields(options)) {
       results.push(...this.findASTFieldMatches(sourceFile, regex, fileName));
     }
   }
 
-  private addMethodMatches(sourceFile: SourceFile, regex: RegExp, fileName: string, options: Record<string, any>, results: SelectResult[]): void {
+  private addMethodMatches(sourceFile: SourceFile, regex: RegExp, fileName: string, options: Record<string, unknown>, results: SelectResult[]): void {
     if (this.shouldIncludeMethods(options)) {
       results.push(...this.findASTMethodMatches(sourceFile, regex, fileName));
     }
   }
 
-  private shouldIncludeFields(options: Record<string, any>): boolean {
-    return options.includeFields || options['include-fields'];
+  private shouldIncludeFields(options: Record<string, unknown>): boolean {
+    return Boolean(options.includeFields || options['include-fields']);
   }
 
-  private shouldIncludeMethods(options: Record<string, any>): boolean {
-    return options.includeMethods || options['include-methods'];
+  private shouldIncludeMethods(options: Record<string, unknown>): boolean {
+    return Boolean(options.includeMethods || options['include-methods']);
   }
 
   private findASTFieldMatches(sourceFile: SourceFile, regex: RegExp, fileName: string): SelectResult[] {
@@ -49,7 +49,7 @@ export class StructuralAnalyzer {
     return this.collectFieldsFromClasses(classes, regex, fileName);
   }
 
-  private collectFieldsFromClasses(classes: any[], regex: RegExp, fileName: string): SelectResult[] {
+  private collectFieldsFromClasses(classes: ClassDeclaration[], regex: RegExp, fileName: string): SelectResult[] {
     const results: SelectResult[] = [];
     
     for (const classDecl of classes) {
@@ -60,16 +60,16 @@ export class StructuralAnalyzer {
     return results;
   }
 
-  private getMatchingFields(classDecl: any, regex: RegExp, fileName: string): SelectResult[] {
+  private getMatchingFields(classDecl: ClassDeclaration, regex: RegExp, fileName: string): SelectResult[] {
     const properties = classDecl.getProperties();
     return this.filterAndFormatProperties(properties, regex, fileName);
   }
 
-  private filterAndFormatProperties(properties: any[], regex: RegExp, fileName: string): SelectResult[] {
+  private filterAndFormatProperties(properties: PropertyDeclaration[], regex: RegExp, fileName: string): SelectResult[] {
     return this.processAllProperties(properties, regex, fileName);
   }
 
-  private processAllProperties(properties: any[], regex: RegExp, fileName: string): SelectResult[] {
+  private processAllProperties(properties: PropertyDeclaration[], regex: RegExp, fileName: string): SelectResult[] {
     const results: SelectResult[] = [];
     
     for (const prop of properties) {
@@ -80,17 +80,17 @@ export class StructuralAnalyzer {
     return results;
   }
 
-  private processProperty(prop: any, regex: RegExp, fileName: string): SelectResult | null {
+  private processProperty(prop: PropertyDeclaration, regex: RegExp, fileName: string): SelectResult | null {
     return this.propertyMatches(prop, regex) 
       ? this.formatFieldResult(prop, fileName) 
       : null;
   }
 
-  private propertyMatches(prop: any, regex: RegExp): boolean {
+  private propertyMatches(prop: PropertyDeclaration, regex: RegExp): boolean {
     return regex.test(prop.getName());
   }
 
-  private formatFieldResult(prop: any, fileName: string): SelectResult {
+  private formatFieldResult(prop: PropertyDeclaration, fileName: string): SelectResult {
     const positions = this.getPropertyPositions(prop);
     
     return {
@@ -99,7 +99,7 @@ export class StructuralAnalyzer {
     };
   }
 
-  private getPropertyPositions(prop: any) {
+  private getPropertyPositions(prop: PropertyDeclaration) {
     const nameNode = prop.getNameNode();
     const start = nameNode.getStart();
     const end = nameNode.getEnd();
@@ -115,7 +115,7 @@ export class StructuralAnalyzer {
     return this.collectMethodsFromClasses(classes, regex, fileName);
   }
 
-  private collectMethodsFromClasses(classes: any[], regex: RegExp, fileName: string): SelectResult[] {
+  private collectMethodsFromClasses(classes: ClassDeclaration[], regex: RegExp, fileName: string): SelectResult[] {
     const results: SelectResult[] = [];
     
     for (const classDecl of classes) {
@@ -126,16 +126,16 @@ export class StructuralAnalyzer {
     return results;
   }
 
-  private getMatchingMethods(classDecl: any, regex: RegExp, fileName: string): SelectResult[] {
+  private getMatchingMethods(classDecl: ClassDeclaration, regex: RegExp, fileName: string): SelectResult[] {
     const methods = classDecl.getMethods();
     return this.filterAndFormatMethods(methods, regex, fileName);
   }
 
-  private filterAndFormatMethods(methods: any[], regex: RegExp, fileName: string): SelectResult[] {
+  private filterAndFormatMethods(methods: MethodDeclaration[], regex: RegExp, fileName: string): SelectResult[] {
     return this.processAllMethods(methods, regex, fileName);
   }
 
-  private processAllMethods(methods: any[], regex: RegExp, fileName: string): SelectResult[] {
+  private processAllMethods(methods: MethodDeclaration[], regex: RegExp, fileName: string): SelectResult[] {
     const results: SelectResult[] = [];
     
     for (const method of methods) {
@@ -146,17 +146,17 @@ export class StructuralAnalyzer {
     return results;
   }
 
-  private processMethod(method: any, regex: RegExp, fileName: string): SelectResult | null {
+  private processMethod(method: MethodDeclaration, regex: RegExp, fileName: string): SelectResult | null {
     return this.methodMatches(method, regex) 
       ? this.formatMethodResult(method, fileName) 
       : null;
   }
 
-  private methodMatches(method: any, regex: RegExp): boolean {
+  private methodMatches(method: MethodDeclaration, regex: RegExp): boolean {
     return regex.test(method.getName());
   }
 
-  private formatMethodResult(method: any, fileName: string): SelectResult {
+  private formatMethodResult(method: MethodDeclaration, fileName: string): SelectResult {
     const positions = this.getMethodPositions(method);
     
     return {
@@ -165,7 +165,7 @@ export class StructuralAnalyzer {
     };
   }
 
-  private getMethodPositions(method: any) {
+  private getMethodPositions(method: MethodDeclaration) {
     const start = method.getStart();
     const end = method.getEnd();
     const sourceFile = method.getSourceFile();

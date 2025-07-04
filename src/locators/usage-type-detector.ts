@@ -29,7 +29,7 @@ export class UsageTypeDetector {
 
   private isAssignmentExpression(parent: Node, node: Node): boolean {
     if (parent.getKind() === ts.SyntaxKind.BinaryExpression) {
-      const binaryExpr = parent as any;
+      const binaryExpr = parent.asKindOrThrow(ts.SyntaxKind.BinaryExpression);
       return this.isAssignmentOperator(binaryExpr) &&
              binaryExpr.getLeft() === node;
     }
@@ -43,8 +43,9 @@ export class UsageTypeDetector {
     return this.isUnaryUpdateExpression(parent) || this.isCompoundAssignment(parent, node);
   }
 
-  private isAssignmentOperator(binaryExpr: any): boolean {
-    return binaryExpr.getOperatorToken().getKind() === ts.SyntaxKind.EqualsToken;
+  private isAssignmentOperator(binaryExpr: Node): boolean {
+    const expr = binaryExpr.asKindOrThrow(ts.SyntaxKind.BinaryExpression);
+    return expr.getOperatorToken().getKind() === ts.SyntaxKind.EqualsToken;
   }
 
   private isUnaryUpdateExpression(parent: Node): boolean {
@@ -57,7 +58,7 @@ export class UsageTypeDetector {
       return false;
     }
     
-    const binaryExpr = parent as any;
+    const binaryExpr = parent.asKindOrThrow(ts.SyntaxKind.BinaryExpression);
     return this.isCompoundAssignmentOperator(binaryExpr.getOperatorToken().getKind()) &&
            binaryExpr.getLeft() === node;
   }

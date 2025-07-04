@@ -1,4 +1,4 @@
-import { RefactoringCommand } from '../command';
+import { RefactoringCommand, CommandOptions } from '../command';
 import { SelectOutputHandler } from './select/output-handler';
 import { ASTService } from '../services/ast-service';
 import { SelectionStrategyFactory } from '../strategies/selection-strategy-factory';
@@ -13,7 +13,7 @@ export class SelectCommand implements RefactoringCommand {
   private strategyFactory = new SelectionStrategyFactory();
   private outputHandler = new SelectOutputHandler();
 
-  async execute(file: string, options: Record<string, any>): Promise<void> {
+  async execute(file: string, options: CommandOptions): Promise<void> {
     try {
       const strategy = this.strategyFactory.getStrategy(options);
       strategy.validateOptions(options);
@@ -24,19 +24,19 @@ export class SelectCommand implements RefactoringCommand {
     }
   }
 
-  private async performSelection(file: string, options: Record<string, any>, strategy: SelectionStrategy): Promise<void> {
+  private async performSelection(file: string, options: CommandOptions, strategy: SelectionStrategy): Promise<void> {
     const sourceFile = this.astService.loadSourceFile(file);
     const results = await strategy.select(sourceFile, options);
     this.outputHandler.outputResults(results);
   }
 
   private handleExecutionError(error: unknown): void {
-    // eslint-disable-next-line no-console
-    console.error('Error:', error);
+     
+    process.stderr.write(`Error: ${error}\n`);
     process.exit(1);
   }
 
-  validateOptions(options: Record<string, any>): void {
+  validateOptions(options: CommandOptions): void {
     const strategy = this.strategyFactory.getStrategy(options);
     strategy.validateOptions(options);
   }

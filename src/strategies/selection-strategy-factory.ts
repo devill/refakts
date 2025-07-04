@@ -12,7 +12,7 @@ export class SelectionStrategyFactory {
     new RegexSelectionStrategy()
   ];
 
-  getStrategy(options: Record<string, any>): SelectionStrategy {
+  getStrategy(options: Record<string, unknown>): SelectionStrategy {
     const strategy = this.strategies.find(s => s.canHandle(options));
     if (!strategy) {
       throw new Error('No suitable selection strategy found for the given options');

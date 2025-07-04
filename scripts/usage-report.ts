@@ -26,7 +26,7 @@ function main(): void {
   const stats = loadStats();
   
   if (!stats) {
-    console.log('\n📊 No usage data available yet');
+    process.stdout.write('\n📊 No usage data available yet\n');
     return;
   }
   
@@ -34,31 +34,31 @@ function main(): void {
   const hasTotalUsage = Object.keys(stats.commandCounts).length > 0;
   
   if (!hasSessionUsage && !hasTotalUsage) {
-    console.log('\n📊 No refakts commands used yet');
+    process.stdout.write('\n📊 No refakts commands used yet\n');
     return;
   }
   
-  console.log('\n📊 RefakTS Usage Report');
-  console.log('========================');
+  process.stdout.write('\n📊 RefakTS Usage Report\n');
+  process.stdout.write('========================\n');
   
   if (hasSessionUsage) {
-    console.log('\n🔄 This Session:');
+    process.stdout.write('\n🔄 This Session:\n');
     for (const [command, count] of Object.entries(stats.sessionCounts)) {
-      console.log(`  ${command}: ${count}`);
+      process.stdout.write(`  ${command}: ${count}\n`);
     }
   } else {
-    console.log('\n🔄 This Session: No commands used');
+    process.stdout.write('\n🔄 This Session: No commands used\n');
   }
   
   if (hasTotalUsage) {
-    console.log('\n📈 Total Usage:');
+    process.stdout.write('\n📈 Total Usage:\n');
     for (const [command, count] of Object.entries(stats.commandCounts)) {
-      console.log(`  ${command}: ${count}`);
+      process.stdout.write(`  ${command}: ${count}\n`);
     }
   }
   
-  console.log(`\n⏰ Last updated: ${new Date(stats.lastUpdated).toLocaleString()}`);
-  console.log('');
+  process.stdout.write(`\n⏰ Last updated: ${new Date(stats.lastUpdated).toLocaleString()}\n`);
+  process.stdout.write('\n');
 }
 
 if (require.main === module) {

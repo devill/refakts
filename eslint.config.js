@@ -55,7 +55,7 @@ module.exports = [
     }
   },
   {
-    ignores: ['dist/', 'node_modules/', '**/*.d.ts', 'coverage/']
+    ignores: ['dist/', 'node_modules/', '**/*.d.ts', 'coverage/', 'tests/fixtures']
   },
   prettier
 ];

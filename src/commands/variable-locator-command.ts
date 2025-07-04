@@ -1,7 +1,9 @@
-import { RefactoringCommand } from '../command';
+import { RefactoringCommand, CommandOptions } from '../command';
 import { VariableLocator } from '../locators/variable-locator';
-import { LocationParser } from '../utils/location-parser';
+import { Node } from 'ts-morph';
+import { LocationParser, LocationRange } from '../utils/location-parser';
 import { ASTService } from '../services/ast-service';
+import { VariableLocationResult } from '../locators/variable-result-builder';
 import * as path from 'path';
 
 export class VariableLocatorCommand implements RefactoringCommand {
@@ -10,7 +12,7 @@ export class VariableLocatorCommand implements RefactoringCommand {
   readonly complete = true;
   private astService = new ASTService();
 
-  async execute(target: string, options: Record<string, any>): Promise<void> {
+  async execute(target: string, options: CommandOptions): Promise<void> {
     const finalOptions = this.processTarget(target, options);
     this.validateOptions(finalOptions);
     
@@ -22,8 +24,8 @@ export class VariableLocatorCommand implements RefactoringCommand {
     }
   }
 
-  private async performLocatorOperation(options: Record<string, any>) {
-    const { location } = options;
+  private async performLocatorOperation(options: CommandOptions) {
+    const location = options.location as LocationRange;
     
     const node = await this.astService.findNodeByLocation(location);
     if (!node) {
@@ -39,11 +41,11 @@ export class VariableLocatorCommand implements RefactoringCommand {
   }
 
   private handleExecutionError(error: unknown): void {
-    console.error('Error:', error);
+    process.stderr.write(`Error: ${error}\n`);
     process.exit(1);
   }
 
-  validateOptions(options: Record<string, any>): void {
+  validateOptions(options: CommandOptions): void {
     if (!options.location) {
       throw new Error('Location format must be specified');
     }
@@ -54,7 +56,7 @@ export class VariableLocatorCommand implements RefactoringCommand {
   }
 
 
-  private processTarget(target: string, options: Record<string, any>): Record<string, any> {
+  private processTarget(target: string, options: CommandOptions): CommandOptions {
     if (LocationParser.isLocationFormat(target)) {
       const location = LocationParser.parseLocation(target);
       return { ...options, location };
@@ -63,7 +65,7 @@ export class VariableLocatorCommand implements RefactoringCommand {
     return { ...options, target };
   }
 
-  private formatAsLocations(result: any, fileName: string): string[] {
+  private formatAsLocations(result: VariableLocationResult, fileName: string): string[] {
     const locations: string[] = [];
     
     this.addDeclarationLocation(result, fileName, locations);
@@ -72,14 +74,14 @@ export class VariableLocatorCommand implements RefactoringCommand {
     return locations;
   }
 
-  private addDeclarationLocation(result: any, fileName: string, locations: string[]): void {
+  private addDeclarationLocation(result: VariableLocationResult, fileName: string, locations: string[]): void {
     if (result.declaration) {
       const decl = result.declaration;
       locations.push(`[${fileName} ${decl.line}:${decl.column}-${decl.line}:${decl.column + decl.text.length}] ${decl.text}`);
     }
   }
 
-  private addUsageLocations(result: any, fileName: string, locations: string[]): void {
+  private addUsageLocations(result: VariableLocationResult, fileName: string, locations: string[]): void {
     if (result.usages) {
       for (const usage of result.usages) {
         locations.push(`[${fileName} ${usage.line}:${usage.column}-${usage.line}:${usage.column + usage.text.length}] ${usage.text}`);
@@ -91,7 +93,7 @@ export class VariableLocatorCommand implements RefactoringCommand {
     results.forEach(result => console.log(result));
   }
 
-  private getVariableName(node: any): string {
+  private getVariableName(node: Node): string {
     if (this.isIdentifierNode(node)) {
       return node.getText();
     }
@@ -104,11 +106,11 @@ export class VariableLocatorCommand implements RefactoringCommand {
     throw new Error('Could not extract variable name from node');
   }
 
-  private isIdentifierNode(node: any): boolean {
+  private isIdentifierNode(node: Node): boolean {
     return node.getKind() === 75;
   }
 
-  private extractCandidateName(node: any): string | null {
+  private extractCandidateName(node: Node): string | null {
     const simpleTextName = this.trySimpleTextExtraction(node);
     if (simpleTextName) {
       return simpleTextName;
@@ -122,20 +124,22 @@ export class VariableLocatorCommand implements RefactoringCommand {
     return this.tryIdentifierDescendantExtraction(node);
   }
 
-  private trySimpleTextExtraction(node: any): string | null {
+  private trySimpleTextExtraction(node: Node): string | null {
     const text = node.getText().trim();
     return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(text) ? text : null;
   }
 
-  private tryVariableDeclarationExtraction(node: any): string | null {
+  private tryVariableDeclarationExtraction(node: Node): string | null {
     if (node.getKind() === 261) {
-      const variableDeclaration = node.getDeclarations()[0];
-      return variableDeclaration ? variableDeclaration.getName() : null;
+      const symbol = node.getSymbol();
+      const declarations = symbol?.getDeclarations();
+      const variableDeclaration = declarations?.[0];
+      return variableDeclaration ? variableDeclaration.getText() : null;
     }
     return null;
   }
 
-  private tryIdentifierDescendantExtraction(node: any): string | null {
+  private tryIdentifierDescendantExtraction(node: Node): string | null {
     const identifiers = node.getDescendantsOfKind(75);
     return identifiers.length > 0 ? identifiers[0].getText() : null;
   }

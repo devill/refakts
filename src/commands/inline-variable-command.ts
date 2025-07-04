@@ -1,9 +1,10 @@
-import { RefactoringCommand } from '../command';
+import { RefactoringCommand, CommandOptions } from '../command';
 import { Node, VariableDeclaration, SourceFile } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
 import { VariableDeclarationFinder } from '../services/variable-declaration-finder';
 import { ExpressionAnalyzer } from '../services/expression-analyzer';
 import { VariableReplacer } from '../services/variable-replacer';
+import { LocationRange } from '../utils/location-parser';
 
 export class InlineVariableCommand implements RefactoringCommand {
   readonly name = 'inline-variable';
@@ -15,7 +16,7 @@ export class InlineVariableCommand implements RefactoringCommand {
   private expressionAnalyzer = new ExpressionAnalyzer();
   private variableReplacer = new VariableReplacer();
 
-  async execute(file: string, options: Record<string, any>): Promise<void> {
+  async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
     const sourceFile = this.astService.loadSourceFile(file);
     const node = this.findTargetNode(sourceFile, options);
@@ -23,11 +24,11 @@ export class InlineVariableCommand implements RefactoringCommand {
     await this.astService.saveSourceFile(sourceFile);
   }
 
-  private findTargetNode(sourceFile: SourceFile, options: Record<string, any>): Node {
-    return this.astService.findNodeByLocation(options.location);
+  private findTargetNode(sourceFile: SourceFile, options: CommandOptions): Node {
+    return this.astService.findNodeByLocation(options.location as LocationRange);
   }
 
-  validateOptions(options: Record<string, any>): void {
+  validateOptions(options: CommandOptions): void {
     if (!options.location) {
       throw new Error('Location format must be specified');
     }

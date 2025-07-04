@@ -11,7 +11,7 @@ export class RoadmapService {
     feature.score += 1;
     this.storage.saveRoadmap(data);
     
-    console.log(`✅ Voted for '${featureName}' (now ${feature.score} votes)`);
+    process.stdout.write(`✅ Voted for '${featureName}' (now ${feature.score} votes)\n`);
   }
 
   add(featureName: string, description: string, why?: string): void {
@@ -21,7 +21,7 @@ export class RoadmapService {
     this.addFeatureToRoadmap(data, featureName, description, why);
     
     this.storage.saveRoadmap(data);
-    console.log(`✅ Added feature '${featureName}' to roadmap`);
+    process.stdout.write(`✅ Added feature '${featureName}' to roadmap\n`);
   }
 
   getRoadmapData(): RoadmapData {
@@ -43,7 +43,7 @@ export class RoadmapService {
     const feature = data.features.find(f => f.name === featureName);
     
     if (!feature) {
-      console.error(`❌ Feature '${featureName}' not found. Use 'npm run roadmap:status' to see available features.`);
+      process.stderr.write(`❌ Feature '${featureName}' not found. Use 'npm run roadmap:status' to see available features.\n`);
       process.exit(1);
     }
 
@@ -52,7 +52,7 @@ export class RoadmapService {
 
   private validateFeatureDoesNotExist(data: RoadmapData, featureName: string): void {
     if (data.features.find(f => f.name === featureName)) {
-      console.error(`❌ Feature '${featureName}' already exists.`);
+      process.stderr.write(`❌ Feature '${featureName}' already exists.\n`);
       process.exit(1);
     }
   }

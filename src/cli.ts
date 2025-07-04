@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import { CommandRegistry } from './command-registry';
-import { CommandOption, RefactoringCommand } from './command';
+import { CommandOption, CommandOptions, RefactoringCommand } from './command';
 import { UsageTracker } from './usage-tracker';
 import { LocationParser } from './utils/location-parser';
 import * as fs from 'fs';
@@ -47,13 +47,13 @@ function loadCommandOptions(commandName: string): CommandOption[] {
     const optionsData = fs.readFileSync(optionsPath, 'utf8');
     return JSON.parse(optionsData) as CommandOption[];
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(`Failed to load options for command ${commandName}:`, error);
+     
+    process.stderr.write(`Failed to load options for command ${commandName}: ${error}\n`);
     return [];
   }
 }
 
-async function executeRefactoringCommand(command: RefactoringCommand, target: string, options: Record<string, any>): Promise<void> {
+async function executeRefactoringCommand(command: RefactoringCommand, target: string, options: CommandOptions): Promise<void> {
   try {
     await executeCommandWithTarget(command, target, options);
   } catch (error) {
@@ -61,7 +61,7 @@ async function executeRefactoringCommand(command: RefactoringCommand, target: st
   }
 }
 
-async function executeCommandWithTarget(command: RefactoringCommand, target: string, options: Record<string, any>): Promise<void> {
+async function executeCommandWithTarget(command: RefactoringCommand, target: string, options: CommandOptions): Promise<void> {
   if (LocationParser.isLocationFormat(target)) {
     const location = LocationParser.parseLocation(target);
     const optionsWithLocation = { ...options, location };
@@ -74,8 +74,8 @@ async function executeCommandWithTarget(command: RefactoringCommand, target: str
 }
 
 function handleCommandError(error: unknown): void {
-  // eslint-disable-next-line no-console
-  console.error('Error:', (error as Error).message);
+   
+  process.stderr.write(`Error: ${(error as Error).message}\n`);
   process.exit(1);
 }
 

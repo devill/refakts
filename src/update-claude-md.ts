@@ -18,7 +18,7 @@ async function getHelpOutput(): Promise<string> {
       cwd: path.join(__dirname, '..')
     });
     return stdout;
-  } catch (_error: any) {
+  } catch {
     return 'Error: Could not generate help output';
   }
 }

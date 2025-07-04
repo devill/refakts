@@ -9,8 +9,8 @@ export class RoadmapDisplay {
   }
 
   private printHeader(): void {
-    console.log('🗺️  RefakTS Roadmap Status');
-    console.log('='.repeat(50));
+    process.stdout.write('🗺️  RefakTS Roadmap Status\n');
+    process.stdout.write('='.repeat(50) + '\n');
   }
 
   private printAllFeatures(data: RoadmapData): void {
@@ -18,11 +18,11 @@ export class RoadmapDisplay {
       .sort((a, b) => b.score - a.score);
     
     if (sortedFeatures.length === 0) {
-      console.log('\n🎉 No pending features - roadmap is clear!');
+      process.stdout.write('\n🎉 No pending features - roadmap is clear!\n');
       return;
     }
     
-    console.log('\n📊 All Features (by votes):');
+    process.stdout.write('\n📊 All Features (by votes):\n');
     this.printFeatureList(sortedFeatures);
   }
 
@@ -36,10 +36,10 @@ export class RoadmapDisplay {
     const statusIcon = this.getStatusIcon(feature.status);
     const deps = this.formatDependencies(feature.dependencies);
     
-    console.log(`  ${statusIcon} ${feature.name} (${feature.score} votes)${deps}`);
-    console.log(`     ${feature.description}`);
+    process.stdout.write(`  ${statusIcon} ${feature.name} (${feature.score} votes)${deps}\n`);
+    process.stdout.write(`     ${feature.description}\n`);
     this.printWhyIfPresent(feature.why);
-    console.log();
+    process.stdout.write('\n');
   }
 
   private formatDependencies(dependencies?: string[]): string {
@@ -48,7 +48,7 @@ export class RoadmapDisplay {
 
   private printWhyIfPresent(why?: string): void {
     if (why) {
-      console.log(`     Why: ${why}`);
+      process.stdout.write(`     Why: ${why}\n`);
     }
   }
 
@@ -62,13 +62,13 @@ export class RoadmapDisplay {
       .sort((a, b) => b.score - a.score)
       .slice(0, 3);
     
-    console.log('🏆 Top Voted Features:');
+    process.stdout.write('🏆 Top Voted Features:\n');
     topFeatures.forEach((f, i) => {
-      console.log(`  ${i + 1}. ${f.name} (${f.score} votes)`);
+      process.stdout.write(`  ${i + 1}. ${f.name} (${f.score} votes)\n`);
     });
   }
 
   private printLastUpdated(data: RoadmapData): void {
-    console.log(`\n📅 Last updated: ${new Date(data.lastUpdated).toLocaleDateString()}`);
+    process.stdout.write(`\n📅 Last updated: ${new Date(data.lastUpdated).toLocaleDateString()}\n`);
   }
 }

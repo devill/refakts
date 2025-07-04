@@ -14,10 +14,13 @@ const main = async (): Promise<void> => {
   const issues = await runQualityChecks('src');
   const report = generateReport(issues);
   
-  console.log(report);
+  process.stdout.write(report + '\n');
   process.exit(issues.length > 0 ? 1 : 0);
 };
 
 if (require.main === module) {
-  main().catch(console.error);
+  main().catch(error => {
+    process.stderr.write(`Error: ${error}\n`);
+    process.exit(1);
+  });
 }

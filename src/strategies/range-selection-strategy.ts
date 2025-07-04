@@ -6,15 +6,15 @@ import { RangeAnalyzer } from '../services/range-analyzer';
 export class RangeSelectionStrategy implements SelectionStrategy {
   private rangeAnalyzer = new RangeAnalyzer();
 
-  canHandle(options: Record<string, any>): boolean {
+  canHandle(options: Record<string, unknown>): boolean {
     return !!options.range;
   }
 
-  async select(sourceFile: SourceFile, options: Record<string, any>): Promise<SelectResult[]> {
+  async select(sourceFile: SourceFile, options: Record<string, unknown>): Promise<SelectResult[]> {
     return this.rangeAnalyzer.findRangeMatches(sourceFile, options);
   }
 
-  validateOptions(options: Record<string, any>): void {
+  validateOptions(options: Record<string, unknown>): void {
     if (!options.startRegex && !options['start-regex']) {
       throw new Error('--start-regex must be specified with --range');
     }

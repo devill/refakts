@@ -24,10 +24,12 @@ const findCommentsInFile = (sourceFile: any): QualityIssue[] => {
   
   const singleComments = sourceFile.getDescendantsOfKind(SyntaxKind.SingleLineCommentTrivia)
     .filter((comment: any) => isValidSingleComment(comment.getText().trim()))
+    .filter((comment: any) => isEsLintDisable(comment.getText()))
     .map((comment: any) => createCommentIssue(filePath, comment, 'single'));
     
   const multiComments = sourceFile.getDescendantsOfKind(SyntaxKind.MultiLineCommentTrivia)
     .filter((comment: any) => isValidMultiComment(comment.getText().trim()))
+    .filter((comment: any) => isEsLintDisable(comment.getText()))
     .map((comment: any) => createCommentIssue(filePath, comment, 'multi'));
     
   return [...singleComments, ...multiComments];
@@ -45,6 +47,9 @@ const isValidSingleComment = (text: string): boolean =>
 
 const isValidMultiComment = (text: string): boolean =>
   !text.startsWith('/**') && text.length >= 15;
+
+const isEsLintDisable = (comment: string): boolean =>
+    comment.includes('eslint-disable-');
 
 const truncateText = (text: string): string =>
   text.length > 50 ? text.substring(0, 50) + '...' : text;

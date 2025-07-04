@@ -3,14 +3,16 @@ export interface CommandOption {
   description: string;
 }
 
+export interface CommandOptions {
+  [key: string]: unknown;
+}
+
 export interface RefactoringCommand {
   readonly name: string;
   readonly description: string;
   readonly complete: boolean;
   
-  // eslint-disable-next-line no-unused-vars
-  execute(file: string, options: Record<string, any>): Promise<void>;
-  // eslint-disable-next-line no-unused-vars
-  validateOptions(options: Record<string, any>): void;
+  execute(file: string, options: CommandOptions): Promise<void>;
+  validateOptions(options: CommandOptions): void;
   getHelpText(): string;
 }
