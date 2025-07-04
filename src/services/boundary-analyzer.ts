@@ -1,5 +1,5 @@
 import { SourceFile, Node, SyntaxKind } from 'ts-morph';
-import { SelectResult } from '../commands/select/select-types';
+import { SelectResult } from '../types/selection-types';
 import * as path from 'path';
 
 export class BoundaryAnalyzer {

@@ -1,4 +1,4 @@
-import { SelectMatch, SelectResult } from './select-types';
+import { SelectMatch, SelectResult } from '../../types/selection-types';
 import { DefinitionRangeDetector } from './definition-range-detector';
 
 export interface SelectResultFormatter {

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { SelectResult } from './select-types';
+import { SelectResult } from '../../types/selection-types';
 
 export class SelectOutputHandler {
   outputResults(results: SelectResult[]): void {

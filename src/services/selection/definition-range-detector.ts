@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { SelectMatch, DefinitionRange } from './select-types';
+import { SelectMatch, DefinitionRange } from '../../types/selection-types';
 
 export class DefinitionRangeDetector {
   findDefinitionRange(match: SelectMatch, file: string): DefinitionRange | null {

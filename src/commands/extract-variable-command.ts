@@ -4,7 +4,7 @@ import { ASTService } from '../services/ast-service';
 import { ExtractionScopeAnalyzer } from '../services/extraction-scope-analyzer';
 import { VariableNameValidator } from '../services/variable-name-validator';
 import { StatementInserter } from '../services/statement-inserter';
-import { LocationRange } from '../utils/location-parser';
+import { LocationRange } from '../core/location-parser';
 
 export class ExtractVariableCommand implements RefactoringCommand {
   readonly name = 'extract-variable';

@@ -1,7 +1,7 @@
 import { RefactoringCommand, CommandOptions } from '../command';
 import { VariableLocator } from '../locators/variable-locator';
 import { Node } from 'ts-morph';
-import { LocationParser, LocationRange } from '../utils/location-parser';
+import { LocationParser, LocationRange } from '../core/location-parser';
 import { ASTService } from '../services/ast-service';
 import { VariableLocationResult } from '../locators/variable-result-builder';
 import * as path from 'path';

@@ -4,7 +4,7 @@ import { ASTService } from '../services/ast-service';
 import { VariableDeclarationFinder } from '../services/variable-declaration-finder';
 import { ExpressionAnalyzer } from '../services/expression-analyzer';
 import { VariableReplacer } from '../services/variable-replacer';
-import { LocationRange } from '../utils/location-parser';
+import { LocationRange } from '../core/location-parser';
 
 export class InlineVariableCommand implements RefactoringCommand {
   readonly name = 'inline-variable';

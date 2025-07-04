@@ -1,5 +1,5 @@
 import { SourceFile } from 'ts-morph';
-import { SelectResult } from '../commands/select/select-types';
+import { SelectResult } from '../types/selection-types';
 import { SelectionStrategy } from './selection-strategy';
 import { BoundaryAnalyzer } from '../services/boundary-analyzer';
 

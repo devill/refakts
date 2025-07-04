@@ -1,4 +1,4 @@
-import { SelectMatch } from './select-types';
+import { SelectMatch } from '../../types/selection-types';
 
 interface Position {
   line: number;

@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import { CommandRegistry } from './command-registry';
 import { CommandOption, CommandOptions, RefactoringCommand } from './command';
 import { UsageTracker } from './usage-tracker';
-import { LocationParser } from './utils/location-parser';
+import { LocationParser } from './core/location-parser';
 import * as fs from 'fs';
 import * as path from 'path';
 

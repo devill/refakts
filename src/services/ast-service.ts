@@ -1,5 +1,5 @@
 import { Project, Node, SourceFile } from 'ts-morph';
-import { LocationRange } from '../utils/location-parser';
+import { LocationRange } from '../core/location-parser';
 import * as path from 'path';
 
 export class ASTService {

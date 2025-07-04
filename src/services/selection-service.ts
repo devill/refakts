@@ -1,7 +1,7 @@
 import { SourceFile } from 'ts-morph';
 import { ASTService } from './ast-service';
 import { ContextAnalyzer } from './context-analyzer';
-import { SelectResult } from '../commands/select/select-types';
+import { SelectResult } from '../types/selection-types';
 import { RangeAnalyzer } from './range-analyzer';
 import { BoundaryAnalyzer } from './boundary-analyzer';
 import { StructuralAnalyzer } from './structural-analyzer';
