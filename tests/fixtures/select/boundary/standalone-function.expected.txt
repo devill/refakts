@@ -1,0 +1,5 @@
+[standalone-function.input.ts 2:1-4:2]
+function calculateTotal() {
+  const tax = price * 0.1;
+  return price + tax;
+}

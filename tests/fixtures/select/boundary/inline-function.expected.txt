@@ -1,0 +1,4 @@
+[inline-function.input.ts 2:25-4:2]
+function transform(x) { 
+  return x * 2; 
+}
