@@ -8,8 +8,10 @@ import { incompleteRefactoringCheck } from './checks/incomplete-refactoring-chec
 import { complexityCheck } from './checks/complexity-check';
 import { gitDiffCheck } from './checks/git-diff-check';
 import { changeFrequencyCheck } from './checks/change-frequency-check';
+import { linterCheck } from './checks/linter-check';
 
 export const loadQualityChecks = (): QualityCheck[] => [
+  linterCheck,
   commentCheck,
   fileSizeCheck,
   functionSizeCheck,

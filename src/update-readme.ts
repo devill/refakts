@@ -152,7 +152,7 @@ function findCommandsStart(lines: string[]): number {
 
 function parseCommandLines(lines: string[], startIndex: number): string[] {
   const commands: string[] = [];
-  let currentCommand = processLines(lines, startIndex, commands);
+  const currentCommand = processLines(lines, startIndex, commands);
   
   if (currentCommand) commands.push(currentCommand);
   return commands;
