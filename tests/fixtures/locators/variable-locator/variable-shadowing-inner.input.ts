@@ -1,6 +1,6 @@
 /**
  * @description Find inner variable that shadows outer variable
- * @command variable-locator variable-shadowing-inner.input.ts --line 11 --column 9
+ * @command variable-locator "[variable-shadowing-inner.input.ts 11:9-11:14]"
  */
 
 function innerShadowing() {

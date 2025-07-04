@@ -1,6 +1,6 @@
 /**
  * @description Find outer variable when shadowed by inner variable
- * @command variable-locator variable-shadowing-outer.input.ts --query "VariableDeclaration Identifier[name='value']"
+ * @command variable-locator "[variable-shadowing-outer.input.ts 7:7-7:12]"
  */
 
 function outerShadowing() {

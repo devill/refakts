@@ -43,8 +43,8 @@ describe('Locator Integration Tests', () => {
       
       for (const inputFile of inputFiles) {
         const baseName = inputFile.replace('.input.ts', '');
-        const expectedFile = `${baseName}.expected.yaml`;
-        const receivedFile = `${baseName}.received.yaml`;
+        const expectedFile = `${baseName}.expected.txt`;
+        const receivedFile = `${baseName}.received.txt`;
         
         if (files.includes(expectedFile)) {
           const inputPath = path.join(locatorPath, inputFile);
@@ -110,14 +110,10 @@ describe('Locator Integration Tests', () => {
           
           if (typeof output === 'string') {
             if (commandExecutor.isUsingCli()) {
-              // CLI execution - need to extract YAML from stdout
-              const lines = output.split('\n');
-              const yamlStartIndex = lines.findIndex(line => 
-                line.includes('variable:') || line.includes('query:')
-              );
-              yamlContent = lines.slice(yamlStartIndex).join('\n').trim();
+              // CLI execution - output is plain text
+              yamlContent = output.trim();
             } else {
-              // Direct execution - output is already clean YAML
+              // Direct execution - output is already clean text
               yamlContent = output;
             }
           } else {
@@ -128,15 +124,11 @@ describe('Locator Integration Tests', () => {
           // Write the output to received file for comparison
           fs.writeFileSync(testCase.receivedFile, yamlContent);
           
-          // Compare received vs expected YAML content
-          const expected = fs.readFileSync(testCase.expectedFile, 'utf8');
-          const received = fs.readFileSync(testCase.receivedFile, 'utf8');
+          // Compare received vs expected text content
+          const expected = fs.readFileSync(testCase.expectedFile, 'utf8').trim();
+          const received = fs.readFileSync(testCase.receivedFile, 'utf8').trim();
           
-          // Parse both as YAML to ensure semantic comparison
-          const expectedData = yaml.load(expected);
-          const receivedData = yaml.load(received);
-          
-          expect(receivedData).toEqual(expectedData);
+          expect(received).toEqual(expected);
         } catch (error) {
           throw new Error(`Command failed: ${updatedCommand}\n${error}`);
         }

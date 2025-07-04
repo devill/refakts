@@ -1,6 +1,6 @@
 /**
  * @description Find function parameter declaration and usages
- * @command variable-locator function-parameter.input.ts --query "Parameter Identifier[name='value']"
+ * @command variable-locator "[function-parameter.input.ts 6:23-6:28]"
  */
 
 function processValue(value: number) {

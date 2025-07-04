@@ -1,6 +1,6 @@
 /**
  * @description Find simple variable declaration and usage
- * @command variable-locator simple-variable.input.ts --query "VariableDeclaration Identifier[name='count']"
+ * @command variable-locator "[simple-variable.input.ts 7:9-7:14]"
  */
 
 function example() {

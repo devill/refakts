@@ -1,0 +1,6 @@
+[usage-types.input.ts 7:7-7:18] counter = 0
+[usage-types.input.ts 8:15-8:22] counter
+[usage-types.input.ts 9:3-9:10] counter
+[usage-types.input.ts 10:3-10:10] counter
+[usage-types.input.ts 11:3-11:10] counter
+[usage-types.input.ts 12:10-12:17] counter
