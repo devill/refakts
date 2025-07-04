@@ -1,5 +1,5 @@
 import { QualityIssue, QualityGroup } from './quality-check-interface';
-import { formatIssue, groupByType, createGroup } from './report-functions';
+import { groupByType, createGroup } from './report-functions';
 
 export const generateReport = (issues: QualityIssue[]): string =>
   issues.length === 0 ? successMessage() : failureReport(issues);

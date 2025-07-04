@@ -1,9 +1,9 @@
 import { Project, Node, SourceFile } from 'ts-morph';
-import { LocationParser, LocationRange } from '../utils/location-parser';
+import { LocationRange } from '../utils/location-parser';
 import * as path from 'path';
 
 export class ASTService {
-  private project: Project;
+  private readonly project: Project;
 
   constructor(project?: Project) {
     this.project = project || new Project();
@@ -11,8 +11,9 @@ export class ASTService {
 
   loadSourceFile(filePath: string): SourceFile {
     const absolutePath = path.resolve(filePath);
-    if (this.project.getSourceFile(absolutePath)) {
-      return this.project.getSourceFile(absolutePath)!;
+    const existingFile = this.project.getSourceFile(absolutePath);
+    if (existingFile) {
+      return existingFile;
     }
     return this.project.addSourceFileAtPath(absolutePath);
   }

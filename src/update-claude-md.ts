@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -17,7 +18,7 @@ async function getHelpOutput(): Promise<string> {
       cwd: path.join(__dirname, '..')
     });
     return stdout;
-  } catch (error: any) {
+  } catch (_error: any) {
     return 'Error: Could not generate help output';
   }
 }

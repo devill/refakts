@@ -1,5 +1,10 @@
 import { SelectMatch } from './select-types';
 
+interface Position {
+  line: number;
+  column: number;
+}
+
 export class SelectPatternMatcher {
   findMatches(content: string, pattern: RegExp): SelectMatch[] {
     const lines = content.split('\n');
@@ -71,7 +76,7 @@ export class SelectPatternMatcher {
     return startPos && endPos ? { startPos, endPos } : null;
   }
 
-  private buildMultilineSelectMatch(adjustedStartPos: any, endPos: any, textToUse: string, lines: string[]): SelectMatch {
+  private buildMultilineSelectMatch(adjustedStartPos: Position, endPos: Position, textToUse: string, lines: string[]): SelectMatch {
     return {
       line: adjustedStartPos.line,
       column: adjustedStartPos.column,

@@ -1,7 +1,7 @@
 import { Node, SyntaxKind } from 'ts-morph';
 
 export class ExpressionAnalyzer {
-  needsParentheses(node: Node, context?: Node): boolean {
+  needsParentheses(node: Node): boolean {
     if (!Node.isBinaryExpression(node)) {
       return false;
     }
@@ -11,7 +11,7 @@ export class ExpressionAnalyzer {
 
   formatWithParentheses(initializer: Node, context?: Node): string {
     const initializerText = initializer.getText();
-    if (this.needsParentheses(initializer, context)) {
+    if (this.needsParentheses(initializer)) {
       return `(${initializerText})`;
     }
     return initializerText;

@@ -1,6 +1,5 @@
 import { SourceFile, Node } from 'ts-morph';
 import { Transformation, TransformationResult } from './transformation';
-import { VariableLocator, VariableNodeResult } from '../locators/variable-locator';
 
 export class RenameVariableTransformation implements Transformation {
   constructor(
@@ -10,13 +9,13 @@ export class RenameVariableTransformation implements Transformation {
   ) {}
 
   async transform(sourceFile: SourceFile): Promise<void> {
-    const result = await this.transformWithResult(sourceFile);
+    const result = await this.transformWithResult();
     if (!result.success) {
       throw new Error(result.message || 'Rename transformation failed');
     }
   }
 
-  async transformWithResult(sourceFile: SourceFile): Promise<TransformationResult> {
+  async transformWithResult(): Promise<TransformationResult> {
     try {
       const variableName = this.declaration.getText();
       const changesCount = this.performDirectRename();

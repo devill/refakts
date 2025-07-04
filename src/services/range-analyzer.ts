@@ -1,4 +1,4 @@
-import { SourceFile, Node, SyntaxKind } from 'ts-morph';
+import { SourceFile } from 'ts-morph';
 import { SelectResult } from '../commands/select/select-types';
 import * as path from 'path';
 

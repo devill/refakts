@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 
 export const linterCheck: QualityCheck = {
   name: 'linter-check',
-  check: async (sourceDir: string): Promise<QualityIssue[]> => {
+  check: async (): Promise<QualityIssue[]> => {
     try {
       const { stdout, stderr } = await execAsync('npx eslint src --ext .ts --format json');
       
@@ -38,7 +38,7 @@ export const linterCheck: QualityCheck = {
               data: {
                 ruleId: message.ruleId,
                 column: message.column,
-                fixable: message.fix ? true : false
+                fixable: !!message.fix
               }
             });
           });
@@ -69,7 +69,7 @@ export const linterCheck: QualityCheck = {
                     data: {
                       ruleId: message.ruleId,
                       column: message.column,
-                      fixable: message.fix ? true : false
+                      fixable: !!message.fix
                     }
                   });
                 });

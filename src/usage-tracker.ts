@@ -19,7 +19,7 @@ export class UsageTracker {
   static getUsageLog(): UsageEntry[] {
     try {
       return this.readLogFile();
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }
@@ -39,7 +39,7 @@ export class UsageTracker {
     try {
       this.removeLogFile();
     } catch (error) {
-      this.handleLogError(error);
+      this.handleLogError();
     }
   }
 
@@ -56,7 +56,7 @@ export class UsageTracker {
       const logLine = JSON.stringify(entry) + '\n';
       fs.appendFileSync(this.LOG_FILE, logLine);
     } catch (error) {
-      this.handleLogError(error);
+      this.handleLogError();
     }
   }
 
@@ -86,6 +86,6 @@ export class UsageTracker {
     return args.filter(arg => !arg.includes('/') && !path.isAbsolute(arg));
   }
 
-  private static handleLogError(error: unknown): void {
+  private static handleLogError(): void {
   }
 }

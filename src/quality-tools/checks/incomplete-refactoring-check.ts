@@ -1,10 +1,10 @@
-import { QualityCheck, QualityIssue, QualityGroup } from '../quality-check-interface';
+import { QualityCheck, QualityIssue } from '../quality-check-interface';
 import { getIncompleteRefactorings } from '../../cli-generator';
 import { isCheckSnoozed, clearExpiredSnoozes } from '../snooze-tracker';
 
 export const incompleteRefactoringCheck: QualityCheck = {
   name: 'incompleteRefactoring',
-  check: (sourceDir: string): QualityIssue[] => {
+  check: (): QualityIssue[] => {
     clearExpiredSnoozes();
     const incompleteRefactorings = getIncompleteRefactorings();
     const activelySnoozedRefactorings = filterSnoozedRefactorings(incompleteRefactorings);

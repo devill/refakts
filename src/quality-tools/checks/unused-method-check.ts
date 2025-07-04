@@ -1,4 +1,4 @@
-import { QualityCheck, QualityIssue, QualityGroup } from '../quality-check-interface';
+import { QualityCheck, QualityIssue } from '../quality-check-interface';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 
 export const unusedMethodCheck: QualityCheck = {
   name: 'unusedMethod',
-  check: async (sourceDir: string): Promise<QualityIssue[]> => {
+  check: async (): Promise<QualityIssue[]> => {
     try {
       const members = await getUnusedClassMembers();
       return members.map(toQualityIssue);

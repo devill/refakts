@@ -1,10 +1,9 @@
 import { RefactoringCommand } from '../command';
-import { Node, VariableDeclaration } from 'ts-morph';
+import { Node, VariableDeclaration, SourceFile } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
 import { VariableDeclarationFinder } from '../services/variable-declaration-finder';
 import { ExpressionAnalyzer } from '../services/expression-analyzer';
 import { VariableReplacer } from '../services/variable-replacer';
-import { LocationRange } from '../utils/location-parser';
 
 export class InlineVariableCommand implements RefactoringCommand {
   readonly name = 'inline-variable';
@@ -24,7 +23,7 @@ export class InlineVariableCommand implements RefactoringCommand {
     await this.astService.saveSourceFile(sourceFile);
   }
 
-  private findTargetNode(sourceFile: any, options: Record<string, any>): Node {
+  private findTargetNode(sourceFile: SourceFile, options: Record<string, any>): Node {
     return this.astService.findNodeByLocation(options.location);
   }
 

@@ -1,4 +1,4 @@
-import { SourceFile, Node } from 'ts-morph';
+import { SourceFile } from 'ts-morph';
 import { ASTService } from './ast-service';
 import { ContextAnalyzer } from './context-analyzer';
 import { SelectResult } from '../commands/select/select-types';

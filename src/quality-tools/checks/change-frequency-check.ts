@@ -1,4 +1,4 @@
-import { QualityCheck, QualityIssue, QualityGroup } from '../quality-check-interface';
+import { QualityCheck, QualityIssue } from '../quality-check-interface';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 
 export const changeFrequencyCheck: QualityCheck = {
   name: 'changeFrequency',
-  check: async (sourceDir: string): Promise<QualityIssue[]> => {
+  check: async (): Promise<QualityIssue[]> => {
     const changeIssues = await analyzeChangeFrequency();
     const filteredIssues = await filterRecentlyFixedIssues(changeIssues);
     return filteredIssues.map(toQualityIssue);

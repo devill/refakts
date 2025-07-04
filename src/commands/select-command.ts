@@ -31,6 +31,7 @@ export class SelectCommand implements RefactoringCommand {
   }
 
   private handleExecutionError(error: unknown): void {
+    // eslint-disable-next-line no-console
     console.error('Error:', error);
     process.exit(1);
   }

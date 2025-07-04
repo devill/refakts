@@ -1,10 +1,9 @@
 import { RefactoringCommand } from '../command';
-import { Node, Expression } from 'ts-morph';
+import { Node, Expression, SourceFile } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
 import { ExtractionScopeAnalyzer } from '../services/extraction-scope-analyzer';
 import { VariableNameValidator } from '../services/variable-name-validator';
 import { StatementInserter } from '../services/statement-inserter';
-import { LocationRange } from '../utils/location-parser';
 
 export class ExtractVariableCommand implements RefactoringCommand {
   readonly name = 'extract-variable';
@@ -24,7 +23,7 @@ export class ExtractVariableCommand implements RefactoringCommand {
     await this.astService.saveSourceFile(sourceFile);
   }
 
-  private findTargetNode(sourceFile: any, options: Record<string, any>): Node {
+  private findTargetNode(sourceFile: SourceFile, options: Record<string, any>): Node {
     return this.astService.findNodeByLocation(options.location);
   }
 
@@ -100,7 +99,10 @@ export class ExtractVariableCommand implements RefactoringCommand {
     if (!groupedExpressions.has(scope)) {
       groupedExpressions.set(scope, []);
     }
-    groupedExpressions.get(scope)!.push(expression);
+    const expressionsForScope = groupedExpressions.get(scope);
+    if (expressionsForScope) {
+      expressionsForScope.push(expression);
+    }
   }
 
   private extractInEachScope(expressionsByScope: Map<Node, Expression[]>, variableName: string): void {

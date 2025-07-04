@@ -5,7 +5,7 @@ export class VariableReplacer {
   private contextAnalyzer = new ContextAnalyzer();
 
   replaceAllReferences(sourceFile: any, variableName: string, declaration: VariableDeclaration, initializerText: string): void {
-    const references = this.findAllReferences(sourceFile, variableName, declaration);
+    const references = this.findAllReferences(variableName, declaration);
     for (const reference of references) {
       reference.replaceWithText(initializerText);
     }
@@ -18,7 +18,7 @@ export class VariableReplacer {
     }
   }
 
-  private findAllReferences(sourceFile: any, variableName: string, declaration: VariableDeclaration): Node[] {
+  private findAllReferences(variableName: string, declaration: VariableDeclaration): Node[] {
     const references: Node[] = [];
     const declarationNode = declaration.getNameNode();
     const declarationScope = this.findDeclarationScope(declaration);

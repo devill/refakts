@@ -1,9 +1,8 @@
 import { RefactoringCommand } from '../command';
-import { Node } from 'ts-morph';
+import { Node, SourceFile } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
-import { VariableLocator } from '../locators/variable-locator';
+import { VariableLocator, VariableNodeResult } from '../locators/variable-locator';
 import { RenameVariableTransformation } from '../transformations/rename-variable-transformation';
-import { LocationRange } from '../utils/location-parser';
 
 export class RenameCommand implements RefactoringCommand {
   readonly name = 'rename';
@@ -25,7 +24,7 @@ export class RenameCommand implements RefactoringCommand {
     await this.astService.saveSourceFile(sourceFile);
   }
 
-  private findTargetNode(sourceFile: any, options: Record<string, any>): Node {
+  private findTargetNode(sourceFile: SourceFile, options: Record<string, any>): Node {
     return this.astService.findNodeByLocation(options.location);
   }
 
@@ -56,7 +55,7 @@ export class RenameCommand implements RefactoringCommand {
     }
   }
 
-  private findVariableNodesAtPosition(node: Node, sourceFile: any) {
+  private findVariableNodesAtPosition(node: Node, sourceFile: SourceFile) {
     const targetPosition = sourceFile.getLineAndColumnAtPos(node.getStart());
     return this.variableLocator.findVariableNodesByPositionSync(
       sourceFile,
@@ -65,7 +64,7 @@ export class RenameCommand implements RefactoringCommand {
     );
   }
 
-  private createRenameTransformation(nodeResult: any, newName: string) {
+  private createRenameTransformation(nodeResult: VariableNodeResult, newName: string) {
     return new RenameVariableTransformation(
       nodeResult.declaration,
       nodeResult.usages.map((u: any) => u.node),

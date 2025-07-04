@@ -1,4 +1,4 @@
-import { QualityCheck, QualityIssue, QualityGroup } from '../quality-check-interface';
+import { QualityCheck, QualityIssue } from '../quality-check-interface';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 
 export const gitDiffCheck: QualityCheck = {
   name: 'diffSize',
-  check: async (sourceDir: string): Promise<QualityIssue[]> => {
+  check: async (): Promise<QualityIssue[]> => {
     const diffResult = await checkGitDiffSize();
     return diffResult.message ? [createDiffIssue(diffResult.message)] : [];
   },
