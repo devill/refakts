@@ -1,6 +1,6 @@
 /**
  * @description Extract all occurrences of same expression
- * @command refakts extract-variable multiple-occurrences.input.ts --query "BinaryExpression[left.name='x'][right.name='y']" --name "product" --all
+ * @command refakts extract-variable "[multiple-occurrences.input.ts 7:15-7:20]" --name "product" --all
  */
 
 function calculate(x: number, y: number): number {

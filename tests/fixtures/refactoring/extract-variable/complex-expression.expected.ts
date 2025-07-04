@@ -1,6 +1,6 @@
 /**
  * @description Extract a complex expression with method calls
- * @command refakts extract-variable complex-expression.input.ts --query "CallExpression:has(PropertyAccessExpression:has(Identifier[name='toUpperCase']))" --name "upperName" --all
+ * @command refakts extract-variable "[complex-expression.input.ts 7:7-7:30]" --name "upperName" --all
  */
 
 function processUser(user: { name: string }) {
