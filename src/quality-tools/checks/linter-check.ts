@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 
 export const linterCheck: QualityCheck = {
   name: 'linter-check',
-  check: async (): Promise<QualityIssue[]> => {
+  check: async (sourceDir: string): Promise<QualityIssue[]> => {
     try {
       const { stdout, stderr } = await execAsync('npx eslint src --ext .ts --format json');
       

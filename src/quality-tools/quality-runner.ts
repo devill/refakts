@@ -6,7 +6,7 @@ import { generateReport } from './quality-reporter';
 
 const runQualityChecks = async (sourceDir: string): Promise<QualityIssue[]> => {
   const checks = loadQualityChecks();
-  const allIssues = await Promise.all(checks.map(check => check.check()));
+  const allIssues = await Promise.all(checks.map(check => check.check(sourceDir)));
   return allIssues.flat();
 };
 
