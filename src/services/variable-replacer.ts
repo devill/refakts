@@ -21,17 +21,30 @@ export class VariableReplacer {
   private findAllReferences(sourceFile: any, variableName: string, declaration: VariableDeclaration): Node[] {
     const references: Node[] = [];
     const declarationNode = declaration.getNameNode();
-    this.collectMatchingIdentifiers(sourceFile, variableName, declarationNode, references);
+    const declarationScope = this.findDeclarationScope(declaration);
+    this.collectScopedReferences(declarationScope, variableName, declarationNode, references);
     return references;
   }
 
-  private collectMatchingIdentifiers(sourceFile: any, variableName: string, declarationNode: Node, references: Node[]): void {
-    sourceFile.forEachDescendant((node: Node) => {
+  private findDeclarationScope(declaration: VariableDeclaration): Node {
+    let current: Node | undefined = declaration;
+    while (current) {
+      if (Node.isBlock(current) || Node.isMethodDeclaration(current) || Node.isFunctionDeclaration(current) || Node.isSourceFile(current)) {
+        return current;
+      }
+      current = current.getParent();
+    }
+    return declaration.getSourceFile();
+  }
+
+  private collectScopedReferences(scope: Node, variableName: string, declarationNode: Node, references: Node[]): void {
+    scope.forEachDescendant((node: Node) => {
       if (this.isMatchingIdentifier(node, variableName, declarationNode)) {
         references.push(node);
       }
     });
   }
+
 
   private isMatchingIdentifier(node: Node, variableName: string, declarationNode: Node): boolean {
     return node.getKind() === 80 && 

@@ -1,8 +1,10 @@
 import { Node, VariableDeclaration, SyntaxKind } from 'ts-morph';
 
 export class VariableDeclarationFinder {
-  findVariableDeclaration(sourceFile: any, variableName: string): VariableDeclaration {
-    const declaration = this.searchForDeclaration(sourceFile, variableName);
+  findVariableDeclaration(sourceFile: any, variableName: string, contextNode?: Node): VariableDeclaration {
+    const declaration = contextNode 
+      ? this.findClosestDeclaration(contextNode, variableName)
+      : this.searchForDeclaration(sourceFile, variableName);
     if (!declaration) {
       throw new Error(`Variable declaration for '${variableName}' not found`);
     }
@@ -16,6 +18,41 @@ export class VariableDeclarationFinder {
       if (this.matchesVariableName(decl, variableName)) {
         return decl;
       }
+    }
+    return undefined;
+  }
+
+  private findClosestDeclaration(contextNode: Node, variableName: string): VariableDeclaration | undefined {
+    const allDeclarations = contextNode.getSourceFile().getDescendantsOfKind(SyntaxKind.VariableDeclaration);
+    const matchingDeclarations = allDeclarations.filter(decl => this.matchesVariableName(decl, variableName));
+    
+    if (matchingDeclarations.length === 1) {
+      return matchingDeclarations[0];
+    }
+    
+    return this.findDeclarationInSameScope(contextNode, matchingDeclarations);
+  }
+
+  private findDeclarationInSameScope(contextNode: Node, declarations: VariableDeclaration[]): VariableDeclaration | undefined {
+    const contextMethod = this.findContainingMethod(contextNode);
+    
+    for (const decl of declarations) {
+      const declMethod = this.findContainingMethod(decl);
+      if (contextMethod === declMethod) {
+        return decl;
+      }
+    }
+    
+    return declarations[0];
+  }
+
+  private findContainingMethod(node: Node): Node | undefined {
+    let current: Node | undefined = node;
+    while (current) {
+      if (Node.isMethodDeclaration(current) || Node.isFunctionDeclaration(current)) {
+        return current;
+      }
+      current = current.getParent();
     }
     return undefined;
   }

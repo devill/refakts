@@ -44,7 +44,7 @@ export class InlineVariableCommand implements RefactoringCommand {
     this.validateIdentifierNode(node);
     const variableName = node.getText();
     const sourceFile = node.getSourceFile();
-    const declaration = this.declarationFinder.findVariableDeclaration(sourceFile, variableName);
+    const declaration = this.declarationFinder.findVariableDeclaration(sourceFile, variableName, node);
     const initializerText = this.getInitializerText(declaration, variableName);
     this.variableReplacer.replaceAllReferences(sourceFile, variableName, declaration, initializerText);
     this.variableReplacer.removeDeclaration(declaration);
