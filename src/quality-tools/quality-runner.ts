@@ -25,30 +25,7 @@ const getHoursSinceStart = (startTime: number): number => {
 };
 
 const getCurrentTolerance = (): number => {
-  const toleranceFile = getToleranceFilePath();
-  
-  if (!fs.existsSync(toleranceFile)) {
-    const initialData = {
-      startTime: Date.now(),
-      initialCount: getInitialToleranceCount()
-    };
-    fs.writeFileSync(toleranceFile, JSON.stringify(initialData, null, 2));
-    return initialData.initialCount;
-  }
-  
-  try {
-    const data = JSON.parse(fs.readFileSync(toleranceFile, 'utf8'));
-    const hoursPassed = getHoursSinceStart(data.startTime);
-    const currentTolerance = Math.max(0, data.initialCount - hoursPassed);
-    return currentTolerance;
-  } catch {
-    const initialData = {
-      startTime: Date.now(),
-      initialCount: getInitialToleranceCount()
-    };
-    fs.writeFileSync(toleranceFile, JSON.stringify(initialData, null, 2));
-    return initialData.initialCount;
-  }
+  return 0;
 };
 
 const shouldFailOnLinterIssues = (linterIssues: QualityIssue[]): boolean => {
