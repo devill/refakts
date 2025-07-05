@@ -163,15 +163,19 @@ function addNewSection(content: string, section: string): string {
   }
 }
 
+function findNextSectionIndex(afterDogFooding: string): number | null {
+  const nextSectionMatch = afterDogFooding.match(/\n## /);
+  if (!nextSectionMatch || nextSectionMatch.index === undefined) {
+    return null;
+  }
+  return nextSectionMatch.index;
+}
+
 function insertAfterDogFooding(content: string, section: string, dogFoodingIndex: number): string {
   const afterDogFooding = content.substring(dogFoodingIndex);
-  const nextSectionMatch = afterDogFooding.match(/\n## /);
+  const nextSectionIndex = findNextSectionIndex(afterDogFooding);
   
-  if (nextSectionMatch) {
-    const nextSectionIndex = nextSectionMatch.index;
-    if (nextSectionIndex === undefined) {
-      throw new Error('Section match found but index is undefined');
-    }
+  if (nextSectionIndex !== null) {
     return insertAtSectionBoundary(content, section, dogFoodingIndex, nextSectionIndex);
   } else {
     return appendAtEnd(content, section);

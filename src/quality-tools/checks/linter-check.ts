@@ -24,36 +24,36 @@ interface LinterData {
   fixable: boolean;
 }
 
+function convertMessageToIssue(message: EslintMessage, filePath: string): QualityIssue {
+  const severity = message.severity === 2 ? 'critical' : 'warning';
+  const data: LinterData = {
+    ruleId: message.ruleId,
+    column: message.column,
+    fixable: !!message.fix
+  };
+  return {
+    type: 'linter-violation',
+    severity,
+    message: `${message.ruleId}: ${message.message}`,
+    file: filePath,
+    line: message.line,
+    data
+  };
+}
+
+function processEslintResult(result: EslintResult): QualityIssue[] {
+  if (!result.messages || result.messages.length === 0) {
+    return [];
+  }
+  return result.messages.map(message => convertMessageToIssue(message, result.filePath));
+}
+
 function parseEslintResults(stdout: string): QualityIssue[] {
   if (!stdout.trim()) {
     return [];
   }
-
   const results = JSON.parse(stdout) as EslintResult[];
-  const issues: QualityIssue[] = [];
-
-  results.forEach((result: EslintResult) => {
-    if (result.messages && result.messages.length > 0) {
-      result.messages.forEach((message: EslintMessage) => {
-        const severity = message.severity === 2 ? 'critical' : 'warning';
-        const data: LinterData = {
-          ruleId: message.ruleId,
-          column: message.column,
-          fixable: !!message.fix
-        };
-        issues.push({
-          type: 'linter-violation',
-          severity,
-          message: `${message.ruleId}: ${message.message}`,
-          file: result.filePath,
-          line: message.line,
-          data
-        });
-      });
-    }
-  });
-
-  return issues;
+  return results.flatMap(processEslintResult);
 }
 
 export const linterCheck: QualityCheck = {
