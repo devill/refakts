@@ -7,6 +7,8 @@ import { BoundaryAnalyzer } from './boundary-analyzer';
 import { StructuralAnalyzer } from './structural-analyzer';
 import { RegexPatternMatcher } from './regex-pattern-matcher';
 
+type SelectionOptions = Record<string, unknown>;
+
 export class SelectionService {
   constructor(
     private _astService: ASTService,
@@ -17,19 +19,19 @@ export class SelectionService {
     private _regexMatcher: RegexPatternMatcher
   ) {}
 
-  async findSelections(sourceFile: SourceFile, options: Record<string, any>): Promise<SelectResult[]> {
+  async findSelections(sourceFile: SourceFile, options: SelectionOptions): Promise<SelectResult[]> {
     const selectionType = this.determineSelectionType(options);
     return this.executeSelection(sourceFile, options, selectionType);
   }
 
-  private determineSelectionType(options: Record<string, any>): string {
+  private determineSelectionType(options: SelectionOptions): string {
     if (options.range) return 'range';
     if (options.structural) return 'structural';
     if (options.boundaries) return 'boundaries';
     return 'regex';
   }
 
-  private executeSelection(sourceFile: SourceFile, options: Record<string, any>, type: string): Promise<SelectResult[]> {
+  private executeSelection(sourceFile: SourceFile, options: SelectionOptions, type: string): Promise<SelectResult[]> {
     const handlers: Record<string, () => SelectResult[]> = {
       range: () => this.rangeAnalyzer.findRangeMatches(sourceFile, options),
       structural: () => this.structuralAnalyzer.findStructuralMatches(sourceFile, options),

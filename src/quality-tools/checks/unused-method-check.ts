@@ -4,6 +4,17 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
+interface UnusedMember {
+  name: string;
+  file: string;
+}
+
+interface KnipOutput {
+  issues?: {
+    classMembers?: UnusedMember[];
+  };
+}
+
 export const unusedMethodCheck: QualityCheck = {
   name: 'unusedMethod',
   check: async (): Promise<QualityIssue[]> => {
@@ -21,12 +32,13 @@ export const unusedMethodCheck: QualityCheck = {
   } : undefined
 };
 
-const getUnusedClassMembers = async (): Promise<any[]> => {
+const getUnusedClassMembers = async (): Promise<UnusedMember[]> => {
   const { stdout } = await execAsync('npx knip --include classMembers --reporter json');
-  return JSON.parse(stdout).issues?.classMembers || [];
+  const output = JSON.parse(stdout) as KnipOutput;
+  return output.issues?.classMembers || [];
 };
 
-const toQualityIssue = (member: any): QualityIssue => ({
+const toQualityIssue = (member: UnusedMember): QualityIssue => ({
   type: 'unusedMethod',
   severity: 'critical',
   message: `Unused method '${member.name}' in ${member.file}`,

@@ -1,4 +1,6 @@
-import { Node } from 'ts-morph';
+import { Node, ParameterDeclaration, FunctionDeclaration, MethodDeclaration, ArrowFunction, FunctionExpression, BindingElement, OmittedExpression, ConstructorDeclaration } from 'ts-morph';
+
+type FunctionLikeNode = FunctionDeclaration | MethodDeclaration | ArrowFunction | FunctionExpression | ConstructorDeclaration;
 
 export class VariableNameValidator {
   generateUniqueName(baseName: string, scope: Node): string {
@@ -67,13 +69,22 @@ export class VariableNameValidator {
   }
 
   private processParameters(functionNode: Node, names: Set<string>): void {
-    const parameters = (functionNode as any).getParameters();
+    const parameters = this.getParametersFromFunction(functionNode);
     for (const param of parameters) {
       this.processParameter(param, names);
     }
   }
 
-  private processParameter(param: any, names: Set<string>): void {
+  private getParametersFromFunction(functionNode: Node): ParameterDeclaration[] {
+    if (Node.isFunctionDeclaration(functionNode) || Node.isMethodDeclaration(functionNode) || 
+        Node.isArrowFunction(functionNode) || Node.isFunctionExpression(functionNode) || 
+        Node.isConstructorDeclaration(functionNode)) {
+      return (functionNode as FunctionLikeNode).getParameters();
+    }
+    return [];
+  }
+
+  private processParameter(param: ParameterDeclaration, names: Set<string>): void {
     const nameNode = param.getNameNode();
     if (Node.isIdentifier(nameNode)) {
       names.add(nameNode.getText());
@@ -92,7 +103,8 @@ export class VariableNameValidator {
 
   private addObjectBindingNames(nameNode: Node, names: Set<string>): void {
     if (Node.isObjectBindingPattern(nameNode)) {
-      nameNode.getElements().forEach((element: any) => {
+      nameNode.getElements().forEach((element: BindingElement | OmittedExpression) => {
+        if (!Node.isBindingElement(element)) return;
         const elementName = element.getNameNode();
         if (Node.isIdentifier(elementName)) {
           names.add(elementName.getText());
@@ -103,13 +115,13 @@ export class VariableNameValidator {
 
   private addArrayBindingNames(nameNode: Node, names: Set<string>): void {
     if (Node.isArrayBindingPattern(nameNode)) {
-      nameNode.getElements().forEach((element: any) => {
+      nameNode.getElements().forEach((element: BindingElement | OmittedExpression) => {
         this.processArrayBindingElement(element, names);
       });
     }
   }
 
-  private processArrayBindingElement(element: any, names: Set<string>): void {
+  private processArrayBindingElement(element: BindingElement | OmittedExpression, names: Set<string>): void {
     if (element && Node.isBindingElement(element)) {
       const elementName = element.getNameNode();
       if (Node.isIdentifier(elementName)) {

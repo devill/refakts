@@ -10,6 +10,8 @@ interface SnoozeRecord {
   };
 }
 
+type CheckSnoozes = Record<string, number> | undefined;
+
 export function isCheckSnoozed(checkType: string, identifier: string): boolean {
   const snoozeData = loadSnoozeData();
   const checkSnoozes = snoozeData[checkType];
@@ -17,7 +19,7 @@ export function isCheckSnoozed(checkType: string, identifier: string): boolean {
   return validateSnoozeStatus(checkSnoozes, identifier);
 }
 
-function validateSnoozeStatus(checkSnoozes: any, identifier: string): boolean {
+function validateSnoozeStatus(checkSnoozes: CheckSnoozes, identifier: string): boolean {
   if (!hasActiveSnooze(checkSnoozes, identifier)) {
     return false;
   }
@@ -26,7 +28,7 @@ function validateSnoozeStatus(checkSnoozes: any, identifier: string): boolean {
   return isSnoozeStillValid(snoozeTimestamp);
 }
 
-function hasActiveSnooze(checkSnoozes: any, identifier: string): boolean {
+function hasActiveSnooze(checkSnoozes: CheckSnoozes, identifier: string): boolean {
   return checkSnoozes && checkSnoozes[identifier];
 }
 
