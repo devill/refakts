@@ -11,15 +11,15 @@ export class LocationParser {
 
   static parseLocation(locationStr: string): LocationRange {
     const match = this.matchLocationString(locationStr);
-    return this.buildLocationRange(match.groups!);
+    return this.buildLocationRange(match.groups);
   }
 
-  private static matchLocationString(locationStr: string) {
+  private static matchLocationString(locationStr: string): RegExpMatchArray & { groups: Record<string, string> } {
     const match = locationStr.match(this.LOCATION_REGEX);
     if (!match?.groups) {
       throw new Error(`Invalid location format: ${locationStr}`);
     }
-    return match;
+    return match as RegExpMatchArray & { groups: Record<string, string> };
   }
 
   private static buildLocationRange(groups: Record<string, string>): LocationRange {
