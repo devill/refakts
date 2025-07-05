@@ -24,6 +24,7 @@
     "snooze": "ts-node src/snooze-cli.ts",
     "roadmap:vote": "ts-node src/roadmap/index.ts vote",
     "roadmap:add": "ts-node src/roadmap/index.ts add",
+    "roadmap:remove": "ts-node src/roadmap/index.ts remove",
     "roadmap:status": "ts-node src/roadmap/index.ts status",
     "tolerance:status": "ts-node scripts/tolerance-status.ts",
     "usage-report": "ts-node scripts/usage-report.ts",

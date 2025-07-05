@@ -67,13 +67,6 @@
       "status": "proposed"
     },
     {
-      "name": "extract-parameter",
-      "description": "Convert local variables or expressions into method parameters",
-      "why": "Core refactoring for making functions more flexible and reusable - essential for method generalization",
-      "score": 0,
-      "status": "proposed"
-    },
-    {
       "name": "extract-field",
       "description": "Extract expressions into class fields/properties",
       "why": "Allows converting method-local computations into class-level properties for better encapsulation and reusability",
@@ -217,5 +210,5 @@
       "status": "proposed"
     }
   ],
-  "lastUpdated": "2025-07-05T07:37:13.968Z"
+  "lastUpdated": "2025-07-05T07:44:29.454Z"
 }

@@ -24,6 +24,21 @@ export class RoadmapService {
     process.stdout.write(`✅ Added feature '${featureName}' to roadmap\n`);
   }
 
+  remove(featureName: string): void {
+    const data = this.storage.loadRoadmap();
+    const initialCount = data.features.length;
+    
+    data.features = data.features.filter(f => f.name !== featureName);
+    
+    if (data.features.length === initialCount) {
+      process.stderr.write(`❌ Feature '${featureName}' not found. Use 'npm run roadmap:status' to see available features.\n`);
+      process.exit(1);
+    }
+    
+    this.storage.saveRoadmap(data);
+    process.stdout.write(`✅ Removed feature '${featureName}' from roadmap\n`);
+  }
+
   getRoadmapData(): RoadmapData {
     const data = this.storage.loadRoadmap();
     this.removeCompletedFeatures(data);

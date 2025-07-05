@@ -19,6 +19,7 @@ export class RoadmapCLI {
     const commandMap: Record<string, () => void> = {
       'vote': () => this.handleVoteCommand(args),
       'add': () => this.handleAddCommand(args),
+      'remove': () => this.handleRemoveCommand(args),
       'status': () => this.handleStatusCommand()
     };
 
@@ -26,7 +27,7 @@ export class RoadmapCLI {
   }
 
   private showUsage(): void {
-    process.stderr.write('Usage: npm run roadmap:vote|add|status\n');
+    process.stderr.write('Usage: npm run roadmap:vote|add|remove|status\n');
     process.exit(1);
   }
 
@@ -41,6 +42,14 @@ export class RoadmapCLI {
   private handleAddCommand(args: string[]): void {
     const addArgs = this.parseAddArguments(args);
     this.service.add(addArgs.name, addArgs.description, addArgs.why);
+  }
+
+  private handleRemoveCommand(args: string[]): void {
+    if (!args[1]) {
+      process.stderr.write('Usage: npm run roadmap:remove <feature-name>\n');
+      process.exit(1);
+    }
+    this.service.remove(args[1]);
   }
 
   private handleStatusCommand(): void {
