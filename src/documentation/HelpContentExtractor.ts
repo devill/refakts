@@ -53,7 +53,7 @@ export class HelpContentExtractor {
   }
 
   private processLine(line: string, currentCommand: string, commands: string[]): string {
-    if (line.includes('[options]')) {
+    if (line.includes('[options]') || line.includes('<target>')) {
       if (currentCommand) commands.push(currentCommand);
       return line;
     } else if (currentCommand && line && !line.includes('-h, --help')) {
