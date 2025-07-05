@@ -23,17 +23,14 @@ export class LocationParser {
   }
 
   private static buildLocationRange(groups: Record<string, string>): LocationRange {
-    const { file, startLine, startColumn, endLine, endColumn } = groups;
-    
     return {
-      file,
-      startLine: parseInt(startLine, 10),
-      startColumn: this.parseColumnOrDefault(startColumn, 0),
-      endLine: this.parseLineOrDefault(endLine, parseInt(startLine, 10)),
-      endColumn: this.parseColumnOrDefault(endColumn, Number.MAX_SAFE_INTEGER)
+      file: groups.file,
+      startLine: parseInt(groups.startLine, 10),
+      startColumn: this.parseColumnOrDefault(groups.startColumn, 0),
+      endLine: this.parseLineOrDefault(groups.endLine, parseInt(groups.startLine, 10)),
+      endColumn: this.parseColumnOrDefault(groups.endColumn, Number.MAX_SAFE_INTEGER)
     };
   }
-
   private static parseColumnOrDefault(value: string | undefined, defaultValue: number): number {
     return !value || value === '' ? defaultValue : parseInt(value, 10);
   }

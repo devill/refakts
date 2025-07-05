@@ -135,6 +135,28 @@ Use the STARTER_CHARACTER in [] to indicate your workflow state
 11. [🗳️] Vote for roadmap features that would have helped this session, add features you wished existed
 
 
+## GitHub Issue Format
+
+When creating GitHub issues for RefakTS features, use this format:
+
+```markdown
+Brief description of the feature/task.
+
+### Dependencies (if applicable)
+- Depends on #X (feature-name) - Explanation of why this dependency exists
+
+### Acceptance Criteria
+- [ ] Specific, testable requirement
+- [ ] Another requirement
+- [ ] Final requirement (e.g., update documentation)
+```
+
+**Labels to use:**
+- `RefakTS Command` - New commands for the product
+- `House Keeping` - Development flow and codebase organization
+- `Quality Checks` - Post-commit quality check system additions
+- `Good first issue` - Easy tasks for new contributors
+
 ## Automated Quality Enforcement
 
 ### Script-Generated User Prompts
