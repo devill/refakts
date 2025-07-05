@@ -7,7 +7,7 @@ echo "Updating documentation with current --help output..."
 npm run update-docs
 
 echo "Consolidating refakts usage statistics..."
-npm run usage-consilidate
+npm run usage-consolidate
 
 # Add modified files to staging
 git add CLAUDE.md README.md .refakts-stats.json
