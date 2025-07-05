@@ -1,7 +1,7 @@
 import { SourceFile } from 'ts-morph';
 import { SelectResult, SelectMatch } from '../types/selection-types';
-import { SelectPatternMatcher } from '../services/selection/pattern-matcher';
-import { SelectResultFormatter, BasicFormatter, LineFormatter, PreviewFormatter, DefinitionFormatter } from '../services/selection/result-formatters';
+import { SelectPatternMatcher } from './selection/pattern-matcher';
+import { SelectResultFormatter, BasicFormatter, LineFormatter, PreviewFormatter, DefinitionFormatter } from './selection/result-formatters';
 import * as path from 'path';
 
 interface RegexOptions {

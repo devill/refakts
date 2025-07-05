@@ -19,8 +19,4 @@ export class SelectionStrategyFactory {
     }
     return strategy;
   }
-
-  getAllStrategies(): SelectionStrategy[] {
-    return [...this.strategies];
-  }
 }

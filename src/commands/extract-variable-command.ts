@@ -1,5 +1,5 @@
 import { RefactoringCommand, CommandOptions } from '../command';
-import { Node, Expression, SourceFile } from 'ts-morph';
+import { Node, Expression } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
 import { ExtractionScopeAnalyzer } from '../services/extraction-scope-analyzer';
 import { VariableNameValidator } from '../services/variable-name-validator';
@@ -19,12 +19,12 @@ export class ExtractVariableCommand implements RefactoringCommand {
   async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
     const sourceFile = this.astService.loadSourceFile(file);
-    const targetNode = this.findTargetNode(sourceFile, options);
+    const targetNode = this.findTargetNode(options);
     await this.performExtraction(targetNode, options);
     await this.astService.saveSourceFile(sourceFile);
   }
 
-  private findTargetNode(sourceFile: SourceFile, options: CommandOptions): Node {
+  private findTargetNode(options: CommandOptions): Node {
     return this.astService.findNodeByLocation(options.location as LocationRange);
   }
 

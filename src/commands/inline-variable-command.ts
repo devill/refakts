@@ -1,5 +1,5 @@
 import { RefactoringCommand, CommandOptions } from '../command';
-import { Node, VariableDeclaration, SourceFile } from 'ts-morph';
+import { Node, VariableDeclaration } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
 import { VariableDeclarationFinder } from '../services/variable-declaration-finder';
 import { ExpressionAnalyzer } from '../services/expression-analyzer';
@@ -19,12 +19,12 @@ export class InlineVariableCommand implements RefactoringCommand {
   async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
     const sourceFile = this.astService.loadSourceFile(file);
-    const node = this.findTargetNode(sourceFile, options);
+    const node = this.findTargetNode(options);
     await this.performInlineVariable(node);
     await this.astService.saveSourceFile(sourceFile);
   }
 
-  private findTargetNode(sourceFile: SourceFile, options: CommandOptions): Node {
+  private findTargetNode(options: CommandOptions): Node {
     return this.astService.findNodeByLocation(options.location as LocationRange);
   }
 

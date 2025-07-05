@@ -20,12 +20,12 @@ export class RenameCommand implements RefactoringCommand {
   async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
     const sourceFile = this.astService.loadSourceFile(file);
-    const node = this.findTargetNode(sourceFile, options);
+    const node = this.findTargetNode(options);
     await this.performRename(node, options.to as string);
     await this.astService.saveSourceFile(sourceFile);
   }
 
-  private findTargetNode(sourceFile: SourceFile, options: CommandOptions): Node {
+  private findTargetNode(options: CommandOptions): Node {
     return this.astService.findNodeByLocation(options.location as LocationRange);
   }
 
