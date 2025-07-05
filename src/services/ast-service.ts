@@ -64,23 +64,15 @@ export class ASTService {
     return sourceFile.compilerNode.getPositionOfLineAndCharacter(location.endLine - 1, location.endColumn - 1);
   }
 
-  private traverseToFindMatchingNode(node: Node, expectedStart: number, expectedEnd: number): Node | null {
-    let current: Node | undefined = node;
-    let bestMatch: Node | null = null;
-    let bestScore = Infinity;
-    
-    while (current) {
-      if (this.isNodeRangeCloseToExpected(current, expectedStart, expectedEnd)) {
-        const score = this.calculateNodeScore(current, expectedStart, expectedEnd);
-        if (score < bestScore) {
-          bestScore = score;
-          bestMatch = current;
-        }
+  private traverseToFindMatchingNode(node: Node | undefined, expectedStart: number, expectedEnd: number, bestMatch: Node | null = null, bestScore = Infinity): Node | null {
+    if (!node) return bestMatch;
+    if (this.isNodeRangeCloseToExpected(node, expectedStart, expectedEnd)) {
+      const score = this.calculateNodeScore(node, expectedStart, expectedEnd);
+      if (score < bestScore) {
+        return this.traverseToFindMatchingNode(node.getParent(), expectedStart, expectedEnd, node, score);;
       }
-      current = current.getParent();
     }
-    
-    return bestMatch;
+    return this.traverseToFindMatchingNode(node.getParent(), expectedStart, expectedEnd, bestMatch, bestScore);
   }
 
   private isNodeRangeCloseToExpected(node: Node, expectedStart: number, expectedEnd: number): boolean {
