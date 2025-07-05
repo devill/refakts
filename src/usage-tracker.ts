@@ -38,8 +38,8 @@ export class UsageTracker {
   static clearUsageLog(): void {
     try {
       this.removeLogFile();
-    } catch {
-      this.handleLogError();
+    } catch (error) {
+      console.warn('Failed to clear usage log:', error);
     }
   }
 
@@ -55,8 +55,8 @@ export class UsageTracker {
     try {
       const logLine = JSON.stringify(entry) + '\n';
       fs.appendFileSync(this.LOG_FILE, logLine);
-    } catch {
-      this.handleLogError();
+    } catch (error) {
+      console.warn('Failed to write usage log:', error);
     }
   }
 
@@ -73,7 +73,15 @@ export class UsageTracker {
     return content
       .split('\n')
       .filter(line => line.trim())
-      .map(line => JSON.parse(line));
+      .map(line => {
+        try {
+          return JSON.parse(line);
+        } catch (error) {
+          console.warn('Failed to parse usage log line:', line, error);
+          return null;
+        }
+      })
+      .filter((entry): entry is UsageEntry => entry !== null);
   }
 
   private static removeLogFile(): void {
@@ -86,6 +94,4 @@ export class UsageTracker {
     return args.filter(arg => !arg.includes('/') && !path.isAbsolute(arg));
   }
 
-  private static handleLogError(): void {
-  }
 }

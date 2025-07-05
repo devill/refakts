@@ -8,7 +8,8 @@
       "status": "proposed",
       "dependencies": [
         "location-based-refactoring-api"
-      ]
+      ],
+      "githubIssue": "https://github.com/devill/refakts/issues/4"
     },
     {
       "name": "find-usages",
@@ -16,7 +17,8 @@
       "why": "Helps with identifying where a symbol is defined as well as where it is used. Unlocks critical features",
       "score": 4,
       "status": "proposed",
-      "note": "Replaces variable-locator. **IMPORTANT**: Once this is implemented variable-locator should be removed."
+      "note": "Replaces variable-locator. **IMPORTANT**: Once this is implemented variable-locator should be removed.",
+      "githubIssue": "https://github.com/devill/refakts/issues/2"
     },
     {
       "name": "safe-delete",
@@ -208,7 +210,15 @@
       "why": "While creating many interfaces during type cleanup, it would have been helpful to automatically detect which interfaces were actually needed vs. created but unused (like EndMatchResult).",
       "score": 1,
       "status": "proposed"
+    },
+    {
+      "name": "move-file",
+      "description": "Move modules around without manually updating references",
+      "why": "Essential for repo reorganization and maintaining import consistency",
+      "score": 0,
+      "status": "proposed",
+      "githubIssue": "https://github.com/devill/refakts/issues/3"
     }
   ],
-  "lastUpdated": "2025-07-05T07:44:29.454Z"
+  "lastUpdated": "2025-07-05T10:56:47.533Z"
 }

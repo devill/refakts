@@ -10,6 +10,3 @@ export interface TransformationResult {
   message?: string;
 }
 
-export interface TransformationWithResult {
-  transformWithResult(_sourceFile: SourceFile): Promise<TransformationResult>;
-}
