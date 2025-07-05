@@ -1,0 +1,18 @@
+# Example Document
+
+Some introductory text.
+
+<!-- AUTO-GENERATED HELP START -->
+Old help content here
+<!-- AUTO-GENERATED HELP END -->
+
+More content below.
+
+<!-- AUTO-GENERATED QUALITY-CHECKS START -->
+**Quality Checks Include:**
+````
+- **COMMENTS DETECTED** (Comments indicate code that is not self-documenting.)
+````
+<!-- AUTO-GENERATED QUALITY-CHECKS END -->
+
+Final content.

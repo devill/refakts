@@ -1,0 +1,8 @@
+# Example Document
+
+Some introductory text.
+
+<!-- AUTO-GENERATED HELP START -->
+Old help content here
+
+More content below.
