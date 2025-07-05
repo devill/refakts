@@ -56,25 +56,42 @@ export class ASTService {
 
   private findBestMatchingNode(sourceFile: SourceFile, node: Node, location: LocationRange): Node | null {
     const expectedEnd = this.calculateExpectedEnd(sourceFile, location);
-    return this.traverseToFindMatchingNode(node, expectedEnd);
+    const expectedStart = this.getStartPosition(sourceFile, location);
+    return this.traverseToFindMatchingNode(node, expectedStart, expectedEnd);
   }
 
   private calculateExpectedEnd(sourceFile: SourceFile, location: LocationRange): number {
     return sourceFile.compilerNode.getPositionOfLineAndCharacter(location.endLine - 1, location.endColumn - 1);
   }
 
-  private traverseToFindMatchingNode(node: Node, expectedEnd: number): Node | null {
+  private traverseToFindMatchingNode(node: Node, expectedStart: number, expectedEnd: number): Node | null {
     let current: Node | undefined = node;
+    let bestMatch: Node | null = null;
+    let bestScore = Infinity;
+    
     while (current) {
-      if (this.isNodeEndCloseToExpected(current, expectedEnd)) {
-        return current;
+      if (this.isNodeRangeCloseToExpected(current, expectedStart, expectedEnd)) {
+        const score = this.calculateNodeScore(current, expectedStart, expectedEnd);
+        if (score < bestScore) {
+          bestScore = score;
+          bestMatch = current;
+        }
       }
       current = current.getParent();
     }
-    return null;
+    
+    return bestMatch;
   }
 
-  private isNodeEndCloseToExpected(node: Node, expectedEnd: number): boolean {
-    return Math.abs(node.getEnd() - expectedEnd) <= 3;
+  private isNodeRangeCloseToExpected(node: Node, expectedStart: number, expectedEnd: number): boolean {
+    const startDiff = Math.abs(node.getStart() - expectedStart);
+    const endDiff = Math.abs(node.getEnd() - expectedEnd);
+    return startDiff <= 3 && endDiff <= 3;
+  }
+  
+  private calculateNodeScore(node: Node, expectedStart: number, expectedEnd: number): number {
+    const startDiff = Math.abs(node.getStart() - expectedStart);
+    const endDiff = Math.abs(node.getEnd() - expectedEnd);
+    return startDiff + endDiff;
   }
 }
