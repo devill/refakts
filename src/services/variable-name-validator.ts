@@ -1,4 +1,4 @@
-import { Node, ParameterDeclaration, FunctionDeclaration, MethodDeclaration, ArrowFunction, FunctionExpression, BindingElement, OmittedExpression, ConstructorDeclaration } from 'ts-morph';
+import { Node, ParameterDeclaration, FunctionDeclaration, MethodDeclaration, ArrowFunction, FunctionExpression, BindingElement, OmittedExpression, ConstructorDeclaration, ObjectBindingPattern } from 'ts-morph';
 
 type FunctionLikeNode = FunctionDeclaration | MethodDeclaration | ArrowFunction | FunctionExpression | ConstructorDeclaration;
 
@@ -103,13 +103,21 @@ export class VariableNameValidator {
 
   private addObjectBindingNames(nameNode: Node, names: Set<string>): void {
     if (Node.isObjectBindingPattern(nameNode)) {
-      nameNode.getElements().forEach((element: BindingElement | OmittedExpression) => {
-        if (!Node.isBindingElement(element)) return;
-        const elementName = element.getNameNode();
-        if (Node.isIdentifier(elementName)) {
-          names.add(elementName.getText());
-        }
-      });
+      this.processBindingElements(nameNode, names);
+    }
+  }
+
+  private processBindingElements(nameNode: ObjectBindingPattern, names: Set<string>): void {
+    nameNode.getElements().forEach((element: BindingElement | OmittedExpression) => {
+      this.processBindingElement(element, names);
+    });
+  }
+
+  private processBindingElement(element: BindingElement | OmittedExpression, names: Set<string>): void {
+    if (!Node.isBindingElement(element)) return;
+    const elementName = element.getNameNode();
+    if (Node.isIdentifier(elementName)) {
+      names.add(elementName.getText());
     }
   }
 

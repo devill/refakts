@@ -24,6 +24,10 @@ function validateSnoozeStatus(checkSnoozes: CheckSnoozes, identifier: string): b
     return false;
   }
   
+  return validateActiveSnooze(checkSnoozes, identifier);
+}
+
+function validateActiveSnooze(checkSnoozes: CheckSnoozes, identifier: string): boolean {
   if (!checkSnoozes) {
     return false;
   }

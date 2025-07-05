@@ -37,14 +37,22 @@ export class DocumentationUpdater {
   }
 
   private async extractAndFormatContent(filePath: string) {
+    const rawContent = await this.extractRawContent(filePath);
+    return this.formatContentForReadme(rawContent);
+  }
+
+  private async extractRawContent(filePath: string) {
     const helpCommands = await this.helpExtractor.extractHelpContent();
     const qualityChecks = this.qualityExtractor.extractQualityChecksContent();
     const content = this.fileManager.readFile(filePath);
-    
+    return { helpCommands, qualityChecks, content };
+  }
+
+  private formatContentForReadme(rawContent: { helpCommands: string; qualityChecks: string; content: string }) {
     return {
-      content,
-      formattedHelp: this.readmeFormatter.formatHelpSection(helpCommands),
-      formattedQuality: this.readmeFormatter.formatQualitySection(qualityChecks)
+      content: rawContent.content,
+      formattedHelp: this.readmeFormatter.formatHelpSection(rawContent.helpCommands),
+      formattedQuality: this.readmeFormatter.formatQualitySection(rawContent.qualityChecks)
     };
   }
 

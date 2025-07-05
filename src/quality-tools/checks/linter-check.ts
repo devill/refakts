@@ -33,7 +33,15 @@ function createLinterData(message: EslintMessage): LinterData {
 }
 
 function convertMessageToIssue(message: EslintMessage, filePath: string): QualityIssue {
-  const severity = message.severity === 2 ? 'critical' : 'warning';
+  const severity = determineSeverity(message);
+  return createQualityIssue(message, filePath, severity);
+}
+
+function determineSeverity(message: EslintMessage): 'critical' | 'warning' {
+  return message.severity === 2 ? 'critical' : 'warning';
+}
+
+function createQualityIssue(message: EslintMessage, filePath: string, severity: 'critical' | 'warning'): QualityIssue {
   return {
     type: 'linter-violation',
     severity,
