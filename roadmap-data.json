@@ -28,7 +28,8 @@
       "status": "proposed",
       "dependencies": [
         "find-usages"
-      ]
+      ],
+      "githubIssue": "https://github.com/devill/refakts/issues/12"
     },
     {
       "name": "safe-delete-auto",
@@ -59,14 +60,16 @@
       "description": "Automatically add, remove, and organize import statements when moving code between files **IMPORTANT** research existing tools. There might already be command line tools that do this.",
       "why": "During modular refactoring, managing imports manually was tedious and error-prone",
       "score": 4,
-      "status": "proposed"
+      "status": "proposed",
+      "githubIssue": "https://github.com/devill/refakts/issues/11"
     },
     {
       "name": "extract-constant",
       "description": "Extract literal values and expressions into named constants",
       "why": "Essential refactoring for improving code readability and maintainability - converts magic numbers/strings into meaningful constants",
       "score": 3,
-      "status": "proposed"
+      "status": "proposed",
+      "githubIssue": "https://github.com/devill/refakts/issues/13"
     },
     {
       "name": "extract-field",
