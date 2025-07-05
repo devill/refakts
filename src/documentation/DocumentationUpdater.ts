@@ -1,0 +1,74 @@
+import { HelpContentExtractor } from './HelpContentExtractor';
+import { QualityChecksExtractor } from './QualityChecksExtractor';
+import { SectionReplacer } from './SectionReplacer';
+import { FileManager } from './FileManager';
+import { ClaudeFormatter } from './formatters/ClaudeFormatter';
+import { ReadmeFormatter } from './formatters/ReadmeFormatter';
+
+export class DocumentationUpdater {
+  private helpExtractor = new HelpContentExtractor();
+  private qualityExtractor = new QualityChecksExtractor();
+  private sectionReplacer = new SectionReplacer();
+  private fileManager = new FileManager();
+  private claudeFormatter = new ClaudeFormatter();
+  private readmeFormatter = new ReadmeFormatter();
+
+  async updateClaudeFile(filePath: string): Promise<void> {
+    const helpCommands = await this.helpExtractor.extractHelpContent();
+    const content = this.fileManager.readFile(filePath);
+    const formattedHelp = this.claudeFormatter.formatHelpSection(helpCommands);
+    const updatedContent = this.replaceHelpSection(content, formattedHelp);
+    this.fileManager.writeFile(filePath, updatedContent);
+  }
+
+  private replaceHelpSection(content: string, formattedHelp: string): string {
+    return this.sectionReplacer.replaceSection(
+      content,
+      '<!-- AUTO-GENERATED HELP START -->',
+      '<!-- AUTO-GENERATED HELP END -->',
+      formattedHelp
+    );
+  }
+
+  async updateReadmeFile(filePath: string): Promise<void> {
+    const content = await this.extractAndFormatContent(filePath);
+    const updatedContent = this.replaceBothSections(content);
+    this.fileManager.writeFile(filePath, updatedContent.updatedContent);
+  }
+
+  private async extractAndFormatContent(filePath: string) {
+    const helpCommands = await this.helpExtractor.extractHelpContent();
+    const qualityChecks = this.qualityExtractor.extractQualityChecksContent();
+    const content = this.fileManager.readFile(filePath);
+    
+    return {
+      content,
+      formattedHelp: this.readmeFormatter.formatHelpSection(helpCommands),
+      formattedQuality: this.readmeFormatter.formatQualitySection(qualityChecks)
+    };
+  }
+
+  private replaceBothSections(data: { content: string; formattedHelp: string; formattedQuality: string }) {
+    let updatedContent = this.replaceHelpSectionInReadme(data.content, data.formattedHelp);
+    updatedContent = this.replaceQualitySection(updatedContent, data.formattedQuality);
+    return { updatedContent };
+  }
+
+  private replaceHelpSectionInReadme(content: string, formattedHelp: string): string {
+    return this.sectionReplacer.replaceSection(
+      content,
+      '<!-- AUTO-GENERATED HELP START -->',
+      '<!-- AUTO-GENERATED HELP END -->',
+      formattedHelp
+    );
+  }
+
+  private replaceQualitySection(content: string, formattedQuality: string): string {
+    return this.sectionReplacer.replaceSection(
+      content,
+      '<!-- AUTO-GENERATED QUALITY-CHECKS START -->',
+      '<!-- AUTO-GENERATED QUALITY-CHECKS END -->',
+      formattedQuality
+    );
+  }
+}

@@ -51,7 +51,6 @@ npm run usage:consolidate            # Manually consolidate usage logs
 - rename [options] <target>            Rename a variable and all its references
 - select [options] <target>            Find code elements and return their locations with content preview variable-locator <target>            Find variable declarations and all their usages
 ```
-
 <!-- AUTO-GENERATED HELP END -->
 
 

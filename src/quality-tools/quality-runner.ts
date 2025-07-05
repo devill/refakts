@@ -3,25 +3,10 @@
 import { QualityIssue } from './quality-check-interface';
 import { loadQualityChecks } from './plugin-loader';
 import { generateReport } from './quality-reporter';
-import fs from 'fs';
-import path from 'path';
-
 const runQualityChecks = async (sourceDir: string): Promise<QualityIssue[]> => {
   const checks = loadQualityChecks();
   const allIssues = await Promise.all(checks.map(check => check.check(sourceDir)));
   return allIssues.flat();
-};
-
-const getToleranceFilePath = (): string => {
-  return path.join(process.cwd(), '.linter-tolerance');
-};
-
-const getInitialToleranceCount = (): number => {
-  return 100;
-};
-
-const getHoursSinceStart = (startTime: number): number => {
-  return Math.floor((Date.now() - startTime) / (1000 * 60 * 60));
 };
 
 const getCurrentTolerance = (): number => {
