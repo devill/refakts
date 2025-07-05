@@ -24,20 +24,23 @@ interface LinterData {
   fixable: boolean;
 }
 
-function convertMessageToIssue(message: EslintMessage, filePath: string): QualityIssue {
-  const severity = message.severity === 2 ? 'critical' : 'warning';
-  const data: LinterData = {
+function createLinterData(message: EslintMessage): LinterData {
+  return {
     ruleId: message.ruleId,
     column: message.column,
     fixable: !!message.fix
   };
+}
+
+function convertMessageToIssue(message: EslintMessage, filePath: string): QualityIssue {
+  const severity = message.severity === 2 ? 'critical' : 'warning';
   return {
     type: 'linter-violation',
     severity,
     message: `${message.ruleId}: ${message.message}`,
     file: filePath,
     line: message.line,
-    data
+    data: createLinterData(message)
   };
 }
 
