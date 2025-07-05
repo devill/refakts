@@ -39,6 +39,7 @@ export class UsageTracker {
     try {
       this.removeLogFile();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.warn('Failed to clear usage log:', error);
     }
   }
@@ -56,6 +57,7 @@ export class UsageTracker {
       const logLine = JSON.stringify(entry) + '\n';
       fs.appendFileSync(this.LOG_FILE, logLine);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.warn('Failed to write usage log:', error);
     }
   }
@@ -70,18 +72,31 @@ export class UsageTracker {
   }
 
   private static parseLogContent(content: string): UsageEntry[] {
-    return content
-      .split('\n')
-      .filter(line => line.trim())
-      .map(line => {
-        try {
-          return JSON.parse(line);
-        } catch (error) {
-          console.warn('Failed to parse usage log line:', line, error);
-          return null;
-        }
-      })
-      .filter((entry): entry is UsageEntry => entry !== null);
+    const lines = this.getNonEmptyLines(content);
+    const entries = this.parseLogLines(lines);
+    return this.filterValidEntries(entries);
+  }
+
+  private static getNonEmptyLines(content: string): string[] {
+    return content.split('\n').filter(line => line.trim());
+  }
+
+  private static parseLogLines(lines: string[]): (UsageEntry | null)[] {
+    return lines.map(line => this.parseSingleLine(line));
+  }
+
+  private static parseSingleLine(line: string): UsageEntry | null {
+    try {
+      return JSON.parse(line);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn('Failed to parse usage log line:', line, error);
+      return null;
+    }
+  }
+
+  private static filterValidEntries(entries: (UsageEntry | null)[]): UsageEntry[] {
+    return entries.filter((entry): entry is UsageEntry => entry !== null);
   }
 
   private static removeLogFile(): void {
