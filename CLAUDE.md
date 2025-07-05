@@ -103,6 +103,18 @@ A **strategy pattern** powers flexible selection, where different `SelectionStra
 
 Files matching `*.received.*` are gitignored and appear only during test failures.
 
+### Test Fixture Rules:
+- **Folder structure**: Group tests by command (e.g., `fixtures/refactoring/extract-variable/`, `fixtures/select/basic-regex/`)
+- **JSDoc format**: Use multi-line comments with proper JSDoc notation:
+  ```typescript
+  /**
+   * @description Brief description of what the test validates
+   * @command command-name "target-or-args"
+   * @expect-error true  // Only for error cases
+   */
+  ```
+- **Error cases**: Use `expected.txt` files for console output validation (already supported)
+
 ## Development Workflow
 
 Use the STARTER_CHARACTER in [] to indicate your workflow state

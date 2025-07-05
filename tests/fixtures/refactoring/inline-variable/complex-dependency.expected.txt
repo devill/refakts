@@ -1,0 +1,1 @@
+Error: Cannot inline variable with complex dependencies
