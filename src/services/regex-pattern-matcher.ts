@@ -4,6 +4,19 @@ import { SelectPatternMatcher } from '../services/selection/pattern-matcher';
 import { SelectResultFormatter, BasicFormatter, LineFormatter, PreviewFormatter, DefinitionFormatter } from '../services/selection/result-formatters';
 import * as path from 'path';
 
+interface RegexOptions {
+  regex?: string | string[];
+  includeDefinition?: boolean;
+  'include-definition'?: boolean;
+  includeLine?: boolean;
+  'include-line'?: boolean;
+  previewLine?: boolean;
+  'preview-line'?: boolean;
+  previewMatch?: boolean;
+  'preview-match'?: boolean;
+  [key: string]: unknown;
+}
+
 export class RegexPatternMatcher {
   private matcher = new SelectPatternMatcher();
   private formatters = new Map<string, SelectResultFormatter>([
@@ -13,10 +26,10 @@ export class RegexPatternMatcher {
     ['definition', new DefinitionFormatter()]
   ]);
 
-  findRegexMatches(sourceFile: SourceFile, options: Record<string, any>): SelectResult[] {
+  findRegexMatches(sourceFile: SourceFile, options: RegexOptions): SelectResult[] {
     const content = sourceFile.getFullText();
     const fileName = path.basename(sourceFile.getFilePath());
-    const patterns = this.createRegexPatterns(options.regex);
+    const patterns = this.createRegexPatterns(options.regex || '');
     const allMatches = this.findAllPatternMatches(content, patterns);
     
     return this.processMatches(allMatches, fileName, sourceFile.getFilePath(), options);
@@ -47,12 +60,12 @@ export class RegexPatternMatcher {
     });
   }
 
-  private processMatches(matches: SelectMatch[], fileName: string, filePath: string, options: Record<string, any>): SelectResult[] {
+  private processMatches(matches: SelectMatch[], fileName: string, filePath: string, options: RegexOptions): SelectResult[] {
     const formatter = this.determineFormatter(options);
     return formatter.format(matches, fileName, filePath);
   }
 
-  private determineFormatter(options: Record<string, any>): SelectResultFormatter {
+  private determineFormatter(options: RegexOptions): SelectResultFormatter {
     const formatterType = this.getFormatterType(options);
     const formatter = this.formatters.get(formatterType);
     if (!formatter) {
@@ -61,13 +74,13 @@ export class RegexPatternMatcher {
     return formatter;
   }
 
-  private getFormatterType(options: Record<string, any>): string {
+  private getFormatterType(options: RegexOptions): string {
     const optionChecks = this.createOptionChecks(options);
     const found = optionChecks.find(option => option.check);
     return found ? found.type : 'basic';
   }
 
-  private createOptionChecks(options: Record<string, any>) {
+  private createOptionChecks(options: RegexOptions) {
     return [
       { check: this.hasDefinitionOption(options), type: 'definition' },
       { check: this.hasLineOption(options), type: 'line' },
@@ -76,19 +89,19 @@ export class RegexPatternMatcher {
     ];
   }
 
-  private hasDefinitionOption(options: Record<string, any>): boolean {
-    return options.includeDefinition || options['include-definition'];
+  private hasDefinitionOption(options: RegexOptions): boolean {
+    return Boolean(options.includeDefinition || options['include-definition']);
   }
 
-  private hasLineOption(options: Record<string, any>): boolean {
-    return options.includeLine || options['include-line'];
+  private hasLineOption(options: RegexOptions): boolean {
+    return Boolean(options.includeLine || options['include-line']);
   }
 
-  private hasPreviewOption(options: Record<string, any>): boolean {
-    return options.previewLine || options['preview-line'];
+  private hasPreviewOption(options: RegexOptions): boolean {
+    return Boolean(options.previewLine || options['preview-line']);
   }
 
-  private hasPreviewMatchOption(options: Record<string, any>): boolean {
-    return options.previewMatch || options['preview-match'];
+  private hasPreviewMatchOption(options: RegexOptions): boolean {
+    return Boolean(options.previewMatch || options['preview-match']);
   }
 }

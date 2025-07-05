@@ -24,7 +24,10 @@ function validateSnoozeStatus(checkSnoozes: CheckSnoozes, identifier: string): b
     return false;
   }
   
-  const snoozeTimestamp = checkSnoozes![identifier];
+  if (!checkSnoozes) {
+    return false;
+  }
+  const snoozeTimestamp = checkSnoozes[identifier];
   return isSnoozeStillValid(snoozeTimestamp);
 }
 

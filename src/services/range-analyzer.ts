@@ -2,8 +2,46 @@ import { SourceFile } from 'ts-morph';
 import { SelectResult } from '../types/selection-types';
 import * as path from 'path';
 
+interface RangeOptions {
+  startRegex?: string;
+  endRegex?: string;
+  'start-regex'?: string;
+  'end-regex'?: string;
+  [key: string]: unknown;
+}
+
+interface RegexOptions {
+  start: string;
+  end: string;
+}
+
+interface RangePattern {
+  start: RegExp;
+  end: RegExp;
+}
+
+interface RangeData {
+  startLine: number;
+  startColumn: number;
+  endLine: number;
+  endColumn: number;
+  content: string;
+  endLineIndex: number;
+}
+
+interface RangeResult {
+  range: RangeData | null;
+  newIndex: number;
+}
+
+interface PositionData {
+  line: number;
+  column: number;
+}
+
+
 export class RangeAnalyzer {
-  findRangeMatches(sourceFile: SourceFile, options: Record<string, any>): SelectResult[] {
+  findRangeMatches(sourceFile: SourceFile, options: RangeOptions): SelectResult[] {
     const regexOptions = this.extractRegexOptions(options);
     const fileName = path.basename(sourceFile.getFilePath());
     const ranges = this.findContentRanges(sourceFile, regexOptions.start, regexOptions.end);
@@ -11,20 +49,20 @@ export class RangeAnalyzer {
     return this.formatRangeResults(ranges, fileName);
   }
 
-  private extractRegexOptions(options: Record<string, any>) {
+  private extractRegexOptions(options: RangeOptions): RegexOptions {
     return {
-      start: options.startRegex || options['start-regex'],
-      end: options.endRegex || options['end-regex']
+      start: (options.startRegex || options['start-regex']) as string,
+      end: (options.endRegex || options['end-regex']) as string
     };
   }
 
-  private formatRangeResults(ranges: any[], fileName: string): SelectResult[] {
+  private formatRangeResults(ranges: RangeData[], fileName: string): SelectResult[] {
     if (ranges.length === 0) return [{ location: 'No Matches' }];
     
     return ranges.map(range => this.formatSingleRange(range, fileName));
   }
 
-  private formatSingleRange(range: any, fileName: string): SelectResult {
+  private formatSingleRange(range: RangeData, fileName: string): SelectResult {
     const location = `\n[${fileName} ${range.startLine}:${range.startColumn}-${range.endLine}:${range.endColumn}]`;
     return {
       location,
@@ -32,15 +70,15 @@ export class RangeAnalyzer {
     };
   }
 
-  private findContentRanges(sourceFile: SourceFile, startRegex: string, endRegex: string): any[] {
+  private findContentRanges(sourceFile: SourceFile, startRegex: string, endRegex: string): RangeData[] {
     const lines = sourceFile.getFullText().split('\n');
     const patterns = this.createPatterns(startRegex, endRegex);
     
     return this.processAllLines(sourceFile, lines, patterns);
   }
 
-  private processAllLines(sourceFile: SourceFile, lines: string[], patterns: any): any[] {
-    const ranges: any[] = [];
+  private processAllLines(sourceFile: SourceFile, lines: string[], patterns: RangePattern): RangeData[] {
+    const ranges: RangeData[] = [];
     
     for (let i = 0; i < lines.length; i++) {
       const result = this.processLine(sourceFile, lines, patterns, i);
@@ -50,7 +88,7 @@ export class RangeAnalyzer {
     return ranges;
   }
 
-  private handleLineResult(result: any, ranges: any[], currentIndex: number): number {
+  private handleLineResult(result: RangeResult, ranges: RangeData[], currentIndex: number): number {
     if (result.range) {
       ranges.push(result.range);
       return result.newIndex;
@@ -58,7 +96,7 @@ export class RangeAnalyzer {
     return currentIndex;
   }
 
-  private processLine(sourceFile: SourceFile, lines: string[], patterns: any, i: number) {
+  private processLine(sourceFile: SourceFile, lines: string[], patterns: RangePattern, i: number): RangeResult {
     if (this.shouldSkipLine(sourceFile, i + 1)) {
       return this.createSkipResult(i);
     }
@@ -70,7 +108,7 @@ export class RangeAnalyzer {
     return { range: null, newIndex: index };
   }
 
-  private createRangeResult(sourceFile: SourceFile, lines: string[], patterns: any, i: number) {
+  private createRangeResult(sourceFile: SourceFile, lines: string[], patterns: RangePattern, i: number): RangeResult {
     const range = this.findRangeFromStartLine(sourceFile, lines, patterns, i);
     return { 
       range, 
@@ -78,7 +116,7 @@ export class RangeAnalyzer {
     };
   }
 
-  private createPatterns(startRegex: string, endRegex: string) {
+  private createPatterns(startRegex: string, endRegex: string): RangePattern {
     return {
       start: new RegExp(startRegex),
       end: new RegExp(endRegex)
@@ -89,7 +127,7 @@ export class RangeAnalyzer {
     return this.isCommentLine(sourceFile, lineNumber);
   }
 
-  private findRangeFromStartLine(sourceFile: SourceFile, lines: string[], patterns: any, startIndex: number) {
+  private findRangeFromStartLine(sourceFile: SourceFile, lines: string[], patterns: RangePattern, startIndex: number): RangeData | null {
     const startMatch = patterns.start.exec(lines[startIndex]);
     if (!startMatch) return null;
     
@@ -111,7 +149,7 @@ export class RangeAnalyzer {
   }
 
 
-  private createRange(rangeStart: any, endMatch: RegExpExecArray, lines: string[], startIndex: number, endIndex: number) {
+  private createRange(rangeStart: PositionData, endMatch: RegExpExecArray, lines: string[], startIndex: number, endIndex: number): RangeData {
     const rangeEnd = this.calculateRangeEnd(endMatch, endIndex);
     const content = this.extractRangeContent(lines, startIndex, endIndex);
     
@@ -126,7 +164,7 @@ export class RangeAnalyzer {
     return lines.slice(startIndex, endIndex + 1).join('\n');
   }
 
-  private buildRangeObject(rangeStart: any, rangeEnd: any, content: string, endIndex: number) {
+  private buildRangeObject(rangeStart: PositionData, rangeEnd: PositionData, content: string, endIndex: number): RangeData {
     return {
       startLine: rangeStart.line,
       startColumn: rangeStart.column,
