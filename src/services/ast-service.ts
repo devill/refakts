@@ -41,7 +41,7 @@ export class ASTService {
   private getStartPosition(sourceFile: SourceFile, location: LocationRange): number {
     try {
       return sourceFile.compilerNode.getPositionOfLineAndCharacter(location.startLine - 1, location.startColumn - 1);
-    } catch (error) {
+    } catch {
       throw new Error(`No node found at position ${location.startLine}:${location.startColumn}`);
     }
   }
