@@ -2,6 +2,8 @@
 
 RefakTS lets AI agents make precise code changes without rewriting entire files, keeping codebases clean and AI performance high.
 
+![Logo for RefakTS](RefaktTS_logo.png)
+
 ## The Problem
 
 AI agents face the same cognitive limitations as humans - they perform best when focusing on fewer things at once. When maintaining code quality, agents often need to make changes that span multiple locations (like renaming variables or extracting functions). 
