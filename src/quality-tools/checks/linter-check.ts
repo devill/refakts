@@ -24,6 +24,38 @@ interface LinterData {
   fixable: boolean;
 }
 
+function parseEslintResults(stdout: string): QualityIssue[] {
+  if (!stdout.trim()) {
+    return [];
+  }
+
+  const results = JSON.parse(stdout) as EslintResult[];
+  const issues: QualityIssue[] = [];
+
+  results.forEach((result: EslintResult) => {
+    if (result.messages && result.messages.length > 0) {
+      result.messages.forEach((message: EslintMessage) => {
+        const severity = message.severity === 2 ? 'critical' : 'warning';
+        const data: LinterData = {
+          ruleId: message.ruleId,
+          column: message.column,
+          fixable: !!message.fix
+        };
+        issues.push({
+          type: 'linter-violation',
+          severity,
+          message: `${message.ruleId}: ${message.message}`,
+          file: result.filePath,
+          line: message.line,
+          data
+        });
+      });
+    }
+  });
+
+  return issues;
+}
+
 export const linterCheck: QualityCheck = {
   name: 'linter-check',
   check: async (_sourceDir: string): Promise<QualityIssue[]> => {
@@ -38,69 +70,21 @@ export const linterCheck: QualityCheck = {
         }];
       }
 
-      if (!stdout.trim()) {
-        return [];
-      }
-
-      const results = JSON.parse(stdout) as EslintResult[];
-      const issues: QualityIssue[] = [];
-
-      results.forEach((result: EslintResult) => {
-        if (result.messages && result.messages.length > 0) {
-          result.messages.forEach((message: EslintMessage) => {
-            const severity = message.severity === 2 ? 'critical' : 'warning';
-            const data: LinterData = {
-              ruleId: message.ruleId,
-              column: message.column,
-              fixable: !!message.fix
-            };
-            issues.push({
-              type: 'linter-violation',
-              severity,
-              message: `${message.ruleId}: ${message.message}`,
-              file: result.filePath,
-              line: message.line,
-              data
-            });
-          });
-        }
-      });
-
-      return issues;
+      return parseEslintResults(stdout);
     } catch (error) {
       if (error instanceof Error && error.message.includes('Command failed')) {
         try {
           const { stdout } = await execAsync('npx eslint src --ext .ts --format json').catch(err => ({ stdout: err.stdout }));
           
           if (stdout) {
-            const results = JSON.parse(stdout) as EslintResult[];
-            const issues: QualityIssue[] = [];
-
-            results.forEach((result: EslintResult) => {
-              if (result.messages && result.messages.length > 0) {
-                result.messages.forEach((message: EslintMessage) => {
-                  const severity = message.severity === 2 ? 'critical' : 'warning';
-                  const data: LinterData = {
-                    ruleId: message.ruleId,
-                    column: message.column,
-                    fixable: !!message.fix
-                  };
-                  issues.push({
-                    type: 'linter-violation',
-                    severity,
-                    message: `${message.ruleId}: ${message.message}`,
-                    file: result.filePath,
-                    line: message.line,
-                    data
-                  });
-                });
-              }
-            });
-
-            return issues;
+            return parseEslintResults(stdout);
           }
-        } catch {
-          // Ignore errors when parsing linter output
+        } catch (parseError) {
+          return [{
+            type: 'linter-error',
+            severity: 'critical',
+            message: `Failed to parse ESLint output: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`,
+          }];
         }
       }
       
