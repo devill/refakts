@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 RefakTS is a TypeScript refactoring tool built for AI coding agents to perform precise refactoring operations via command line instead of requiring complete code regeneration. The tool uses ts-morph for AST manipulation and @phenomnomnominal/tsquery for node selection.
 
+## Development Environment
+
+**CRITICAL: Template Sync** When making changes to git hooks, scripts, or development setup, always check and update the template files in `dev-env-setup/` to keep them synchronized with the actual environment. These templates should be offered to users to include in their actual setup.
+
 ## Development Commands
 
 ```bash
@@ -26,7 +30,6 @@ npm run dev -- inline-variable "[src/example.ts 5:8-5:18]"
 
 # Quality tools
 npm run quality              # Run all quality checks
-npm run tolerance:status     # Check current linter tolerance progress
 
 # Snooze quality alerts (24 hours)
 npm run snooze incomplete <command>  # Snooze incomplete refactoring alerts
