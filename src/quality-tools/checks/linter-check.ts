@@ -100,6 +100,7 @@ export const linterCheck: QualityCheck = {
             return issues;
           }
         } catch {
+          // Ignore errors when parsing linter output
         }
       }
       

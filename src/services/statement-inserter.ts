@@ -1,4 +1,4 @@
-import { Node } from 'ts-morph';
+import { Node, Block, SourceFile, Statement } from 'ts-morph';
 import { ExtractionScopeAnalyzer } from './extraction-scope-analyzer';
 
 export class StatementInserter {
@@ -38,17 +38,17 @@ export class StatementInserter {
     }
   }
 
-  private insertInBlock(parent: any, statement: Node, declarationText: string): void {
+  private insertInBlock(parent: Block, statement: Node, declarationText: string): void {
     const statements = parent.getStatements();
-    const index = statements.findIndex((s: any) => s === statement);
+    const index = statements.findIndex((s: Statement) => s === statement);
     if (index !== -1) {
       parent.insertStatements(index, [declarationText]);
     }
   }
 
-  private insertInSourceFile(parent: any, statement: Node, declarationText: string): void {
+  private insertInSourceFile(parent: SourceFile, statement: Node, declarationText: string): void {
     const statements = parent.getStatements();
-    const index = statements.findIndex((s: any) => s === statement);
+    const index = statements.findIndex((s: Statement) => s === statement);
     if (index !== -1) {
       parent.insertStatements(index, [declarationText]);
     }

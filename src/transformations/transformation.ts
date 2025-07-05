@@ -1,7 +1,7 @@
 import { SourceFile } from 'ts-morph';
 
 export interface Transformation {
-  transform(sourceFile: SourceFile): Promise<void>;
+  transform(_sourceFile: SourceFile): Promise<void>;
 }
 
 export interface TransformationResult {
@@ -11,5 +11,5 @@ export interface TransformationResult {
 }
 
 export interface TransformationWithResult {
-  transformWithResult(sourceFile: SourceFile): Promise<TransformationResult>;
+  transformWithResult(_sourceFile: SourceFile): Promise<TransformationResult>;
 }

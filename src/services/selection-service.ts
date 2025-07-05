@@ -9,12 +9,12 @@ import { RegexPatternMatcher } from './regex-pattern-matcher';
 
 export class SelectionService {
   constructor(
-    private astService: ASTService,
-    private contextAnalyzer: ContextAnalyzer,
-    private rangeAnalyzer: RangeAnalyzer,
-    private boundaryAnalyzer: BoundaryAnalyzer,
-    private structuralAnalyzer: StructuralAnalyzer,
-    private regexMatcher: RegexPatternMatcher
+    private _astService: ASTService,
+    private _contextAnalyzer: ContextAnalyzer,
+    private _rangeAnalyzer: RangeAnalyzer,
+    private _boundaryAnalyzer: BoundaryAnalyzer,
+    private _structuralAnalyzer: StructuralAnalyzer,
+    private _regexMatcher: RegexPatternMatcher
   ) {}
 
   async findSelections(sourceFile: SourceFile, options: Record<string, any>): Promise<SelectResult[]> {

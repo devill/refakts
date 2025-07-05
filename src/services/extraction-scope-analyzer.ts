@@ -1,4 +1,4 @@
-import { Node } from 'ts-morph';
+import { Node, FunctionDeclaration, FunctionExpression } from 'ts-morph';
 
 export class ExtractionScopeAnalyzer {
   findExtractionScope(node: Node): Node {
@@ -67,8 +67,8 @@ export class ExtractionScopeAnalyzer {
     return this.getOtherScopeNames(node);
   }
 
-  private getFunctionScopeName(node: any): string {
-    const name = node.getName();
+  private getFunctionScopeName(node: FunctionDeclaration | FunctionExpression): string {
+    const name = node.getName() || null;
     return `function ${name || '<anonymous>'}`;
   }
 

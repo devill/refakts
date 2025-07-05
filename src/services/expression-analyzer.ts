@@ -1,4 +1,4 @@
-import { Node, SyntaxKind } from 'ts-morph';
+import { Node, SyntaxKind, BinaryExpression } from 'ts-morph';
 
 export class ExpressionAnalyzer {
   needsParentheses(node: Node): boolean {
@@ -9,7 +9,7 @@ export class ExpressionAnalyzer {
     return this.isSimpleAdditionOrSubtraction(node);
   }
 
-  formatWithParentheses(initializer: Node, context?: Node): string {
+  formatWithParentheses(initializer: Node, _context?: Node): string {
     const initializerText = initializer.getText();
     if (this.needsParentheses(initializer)) {
       return `(${initializerText})`;
@@ -27,12 +27,12 @@ export class ExpressionAnalyzer {
     return this.hasSimpleOperands(binaryExpr);
   }
 
-  private isAdditionOrSubtraction(binaryExpr: any): boolean {
+  private isAdditionOrSubtraction(binaryExpr: BinaryExpression): boolean {
     const operator = binaryExpr.getOperatorToken().getKind();
     return operator === SyntaxKind.PlusToken || operator === SyntaxKind.MinusToken;
   }
 
-  private hasSimpleOperands(binaryExpr: any): boolean {
+  private hasSimpleOperands(binaryExpr: BinaryExpression): boolean {
     const left = binaryExpr.getLeft();
     const right = binaryExpr.getRight();
     return this.areSimpleOperands(left, right);

@@ -3,12 +3,12 @@ import { Transformation, TransformationResult } from './transformation';
 
 export class RenameVariableTransformation implements Transformation {
   constructor(
-    private readonly declaration: Node,
-    private readonly usages: Node[],
-    private readonly newName: string
+    private readonly _declaration: Node,
+    private readonly _usages: Node[],
+    private readonly _newName: string
   ) {}
 
-  async transform(sourceFile: SourceFile): Promise<void> {
+  async transform(_sourceFile: SourceFile): Promise<void> {
     const result = await this.transformWithResult();
     if (!result.success) {
       throw new Error(result.message || 'Rename transformation failed');
@@ -17,7 +17,7 @@ export class RenameVariableTransformation implements Transformation {
 
   async transformWithResult(): Promise<TransformationResult> {
     try {
-      const variableName = this.declaration.getText();
+      const variableName = this._declaration.getText();
       const changesCount = this.performDirectRename();
       return this.buildSuccessResult(variableName, changesCount);
     } catch (error) {
@@ -32,9 +32,9 @@ export class RenameVariableTransformation implements Transformation {
   }
 
   private renameDeclaration(): number {
-    const declarationIdentifier = this.findIdentifierInNode(this.declaration);
+    const declarationIdentifier = this.findIdentifierInNode(this._declaration);
     if (declarationIdentifier) {
-      declarationIdentifier.replaceWithText(this.newName);
+      declarationIdentifier.replaceWithText(this._newName);
       return 1;
     }
     return 0;
@@ -50,7 +50,7 @@ export class RenameVariableTransformation implements Transformation {
 
   private processUsageNodes(): number {
     let changesCount = 0;
-    for (const usage of this.usages) {
+    for (const usage of this._usages) {
       if (this.renameUsageNode(usage)) changesCount++;
     }
     return changesCount;
@@ -59,7 +59,7 @@ export class RenameVariableTransformation implements Transformation {
   private renameUsageNode(usage: Node): boolean {
     const usageIdentifier = this.findIdentifierInNode(usage);
     if (usageIdentifier) {
-      usageIdentifier.replaceWithText(this.newName);
+      usageIdentifier.replaceWithText(this._newName);
       return true;
     }
     return false;
@@ -76,7 +76,7 @@ export class RenameVariableTransformation implements Transformation {
     return {
       success: true,
       changesCount,
-      message: `Renamed ${changesCount} occurrences of '${variableName}' to '${this.newName}'`
+      message: `Renamed ${changesCount} occurrences of '${variableName}' to '${this._newName}'`
     };
   }
   

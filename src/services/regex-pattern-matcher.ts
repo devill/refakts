@@ -54,7 +54,11 @@ export class RegexPatternMatcher {
 
   private determineFormatter(options: Record<string, any>): SelectResultFormatter {
     const formatterType = this.getFormatterType(options);
-    return this.formatters.get(formatterType)!;
+    const formatter = this.formatters.get(formatterType);
+    if (!formatter) {
+      throw new Error(`Unknown formatter type: ${formatterType}`);
+    }
+    return formatter;
   }
 
   private getFormatterType(options: Record<string, any>): string {

@@ -2,22 +2,40 @@ import { SourceFile, Node, SyntaxKind } from 'ts-morph';
 import { SelectResult } from '../types/selection-types';
 import * as path from 'path';
 
+interface BoundaryOptions {
+  regex?: string;
+  boundaries?: string;
+  [key: string]: unknown;
+}
+
+interface BoundaryContext {
+  sourceFile: SourceFile;
+  pattern: string;
+  boundaryType: string;
+  fileName: string;
+}
+
+interface NodePositions {
+  start: number;
+  end: number;
+}
+
 export class BoundaryAnalyzer {
-  findBoundaryMatches(sourceFile: SourceFile, options: Record<string, any>): SelectResult[] {
+  findBoundaryMatches(sourceFile: SourceFile, options: BoundaryOptions): SelectResult[] {
     const matchContext = this.prepareBoundaryContext(sourceFile, options);
     return this.executeBoundaryMatching(matchContext);
   }
 
-  private prepareBoundaryContext(sourceFile: SourceFile, options: Record<string, any>) {
+  private prepareBoundaryContext(sourceFile: SourceFile, options: BoundaryOptions): BoundaryContext {
     return {
       sourceFile,
-      pattern: options.regex,
-      boundaryType: options.boundaries,
+      pattern: options.regex || '',
+      boundaryType: options.boundaries || '',
       fileName: path.basename(sourceFile.getFilePath())
     };
   }
 
-  private executeBoundaryMatching(context: any): SelectResult[] {
+  private executeBoundaryMatching(context: BoundaryContext): SelectResult[] {
     if (context.boundaryType === 'function') {
       return this.findFunctionBoundaryMatches(context.sourceFile, context.pattern, context.fileName);
     }
@@ -80,14 +98,14 @@ export class BoundaryAnalyzer {
     return this.createLinePositions(sourceFile, nodePositions);
   }
 
-  private getNodePositions(func: Node) {
+  private getNodePositions(func: Node): NodePositions {
     return {
       start: func.getStart(),
       end: func.getEnd()
     };
   }
 
-  private createLinePositions(sourceFile: any, nodePositions: any) {
+  private createLinePositions(sourceFile: SourceFile, nodePositions: NodePositions) {
     const startPos = sourceFile.getLineAndColumnAtPos(nodePositions.start);
     const endPos = sourceFile.getLineAndColumnAtPos(nodePositions.end);
     

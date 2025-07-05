@@ -1,10 +1,10 @@
-import { Node, VariableDeclaration } from 'ts-morph';
+import { Node, VariableDeclaration, SourceFile } from 'ts-morph';
 import { ContextAnalyzer } from './context-analyzer';
 
 export class VariableReplacer {
   private contextAnalyzer = new ContextAnalyzer();
 
-  replaceAllReferences(sourceFile: any, variableName: string, declaration: VariableDeclaration, initializerText: string): void {
+  replaceAllReferences(_sourceFile: SourceFile, variableName: string, declaration: VariableDeclaration, initializerText: string): void {
     const references = this.findAllReferences(variableName, declaration);
     for (const reference of references) {
       reference.replaceWithText(initializerText);

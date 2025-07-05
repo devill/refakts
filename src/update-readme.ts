@@ -16,7 +16,7 @@ async function getHelpOutput(): Promise<string> {
       cwd: path.join(__dirname, '..')
     });
     return extractCommands(stdout);
-  } catch (_error: unknown) {
+  } catch {
     return 'Error: Could not generate help output';
   }
 }
@@ -32,7 +32,7 @@ function getQualityChecksContent(): string {
   return formatDescriptions(descriptions);
 }
 
-function addCheckDescriptions(check: { name: string; getGroupDefinition?: (key: string) => { title: string; description: string } | undefined }, descriptions: Set<string>): void {
+function addCheckDescriptions(check: { name: string; getGroupDefinition?: (_key: string) => { title: string; description: string } | undefined }, descriptions: Set<string>): void {
   const groupKeys = getValidGroupKeys(check);
   for (const groupKey of groupKeys) {
     const groupDef = check.getGroupDefinition?.(groupKey);
@@ -48,9 +48,9 @@ function formatDescriptions(descriptions: Set<string>): string {
     : '- No quality checks configured';
 }
 
-function getValidGroupKeys(check: { name: string; getGroupDefinition?: (key: string) => { title: string; description: string } | undefined }): string[] {
+function getValidGroupKeys(check: { name: string; getGroupDefinition?: (_key: string) => { title: string; description: string } | undefined }): string[] {
   const possibleKeys = buildPossibleKeys(check);
-  return possibleKeys.filter(key => isValidKey(check, key));
+  return possibleKeys.filter(_key => isValidKey(check, _key));
 }
 
 function buildPossibleKeys(check: { name: string }): string[] {
@@ -64,9 +64,9 @@ function buildPossibleKeys(check: { name: string }): string[] {
   ];
 }
 
-function isValidKey(check: { getGroupDefinition?: (key: string) => { title: string; description: string } | undefined }, key: string): boolean {
+function isValidKey(check: { getGroupDefinition?: (_key: string) => { title: string; description: string } | undefined }, _key: string): boolean {
   try {
-    return Boolean(check.getGroupDefinition?.(key));
+    return Boolean(check.getGroupDefinition?.(_key));
   } catch {
     return false;
   }

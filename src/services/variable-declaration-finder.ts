@@ -1,7 +1,7 @@
-import { Node, VariableDeclaration, SyntaxKind } from 'ts-morph';
+import { Node, VariableDeclaration, SyntaxKind, SourceFile } from 'ts-morph';
 
 export class VariableDeclarationFinder {
-  findVariableDeclaration(sourceFile: any, variableName: string, contextNode?: Node): VariableDeclaration {
+  findVariableDeclaration(sourceFile: SourceFile, variableName: string, contextNode?: Node): VariableDeclaration {
     const declaration = contextNode 
       ? this.findClosestDeclaration(contextNode, variableName)
       : this.searchForDeclaration(sourceFile, variableName);
@@ -11,7 +11,7 @@ export class VariableDeclarationFinder {
     return declaration;
   }
 
-  private searchForDeclaration(sourceFile: any, variableName: string): VariableDeclaration | undefined {
+  private searchForDeclaration(sourceFile: SourceFile, variableName: string): VariableDeclaration | undefined {
     const variableDeclarations = sourceFile.getDescendantsOfKind(SyntaxKind.VariableDeclaration);
     
     for (const decl of variableDeclarations) {

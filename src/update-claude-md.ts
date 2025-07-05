@@ -168,7 +168,11 @@ function insertAfterDogFooding(content: string, section: string, dogFoodingIndex
   const nextSectionMatch = afterDogFooding.match(/\n## /);
   
   if (nextSectionMatch) {
-    return insertAtSectionBoundary(content, section, dogFoodingIndex, nextSectionMatch.index!);
+    const nextSectionIndex = nextSectionMatch.index;
+    if (nextSectionIndex === undefined) {
+      throw new Error('Section match found but index is undefined');
+    }
+    return insertAtSectionBoundary(content, section, dogFoodingIndex, nextSectionIndex);
   } else {
     return appendAtEnd(content, section);
   }
