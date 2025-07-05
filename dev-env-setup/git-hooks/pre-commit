@@ -3,6 +3,9 @@
 # Update CLAUDE.md and README.md with current --help output before commit
 cd "$(git rev-parse --show-toplevel)"
 
+echo "Checking for junk files..."
+npm run check-junk-files
+
 echo "Updating documentation with current --help output..."
 npm run update-docs
 

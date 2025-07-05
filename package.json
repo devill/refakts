@@ -26,7 +26,8 @@
     "roadmap:remove": "ts-node src/roadmap/index.ts remove",
     "roadmap:status": "ts-node src/roadmap/index.ts status",
     "usage-report": "ts-node scripts/usage-report.ts",
-    "usage-consolidate": "ts-node scripts/consolidate-usage.ts"
+    "usage-consolidate": "ts-node scripts/consolidate-usage.ts",
+    "check-junk-files": "ts-node scripts/check-junk-files.ts"
   },
   "keywords": [],
   "author": "",
