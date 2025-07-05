@@ -69,7 +69,7 @@ export class ASTService {
     if (this.isNodeRangeCloseToExpected(node, expectedStart, expectedEnd)) {
       const score = this.calculateNodeScore(node, expectedStart, expectedEnd);
       if (score < bestScore) {
-        return this.traverseToFindMatchingNode(node.getParent(), expectedStart, expectedEnd, node, score);;
+        return this.traverseToFindMatchingNode(node.getParent(), expectedStart, expectedEnd, node, score);
       }
     }
     return this.traverseToFindMatchingNode(node.getParent(), expectedStart, expectedEnd, bestMatch, bestScore);
