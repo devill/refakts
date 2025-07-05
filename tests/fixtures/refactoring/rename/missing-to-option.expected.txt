@@ -1,0 +1,1 @@
+Error: --to must be specified for rename operations

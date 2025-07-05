@@ -1,0 +1,1 @@
+Error: Destructuring declaration has no initializer to inline
