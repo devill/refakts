@@ -24,12 +24,12 @@ function validateSnoozeStatus(checkSnoozes: CheckSnoozes, identifier: string): b
     return false;
   }
   
-  const snoozeTimestamp = checkSnoozes[identifier];
+  const snoozeTimestamp = checkSnoozes![identifier];
   return isSnoozeStillValid(snoozeTimestamp);
 }
 
 function hasActiveSnooze(checkSnoozes: CheckSnoozes, identifier: string): boolean {
-  return checkSnoozes && checkSnoozes[identifier];
+  return Boolean(checkSnoozes && checkSnoozes[identifier]);
 }
 
 function isSnoozeStillValid(snoozeTimestamp: number): boolean {
