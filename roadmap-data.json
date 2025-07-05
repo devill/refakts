@@ -14,7 +14,7 @@
       "name": "find-usages",
       "description": "Finds all usages of a symbol or file in a code base. **IMPORTANT**: Research existing tools before implementing. Ideally we should integrate something",
       "why": "Helps with identifying where a symbol is defined as well as where it is used. Unlocks critical features",
-      "score": 3,
+      "score": 4,
       "status": "proposed",
       "note": "Replaces variable-locator. **IMPORTANT**: Once this is implemented variable-locator should be removed."
     },
@@ -56,7 +56,7 @@
       "name": "auto-import-organizer",
       "description": "Automatically add, remove, and organize import statements when moving code between files **IMPORTANT** research existing tools. There might already be command line tools that do this.",
       "why": "During modular refactoring, managing imports manually was tedious and error-prone",
-      "score": 3,
+      "score": 4,
       "status": "proposed"
     },
     {
@@ -84,14 +84,14 @@
       "name": "extract-type-alias",
       "description": "Extract complex type annotations into named type aliases",
       "why": "Critical for TypeScript codebases - improves type reusability and reduces complex inline type definitions",
-      "score": 0,
+      "score": 1,
       "status": "proposed"
     },
     {
       "name": "extract-interface",
       "description": "Extract object type patterns into reusable interfaces",
       "why": "Essential TypeScript refactoring for creating clean abstractions from inline object types and improving type system organization",
-      "score": 0,
+      "score": 1,
       "status": "proposed"
     },
     {
@@ -208,7 +208,14 @@
       "dependencies": [
         "find-usages"
       ]
+    },
+    {
+      "name": "detect-unused-interfaces",
+      "description": "Find and report interfaces, types, and type aliases that are defined but never used",
+      "why": "While creating many interfaces during type cleanup, it would have been helpful to automatically detect which interfaces were actually needed vs. created but unused (like EndMatchResult).",
+      "score": 1,
+      "status": "proposed"
     }
   ],
-  "lastUpdated": "2025-07-04T14:29:34.089Z"
+  "lastUpdated": "2025-07-05T07:37:13.968Z"
 }
