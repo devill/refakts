@@ -12,62 +12,81 @@ export class TestCaseValidator {
 
   async validateTextOutput(testCase: TestCase): Promise<void> {
     for (const command of testCase.commands) {
-      let updatedCommand = command;
-      const inputFileName = path.basename(testCase.inputFile);
-      updatedCommand = updatedCommand.replace(inputFileName, testCase.inputFile);
-      
-      try {
-        const output = await this.commandExecutor.executeCommand(updatedCommand);
-        const textContent = this.extractTextContent(output);
-        
-        fs.writeFileSync(testCase.receivedFile, textContent);
-        
-        const expected = fs.readFileSync(testCase.expectedFile, 'utf8').trim();
-        const received = fs.readFileSync(testCase.receivedFile, 'utf8').trim();
-        
-        expect(received).toBe(expected);
-      } catch (error) {
-        const errorMessage = (error as Error).message;
-        fs.writeFileSync(testCase.receivedFile, errorMessage);
-        
-        const expected = fs.readFileSync(testCase.expectedFile, 'utf8').trim();
-        const received = fs.readFileSync(testCase.receivedFile, 'utf8').trim();
-        
-        expect(received).toBe(expected);
-      }
+      await this.executeAndValidateTextCommand(testCase, command);
     }
     
     this.cleanupReceivedFile(testCase.receivedFile);
   }
 
+  private async executeAndValidateTextCommand(testCase: TestCase, command: string): Promise<void> {
+    const updatedCommand = this.updateCommandPath(command, testCase.inputFile);
+    
+    try {
+      const output = await this.commandExecutor.executeCommand(updatedCommand);
+      this.validateSuccessTextOutput(testCase, output);
+    } catch (error) {
+      this.validateErrorTextOutput(testCase, error);
+    }
+  }
+
+  private updateCommandPath(command: string, inputFile: string): string {
+    const inputFileName = path.basename(inputFile);
+    return command.replace(inputFileName, inputFile);
+  }
+
+  private validateSuccessTextOutput(testCase: TestCase, output: string | void): void {
+    const textContent = this.extractTextContent(output);
+    this.writeAndCompareOutput(testCase, textContent);
+  }
+
+  private validateErrorTextOutput(testCase: TestCase, error: unknown): void {
+    const errorMessage = (error as Error).message;
+    this.writeAndCompareOutput(testCase, errorMessage);
+  }
+
+  private writeAndCompareOutput(testCase: TestCase, content: string): void {
+    fs.writeFileSync(testCase.receivedFile, content);
+    
+    const expected = fs.readFileSync(testCase.expectedFile, 'utf8').trim();
+    const received = fs.readFileSync(testCase.receivedFile, 'utf8').trim();
+    
+    expect(received).toBe(expected);
+  }
+
   async validateYamlOutput(testCase: TestCase): Promise<void> {
     for (const command of testCase.commands) {
-      let updatedCommand = command;
-      const inputFileName = path.basename(testCase.inputFile);
-      updatedCommand = updatedCommand.replace(inputFileName, testCase.inputFile);
-      
-      try {
-        const output = await this.commandExecutor.executeCommand(updatedCommand);
-        let yamlContent: string;
-        
-        if (typeof output === 'string') {
-          yamlContent = this.commandExecutor.isUsingCli() ? output.trim() : output;
-        } else {
-          yamlContent = '';
-        }
-        
-        fs.writeFileSync(testCase.receivedFile, yamlContent);
-        
-        const expected = fs.readFileSync(testCase.expectedFile, 'utf8').trim();
-        const received = fs.readFileSync(testCase.receivedFile, 'utf8').trim();
-        
-        expect(received).toEqual(expected);
-      } catch (error) {
-        throw new Error(`Command failed: ${updatedCommand}\n${error}`);
-      }
+      await this.executeAndValidateYamlCommand(testCase, command);
     }
     
     this.cleanupReceivedFile(testCase.receivedFile);
+  }
+
+  private async executeAndValidateYamlCommand(testCase: TestCase, command: string): Promise<void> {
+    const updatedCommand = this.updateCommandPath(command, testCase.inputFile);
+    
+    try {
+      const output = await this.commandExecutor.executeCommand(updatedCommand);
+      this.validateYamlCommandOutput(testCase, output);
+    } catch (error) {
+      throw new Error(`Command failed: ${updatedCommand}\n${error}`);
+    }
+  }
+
+  private validateYamlCommandOutput(testCase: TestCase, output: string | void): void {
+    const yamlContent = this.extractYamlContent(output);
+    fs.writeFileSync(testCase.receivedFile, yamlContent);
+    
+    const expected = fs.readFileSync(testCase.expectedFile, 'utf8').trim();
+    const received = fs.readFileSync(testCase.receivedFile, 'utf8').trim();
+    
+    expect(received).toEqual(expected);
+  }
+
+  private extractYamlContent(output: string | void): string {
+    if (typeof output === 'string') {
+      return this.commandExecutor.isUsingCli() ? output.trim() : output;
+    }
+    return '';
   }
 
   private extractTextContent(output: string | void): string {
@@ -89,49 +108,77 @@ export class TestCaseValidator {
 
   private async validateErrorCase(testCase: TestCase): Promise<void> {
     for (const command of testCase.commands) {
-      let updatedCommand = command.replace('refakts', '').trim();
-      const inputFileName = path.basename(testCase.inputFile);
-      updatedCommand = updatedCommand.replace(inputFileName, testCase.inputFile);
-      
-      try {
-        await this.commandExecutor.executeCommand(updatedCommand);
-        throw new Error(`Expected command to fail but it succeeded: ${updatedCommand}`);
-      } catch (error) {
-        const errorMessage = this.extractCoreErrorMessage((error as Error).message);
-        fs.writeFileSync(testCase.receivedFile, errorMessage);
-        
-        const expected = fs.readFileSync(testCase.expectedFile, 'utf8').trim();
-        const received = fs.readFileSync(testCase.receivedFile, 'utf8').trim();
-        
-        expect(received).toBe(expected);
-      }
+      await this.executeAndValidateErrorCommand(testCase, command);
     }
     
     this.cleanupReceivedFile(testCase.receivedFile);
   }
 
+  private async executeAndValidateErrorCommand(testCase: TestCase, command: string): Promise<void> {
+    const updatedCommand = this.prepareErrorCommand(command, testCase.inputFile);
+    
+    try {
+      await this.commandExecutor.executeCommand(updatedCommand);
+      throw new Error(`Expected command to fail but it succeeded: ${updatedCommand}`);
+    } catch (error) {
+      this.handleExpectedError(testCase, error);
+    }
+  }
+
+  private prepareErrorCommand(command: string, inputFile: string): string {
+    const cleanCommand = command.replace('refakts', '').trim();
+    const inputFileName = path.basename(inputFile);
+    return cleanCommand.replace(inputFileName, inputFile);
+  }
+
+  private handleExpectedError(testCase: TestCase, error: unknown): void {
+    const errorMessage = this.extractCoreErrorMessage((error as Error).message);
+    this.writeAndCompareOutput(testCase, errorMessage);
+  }
+
   private async validateSuccessCase(testCase: TestCase): Promise<void> {
+    await this.setupTestFiles(testCase);
+    await this.executeRefactoringCommands(testCase);
+    await this.validateRefactoringResults(testCase);
+    this.cleanupRefactoringFiles(testCase.receivedFile);
+  }
+
+  private async setupTestFiles(testCase: TestCase): Promise<void> {
     if (fs.statSync(testCase.inputFile).isDirectory()) {
       await this.copyDirectory(testCase.inputFile, testCase.receivedFile);
     } else {
       fs.copyFileSync(testCase.inputFile, testCase.receivedFile);
     }
-    
+  }
+
+  private async executeRefactoringCommands(testCase: TestCase): Promise<void> {
     for (const command of testCase.commands) {
-      let updatedCommand = command.replace('refakts', '').trim();
-      
-      if (fs.statSync(testCase.inputFile).isFile()) {
-        const inputFileName = path.basename(testCase.inputFile);
-        updatedCommand = updatedCommand.replace(inputFileName, testCase.receivedFile);
-      }
-      
-      try {
-        await this.commandExecutor.executeCommand(updatedCommand);
-      } catch (error) {
-        throw new Error(`Command failed: ${updatedCommand}\n${error}`);
-      }
+      await this.executeRefactoringCommand(testCase, command);
+    }
+  }
+
+  private async executeRefactoringCommand(testCase: TestCase, command: string): Promise<void> {
+    const updatedCommand = this.prepareRefactoringCommand(testCase, command);
+    
+    try {
+      await this.commandExecutor.executeCommand(updatedCommand);
+    } catch (error) {
+      throw new Error(`Command failed: ${updatedCommand}\n${error}`);
+    }
+  }
+
+  private prepareRefactoringCommand(testCase: TestCase, command: string): string {
+    let updatedCommand = command.replace('refakts', '').trim();
+    
+    if (fs.statSync(testCase.inputFile).isFile()) {
+      const inputFileName = path.basename(testCase.inputFile);
+      updatedCommand = updatedCommand.replace(inputFileName, testCase.receivedFile);
     }
     
+    return updatedCommand;
+  }
+
+  private async validateRefactoringResults(testCase: TestCase): Promise<void> {
     if (fs.statSync(testCase.expectedFile).isDirectory()) {
       await this.compareDirectories(testCase.expectedFile, testCase.receivedFile);
     } else {
@@ -139,8 +186,6 @@ export class TestCaseValidator {
       const received = fs.readFileSync(testCase.receivedFile, 'utf8');
       expect(received).toBe(expected);
     }
-    
-    this.cleanupRefactoringFiles(testCase.receivedFile);
   }
 
   private async copyDirectory(src: string, dest: string): Promise<void> {
@@ -226,18 +271,24 @@ export class TestCaseValidator {
   }
 
   private extractCoreErrorMessage(errorMessage: string): string {
-    // Remove command execution wrapper if present
     if (errorMessage.startsWith('Command execution failed:')) {
-      const lines = errorMessage.split('\n');
-      if (lines.length > 1) {
-        const coreMessage = lines.slice(1).join('\n');
-        // Ensure "Error: " prefix for consistency with expected outputs
-        return coreMessage.startsWith('Error: ') ? coreMessage : `Error: ${coreMessage}`;
-      }
+      return this.extractFromFailedCommand(errorMessage);
     }
     
-    // Ensure "Error: " prefix for consistency with expected outputs
-    return errorMessage.startsWith('Error: ') ? errorMessage : `Error: ${errorMessage}`;
+    return this.ensureErrorPrefix(errorMessage);
+  }
+
+  private extractFromFailedCommand(errorMessage: string): string {
+    const lines = errorMessage.split('\n');
+    if (lines.length > 1) {
+      const coreMessage = lines.slice(1).join('\n');
+      return this.ensureErrorPrefix(coreMessage);
+    }
+    return this.ensureErrorPrefix(errorMessage);
+  }
+
+  private ensureErrorPrefix(message: string): string {
+    return message.startsWith('Error: ') ? message : `Error: ${message}`;
   }
 
   private cleanupRefactoringFiles(receivedFile: string): void {
