@@ -31,10 +31,26 @@
     "prepack": "npm run build",
     "prepublishOnly": "npm run lint && npm run test"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["typescript", "refactoring", "ast", "code-transformation", "cli", "ts-morph", "developer-tools"],
+  "author": "Ivett Ördög. (http://ivettordog.com)",
   "license": "ISC",
-  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devill/refakts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/devill/refakts/issues"
+  },
+  "homepage": "https://github.com/devill/refakts#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "description": "TypeScript refactoring tool built for AI coding agents to perform precise refactoring operations via command line instead of requiring complete code regeneration.",
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/js-yaml": "^4.0.9",
