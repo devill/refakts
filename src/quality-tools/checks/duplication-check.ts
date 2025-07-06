@@ -40,9 +40,11 @@ export const duplicationCheck: QualityCheck = {
 };
 
 const hasDuplication = (error: unknown): boolean => {
-  if (error && typeof error === 'object' && 'stdout' in error) {
+  if (error && typeof error === 'object') {
     const execError = error as ExecError;
-    return execError.stdout?.includes('duplications found') ?? false;
+    return (execError.stdout?.includes('duplications found') ?? false) ||
+           (execError.stderr?.includes('too many duplicates') ?? false) ||
+           (execError.message?.includes('too many duplicates') ?? false);
   }
   return false;
 };
