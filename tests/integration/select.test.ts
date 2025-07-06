@@ -129,7 +129,15 @@ describe('Select Integration Tests', () => {
           
           expect(received).toBe(expected);
         } catch (error) {
-          throw new Error(`Command failed: ${updatedCommand}\n${error}`);
+          // For error cases, write the error message to received file and compare
+          const errorMessage = (error as Error).message;
+          fs.writeFileSync(testCase.receivedFile, errorMessage);
+          
+          // Compare received vs expected text content  
+          const expected = fs.readFileSync(testCase.expectedFile, 'utf8').trim();
+          const received = fs.readFileSync(testCase.receivedFile, 'utf8').trim();
+          
+          expect(received).toBe(expected);
         }
       }
       

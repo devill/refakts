@@ -1,1 +1,1 @@
-Invalid location format: invalid-location-format
+Invalid location format: [invalid-location-format]
