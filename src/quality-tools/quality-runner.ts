@@ -36,7 +36,9 @@ const shouldFailOnLinterIssues = (linterIssues: QualityIssue[]): boolean => {
 };
 
 const main = async (): Promise<void> => {
-  const issues = await runQualityChecks('src');
+  const srcIssues = await runQualityChecks('src');
+  const testIssues = await runQualityChecks('tests');
+  const issues = [...srcIssues, ...testIssues];
   
   const linterIssues = issues.filter(issue => issue.type === 'linter-violation' || issue.type === 'linter-error');
   const otherIssues = issues.filter(issue => issue.type !== 'linter-violation' && issue.type !== 'linter-error');

@@ -54,4 +54,4 @@ const createFunctionSizeIssue = (filePath: string, func: FunctionDeclaration | M
 };
 
 const shouldSkipFile = (filePath: string): boolean =>
-  filePath.includes('.test.') || filePath.includes('.spec.') || filePath.endsWith('.d.ts');
+  filePath.endsWith('.d.ts') || filePath.includes('/fixtures/');

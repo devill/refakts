@@ -12,12 +12,25 @@ interface ExecError extends Error {
 export const duplicationCheck: QualityCheck = {
   name: 'duplication',
   check: async (): Promise<QualityIssue[]> => {
+    const issues: QualityIssue[] = [];
+    
     try {
-      await execAsync('npx jscpd src tests/integration tests/utils tests/unit --threshold 10 --reporters console --silent');
-      return [];
+      await execAsync('npx jscpd src tests --threshold 10 --reporters console --silent');
     } catch (error: unknown) {
-      return hasDuplication(error) ? createDuplicationIssue() : [];
+      if (hasDuplication(error)) {
+        issues.push(...createDuplicationIssue());
+      }
     }
+    
+    try {
+      await execAsync('npx jscpd tests --threshold 5 --reporters console --silent');
+    } catch (error: unknown) {
+      if (hasDuplication(error)) {
+        issues.push(...createTestDuplicationIssue());
+      }
+    }
+    
+    return issues;
   },
   getGroupDefinition: (groupKey: string) => groupKey === 'duplication' ? {
     title: 'CODE DUPLICATION',
@@ -37,4 +50,9 @@ const hasDuplication = (error: unknown): boolean => {
 const createDuplicationIssue = (): QualityIssue[] => [{
   type: 'duplication',
   message: 'Code duplication detected. Look for missing abstractions - similar code patterns indicate shared concepts that should be extracted into reusable functions or classes.'
+}];
+
+const createTestDuplicationIssue = (): QualityIssue[] => [{
+  type: 'duplication',
+  message: 'Test code duplication detected. Extract common test utilities, fixture handling, or assertion patterns into shared helper functions.'
 }];
