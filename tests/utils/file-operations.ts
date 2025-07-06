@@ -80,12 +80,45 @@ export class FileOperations {
   }
 
   writeAndCompareOutput(testCase: TestCase, content: string): void {
-    fs.writeFileSync(testCase.receivedFile, content);
-    
-    const expected = fs.readFileSync(testCase.expectedFile, 'utf8').trim();
-    const received = fs.readFileSync(testCase.receivedFile, 'utf8').trim();
-    
+    this.writeReceivedFile(testCase.receivedFile, content);
+    this.compareOutputFiles(testCase.expectedFile, testCase.receivedFile);
+  }
+
+  writeAndCompareYamlOutput(testCase: TestCase, content: string): void {
+    this.writeReceivedFile(testCase.receivedFile, content);
+    this.compareYamlFiles(testCase.expectedFile, testCase.receivedFile);
+  }
+
+  private writeReceivedFile(receivedFile: string, content: string): void {
+    fs.writeFileSync(receivedFile, content);
+  }
+
+  private compareOutputFiles(expectedFile: string, receivedFile: string): void {
+    const expected = fs.readFileSync(expectedFile, 'utf8').trim();
+    const received = fs.readFileSync(receivedFile, 'utf8').trim();
     expect(received).toBe(expected);
+  }
+
+  private compareYamlFiles(expectedFile: string, receivedFile: string): void {
+    const expected = fs.readFileSync(expectedFile, 'utf8').trim();
+    const received = fs.readFileSync(receivedFile, 'utf8').trim();
+    expect(received).toEqual(expected);
+  }
+
+  setupTestFiles(testCase: TestCase): void {
+    if (fs.statSync(testCase.inputFile).isDirectory()) {
+      this.copyDirectory(testCase.inputFile, testCase.receivedFile);
+    } else {
+      fs.copyFileSync(testCase.inputFile, testCase.receivedFile);
+    }
+  }
+
+  validateResults(testCase: TestCase): void {
+    if (fs.statSync(testCase.expectedFile).isDirectory()) {
+      this.compareDirectories(testCase.expectedFile, testCase.receivedFile);
+    } else {
+      this.compareFileContent(testCase.expectedFile, testCase.receivedFile);
+    }
   }
 
   cleanupReceivedFile(receivedFile: string): void {

@@ -56,14 +56,20 @@ function loadTestCasesFromDirectories(fixturesDir: string, expectedExtension: st
   const testDirs = getDirectoryNames(fixturesDir);
   
   for (const testDir of testDirs) {
-    const testPath = path.join(fixturesDir, testDir);
-    const files = fs.readdirSync(testPath);
-    
-    testCases.push(...getMultiFileTestCases(testDir, testPath, files));
-    testCases.push(...getSingleFileTestCases(testDir, testPath, files, expectedExtension));
+    testCases.push(...processTestDirectory(testDir, fixturesDir, expectedExtension));
   }
   
   return testCases;
+}
+
+function processTestDirectory(testDir: string, fixturesDir: string, expectedExtension: string): TestCase[] {
+  const testPath = path.join(fixturesDir, testDir);
+  const files = fs.readdirSync(testPath);
+  
+  return [
+    ...getMultiFileTestCases(testDir, testPath, files),
+    ...getSingleFileTestCases(testDir, testPath, files, expectedExtension)
+  ];
 }
 
 function getDirectoryNames(fixturesDir: string): string[] {
@@ -73,17 +79,10 @@ function getDirectoryNames(fixturesDir: string): string[] {
 }
 
 function getMultiFileTestCases(testDir: string, testPath: string, files: string[]): TestCase[] {
-  const testCases: TestCase[] = [];
   const subDirs = getSubDirectories(testPath, files);
-  
-  for (const subDir of subDirs) {
-    const testCase = createMultiFileTestCase(testDir, testPath, subDir);
-    if (testCase) {
-      testCases.push(testCase);
-    }
-  }
-  
-  return testCases;
+  return subDirs
+    .map(subDir => createMultiFileTestCase(testDir, testPath, subDir))
+    .filter(testCase => testCase !== null) as TestCase[];
 }
 
 function getSubDirectories(testPath: string, files: string[]): string[] {

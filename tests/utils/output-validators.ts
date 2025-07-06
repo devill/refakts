@@ -1,13 +1,15 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import { CommandExecutor } from './command-executor';
 import { TestCase } from './test-case-loader';
+import { FileOperations } from './file-operations';
 
 export class TextOutputValidator {
   private commandExecutor: CommandExecutor;
+  private fileOps: FileOperations;
   
   constructor(commandExecutor: CommandExecutor) {
     this.commandExecutor = commandExecutor;
+    this.fileOps = new FileOperations();
   }
 
   async validate(testCase: TestCase): Promise<void> {
@@ -15,7 +17,7 @@ export class TextOutputValidator {
       await this.executeAndValidateTextCommand(testCase, command);
     }
     
-    this.cleanupReceivedFile(testCase.receivedFile);
+    this.fileOps.cleanupReceivedFile(testCase.receivedFile);
   }
 
   private async executeAndValidateTextCommand(testCase: TestCase, command: string): Promise<void> {
@@ -36,21 +38,12 @@ export class TextOutputValidator {
 
   private validateSuccessTextOutput(testCase: TestCase, output: string | void): void {
     const textContent = this.extractTextContent(output);
-    this.writeAndCompareOutput(testCase, textContent);
+    this.fileOps.writeAndCompareOutput(testCase, textContent);
   }
 
   private validateErrorTextOutput(testCase: TestCase, error: unknown): void {
     const errorMessage = (error as Error).message;
-    this.writeAndCompareOutput(testCase, errorMessage);
-  }
-
-  private writeAndCompareOutput(testCase: TestCase, content: string): void {
-    fs.writeFileSync(testCase.receivedFile, content);
-    
-    const expected = fs.readFileSync(testCase.expectedFile, 'utf8').trim();
-    const received = fs.readFileSync(testCase.receivedFile, 'utf8').trim();
-    
-    expect(received).toBe(expected);
+    this.fileOps.writeAndCompareOutput(testCase, errorMessage);
   }
 
   private extractTextContent(output: string | void): string {
@@ -59,19 +52,15 @@ export class TextOutputValidator {
     }
     return '';
   }
-
-  private cleanupReceivedFile(receivedFile: string): void {
-    if (fs.existsSync(receivedFile)) {
-      fs.unlinkSync(receivedFile);
-    }
-  }
 }
 
 export class YamlOutputValidator {
   private commandExecutor: CommandExecutor;
+  private fileOps: FileOperations;
   
   constructor(commandExecutor: CommandExecutor) {
     this.commandExecutor = commandExecutor;
+    this.fileOps = new FileOperations();
   }
 
   async validate(testCase: TestCase): Promise<void> {
@@ -79,7 +68,7 @@ export class YamlOutputValidator {
       await this.executeAndValidateYamlCommand(testCase, command);
     }
     
-    this.cleanupReceivedFile(testCase.receivedFile);
+    this.fileOps.cleanupReceivedFile(testCase.receivedFile);
   }
 
   private async executeAndValidateYamlCommand(testCase: TestCase, command: string): Promise<void> {
@@ -100,12 +89,7 @@ export class YamlOutputValidator {
 
   private validateYamlCommandOutput(testCase: TestCase, output: string | void): void {
     const yamlContent = this.extractYamlContent(output);
-    fs.writeFileSync(testCase.receivedFile, yamlContent);
-    
-    const expected = fs.readFileSync(testCase.expectedFile, 'utf8').trim();
-    const received = fs.readFileSync(testCase.receivedFile, 'utf8').trim();
-    
-    expect(received).toEqual(expected);
+    this.fileOps.writeAndCompareYamlOutput(testCase, yamlContent);
   }
 
   private extractYamlContent(output: string | void): string {
@@ -113,11 +97,5 @@ export class YamlOutputValidator {
       return this.commandExecutor.isUsingCli() ? output.trim() : output;
     }
     return '';
-  }
-
-  private cleanupReceivedFile(receivedFile: string): void {
-    if (fs.existsSync(receivedFile)) {
-      fs.unlinkSync(receivedFile);
-    }
   }
 }

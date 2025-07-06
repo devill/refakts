@@ -54,18 +54,10 @@ export class RefactoringValidator {
   }
 
   private async validateSuccessCase(testCase: TestCase): Promise<void> {
-    await this.setupTestFiles(testCase);
+    this.fileOps.setupTestFiles(testCase);
     await this.executeRefactoringCommands(testCase);
-    await this.validateRefactoringResults(testCase);
+    this.fileOps.validateResults(testCase);
     this.fileOps.cleanupRefactoringFiles(testCase.receivedFile);
-  }
-
-  private async setupTestFiles(testCase: TestCase): Promise<void> {
-    if (fs.statSync(testCase.inputFile).isDirectory()) {
-      await this.fileOps.copyDirectory(testCase.inputFile, testCase.receivedFile);
-    } else {
-      fs.copyFileSync(testCase.inputFile, testCase.receivedFile);
-    }
   }
 
   private async executeRefactoringCommands(testCase: TestCase): Promise<void> {
@@ -95,15 +87,6 @@ export class RefactoringValidator {
     return updatedCommand;
   }
 
-  private async validateRefactoringResults(testCase: TestCase): Promise<void> {
-    if (fs.statSync(testCase.expectedFile).isDirectory()) {
-      await this.fileOps.compareDirectories(testCase.expectedFile, testCase.receivedFile);
-    } else {
-      const expected = fs.readFileSync(testCase.expectedFile, 'utf8');
-      const received = fs.readFileSync(testCase.receivedFile, 'utf8');
-      expect(received).toBe(expected);
-    }
-  }
 
   private extractCoreErrorMessage(errorMessage: string): string {
     if (errorMessage.startsWith('Command execution failed:')) {
