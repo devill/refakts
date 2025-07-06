@@ -13,7 +13,7 @@ export const duplicationCheck: QualityCheck = {
   name: 'duplication',
   check: async (): Promise<QualityIssue[]> => {
     try {
-      await execAsync('npx jscpd src --threshold 10 --reporters console --silent');
+      await execAsync('npx jscpd src tests/integration tests/utils tests/unit --threshold 10 --reporters console --silent');
       return [];
     } catch (error: unknown) {
       return hasDuplication(error) ? createDuplicationIssue() : [];

@@ -8,7 +8,7 @@ export const complexityCheck: QualityCheck = {
   name: 'complexity',
   check: async (): Promise<QualityIssue[]> => {
     try {
-      const { stdout } = await execAsync('npx complexity-report --format json src');
+      const { stdout } = await execAsync('npx complexity-report --format json src tests/integration tests/utils tests/unit');
       return analyzeComplexityReport(stdout);
     } catch {
       return [];

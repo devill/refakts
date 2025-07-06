@@ -71,7 +71,7 @@ export const linterCheck: QualityCheck = {
   name: 'linter-check',
   check: async (_sourceDir: string): Promise<QualityIssue[]> => {
     try {
-      const { stdout, stderr } = await execAsync('npx eslint src --ext .ts --format json');
+      const { stdout, stderr } = await execAsync('npx eslint src tests/integration tests/utils tests/unit --ext .ts --format json');
       
       if (stderr && !stderr.includes('warning')) {
         return [{
@@ -85,7 +85,7 @@ export const linterCheck: QualityCheck = {
     } catch (error) {
       if (error instanceof Error && error.message.includes('Command failed')) {
         try {
-          const { stdout } = await execAsync('npx eslint src --ext .ts --format json').catch(err => ({ stdout: err.stdout }));
+          const { stdout } = await execAsync('npx eslint src tests/integration tests/utils tests/unit --ext .ts --format json').catch(err => ({ stdout: err.stdout }));
           
           if (stdout) {
             return parseEslintResults(stdout);
