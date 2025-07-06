@@ -67,15 +67,18 @@ export class CommandExecutor {
   ): Promise<string | void> {
     try {
       command.validateOptions(options);
-      
-      if (this.isLocatorCommand(commandName)) {
-        return this.captureConsoleOutput(() => command.execute(file, options));
-      } else {
-        await command.execute(file, options);
-        return;
-      }
+      return this.runValidatedCommand(command, file, options, commandName);
     } catch (error) {
       throw new Error(`Command execution failed: ${commandString}\n${(error as Error).message}`);
+    }
+  }
+
+  private async runValidatedCommand(command: any, file: string, options: any, commandName: string): Promise<string | void> {
+    if (this.isLocatorCommand(commandName)) {
+      return this.captureConsoleOutput(() => command.execute(file, options));
+    } else {
+      await command.execute(file, options);
+      return;
     }
   }
 
@@ -104,6 +107,10 @@ export class CommandExecutor {
     const startIndex = this.getCommandStartIndex(args);
     this.validateMinimumArgs(args, startIndex, commandString);
     
+    return this.extractCommandComponents(args, startIndex);
+  }
+
+  private extractCommandComponents(args: string[], startIndex: number) {
     const commandName = args[startIndex];
     const target = args[startIndex + 1];
     const options: any = {};
@@ -138,26 +145,36 @@ export class CommandExecutor {
   }
 
   private parseLocationFormat(target: string, options: any): string {
+    const file = this.extractFileFromLocationTarget(target);
+    this.addLocationToOptions(target, options);
+    return file;
+  }
+
+  private extractFileFromLocationTarget(target: string): string {
     const locationMatch = target.match(/^\[([^\]]+)\s+/);
     if (!locationMatch) {
       throw new Error(`Invalid location format: ${target}`);
     }
-    
-    const file = locationMatch[1];
+    return locationMatch[1];
+  }
+
+  private addLocationToOptions(target: string, options: any): void {
     const locationRegex = /^\[([^\]]+)\s+(\d+):(\d+)-(\d+):(\d+)\]$/;
     const match = target.match(locationRegex);
     
     if (match) {
-      options.location = {
-        file: match[1],
-        startLine: parseInt(match[2], 10),
-        startColumn: parseInt(match[3], 10),
-        endLine: parseInt(match[4], 10),
-        endColumn: parseInt(match[5], 10)
-      };
+      options.location = this.createLocationObject(match);
     }
-    
-    return file;
+  }
+
+  private createLocationObject(match: RegExpMatchArray) {
+    return {
+      file: match[1],
+      startLine: parseInt(match[2], 10),
+      startColumn: parseInt(match[3], 10),
+      endLine: parseInt(match[4], 10),
+      endColumn: parseInt(match[5], 10)
+    };
   }
 
   private parseCommandOptions(args: string[], startIndex: number, options: any): void {
@@ -201,28 +218,28 @@ export class CommandExecutor {
 
   private parseCommandLineArgs(commandString: string): string[] {
     const args: string[] = [];
-    let current = '';
-    let inQuotes = false;
-    let quoteChar = '';
+    const state = { current: '', inQuotes: false, quoteChar: '' };
 
     for (let i = 0; i < commandString.length; i++) {
-      const char = commandString[i];
-      
-      if (this.isQuoteStart(char, inQuotes)) {
-        inQuotes = true;
-        quoteChar = char;
-      } else if (this.isQuoteEnd(char, inQuotes, quoteChar)) {
-        inQuotes = false;
-        quoteChar = '';
-      } else if (this.isArgumentSeparator(char, inQuotes)) {
-        current = this.addArgumentIfPresent(args, current);
-      } else {
-        current += char;
-      }
+      this.processCharacter(commandString[i], args, state);
     }
 
-    this.addArgumentIfPresent(args, current);
+    this.addArgumentIfPresent(args, state.current);
     return args;
+  }
+
+  private processCharacter(char: string, args: string[], state: any): void {
+    if (this.isQuoteStart(char, state.inQuotes)) {
+      state.inQuotes = true;
+      state.quoteChar = char;
+    } else if (this.isQuoteEnd(char, state.inQuotes, state.quoteChar)) {
+      state.inQuotes = false;
+      state.quoteChar = '';
+    } else if (this.isArgumentSeparator(char, state.inQuotes)) {
+      state.current = this.addArgumentIfPresent(args, state.current);
+    } else {
+      state.current += char;
+    }
   }
 
   private isQuoteStart(char: string, inQuotes: boolean): boolean {
