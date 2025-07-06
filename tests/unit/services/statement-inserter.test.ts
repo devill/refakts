@@ -187,7 +187,7 @@ describe('StatementInserter', () => {
 
     it('should test error condition with orphaned node', () => {
       // Create a sourceFile and manually construct a node without proper parent structure
-      const sourceFile = project.createSourceFile('test.ts', 'const x = 1;');
+      project.createSourceFile('test.ts', 'const x = 1;');
       
       // Create a mock node that will return undefined for findContainingStatement
       const mockNode = {

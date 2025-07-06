@@ -202,7 +202,7 @@ export class CommandExecutor {
     try {
       const optionsData = fs.readFileSync(optionsPath, 'utf8');
       return JSON.parse(optionsData);
-    } catch (error) {
+    } catch {
       return [];
     }
   }

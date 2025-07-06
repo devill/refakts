@@ -10,7 +10,7 @@ import {
 // Copy the quality checks parsing logic for testing
 // We'll need to extract these to a testable module in the refactor
 
-function getQualityChecksContent(qualityChecks: Array<{ name: string; getGroupDefinition?: (key: string) => { title: string; description: string } | undefined }>): string {
+function getQualityChecksContent(qualityChecks: Array<{ name: string; getGroupDefinition?: (_key: string) => { title: string; description: string } | undefined }>): string {
   const descriptions = new Set<string>();
   
   for (const check of qualityChecks) {
@@ -20,7 +20,7 @@ function getQualityChecksContent(qualityChecks: Array<{ name: string; getGroupDe
   return formatDescriptions(descriptions);
 }
 
-function addCheckDescriptions(check: { name: string; getGroupDefinition?: (key: string) => { title: string; description: string } | undefined }, descriptions: Set<string>): void {
+function addCheckDescriptions(check: { name: string; getGroupDefinition?: (_key: string) => { title: string; description: string } | undefined }, descriptions: Set<string>): void {
   const groupKeys = getValidGroupKeys(check);
   for (const groupKey of groupKeys) {
     const groupDef = check.getGroupDefinition?.(groupKey);
@@ -36,7 +36,7 @@ function formatDescriptions(descriptions: Set<string>): string {
     : '- No quality checks configured';
 }
 
-function getValidGroupKeys(check: { name: string; getGroupDefinition?: (key: string) => { title: string; description: string } | undefined }): string[] {
+function getValidGroupKeys(check: { name: string; getGroupDefinition?: (_key: string) => { title: string; description: string } | undefined }): string[] {
   const possibleKeys = buildPossibleKeys(check);
   return possibleKeys.filter(key => isValidKey(check, key));
 }
@@ -52,7 +52,7 @@ function buildPossibleKeys(check: { name: string }): string[] {
   ];
 }
 
-function isValidKey(check: { getGroupDefinition?: (key: string) => { title: string; description: string } | undefined }, key: string): boolean {
+function isValidKey(check: { getGroupDefinition?: (_key: string) => { title: string; description: string } | undefined }, key: string): boolean {
   try {
     return Boolean(check.getGroupDefinition?.(key));
   } catch {

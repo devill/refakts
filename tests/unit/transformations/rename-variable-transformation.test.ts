@@ -121,7 +121,7 @@ describe('RenameVariableTransformation', () => {
 
   describe('renameDeclaration', () => {
     it('should return 0 when no identifier found in declaration', async () => {
-      const sourceFile = project.createSourceFile('test.ts', `
+      project.createSourceFile('test.ts', `
         const oldName = 42;
       `);
 

@@ -15,7 +15,7 @@ describe('ASTService', () => {
     it('should throw error when no node found at position', () => {
       const tempFilePath = '/test-file.ts';
       const sourceCode = 'const x = 42;';
-      const sourceFile = project.createSourceFile(tempFilePath, sourceCode);
+      project.createSourceFile(tempFilePath, sourceCode);
 
       const location: LocationRange = {
         file: tempFilePath,

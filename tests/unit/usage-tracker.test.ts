@@ -10,7 +10,6 @@ import { UsageTracker } from '../../src/usage-tracker';
 
 describe('UsageTracker', () => {
   const mockedFs = fs as jest.Mocked<typeof fs>;
-  const mockedOs = os as jest.Mocked<typeof os>;
   const mockLogFile = '/home/user/.refakts-usage.jsonl';
 
 
