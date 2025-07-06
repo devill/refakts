@@ -81,7 +81,7 @@ npm run roadmap:add --feature "name" --description "desc" --why "reason"
 
 ### Contribution Guidelines
 
-**Always check roadmap first:** `npm run roadmap:status` → Work on highest-voted features that have an issue assigned to in GitHub → Vote for features that would have helped your session
+**Always check roadmap first:** `npm run roadmap:status` → Work on highest-voted features that have an issue assigned in GitHub → Vote for features that would have helped your session
 
 **Feature Eligibility:** Only **deterministic and mechanical** features (search, transform, analyze). NOT reasoning tasks (naming, code quality, strategy) - you do those better.
 
@@ -101,7 +101,7 @@ A **strategy pattern** powers flexible selection, where different `SelectionStra
 ### Test Selection Guide:
 - **Refactoring tests** (`fixtures/refactoring/`): For commands that modify files - validate against `.expected.ts` files
 - **Locator tests** (`fixtures/locators/`): For commands that find/analyze code - use `.expected.yaml` for structured data comparison
-- **Select tests** (`fixtures/select`): For commands that help identify source code locations base on string matchers - validate against `.expected.txt`.
+- **Select tests** (`fixtures/select`): For commands that help identify source code locations based on string matchers - validate against `.expected.txt`.
 
 Files matching `*.received.*` are gitignored and appear only during test failures.
 
@@ -122,17 +122,17 @@ Files matching `*.received.*` are gitignored and appear only during test failure
 Use the STARTER_CHARACTER at the start of the line to indicate your workflow state
 
 1. 🗺 Check roadmap (`npm run roadmap:status`)
-2. 😺 Assign the issue on GitHub to the current user. (Don't work on issues already assinged)
-3. 📐 Design the interface and ask for feedback
+2. 😺 Assign the issue on GitHub to the current user. (Don't work on issues already assigned)
+3. 📐 Design the interface and ask the user for feedback
 4. 🧪 Add test cases. (Use fixtures in `tests/fixtures` when relevant)
-5. 👀 Run tests to see current behavior vs expected
-6. 💭 Imagine what architecutre would make implementation easy.
-7. ♻️ If necessary put test on skip, and refactor to the ideal architecture 
+5. 👀 Run tests to see current behavior vs expected. Stop and ask the user for feedback before implementing.
+6. 💭 Imagine what architecture would make implementation easy.
+7. ♻️ If necessary put tests on skip, and refactor to the ideal architecture 
 8. 👷 Unskip tests one by one, and implement the functionality 
 9. ✅ Run the tests, check and validate
 10. 🎉 Try the new command. (Create a temporary file and test on that)
 11. 📄 Once tests are passing update the `refakts --help`.
-12. ♻️ After commiting refactor to resolve qualiy issues.
+12. ♻️ After committing refactor to resolve quality issues.
 13. 🗳️ Vote for roadmap features that would have helped this session, add features you wished existed
 
 

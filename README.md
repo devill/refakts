@@ -99,10 +99,6 @@ Claude will:
 
 This repository includes comprehensive guidance for AI agents in `CLAUDE.md`, including roadmap management and development workflows.
 
-## Getting Involved
-
-If you're interested in seeing how RefakTS could make your AI agent more effective, reach out at https://ivettordog.com
-
 ## Development Approach: Automated Quality Habits
 
 RefakTS development demonstrates an approach for helping AI agents develop practices similar to eXtreme Programming professionals. Since AI agents can't form habits naturally, we use programmatic quality checks that detect code quality triggers and automatically prompt agents to take corrective action.
@@ -129,6 +125,38 @@ RefakTS development demonstrates an approach for helping AI agents develop pract
 
 This automated quality enforcement keeps codebases clean without requiring AI agents to remember or actively monitor for quality issues.
 
+# Getting Involved
+
+If you'd like to contribute, PRs are wellcome! RefakTS is fair source, free for non-commercial use, but businsses require
+a licence. Our primary aim with that is to make sure large corporations don't unfairly take advantage of our good will.
+Any licence fees will be distributed among contributors at the discretion of project leads. 
+
+## How to get started?
+
+- Ideally you should be using Claude Code. Currently, we see that as the most capable AI Agent, so the repo is optimised for work with it.
+- After cloning the repo your first request to Claude should be for it to set up the pre and post commit hooks. 
+- As a first task we recommend choosing an issue marked with the `good first issue` label
+- When you work on an issue, please assign it to yourself
+- If you have `gh` installed, you can just tell the AI to start working on the issue by issue number. Give it guidance on where to start
+  - For example `Start working on GitHub issue #X. Start by writing tests and stop before starting implementation`
+
+### What to pay attention to as you work
+
+Claude Code is particularly capable, but it does dumb things sometimes. Not out of malice, rather misunderstanding. 
+Your job is to keep it accountable, and  guide it in the right architectural direction.
+
+Some typical mistakes to pay attention to:  
+- It usually doesn't write enough tests unless pushed. It likes skipping error cases. 
+- It should create most tests as fixtures in `tests/fixtures`
+  - These folders contain before and after states for each command. The command is specified as a JDoc notation
+  - Result files are `.expected.ts` files while the expected command line output is in `.expected.txt`
+- When you review the tests, make sure you understand the feature, and the tests align with your expectations
+- Encourage it to take small steps.
+- Once it is done implementing have it commit. Support it to resolve the quality issues.
+- Use `npm run test:coverage` to check if there are any use cases that were not covered beforehand
+- Once you are happy with the work, push the result, and open a PR. 
+
+If you have further questions open an issue or reach out to https://ivettordog.com
 
 ## License
 
