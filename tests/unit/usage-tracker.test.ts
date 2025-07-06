@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as os from 'os';
 
 jest.mock('fs');
 jest.mock('os', () => ({

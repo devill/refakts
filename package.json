@@ -12,7 +12,7 @@
     "test:coverage": "jest --coverage && touch /tmp/refakts-last-test",
     "dev": "ts-node src/cli.ts",
     "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix",
+    "lint:fix": "eslint src tests/integration tests/utils tests/unit --ext .ts --fix",
     "quality": "ts-node src/quality-tools/quality-runner.ts",
     "quality:watch": "src/quality-tools/quality-watcher.sh start",
     "quality:watch:stop": "src/quality-tools/quality-watcher.sh stop",
