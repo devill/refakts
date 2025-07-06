@@ -51,13 +51,7 @@ export class CommandExecutor {
     return command;
   }
 
-  private async executeValidatedCommand(
-    command: any, 
-    file: string, 
-    options: any, 
-    commandName: string, 
-    commandString: string
-  ): Promise<string | void> {
+  private async executeValidatedCommand(command: any, file: string, options: any, commandName: string, commandString: string): Promise<string | void> {
     try {
       command.validateOptions(options);
       return this.runValidatedCommand(command, file, options, commandName);
