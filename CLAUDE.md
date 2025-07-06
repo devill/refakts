@@ -81,7 +81,7 @@ npm run roadmap:add --feature "name" --description "desc" --why "reason"
 
 ### Contribution Guidelines
 
-**Always check roadmap first:** `npm run roadmap:status` → Work on highest-voted features → Vote for features that would have helped your session
+**Always check roadmap first:** `npm run roadmap:status` → Work on highest-voted features that have an issue assigned to in GitHub → Vote for features that would have helped your session
 
 **Feature Eligibility:** Only **deterministic and mechanical** features (search, transform, analyze). NOT reasoning tasks (naming, code quality, strategy) - you do those better.
 
@@ -119,20 +119,21 @@ Files matching `*.received.*` are gitignored and appear only during test failure
 
 ## Development Workflow
 
-Use the STARTER_CHARACTER in [] to indicate your workflow state
+Use the STARTER_CHARACTER at the start of the line to indicate your workflow state
 
-1. [🗺️] Check roadmap and vote** (`npm run roadmap:status`)
-2. [📐] Design the interface and ask for feedback
-2. [🧪] Add test cases. (Use fixtures in `tests/fixtures` when relevant)
-3. [👀] Run tests to see current behavior vs expected
-4. [💭] Imagine what architecutre would make implementation easy.
-5. [♻️] If necessary put test on skip, and refactor to the ideal architecture 
-6. [👷] Unskip tests one by one, and implement the functionality 
-7. [✅] Run the tests, check and validate
-8. [🎉] Try the new command. (Create a temporary file and test on that)
-9. [📄] Once tests are passing update the `refakts --help`.
-10. [♻️] After commiting refactor to resolve qualiy issues.
-11. [🗳️] Vote for roadmap features that would have helped this session, add features you wished existed
+1. 🗺 Check roadmap (`npm run roadmap:status`)
+2. 😺 Assign the issue on GitHub to the current user. (Don't work on issues already assinged)
+3. 📐 Design the interface and ask for feedback
+4. 🧪 Add test cases. (Use fixtures in `tests/fixtures` when relevant)
+5. 👀 Run tests to see current behavior vs expected
+6. 💭 Imagine what architecutre would make implementation easy.
+7. ♻️ If necessary put test on skip, and refactor to the ideal architecture 
+8. 👷 Unskip tests one by one, and implement the functionality 
+9. ✅ Run the tests, check and validate
+10. 🎉 Try the new command. (Create a temporary file and test on that)
+11. 📄 Once tests are passing update the `refakts --help`.
+12. ♻️ After commiting refactor to resolve qualiy issues.
+13. 🗳️ Vote for roadmap features that would have helped this session, add features you wished existed
 
 
 ## GitHub Issue Format
