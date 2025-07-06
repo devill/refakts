@@ -93,16 +93,24 @@ export class CommandLineParser {
   }
 
   private processOptionFlag(args: string[], index: number, options: any): number {
-    const optionName = args[index].slice(2);
+    const optionName = this.extractOptionName(args[index]);
     const nextArg = args[index + 1];
     
-    if (!nextArg || nextArg.startsWith('--')) {
+    if (this.isBooleanFlag(nextArg)) {
       options[optionName] = true;
       return index;
     }
     
     this.setOptionValue(options, optionName, nextArg);
     return index + 1;
+  }
+
+  private extractOptionName(arg: string): string {
+    return arg.slice(2);
+  }
+
+  private isBooleanFlag(nextArg: string): boolean {
+    return !nextArg || nextArg.startsWith('--');
   }
 
   private setOptionValue(options: any, optionName: string, value: string): void {
@@ -123,14 +131,22 @@ export class CommandLineParser {
 
   private parseCommandLineArgs(commandString: string): string[] {
     const args: string[] = [];
-    const state = { current: '', inQuotes: false, quoteChar: '' };
+    const state = this.createParsingState();
 
+    this.processAllCharacters(commandString, args, state);
+    this.addArgumentIfPresent(args, state.current);
+    
+    return args;
+  }
+
+  private createParsingState() {
+    return { current: '', inQuotes: false, quoteChar: '' };
+  }
+
+  private processAllCharacters(commandString: string, args: string[], state: any): void {
     for (let i = 0; i < commandString.length; i++) {
       this.processCharacter(commandString[i], args, state);
     }
-
-    this.addArgumentIfPresent(args, state.current);
-    return args;
   }
 
   private processCharacter(char: string, args: string[], state: any): void {
@@ -139,10 +155,18 @@ export class CommandLineParser {
     } else if (this.isQuoteEnd(char, state.inQuotes, state.quoteChar)) {
       this.handleQuoteEnd(state);
     } else if (this.isArgumentSeparator(char, state.inQuotes)) {
-      state.current = this.addArgumentIfPresent(args, state.current);
+      this.handleArgumentSeparator(args, state);
     } else {
-      state.current += char;
+      this.handleRegularCharacter(char, state);
     }
+  }
+
+  private handleArgumentSeparator(args: string[], state: any): void {
+    state.current = this.addArgumentIfPresent(args, state.current);
+  }
+
+  private handleRegularCharacter(char: string, state: any): void {
+    state.current += char;
   }
 
   private handleQuoteStart(state: any, char: string): void {
