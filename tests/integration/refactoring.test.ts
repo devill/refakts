@@ -170,21 +170,28 @@ describe('Refactoring Integration Tests', () => {
 });
 
 async function copyDirectory(src: string, dest: string): Promise<void> {
-  if (!fs.existsSync(dest)) {
-    fs.mkdirSync(dest, { recursive: true });
-  }
-  
+  ensureDestinationExists(dest);
   const entries = fs.readdirSync(src, { withFileTypes: true });
   
   for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-    
-    if (entry.isDirectory()) {
-      await copyDirectory(srcPath, destPath);
-    } else {
-      fs.copyFileSync(srcPath, destPath);
-    }
+    await copyEntry(src, dest, entry);
+  }
+}
+
+function ensureDestinationExists(dest: string): void {
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true });
+  }
+}
+
+async function copyEntry(src: string, dest: string, entry: fs.Dirent): Promise<void> {
+  const srcPath = path.join(src, entry.name);
+  const destPath = path.join(dest, entry.name);
+  
+  if (entry.isDirectory()) {
+    await copyDirectory(srcPath, destPath);
+  } else {
+    fs.copyFileSync(srcPath, destPath);
   }
 }
 
@@ -192,18 +199,29 @@ async function compareDirectories(expectedDir: string, receivedDir: string): Pro
   const expectedFiles = getAllFiles(expectedDir);
   const receivedFiles = getAllFiles(receivedDir);
   
+  validateDirectoryStructure(expectedFiles, receivedFiles);
+  compareFileContents(expectedDir, receivedDir, expectedFiles);
+}
+
+function validateDirectoryStructure(expectedFiles: string[], receivedFiles: string[]): void {
   expect(receivedFiles.sort()).toEqual(expectedFiles.sort());
-  
-  for (const file of expectedFiles) {
+}
+
+function compareFileContents(expectedDir: string, receivedDir: string, files: string[]): void {
+  for (const file of files) {
     const expectedPath = path.join(expectedDir, file);
     const receivedPath = path.join(receivedDir, file);
     
     if (fs.statSync(expectedPath).isFile()) {
-      const expected = fs.readFileSync(expectedPath, 'utf8');
-      const received = fs.readFileSync(receivedPath, 'utf8');
-      expect(received).toBe(expected);
+      compareFileContent(expectedPath, receivedPath);
     }
   }
+}
+
+function compareFileContent(expectedPath: string, receivedPath: string): void {
+  const expected = fs.readFileSync(expectedPath, 'utf8');
+  const received = fs.readFileSync(receivedPath, 'utf8');
+  expect(received).toBe(expected);
 }
 
 function getAllFiles(dir: string, prefix = ''): string[] {
@@ -211,14 +229,18 @@ function getAllFiles(dir: string, prefix = ''): string[] {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   
   for (const entry of entries) {
-    const relativePath = prefix ? path.join(prefix, entry.name) : entry.name;
-    
-    if (entry.isDirectory()) {
-      files.push(...getAllFiles(path.join(dir, entry.name), relativePath));
-    } else {
-      files.push(relativePath);
-    }
+    collectFileEntry(dir, prefix, entry, files);
   }
   
   return files;
+}
+
+function collectFileEntry(dir: string, prefix: string, entry: fs.Dirent, files: string[]): void {
+  const relativePath = prefix ? path.join(prefix, entry.name) : entry.name;
+  
+  if (entry.isDirectory()) {
+    files.push(...getAllFiles(path.join(dir, entry.name), relativePath));
+  } else {
+    files.push(relativePath);
+  }
 }
