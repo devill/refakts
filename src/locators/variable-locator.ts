@@ -4,6 +4,7 @@ import { PositionFinder } from './position-finder';
 import { VariableNodeMatcher } from './variable-node-matcher';
 import { VariableResultBuilder, VariableLocation, VariableLocationResult, VariableNodeResult } from './variable-result-builder';
 import { PositionData } from '../core/position-data';
+import { PositionData } from '../core/position-data';
 
 export { VariableLocation, VariableLocationResult, VariableNodeResult };
 
@@ -33,7 +34,8 @@ export class VariableLocator {
 
 
   findVariableNodesByPositionSync(sourceFile: SourceFile, line: number, column: number): VariableNodeResult {
-    const declaration = this.positionFinder.getDeclarationAtPosition(sourceFile, line, column);
+    const positionData = new PositionData(line, column);
+    const declaration = this.positionFinder.getDeclarationAtPosition(sourceFile, positionData);
     const variableName = this.nodeMatcher.getVariableName(declaration);
     const usages = this.nodeMatcher.findUsages(sourceFile, variableName, declaration);
     
