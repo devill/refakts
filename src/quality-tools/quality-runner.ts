@@ -3,6 +3,7 @@
 import { QualityIssue } from './quality-check-interface';
 import { loadQualityChecks } from './plugin-loader';
 import { generateReport } from './quality-reporter';
+import { program } from 'commander';
 const runQualityChecks = async (sourceDir: string): Promise<QualityIssue[]> => {
   const checks = loadQualityChecks();
   const allIssues = await Promise.all(checks.map(check => check.check(sourceDir)));
@@ -36,6 +37,14 @@ const shouldFailOnLinterIssues = (linterIssues: QualityIssue[]): boolean => {
 };
 
 const main = async (): Promise<void> => {
+  program
+    .name('quality-runner')
+    .option('--no-limit', 'Show all violations without limiting to 10 per type')
+    .parse();
+  
+  const options = program.opts();
+  const noLimit = !options.limit;
+  
   const srcIssues = await runQualityChecks('src');
   const testIssues = await runQualityChecks('tests');
   const issues = [...srcIssues, ...testIssues];
@@ -47,7 +56,7 @@ const main = async (): Promise<void> => {
   
   const reportIssues = shouldFailOnLinter ? issues : otherIssues.concat(linterIssues.filter(issue => issue.type === 'linter-error'));
   
-  const report = generateReport(reportIssues);
+  const report = generateReport(reportIssues, noLimit);
   process.stdout.write(report + '\n');
   
   const shouldFailOnOther = otherIssues.length > 0 || linterIssues.some(issue => issue.type === 'linter-error');

@@ -4,18 +4,18 @@ import { loadQualityChecks } from './plugin-loader';
 
 const VIOLATION_LIMIT = 10;
 
-export const generateReport = (issues: QualityIssue[]): string =>
-  issues.length === 0 ? successMessage() : failureReport(issues);
+export const generateReport = (issues: QualityIssue[], noLimit = false): string =>
+  issues.length === 0 ? successMessage() : failureReport(issues, noLimit);
 
 const successMessage = (): string => 
   '✅ All quality checks passed';
 
-const failureReport = (issues: QualityIssue[]): string => 
-  ['❌ Quality issues detected:', ...formatGroups(issues), 'Remember to use **refakts** for refactoring and vote on features you wish you already had.'].join('\n\n');
+const failureReport = (issues: QualityIssue[], noLimit = false): string => 
+  ['❌ Quality issues detected:', ...formatGroups(issues, noLimit), 'Remember to use **refakts** for refactoring and vote on features you wish you already had.'].join('\n\n');
 
-const formatGroups = (issues: QualityIssue[]): string[] =>
+const formatGroups = (issues: QualityIssue[], noLimit = false): string[] =>
   Array.from(groupByType(issues))
-    .map(([type, groupIssues]) => createGroup(type, limitViolationsByType(groupIssues, type)))
+    .map(([type, groupIssues]) => createGroup(type, noLimit ? groupIssues : limitViolationsByType(groupIssues, type)))
     .filter(hasViolations)
     .map(formatGroup);
 
