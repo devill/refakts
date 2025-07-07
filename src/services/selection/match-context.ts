@@ -1,12 +1,17 @@
 import { SelectMatch } from '../../types/selection-types';
 
 export class MatchContext {
-  constructor(
-    public readonly content: string,
-    public readonly lines: string[],
-    public readonly fileName: string,
-    public readonly filePath?: string
-  ) {}
+  public readonly content: string;
+  public readonly lines: string[];
+  public readonly fileName: string;
+  public readonly filePath?: string;
+
+  constructor(_content: string, _lines: string[], _fileName: string, _filePath?: string) {
+    this.content = _content;
+    this.lines = _lines;
+    this.fileName = _fileName;
+    this.filePath = _filePath;
+  }
 
   static fromContent(content: string, fileName: string, filePath?: string): MatchContext {
     const lines = content.split('\n');

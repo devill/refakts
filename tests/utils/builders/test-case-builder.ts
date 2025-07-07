@@ -163,7 +163,6 @@ export class TestCaseBuilder {
    * Builds the final TestCase object.
    */
   build(): TestCase {
-    // Validate required fields
     if (!this.testCase.name) {
       throw new Error('Test case name is required');
     }

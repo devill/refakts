@@ -7,12 +7,17 @@ import { SelectMatch } from '../types/selection-types';
  * to common formats used throughout the codebase
  */
 export class PositionData {
-  constructor(
-    public readonly line: number,
-    public readonly column: number,
-    public readonly offset?: number,
-    public readonly length?: number
-  ) {}
+  public readonly line: number;
+  public readonly column: number;
+  public readonly offset?: number;
+  public readonly length?: number;
+
+  constructor(_line: number, _column: number, _offset?: number, _length?: number) {
+    this.line = _line;
+    this.column = _column;
+    this.offset = _offset;
+    this.length = _length;
+  }
 
   /**
    * Creates PositionData from a LocationRange
@@ -180,8 +185,6 @@ export class PositionData {
   }
 
   private static calculateOffset(line: number, column: number): number {
-    // This is a simplified calculation - in real usage, you'd need the actual source file
-    // to calculate the proper offset. This is just a placeholder for the API.
     return (line - 1) * 80 + (column - 1); // Assuming 80 chars per line average
   }
 }
