@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 import {TestCase, TestMeta} from '../types/test-case-types';
 import {extractMetaFromFile} from '../parsers/meta-parser';
+import {TestCaseConfiguration} from '../test-case-configuration';
 
 export class TestCaseFactory {
   static createMultiFileTestCase(testDir: string, testPath: string, subDir: string): TestCase | null {
@@ -60,29 +61,31 @@ export class TestCaseFactory {
   }
 
   private static addTestCaseIfValid(testCases: TestCase[], testDir: string, testPath: string, inputFile: string, files: string[], expectedExtension: string): void {
-    const testCase = this.createSingleFileTestCase(testDir, testPath, inputFile, files, expectedExtension);
+    const baseName = inputFile.replace('.input.ts', '');
+    const configuration = new TestCaseConfiguration(testDir, testPath, baseName, expectedExtension);
+    const testCase = this.createSingleFileTestCase(configuration, files);
     if (testCase) {
       testCases.push(testCase);
     }
   }
 
-  private static createSingleFileTestCase(testDir: string, testPath: string, inputFile: string, files: string[], expectedExtension: string): TestCase | null {
-    const baseName = inputFile.replace('.input.ts', '');
-    const expectedFile = `${baseName}.expected.${expectedExtension}`;
+  private static createSingleFileTestCase(configuration: TestCaseConfiguration, files: string[]): TestCase | null {
+    const inputFile = `${configuration.baseName}.input.ts`;
+    const expectedFile = `${configuration.baseName}.expected.${configuration.expectedExtension}`;
     
     if (!files.includes(expectedFile)) {
       return null;
     }
     
-    return this.buildTestCase(testDir, testPath, inputFile, baseName, expectedFile, expectedExtension);
+    return this.buildTestCase(configuration, inputFile, expectedFile);
   }
 
-  private static buildTestCase(testDir: string, testPath: string, inputFile: string, baseName: string, expectedFile: string, expectedExtension: string): TestCase {
+  private static buildTestCase(configuration: TestCaseConfiguration, inputFile: string, expectedFile: string): TestCase {
     return {
-      name: `${testDir}/${baseName}`,
-      inputFile: path.join(testPath, inputFile),
-      ...(this.extractMetaFromInputFile(path.join(testPath, inputFile))),
-      ...(this.buildTestPaths(testPath, baseName, expectedFile, expectedExtension))
+      name: `${configuration.testDir}/${configuration.baseName}`,
+      inputFile: path.join(configuration.testPath, inputFile),
+      ...(this.extractMetaFromInputFile(path.join(configuration.testPath, inputFile))),
+      ...(this.buildTestPaths(configuration, expectedFile))
     };
   }
 
@@ -91,10 +94,10 @@ export class TestCaseFactory {
     return extractMetaFromFile(content);
   }
 
-  private static buildTestPaths(testPath: string, baseName: string, expectedFile: string, expectedExtension: string): { expectedFile: string; receivedFile: string } {
+  private static buildTestPaths(configuration: TestCaseConfiguration, expectedFile: string): { expectedFile: string; receivedFile: string } {
     return {
-      expectedFile: path.join(testPath, expectedFile),
-      receivedFile: path.join(testPath, `${baseName}.received.${expectedExtension}`)
+      expectedFile: path.join(configuration.testPath, expectedFile),
+      receivedFile: path.join(configuration.testPath, `${configuration.baseName}.received.${configuration.expectedExtension}`)
     };
   }
 }
