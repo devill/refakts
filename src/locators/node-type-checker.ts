@@ -39,13 +39,14 @@ export class NodeTypeChecker {
   static isAssignmentContext(parent: Node | undefined, node: Node): boolean {
     if (!parent) return false;
     
-    if (parent.getKind() === ts.SyntaxKind.BinaryExpression) {
-      const binaryExpr = parent.asKindOrThrow(ts.SyntaxKind.BinaryExpression);
-      return NodeTypeChecker.isAssignmentOperator(binaryExpr) &&
-             binaryExpr.getLeft() === node;
-    }
+    return this.isBinaryAssignment(parent, node);
+  }
+
+  private static isBinaryAssignment(parent: Node, node: Node): boolean {
+    if (parent.getKind() !== ts.SyntaxKind.BinaryExpression) return false;
     
-    return false;
+    const binaryExpr = parent.asKindOrThrow(ts.SyntaxKind.BinaryExpression);
+    return NodeTypeChecker.isAssignmentOperator(binaryExpr) && binaryExpr.getLeft() === node;
   }
 
   /**

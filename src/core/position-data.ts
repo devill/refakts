@@ -35,9 +35,7 @@ export class PositionData {
    * Creates PositionData from a LocationRange with end position
    */
   static fromRange(location: LocationRange): PositionData {
-    const startOffset = this.calculateOffset(location.startLine, location.startColumn);
-    const endOffset = this.calculateOffset(location.endLine, location.endColumn);
-    const length = endOffset - startOffset;
+    const { startOffset, length } = this.calculateRangeOffsets(location);
     
     return new PositionData(
       location.startLine,
@@ -45,6 +43,12 @@ export class PositionData {
       startOffset,
       length
     );
+  }
+
+  private static calculateRangeOffsets(location: LocationRange): { startOffset: number; length: number } {
+    const startOffset = this.calculateOffset(location.startLine, location.startColumn);
+    const endOffset = this.calculateOffset(location.endLine, location.endColumn);
+    return { startOffset, length: endOffset - startOffset };
   }
 
   /**
@@ -128,10 +132,10 @@ export class PositionData {
    * Converts to ts-morph offset using source file
    */
   toOffset(sourceFile: SourceFile): number {
-    if (this.offset !== undefined) {
-      return this.offset;
-    }
-    
+    return this.offset ?? this.calculateOffsetFromPosition(sourceFile);
+  }
+
+  private calculateOffsetFromPosition(sourceFile: SourceFile): number {
     const zeroBased = this.toZeroBased();
     return sourceFile.compilerNode.getPositionOfLineAndCharacter(
       zeroBased.line,

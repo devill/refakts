@@ -24,13 +24,16 @@ export class SelectPatternMatcher {
   private findMultilineMatches(content: string, pattern: RegExp, lines: string[]): SelectMatch[] {
     const matches: SelectMatch[] = [];
     const context = new MatchContext(content, lines, '');
-    let match;
     
+    this.processAllMatches(pattern, content, context, matches);
+    return matches;
+  }
+
+  private processAllMatches(pattern: RegExp, content: string, context: MatchContext, matches: SelectMatch[]): void {
+    let match;
     while ((match = pattern.exec(content)) !== null) {
       this.processMultilineMatch(match, context, matches);
     }
-    
-    return matches;
   }
 
   private processMultilineMatch(match: RegExpExecArray, context: MatchContext, matches: SelectMatch[]): void {

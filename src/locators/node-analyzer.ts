@@ -23,13 +23,14 @@ export class NodeAnalyzer {
   static isAssignmentContext(parent: Node | undefined, node: Node): boolean {
     if (!parent) return false;
     
-    if (parent.getKind() === ts.SyntaxKind.BinaryExpression) {
-      const binaryExpr = parent.asKindOrThrow(ts.SyntaxKind.BinaryExpression);
-      return NodeAnalyzer.isAssignmentOperator(binaryExpr) &&
-             binaryExpr.getLeft() === node;
-    }
+    return this.isBinaryAssignment(parent, node);
+  }
+
+  private static isBinaryAssignment(parent: Node, node: Node): boolean {
+    if (parent.getKind() !== ts.SyntaxKind.BinaryExpression) return false;
     
-    return false;
+    const binaryExpr = parent.asKindOrThrow(ts.SyntaxKind.BinaryExpression);
+    return NodeAnalyzer.isAssignmentOperator(binaryExpr) && binaryExpr.getLeft() === node;
   }
 
   static isUpdateContext(parent: Node | undefined, node: Node): boolean {
@@ -235,17 +236,10 @@ export class NodeAnalyzer {
   }
 
   static needsParentheses(node: Node): boolean {
-    if (!Node.isBinaryExpression(node)) {
-      return false;
-    }
+    if (!Node.isBinaryExpression(node)) return false;
     
     const binaryExpr = node.asKindOrThrow(ts.SyntaxKind.BinaryExpression);
-    
-    if (!this.isArithmeticExpression(binaryExpr)) {
-      return false;
-    }
-    
-    return this.hasSimpleOperands(binaryExpr);
+    return this.isArithmeticExpression(binaryExpr) && this.hasSimpleOperands(binaryExpr);
   }
 
   private static isArithmeticExpression(binaryExpr: BinaryExpression): boolean {
