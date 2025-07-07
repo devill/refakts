@@ -6,6 +6,13 @@ interface Position {
   column: number;
 }
 
+interface MatchBuildContext {
+  adjustedStartPos: Position;
+  endPos: Position;
+  textToUse: string;
+  lines: string[];
+}
+
 export class SelectPatternMatcher {
   findMatches(content: string, pattern: RegExp): SelectMatch[] {
     const lines = content.split('\n');
@@ -30,9 +37,10 @@ export class SelectPatternMatcher {
   }
 
   private processAllMatches(pattern: RegExp, content: string, context: MatchContext, matches: SelectMatch[]): void {
+    const processingContext = { pattern, content, context, matches };
     let match;
     while ((match = pattern.exec(content)) !== null) {
-      this.processMultilineMatch(match, context, matches);
+      this.processMultilineMatch(match, processingContext.context, processingContext.matches);
     }
   }
 
@@ -51,7 +59,13 @@ export class SelectPatternMatcher {
     
     const { textToUse, adjustedStartPos } = this.extractMultilineMatchDetails(match, positions.startPos, context);
     
-    return this.buildMultilineSelectMatch(adjustedStartPos, positions.endPos, textToUse, context.lines);
+    const buildContext: MatchBuildContext = {
+      adjustedStartPos,
+      endPos: positions.endPos,
+      textToUse,
+      lines: context.lines
+    };
+    return this.buildMultilineSelectMatch(buildContext);
   }
 
   private getMatchPositions(match: RegExpExecArray, context: MatchContext) {
@@ -64,14 +78,14 @@ export class SelectPatternMatcher {
     return startPos && endPos ? { startPos, endPos } : null;
   }
 
-  private buildMultilineSelectMatch(adjustedStartPos: Position, endPos: Position, textToUse: string, lines: string[]): SelectMatch {
+  private buildMultilineSelectMatch(context: MatchBuildContext): SelectMatch {
     return {
-      line: adjustedStartPos.line,
-      column: adjustedStartPos.column,
-      endLine: endPos.line,
-      endColumn: endPos.column,
-      text: textToUse,
-      fullLine: lines[adjustedStartPos.line - 1] || ''
+      line: context.adjustedStartPos.line,
+      column: context.adjustedStartPos.column,
+      endLine: context.endPos.line,
+      endColumn: context.endPos.column,
+      text: context.textToUse,
+      fullLine: context.lines[context.adjustedStartPos.line - 1] || ''
     };
   }
 

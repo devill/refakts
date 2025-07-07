@@ -211,12 +211,6 @@
       "manyParameters"
     ]
   },
-  "tests/unit/documentation/section-replacer.test.ts": {
-    "lastCommitId": "befdc6216473f33b7a0297fda081144105d48a75",
-    "violations": [
-      "manyParameters"
-    ]
-  },
   "tests/utils/factories/test-case-factory.ts": {
     "lastCommitId": "db8852969bfb6bb9b9cd369530b07d7012ed256a",
     "violations": [

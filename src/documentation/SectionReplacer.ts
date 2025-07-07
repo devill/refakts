@@ -1,19 +1,27 @@
 import { SectionReplacementRequest } from '../core/section-replacement-request';
 
 export class SectionReplacer {
-  constructor(private suppressWarnings: boolean = false) {}
+  constructor(private _suppressWarnings = false) {}
 
   replaceSection(request: SectionReplacementRequest): string {
     const markerPositions = this.findMarkerPositions(request);
     
-    if (markerPositions.startIndex === -1 || markerPositions.endIndex === -1) {
-      if (!this.suppressWarnings && !this.isTestEnvironment()) {
-        process.stderr.write(`Warning: Markers ${request.startMarker}/${request.endMarker} not found\n`);
-      }
+    if (this.hasInvalidMarkers(markerPositions)) {
+      this.logMissingMarkersWarning(request);
       return request.content;
     }
     
     return this.buildReplacementContent(request, markerPositions);
+  }
+
+  private hasInvalidMarkers(positions: { startIndex: number; endIndex: number }): boolean {
+    return positions.startIndex === -1 || positions.endIndex === -1;
+  }
+
+  private logMissingMarkersWarning(request: SectionReplacementRequest): void {
+    if (!this._suppressWarnings && !this.isTestEnvironment()) {
+      process.stderr.write(`Warning: Markers ${request.startMarker}/${request.endMarker} not found\n`);
+    }
   }
 
   private isTestEnvironment(): boolean {
