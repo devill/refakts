@@ -1,6 +1,7 @@
 import * as ts from 'typescript';
 import { Node } from 'ts-morph';
 import { TypeScriptScopeAnalyzer } from './typescript-scope-analyzer';
+import { ScopeContext } from '../core/scope-context';
 
 export class ShadowingDetector {
   private scopeAnalyzer = new TypeScriptScopeAnalyzer();
@@ -29,7 +30,8 @@ export class ShadowingDetector {
       return false;
     }
     
-    return this.findShadowingInScopeChain(scopes.usage, scopes.declaration, variableName, declaration);
+    const scopeContext = new ScopeContext(scopes.usage, scopes.declaration, declaration);
+    return this.findShadowingInScopeChain(scopeContext, variableName);
   }
 
   private getScopes(usage: Node, declaration: Node) {
@@ -39,10 +41,10 @@ export class ShadowingDetector {
     };
   }
 
-  private findShadowingInScopeChain(usageScope: Node, declarationScope: Node, variableName: string, declaration: Node): boolean {
-    let current: Node | undefined = usageScope;
-    while (current && current !== declarationScope) {
-      if (this.hasShadowingDeclaration(current, variableName, declaration)) {
+  private findShadowingInScopeChain(scopeContext: ScopeContext, variableName: string): boolean {
+    let current: Node | undefined = scopeContext.usageScope;
+    while (current && current !== scopeContext.declarationScope) {
+      if (this.hasShadowingDeclaration(current, variableName, scopeContext.targetNode)) {
         return true;
       }
       current = this.scopeAnalyzer.getParentScope(current);
@@ -53,18 +55,19 @@ export class ShadowingDetector {
   private hasShadowingDeclaration(scope: Node, variableName: string, originalDeclaration: Node): boolean {
     let hasShadowing = false;
     scope.forEachDescendant((child: Node) => {
-      if (this.isShadowingDeclaration(child, variableName, originalDeclaration, scope)) {
+      const scopeContext = new ScopeContext(scope, scope, originalDeclaration);
+      if (this.isShadowingDeclaration(scopeContext, child, variableName)) {
         hasShadowing = true;
       }
     });
     return hasShadowing;
   }
 
-  private isShadowingDeclaration(child: Node, variableName: string, originalDeclaration: Node, scope: Node): boolean {
+  private isShadowingDeclaration(scopeContext: ScopeContext, child: Node, variableName: string): boolean {
     return this.isAnyDeclaration(child) && 
            this.hasMatchingIdentifier(child, variableName) &&
-           child !== originalDeclaration &&
-           this.scopeAnalyzer.getScope(child) === scope;
+           child !== scopeContext.targetNode &&
+           this.scopeAnalyzer.getScope(child) === scopeContext.usageScope;
   }
 
   private getVariableName(declaration: Node): string | undefined {
