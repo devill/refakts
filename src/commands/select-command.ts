@@ -14,26 +14,15 @@ export class SelectCommand implements RefactoringCommand {
   private outputHandler = new SelectOutputHandler();
 
   async execute(file: string, options: CommandOptions): Promise<void> {
-    try {
-      const strategy = this.strategyFactory.getStrategy(options);
-      strategy.validateOptions(options);
-      
-      await this.performSelection(file, options, strategy);
-    } catch (error) {
-      this.handleExecutionError(error);
-    }
+    const strategy = this.strategyFactory.getStrategy(options);
+    strategy.validateOptions(options);
+    await this.performSelection(file, options, strategy);
   }
 
   private async performSelection(file: string, options: CommandOptions, strategy: SelectionStrategy): Promise<void> {
     const sourceFile = this.astService.loadSourceFile(file);
     const results = await strategy.select(sourceFile, options);
     this.outputHandler.outputResults(results);
-  }
-
-  private handleExecutionError(error: unknown): void {
-     
-    process.stderr.write(`Error: ${error}\n`);
-    process.exit(1);
   }
 
   validateOptions(options: CommandOptions): void {
