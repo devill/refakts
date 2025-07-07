@@ -15,6 +15,8 @@
     "lint:fix": "eslint src tests/integration tests/utils tests/unit --ext .ts --fix",
     "quality": "ts-node src/quality-tools/quality-runner.ts",
     "quality:full": "ts-node src/quality-tools/quality-runner.ts --no-limit",
+    "quality:baseline:generate": "ts-node src/quality-tools/baseline-cli.ts generate",
+    "quality:baseline:status": "ts-node src/quality-tools/baseline-cli.ts status",
     "quality:watch": "src/quality-tools/quality-watcher.sh start",
     "quality:watch:stop": "src/quality-tools/quality-watcher.sh stop",
     "quality:watch:status": "src/quality-tools/quality-watcher.sh status",

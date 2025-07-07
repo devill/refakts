@@ -68,6 +68,8 @@ npm run usage:consolidate            # Manually consolidate usage logs
 
 ## Refactoring Principles
 
+**CORE APPROACH: "Minimal, surgical, trust the existing systems"** - This is the fundamental approach for all code changes. Avoid over-engineering, unnecessary abstractions, and complex error handling that masks real issues. Let errors bubble up naturally and change only what's broken.
+
 **Avoid Mindless Extract Method** - Don't mechanically apply "extract method" refactoring without considering the bigger design picture. This often leads to:
 - Procedural code with high number of function parameters
 - Repeated function calls that should be consolidated
