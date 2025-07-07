@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
-import { TestCase, TestMeta } from '../types/test-case-types';
-import { extractMetaFromFile } from '../parsers/meta-parser';
+import {TestCase, TestMeta} from '../types/test-case-types';
+import {extractMetaFromFile} from '../parsers/meta-parser';
 
 export class TestCaseFactory {
   static createMultiFileTestCase(testDir: string, testPath: string, subDir: string): TestCase | null {
@@ -78,11 +78,12 @@ export class TestCaseFactory {
   }
 
   private static buildTestCase(testDir: string, testPath: string, inputFile: string, baseName: string, expectedFile: string, expectedExtension: string): TestCase {
-    const inputPath = path.join(testPath, inputFile);
-    const meta = this.extractMetaFromInputFile(inputPath);
-    const testPaths = this.buildTestPaths(testPath, baseName, expectedFile, expectedExtension);
-    
-    return this.createTestCaseFromData(testDir, baseName, meta, inputPath, testPaths);
+    return {
+      name: `${testDir}/${baseName}`,
+      inputFile: path.join(testPath, inputFile),
+      ...(this.extractMetaFromInputFile(path.join(testPath, inputFile))),
+      ...(this.buildTestPaths(testPath, baseName, expectedFile, expectedExtension))
+    };
   }
 
   private static extractMetaFromInputFile(inputPath: string): TestMeta {
@@ -94,18 +95,6 @@ export class TestCaseFactory {
     return {
       expectedFile: path.join(testPath, expectedFile),
       receivedFile: path.join(testPath, `${baseName}.received.${expectedExtension}`)
-    };
-  }
-
-  private static createTestCaseFromData(testDir: string, baseName: string, meta: TestMeta, inputPath: string, testPaths: { expectedFile: string; receivedFile: string }): TestCase {
-    return {
-      name: `${testDir}/${baseName}`,
-      description: meta.description,
-      commands: meta.commands,
-      inputFile: inputPath,
-      expectedFile: testPaths.expectedFile,
-      receivedFile: testPaths.receivedFile,
-      skip: meta.skip
     };
   }
 }

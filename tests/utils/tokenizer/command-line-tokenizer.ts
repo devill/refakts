@@ -26,15 +26,10 @@ export class CommandLineTokenizer {
   }
 
   private processCharacter(char: string, args: string[], state: TokenizerState): void {
-    if (this.isQuoteStart(char, state.inQuotes)) {
-      this.handleQuoteStart(state, char);
-    } else if (this.isQuoteEnd(char, state.inQuotes, state.quoteChar)) {
-      this.handleQuoteEnd(state);
-    } else if (this.isArgumentSeparator(char, state.inQuotes)) {
-      this.handleArgumentSeparator(args, state);
-    } else {
-      this.handleRegularCharacter(char, state);
-    }
+    if (this.isQuoteStart(char, state.inQuotes)) this.handleQuoteStart(state, char);
+    else if (this.isQuoteEnd(char, state.inQuotes, state.quoteChar)) this.handleQuoteEnd(state);
+    else if (this.isArgumentSeparator(char, state.inQuotes)) this.handleArgumentSeparator(args, state);
+    else this.handleRegularCharacter(char, state);
   }
 
   private handleArgumentSeparator(args: string[], state: TokenizerState): void {

@@ -1,13 +1,10 @@
 export class CliExecutor {
   async executeCommand(commandString: string, cwd: string): Promise<string> {
-    const execAsync = this.createExecAsync();
-    const fullCommand = this.buildFullCommand(commandString);
-    
     try {
-      const { stdout } = await execAsync(fullCommand, { cwd });
+      const { stdout } = await this.createExecAsync()(this.buildFullCommand(commandString), { cwd });
       return stdout;
     } catch (error) {
-      throw this.createCommandError(fullCommand, error);
+      throw this.createCommandError(this.buildFullCommand(commandString), error);
     }
   }
 
