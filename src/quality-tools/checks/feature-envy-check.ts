@@ -1,5 +1,5 @@
 import { QualityCheck, QualityIssue } from '../quality-check-interface';
-import { Project, MethodDeclaration, PropertyAccessExpression, CallExpression, ClassDeclaration, SyntaxKind, SourceFile } from 'ts-morph';
+import { Project, MethodDeclaration, PropertyAccessExpression, CallExpression, ClassDeclaration, SyntaxKind, SourceFile, Node } from 'ts-morph';
 import * as path from 'path';
 
 export const featureEnvyCheck: QualityCheck = {
@@ -56,60 +56,111 @@ interface FeatureEnvyResult {
 }
 
 const analyzeMethodForFeatureEnvy = (method: MethodDeclaration, importedSymbols: Set<string>): FeatureEnvyResult | null => {
-  const parent = method.getParent();
-  if (!parent || parent.getKind() !== SyntaxKind.ClassDeclaration) return null;
-  
-  const ownClassName = (parent as ClassDeclaration).getName();
+  const ownClassName = getOwnClassName(method);
   if (!ownClassName) return null;
   
+  const usageAnalysis = analyzeUsagePatterns(method, importedSymbols);
+  return findFeatureEnvyViolation(usageAnalysis);
+};
+
+const getOwnClassName = (method: MethodDeclaration): string | null => {
+  const parent = method.getParent();
+  if (!parent || parent.getKind() !== SyntaxKind.ClassDeclaration) return null;
+  return (parent as ClassDeclaration).getName() || null;
+};
+
+interface UsageAnalysis {
+  externalUsage: Map<string, number>;
+  ownUsage: number;
+}
+
+const analyzeUsagePatterns = (method: MethodDeclaration, importedSymbols: Set<string>): UsageAnalysis => {
   const externalUsage = new Map<string, number>();
   let ownUsage = 0;
   
   method.forEachDescendant(node => {
-    if (node.getKind() === SyntaxKind.PropertyAccessExpression) {
-      const propAccess = node as PropertyAccessExpression;
-      const expression = propAccess.getExpression();
-      
-      if (expression.getKind() === SyntaxKind.ThisKeyword) {
-        ownUsage++;
-      } else {
-        const expressionText = expression.getText();
-        if (isInternalClassReference(expressionText, importedSymbols)) {
-          const count = externalUsage.get(expressionText) || 0;
-          externalUsage.set(expressionText, count + 1);
-        }
-      }
-    } else if (node.getKind() === SyntaxKind.CallExpression) {
-      const callExpr = node as CallExpression;
-      const expression = callExpr.getExpression();
-      
-      if (expression.getKind() === SyntaxKind.PropertyAccessExpression) {
-        const propAccess = expression as PropertyAccessExpression;
-        const objectExpr = propAccess.getExpression();
-        
-        if (objectExpr.getKind() === SyntaxKind.ThisKeyword) {
-          ownUsage++;
-        } else {
-          const expressionText = objectExpr.getText();
-          if (isInternalClassReference(expressionText, importedSymbols)) {
-            const count = externalUsage.get(expressionText) || 0;
-            externalUsage.set(expressionText, count + 1);
-          }
-        }
-      }
+    const propertyUsage = analyzePropertyAccess(node, importedSymbols);
+    if (propertyUsage.isOwnUsage) {
+      ownUsage++;
+    } else if (propertyUsage.externalClass) {
+      const count = externalUsage.get(propertyUsage.externalClass) || 0;
+      externalUsage.set(propertyUsage.externalClass, count + 1);
+    }
+    
+    const callUsage = analyzeCallExpression(node, importedSymbols);
+    if (callUsage.isOwnUsage) {
+      ownUsage++;
+    } else if (callUsage.externalClass) {
+      const count = externalUsage.get(callUsage.externalClass) || 0;
+      externalUsage.set(callUsage.externalClass, count + 1);
     }
   });
   
-  for (const [className, count] of externalUsage.entries()) {
-    if (count >= 3 && count > ownUsage * 1.5) {
+  return { externalUsage, ownUsage };
+};
+
+interface UsageResult {
+  isOwnUsage: boolean;
+  externalClass?: string;
+}
+
+const analyzePropertyAccess = (node: Node, importedSymbols: Set<string>): UsageResult => {
+  if (node.getKind() !== SyntaxKind.PropertyAccessExpression) {
+    return { isOwnUsage: false };
+  }
+  
+  const propAccess = node as PropertyAccessExpression;
+  const expression = propAccess.getExpression();
+  
+  if (expression.getKind() === SyntaxKind.ThisKeyword) {
+    return { isOwnUsage: true };
+  }
+  
+  const expressionText = expression.getText();
+  if (isInternalClassReference(expressionText, importedSymbols)) {
+    return { isOwnUsage: false, externalClass: expressionText };
+  }
+  
+  return { isOwnUsage: false };
+};
+
+const analyzeCallExpression = (node: Node, importedSymbols: Set<string>): UsageResult => {
+  if (node.getKind() !== SyntaxKind.CallExpression) {
+    return { isOwnUsage: false };
+  }
+  
+  const callExpr = node as CallExpression;
+  const expression = callExpr.getExpression();
+  
+  if (expression.getKind() !== SyntaxKind.PropertyAccessExpression) {
+    return { isOwnUsage: false };
+  }
+  
+  const propAccess = expression as PropertyAccessExpression;
+  const objectExpr = propAccess.getExpression();
+  
+  if (objectExpr.getKind() === SyntaxKind.ThisKeyword) {
+    return { isOwnUsage: true };
+  }
+  
+  const expressionText = objectExpr.getText();
+  if (isInternalClassReference(expressionText, importedSymbols)) {
+    return { isOwnUsage: false, externalClass: expressionText };
+  }
+  
+  return { isOwnUsage: false };
+};
+
+const findFeatureEnvyViolation = (analysis: UsageAnalysis): FeatureEnvyResult | null => {
+  for (const [className, count] of analysis.externalUsage.entries()) {
+    if (count >= 3 && count > analysis.ownUsage * 1.5) {
       return {
         enviedClass: className,
         count: count,
-        ownUsage: ownUsage
+        ownUsage: analysis.ownUsage
       };
     }
   }
-  
   return null;
 };
 

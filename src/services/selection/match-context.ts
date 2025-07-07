@@ -6,9 +6,7 @@ export class MatchContext {
     public readonly lines: string[],
     public readonly fileName: string,
     public readonly filePath?: string
-  ) {
-    // Parameters are used as readonly properties
-  }
+  ) {}
 
   static fromContent(content: string, fileName: string, filePath?: string): MatchContext {
     const lines = content.split('\n');

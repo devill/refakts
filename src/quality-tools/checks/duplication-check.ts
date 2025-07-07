@@ -14,21 +14,8 @@ export const duplicationCheck: QualityCheck = {
   check: async (): Promise<QualityIssue[]> => {
     const issues: QualityIssue[] = [];
     
-    try {
-      await execAsync('npx jscpd src tests --threshold 10 --reporters console --silent');
-    } catch (error: unknown) {
-      if (hasDuplication(error)) {
-        issues.push(...createDuplicationIssue());
-      }
-    }
-    
-    try {
-      await execAsync('npx jscpd tests --threshold 5 --reporters console --silent');
-    } catch (error: unknown) {
-      if (hasDuplication(error)) {
-        issues.push(...createTestDuplicationIssue());
-      }
-    }
+    await checkSourceCodeDuplication(issues);
+    await checkTestCodeDuplication(issues);
     
     return issues;
   },
@@ -39,14 +26,38 @@ export const duplicationCheck: QualityCheck = {
   } : undefined
 };
 
-const hasDuplication = (error: unknown): boolean => {
-  if (error && typeof error === 'object') {
-    const execError = error as ExecError;
-    return (execError.stdout?.includes('duplications found') ?? false) ||
-           (execError.stderr?.includes('too many duplicates') ?? false) ||
-           (execError.message?.includes('too many duplicates') ?? false);
+const checkSourceCodeDuplication = async (issues: QualityIssue[]): Promise<void> => {
+  try {
+    await execAsync('npx jscpd src tests --threshold 10 --reporters console --silent');
+  } catch (error: unknown) {
+    if (hasDuplication(error)) {
+      issues.push(...createDuplicationIssue());
+    }
   }
-  return false;
+};
+
+const checkTestCodeDuplication = async (issues: QualityIssue[]): Promise<void> => {
+  try {
+    await execAsync('npx jscpd tests --threshold 5 --reporters console --silent');
+  } catch (error: unknown) {
+    if (hasDuplication(error)) {
+      issues.push(...createTestDuplicationIssue());
+    }
+  }
+};
+
+const hasDuplication = (error: unknown): boolean => {
+  if (!error || typeof error !== 'object') return false;
+  
+  const execError = error as ExecError;
+  return hasDuplicationInOutput(execError.stdout) ||
+         hasDuplicationInOutput(execError.stderr) ||
+         hasDuplicationInOutput(execError.message);
+};
+
+const hasDuplicationInOutput = (output?: string): boolean => {
+  if (!output) return false;
+  return output.includes('duplications found') || output.includes('too many duplicates');
 };
 
 const createDuplicationIssue = (): QualityIssue[] => [{
