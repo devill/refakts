@@ -1,10 +1,11 @@
-import { Node, VariableDeclaration, SourceFile } from 'ts-morph';
+import { Node, VariableDeclaration } from 'ts-morph';
 import { ContextAnalyzer } from './context-analyzer';
+import { VariableReferenceRequest } from './variable-reference-request';
 
 export class VariableReplacer {
   private contextAnalyzer = new ContextAnalyzer();
 
-  replaceAllReferences(_sourceFile: SourceFile, variableName: string, declaration: VariableDeclaration, initializerText: string): void {
+  replaceAllReferences(variableName: string, declaration: VariableDeclaration, initializerText: string): void {
     const references = this.findAllReferences(variableName, declaration);
     for (const reference of references) {
       reference.replaceWithText(initializerText);
@@ -19,11 +20,11 @@ export class VariableReplacer {
   }
 
   private findAllReferences(variableName: string, declaration: VariableDeclaration): Node[] {
-    const references: Node[] = [];
     const declarationNode = declaration.getNameNode();
     const declarationScope = this.findDeclarationScope(declaration);
-    this.collectScopedReferences(declarationScope, variableName, declarationNode, references);
-    return references;
+    const request = new VariableReferenceRequest(declarationScope, variableName, declarationNode);
+    this.collectScopedReferences(request);
+    return request.getReferences();
   }
 
   private findDeclarationScope(declaration: VariableDeclaration): Node {
@@ -37,19 +38,17 @@ export class VariableReplacer {
     return declaration.getSourceFile();
   }
 
-  private collectScopedReferences(scope: Node, variableName: string, declarationNode: Node, references: Node[]): void {
-    scope.forEachDescendant((node: Node) => {
-      if (this.isMatchingIdentifier(node, variableName, declarationNode)) {
-        references.push(node);
+  private collectScopedReferences(request: VariableReferenceRequest): void {
+    request.scope.forEachDescendant((node: Node) => {
+      if (this.isMatchingIdentifier(node, request)) {
+        request.addReference(node);
       }
     });
   }
 
 
-  private isMatchingIdentifier(node: Node, variableName: string, declarationNode: Node): boolean {
-    return node.getKind() === 80 && 
-           node.getText() === variableName && 
-           node !== declarationNode &&
+  private isMatchingIdentifier(node: Node, request: VariableReferenceRequest): boolean {
+    return request.isMatchingReference(node) &&
            !this.contextAnalyzer.isInTypeContext(node) &&
            !this.contextAnalyzer.isInDestructuringPattern(node);
   }

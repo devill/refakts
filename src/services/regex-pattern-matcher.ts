@@ -2,6 +2,7 @@ import { SourceFile } from 'ts-morph';
 import { SelectResult, SelectMatch } from '../types/selection-types';
 import { SelectPatternMatcher } from './selection/pattern-matcher';
 import { SelectResultFormatter, BasicFormatter, LineFormatter, PreviewFormatter, DefinitionFormatter } from './selection/result-formatters';
+import { MatchContext } from './selection/match-context';
 import * as path from 'path';
 
 interface RegexOptions {
@@ -29,10 +30,11 @@ export class RegexPatternMatcher {
   findRegexMatches(sourceFile: SourceFile, options: RegexOptions): SelectResult[] {
     const content = sourceFile.getFullText();
     const fileName = path.basename(sourceFile.getFilePath());
+    const context = MatchContext.fromContent(content, fileName, sourceFile.getFilePath());
     const patterns = this.createRegexPatterns(options.regex || '');
     const allMatches = this.findAllPatternMatches(content, patterns);
     
-    return this.processMatches(allMatches, fileName, sourceFile.getFilePath(), options);
+    return this.processMatches(allMatches, context, options);
   }
 
   private createRegexPatterns(regexOption: string | string[]): RegExp[] {
@@ -60,9 +62,9 @@ export class RegexPatternMatcher {
     });
   }
 
-  private processMatches(matches: SelectMatch[], fileName: string, filePath: string, options: RegexOptions): SelectResult[] {
+  private processMatches(matches: SelectMatch[], context: MatchContext, options: RegexOptions): SelectResult[] {
     const formatter = this.determineFormatter(options);
-    return formatter.format(matches, fileName, filePath);
+    return formatter.format(matches, context.fileName, context.content);
   }
 
   private determineFormatter(options: RegexOptions): SelectResultFormatter {

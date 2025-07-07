@@ -1,5 +1,6 @@
 import { SelectMatch, SelectResult } from '../../types/selection-types';
 import { DefinitionRangeDetector } from './definition-range-detector';
+import { MatchContext } from './match-context';
 
 export interface SelectResultFormatter {
   format(_matches: SelectMatch[], _fileName: string, _file?: string): SelectResult[];
@@ -82,16 +83,17 @@ export class DefinitionFormatter implements SelectResultFormatter {
 
   format(matches: SelectMatch[], fileName: string, file: string): SelectResult[] {
     const results: SelectResult[] = [];
+    const context = MatchContext.fromContent(file, fileName);
     
     for (const match of matches) {
-      this.processMatchForDefinition(match, fileName, file, results);
+      this.processMatchForDefinition(match, context, results);
     }
     
     return results;
   }
 
-  private processMatchForDefinition(match: SelectMatch, fileName: string, file: string, results: SelectResult[]): void {
-    const result = this.createDefinitionResult(match, fileName, file);
+  private processMatchForDefinition(match: SelectMatch, context: MatchContext, results: SelectResult[]): void {
+    const result = this.createDefinitionResult(match, context.fileName, context.content);
     if (result) {
       results.push(result);
     }

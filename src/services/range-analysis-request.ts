@@ -1,14 +1,11 @@
 import { SourceFile } from 'ts-morph';
+import { PositionData } from '../core/position-data';
 
 interface RangePattern {
   start: RegExp;
   end: RegExp;
 }
 
-interface PositionData {
-  line: number;
-  column: number;
-}
 
 /**
  * Encapsulates all parameters needed for range analysis operations.
@@ -65,7 +62,7 @@ export class RangeAnalysisRequest {
    * Creates a position object from line number and column.
    */
   createPosition(line: number, column: number): PositionData {
-    return { line, column };
+    return new PositionData(line, column);
   }
 
   /**

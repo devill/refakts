@@ -1,45 +1,20 @@
-import * as ts from 'typescript';
 import { Node } from 'ts-morph';
+import { NodeAnalyzer } from './node-analyzer';
 
 export class TypeScriptScopeAnalyzer {
   getScope(node: Node): Node {
-    let current = node.getParent();
-    while (current) {
-      if (this.isScopeNode(current)) {
-        return current;
-      }
-      current = current.getParent();
-    }
-    return node.getSourceFile();
+    return NodeAnalyzer.getNodeScope(node);
   }
 
   isScopeNode(node: Node): boolean {
-    return node.getKind() === ts.SyntaxKind.FunctionDeclaration ||
-           node.getKind() === ts.SyntaxKind.FunctionExpression ||
-           node.getKind() === ts.SyntaxKind.ArrowFunction ||
-           node.getKind() === ts.SyntaxKind.Block ||
-           node.getKind() === ts.SyntaxKind.SourceFile;
+    return NodeAnalyzer.isScopeNode(node);
   }
 
   isScopeContainedIn(innerScope: Node, outerScope: Node): boolean {
-    let current: Node | undefined = innerScope;
-    while (current) {
-      if (current === outerScope) {
-        return true;
-      }
-      current = current.getParent();
-    }
-    return false;
+    return NodeAnalyzer.isScopeContainedIn(innerScope, outerScope);
   }
 
   getParentScope(scope: Node): Node | undefined {
-    let current = scope.getParent();
-    while (current) {
-      if (this.isScopeNode(current)) {
-        return current;
-      }
-      current = current.getParent();
-    }
-    return undefined;
+    return NodeAnalyzer.getParentScope(scope);
   }
 }

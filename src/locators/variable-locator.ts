@@ -3,6 +3,7 @@ import { Project, Node, SourceFile } from 'ts-morph';
 import { PositionFinder } from './position-finder';
 import { VariableNodeMatcher } from './variable-node-matcher';
 import { VariableResultBuilder, VariableLocation, VariableLocationResult, VariableNodeResult } from './variable-result-builder';
+import { PositionData } from '../core/position-data';
 
 export { VariableLocation, VariableLocationResult, VariableNodeResult };
 

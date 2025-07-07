@@ -1,5 +1,7 @@
 import { SourceFile } from 'ts-morph';
 import { SelectResult } from '../types/selection-types';
+import { RangeAnalysisRequest } from './range-analysis-request';
+import { PositionData } from '../core/position-data';
 import * as path from 'path';
 
 interface RangeOptions {
@@ -15,10 +17,6 @@ interface RegexOptions {
   end: string;
 }
 
-interface RangePattern {
-  start: RegExp;
-  end: RegExp;
-}
 
 interface RangeData {
   startLine: number;
@@ -34,10 +32,6 @@ interface RangeResult {
   newIndex: number;
 }
 
-interface PositionData {
-  line: number;
-  column: number;
-}
 
 
 export class RangeAnalyzer {
@@ -71,17 +65,16 @@ export class RangeAnalyzer {
   }
 
   private findContentRanges(sourceFile: SourceFile, startRegex: string, endRegex: string): RangeData[] {
-    const lines = sourceFile.getFullText().split('\n');
-    const patterns = this.createPatterns(startRegex, endRegex);
+    const request = new RangeAnalysisRequest(sourceFile, startRegex, endRegex);
     
-    return this.processAllLines(sourceFile, lines, patterns);
+    return this.processAllLines(request);
   }
 
-  private processAllLines(sourceFile: SourceFile, lines: string[], patterns: RangePattern): RangeData[] {
+  private processAllLines(request: RangeAnalysisRequest): RangeData[] {
     const ranges: RangeData[] = [];
     
-    for (let i = 0; i < lines.length; i++) {
-      const result = this.processLine(sourceFile, lines, patterns, i);
+    for (let i = 0; i < request.getTotalLines(); i++) {
+      const result = this.processLine(request, i);
       i = this.handleLineResult(result, ranges, i);
     }
     
@@ -96,52 +89,43 @@ export class RangeAnalyzer {
     return currentIndex;
   }
 
-  private processLine(sourceFile: SourceFile, lines: string[], patterns: RangePattern, i: number): RangeResult {
-    if (this.shouldSkipLine(sourceFile, i + 1)) {
+  private processLine(request: RangeAnalysisRequest, i: number): RangeResult {
+    if (request.shouldSkipLine(i + 1)) {
       return this.createSkipResult(i);
     }
     
-    return this.createRangeResult(sourceFile, lines, patterns, i);
+    return this.createRangeResult(request, i);
   }
 
   private createSkipResult(index: number) {
     return { range: null, newIndex: index };
   }
 
-  private createRangeResult(sourceFile: SourceFile, lines: string[], patterns: RangePattern, i: number): RangeResult {
-    const range = this.findRangeFromStartLine(sourceFile, lines, patterns, i);
+  private createRangeResult(request: RangeAnalysisRequest, i: number): RangeResult {
+    const range = this.findRangeFromStartLine(request, i);
     return { 
       range, 
       newIndex: range ? range.endLineIndex : i 
     };
   }
 
-  private createPatterns(startRegex: string, endRegex: string): RangePattern {
-    return {
-      start: new RegExp(startRegex),
-      end: new RegExp(endRegex)
-    };
-  }
 
-  private shouldSkipLine(sourceFile: SourceFile, lineNumber: number): boolean {
-    return this.isCommentLine(sourceFile, lineNumber);
-  }
 
-  private findRangeFromStartLine(sourceFile: SourceFile, lines: string[], patterns: RangePattern, startIndex: number): RangeData | null {
-    const startMatch = patterns.start.exec(lines[startIndex]);
+  private findRangeFromStartLine(request: RangeAnalysisRequest, startIndex: number): RangeData | null {
+    const startMatch = request.patterns.start.exec(request.getLineByIndex(startIndex) || '');
     if (!startMatch) return null;
     
-    const rangeStart = { line: startIndex + 1, column: startMatch.index + 1 };
-    const endResult = this.findEndMatch(sourceFile, lines, patterns.end, startIndex);
+    const rangeStart = new PositionData(startIndex + 1, startMatch.index + 1);
+    const endResult = this.findEndMatch(request, startIndex);
     
-    return endResult ? this.createRange(rangeStart, endResult.match, lines, startIndex, endResult.index) : null;
+    return endResult ? this.createRange(rangeStart, endResult.match, request, startIndex, endResult.index) : null;
   }
 
-  private findEndMatch(sourceFile: SourceFile, lines: string[], endPattern: RegExp, startIndex: number) {
-    for (let j = startIndex; j < lines.length; j++) {
-      if (this.shouldSkipLine(sourceFile, j + 1)) continue;
+  private findEndMatch(request: RangeAnalysisRequest, startIndex: number) {
+    for (let j = startIndex; j < request.getTotalLines(); j++) {
+      if (request.shouldSkipLine(j + 1)) continue;
       
-      const endMatch = endPattern.exec(lines[j]);
+      const endMatch = request.patterns.end.exec(request.getLineByIndex(j) || '');
       if (endMatch) return { match: endMatch, index: j };
     }
     
@@ -149,20 +133,17 @@ export class RangeAnalyzer {
   }
 
 
-  private createRange(rangeStart: PositionData, endMatch: RegExpExecArray, lines: string[], startIndex: number, endIndex: number): RangeData {
+  private createRange(rangeStart: PositionData, endMatch: RegExpExecArray, request: RangeAnalysisRequest, startIndex: number, endIndex: number): RangeData {
     const rangeEnd = this.calculateRangeEnd(endMatch, endIndex);
-    const content = this.extractRangeContent(lines, startIndex, endIndex);
+    const content = request.extractContentBetween(startIndex, endIndex);
     
     return this.buildRangeObject(rangeStart, rangeEnd, content, endIndex);
   }
 
-  private calculateRangeEnd(endMatch: RegExpExecArray, endIndex: number) {
-    return { line: endIndex + 1, column: endMatch.index + endMatch[0].length + 1 };
+  private calculateRangeEnd(endMatch: RegExpExecArray, endIndex: number): PositionData {
+    return new PositionData(endIndex + 1, endMatch.index + endMatch[0].length + 1);
   }
 
-  private extractRangeContent(lines: string[], startIndex: number, endIndex: number): string {
-    return lines.slice(startIndex, endIndex + 1).join('\n');
-  }
 
   private buildRangeObject(rangeStart: PositionData, rangeEnd: PositionData, content: string, endIndex: number): RangeData {
     return {
@@ -175,19 +156,4 @@ export class RangeAnalyzer {
     };
   }
 
-  private isCommentLine(sourceFile: SourceFile, lineNumber: number): boolean {
-    const lines = sourceFile.getFullText().split('\n');
-    if (this.isInvalidLineNumber(lineNumber, lines.length)) return false;
-    
-    const line = lines[lineNumber - 1];
-    return this.startsWithCommentMarker(line.trim());
-  }
-
-  private isInvalidLineNumber(lineNumber: number, totalLines: number): boolean {
-    return lineNumber <= 0 || lineNumber > totalLines;
-  }
-
-  private startsWithCommentMarker(trimmedLine: string): boolean {
-    return trimmedLine.startsWith('//') || trimmedLine.startsWith('*') || trimmedLine.startsWith('/*');
-  }
 }

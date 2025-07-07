@@ -6,10 +6,10 @@ import { ConsoleCapture } from '../console-capture';
  */
 export class CommandExecutionBuilder {
   private command: any;
-  private file: string = '';
+  private file = '';
   private options: any = {};
-  private commandName: string = '';
-  private commandString: string = '';
+  private commandName = '';
+  private commandString = '';
 
   /**
    * Sets the command to execute.

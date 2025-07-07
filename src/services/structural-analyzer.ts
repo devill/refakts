@@ -1,38 +1,40 @@
 import { SourceFile, ClassDeclaration, PropertyDeclaration, MethodDeclaration } from 'ts-morph';
 import { SelectResult } from '../types/selection-types';
+import { MatchContext } from './selection/match-context';
 import * as path from 'path';
 
 export class StructuralAnalyzer {
   findStructuralMatches(sourceFile: SourceFile, options: Record<string, unknown>): SelectResult[] {
-    const { regex, fileName } = this.prepareMatchingContext(sourceFile, options);
-    return this.collectAllMatches(sourceFile, regex, fileName, options);
+    const { regex, context } = this.prepareMatchingContext(sourceFile, options);
+    return this.collectAllMatches(sourceFile, regex, context, options);
   }
 
   private prepareMatchingContext(sourceFile: SourceFile, options: Record<string, unknown>) {
     const pattern = options.regex as string;
     const fileName = path.basename(sourceFile.getFilePath());
+    const context = MatchContext.fromContent(sourceFile.getFullText(), fileName, sourceFile.getFilePath());
     const regex = new RegExp(pattern);
-    return { regex, fileName };
+    return { regex, context };
   }
 
-  private collectAllMatches(sourceFile: SourceFile, regex: RegExp, fileName: string, options: Record<string, unknown>): SelectResult[] {
+  private collectAllMatches(sourceFile: SourceFile, regex: RegExp, context: MatchContext, options: Record<string, unknown>): SelectResult[] {
     const results: SelectResult[] = [];
     
-    this.addFieldMatches(sourceFile, regex, fileName, options, results);
-    this.addMethodMatches(sourceFile, regex, fileName, options, results);
+    this.addFieldMatches(sourceFile, regex, context, options, results);
+    this.addMethodMatches(sourceFile, regex, context, options, results);
     
     return results;
   }
 
-  private addFieldMatches(sourceFile: SourceFile, regex: RegExp, fileName: string, options: Record<string, unknown>, results: SelectResult[]): void {
+  private addFieldMatches(sourceFile: SourceFile, regex: RegExp, context: MatchContext, options: Record<string, unknown>, results: SelectResult[]): void {
     if (this.shouldIncludeFields(options)) {
-      results.push(...this.findASTFieldMatches(sourceFile, regex, fileName));
+      results.push(...this.findASTFieldMatches(sourceFile, regex, context.fileName));
     }
   }
 
-  private addMethodMatches(sourceFile: SourceFile, regex: RegExp, fileName: string, options: Record<string, unknown>, results: SelectResult[]): void {
+  private addMethodMatches(sourceFile: SourceFile, regex: RegExp, context: MatchContext, options: Record<string, unknown>, results: SelectResult[]): void {
     if (this.shouldIncludeMethods(options)) {
-      results.push(...this.findASTMethodMatches(sourceFile, regex, fileName));
+      results.push(...this.findASTMethodMatches(sourceFile, regex, context.fileName));
     }
   }
 

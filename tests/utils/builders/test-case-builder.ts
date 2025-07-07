@@ -7,10 +7,10 @@ import { TestCase, TestMeta } from '../types/test-case-types';
  */
 export class TestCaseBuilder {
   private testCase: Partial<TestCase> = {};
-  private testDir: string = '';
-  private testPath: string = '';
-  private baseName: string = '';
-  private expectedExtension: string = 'ts';
+  private testDir = '';
+  private testPath = '';
+  private baseName = '';
+  private expectedExtension = 'ts';
 
   /**
    * Sets the test name.
@@ -71,7 +71,7 @@ export class TestCaseBuilder {
   /**
    * Sets whether the test should be skipped.
    */
-  withSkip(skip: boolean = true): TestCaseBuilder {
+  withSkip(skip = true): TestCaseBuilder {
     this.testCase.skip = skip;
     return this;
   }

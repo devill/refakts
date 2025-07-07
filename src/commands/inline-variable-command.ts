@@ -5,6 +5,7 @@ import { VariableDeclarationFinder } from '../services/variable-declaration-find
 import { ExpressionAnalyzer } from '../services/expression-analyzer';
 import { VariableReplacer } from '../services/variable-replacer';
 import { LocationRange } from '../core/location-parser';
+import { NodeAnalyzer } from '../locators/node-analyzer';
 
 export class InlineVariableCommand implements RefactoringCommand {
   readonly name = 'inline-variable';
@@ -39,19 +40,13 @@ export class InlineVariableCommand implements RefactoringCommand {
   }
 
   private async performInlineVariable(node: Node): Promise<void> {
-    this.validateIdentifierNode(node);
+    NodeAnalyzer.validateIdentifierNode(node);
     const variableName = node.getText();
     const sourceFile = node.getSourceFile();
     const declaration = this.declarationFinder.findVariableDeclaration(sourceFile, variableName, node);
     const initializerText = this.getInitializerText(declaration, variableName);
-    this.variableReplacer.replaceAllReferences(sourceFile, variableName, declaration, initializerText);
+    this.variableReplacer.replaceAllReferences(variableName, declaration, initializerText);
     this.variableReplacer.removeDeclaration(declaration);
-  }
-
-  private validateIdentifierNode(node: Node): void {
-    if (node.getKind() !== 80) {
-      throw new Error(`Expected identifier, got ${node.getKindName()}`);
-    }
   }
 
   private getInitializerText(declaration: VariableDeclaration, variableName?: string, context?: Node): string {

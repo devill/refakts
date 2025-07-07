@@ -1,7 +1,7 @@
-import * as ts from 'typescript';
 import { Node } from 'ts-morph';
 import { TypeScriptScopeAnalyzer } from './typescript-scope-analyzer';
 import { ScopeContext } from '../core/scope-context';
+import { NodeAnalyzer } from './node-analyzer';
 
 export class ShadowingDetector {
   private scopeAnalyzer = new TypeScriptScopeAnalyzer();
@@ -18,7 +18,7 @@ export class ShadowingDetector {
   }
 
   private isShadowedByDeclaration(usage: Node, declaration: Node): boolean {
-    const variableName = this.getVariableName(declaration);
+    const variableName = NodeAnalyzer.getVariableName(declaration);
     if (!variableName) return false;
     
     const scopes = this.getScopes(usage, declaration);
@@ -64,24 +64,10 @@ export class ShadowingDetector {
   }
 
   private isShadowingDeclaration(scopeContext: ScopeContext, child: Node, variableName: string): boolean {
-    return this.isAnyDeclaration(child) && 
-           this.hasMatchingIdentifier(child, variableName) &&
+    return NodeAnalyzer.isAnyDeclaration(child) && 
+           NodeAnalyzer.hasMatchingIdentifier(child, variableName) &&
            child !== scopeContext.targetNode &&
            this.scopeAnalyzer.getScope(child) === scopeContext.usageScope;
   }
 
-  private getVariableName(declaration: Node): string | undefined {
-    const identifier = declaration.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
-    return identifier?.getText();
-  }
-
-  private isAnyDeclaration(node: Node): boolean {
-    return node.getKind() === ts.SyntaxKind.VariableDeclaration ||
-           node.getKind() === ts.SyntaxKind.Parameter;
-  }
-
-  private hasMatchingIdentifier(node: Node, variableName: string): boolean {
-    const identifier = node.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
-    return identifier?.getText() === variableName;
-  }
 }

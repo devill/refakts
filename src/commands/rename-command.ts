@@ -4,6 +4,7 @@ import { ASTService } from '../services/ast-service';
 import { VariableLocator, VariableNodeResult } from '../locators/variable-locator';
 import { RenameVariableTransformation } from '../transformations/rename-variable-transformation';
 import { LocationRange } from '../core/location-parser';
+import { NodeAnalyzer } from '../locators/node-analyzer';
 
 export class RenameCommand implements RefactoringCommand {
   readonly name = 'rename';
@@ -43,17 +44,11 @@ export class RenameCommand implements RefactoringCommand {
   }
 
   private async performRename(node: Node, newName: string): Promise<void> {
-    this.validateIdentifierNode(node);
+    NodeAnalyzer.validateIdentifierNode(node);
     const sourceFile = node.getSourceFile();
     const nodeResult = this.findVariableNodesAtPosition(node, sourceFile);
     const transformation = this.createRenameTransformation(nodeResult, newName);
     await transformation.transform(sourceFile);
-  }
-
-  private validateIdentifierNode(node: Node): void {
-    if (node.getKind() !== 80) {
-      throw new Error(`Expected identifier, got ${node.getKindName()}`);
-    }
   }
 
   private findVariableNodesAtPosition(node: Node, sourceFile: SourceFile) {

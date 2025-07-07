@@ -226,6 +226,80 @@ export class NodeAnalyzer {
   // === Node Validation Methods ===
 
   /**
+   * Validates that a node is an identifier, throwing an error if not
+   */
+  static validateIdentifierNode(node: Node): void {
+    if (node.getKind() !== ts.SyntaxKind.Identifier) {
+      throw new Error(`Expected identifier, got ${node.getKindName()}`);
+    }
+  }
+
+  /**
+   * Checks if a node is an identifier node
+   */
+  static isIdentifierNode(node: Node): boolean {
+    return node.getKind() === ts.SyntaxKind.Identifier;
+  }
+
+  /**
+   * Extracts variable name from a node or throws an error if not possible
+   */
+  static getVariableNameFromNode(node: Node): string {
+    return NodeAnalyzer.isIdentifierNode(node) 
+      ? node.getText() 
+      : NodeAnalyzer.extractCandidateNameOrThrow(node);
+  }
+
+  /**
+   * Extracts candidate name from a node or throws an error if not possible
+   */
+  static extractCandidateNameOrThrow(node: Node): string {
+    const candidateName = NodeAnalyzer.extractCandidateName(node);
+    if (!candidateName) {
+      throw new Error('Could not extract variable name from node');
+    }
+    return candidateName;
+  }
+
+  /**
+   * Extracts candidate name from a node, returns null if not possible
+   */
+  static extractCandidateName(node: Node): string | null {
+    return NodeAnalyzer.trySimpleTextExtraction(node) ||
+           NodeAnalyzer.tryVariableDeclarationExtraction(node) ||
+           NodeAnalyzer.tryIdentifierDescendantExtraction(node);
+  }
+
+  /**
+   * Tries to extract variable name from simple text
+   */
+  static trySimpleTextExtraction(node: Node): string | null {
+    const text = node.getText().trim();
+    return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(text) ? text : null;
+  }
+
+  /**
+   * Tries to extract variable name from variable declaration
+   */
+  static tryVariableDeclarationExtraction(node: Node): string | null {
+    if (node.getKind() === ts.SyntaxKind.VariableDeclaration) {
+      const symbol = node.getSymbol();
+      const declarations = symbol?.getDeclarations();
+      const variableDeclaration = declarations?.[0];
+      return variableDeclaration ? variableDeclaration.getText() : null;
+    }
+    return null;
+  }
+
+  /**
+   * Tries to extract variable name from identifier descendant
+   */
+  static tryIdentifierDescendantExtraction(node: Node): string | null {
+    const identifiers = node.getDescendantsOfKind(ts.SyntaxKind.Identifier);
+    return identifiers.length > 0 ? identifiers[0].getText() : null;
+  }
+
+  /**
    * Checks if a node is a variable declaration with matching name
    */
   static isVariableDeclaration(node: Node, variableName: string): boolean {

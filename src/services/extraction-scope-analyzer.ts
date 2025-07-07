@@ -1,4 +1,5 @@
 import { Node, FunctionDeclaration, FunctionExpression } from 'ts-morph';
+import { NodeAnalyzer } from '../locators/node-analyzer';
 
 export class ExtractionScopeAnalyzer {
   findExtractionScope(node: Node): Node {
@@ -9,7 +10,7 @@ export class ExtractionScopeAnalyzer {
   findContainingStatement(node: Node): Node | undefined {
     let current: Node | undefined = node;
     while (current) {
-      if (this.isContainingStatement(current)) {
+      if (NodeAnalyzer.isContainingStatement(current)) {
         return current;
       }
       current = current.getParent();
@@ -18,7 +19,7 @@ export class ExtractionScopeAnalyzer {
   }
 
   isValidExtractionScope(parent: Node | undefined): parent is Node {
-    return parent !== undefined && (Node.isBlock(parent) || Node.isSourceFile(parent));
+    return NodeAnalyzer.isValidExtractionScope(parent);
   }
 
   findScopeName(node: Node): string {
@@ -38,13 +39,9 @@ export class ExtractionScopeAnalyzer {
 
   private checkCurrentNodeForValidScope(current: Node): Node | undefined {
     const parent = current.getParent();
-    return this.isValidExtractionScope(parent) ? parent : undefined;
+    return NodeAnalyzer.isValidExtractionScope(parent) ? parent : undefined;
   }
 
-  private isContainingStatement(current: Node): boolean {
-    const parent = current.getParent();
-    return this.isValidExtractionScope(parent);
-  }
 
   private searchParentScopes(current: Node | undefined): string | null {
     while (current) {

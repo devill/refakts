@@ -1,5 +1,6 @@
 import { Project, Node, SourceFile } from 'ts-morph';
 import { LocationRange } from '../core/location-parser';
+import { PositionData } from '../core/position-data';
 import * as path from 'path';
 
 export class ASTService {
@@ -39,10 +40,16 @@ export class ASTService {
   }
 
   private getStartPosition(sourceFile: SourceFile, location: LocationRange): number {
+    const positionData = PositionData.fromLocation(location);
+    return this.getPositionFromData(sourceFile, positionData);
+  }
+
+  private getPositionFromData(sourceFile: SourceFile, positionData: PositionData): number {
     try {
-      return sourceFile.compilerNode.getPositionOfLineAndCharacter(location.startLine - 1, location.startColumn - 1);
+      const zeroBased = positionData.toZeroBased();
+      return sourceFile.compilerNode.getPositionOfLineAndCharacter(zeroBased.line, zeroBased.column);
     } catch {
-      throw new Error(`No node found at position ${location.startLine}:${location.startColumn}`);
+      throw new Error(`No node found at position ${positionData.line}:${positionData.column}`);
     }
   }
 
@@ -73,6 +80,17 @@ export class ASTService {
       }
     }
     return this.traverseToFindMatchingNode(node.getParent(), expectedStart, expectedEnd, bestMatch, bestScore);
+  }
+
+  private traverseToFindMatchingNodeWithPosition(node: Node | undefined, expectedPositions: { start: number; end: number }, bestMatch: Node | null = null, bestScore = Infinity): Node | null {
+    if (!node) return bestMatch;
+    if (this.isNodeRangeCloseToExpected(node, expectedPositions.start, expectedPositions.end)) {
+      const score = this.calculateNodeScore(node, expectedPositions.start, expectedPositions.end);
+      if (score < bestScore) {
+        return this.traverseToFindMatchingNodeWithPosition(node.getParent(), expectedPositions, node, score);
+      }
+    }
+    return this.traverseToFindMatchingNodeWithPosition(node.getParent(), expectedPositions, bestMatch, bestScore);
   }
 
   private isNodeRangeCloseToExpected(node: Node, expectedStart: number, expectedEnd: number): boolean {

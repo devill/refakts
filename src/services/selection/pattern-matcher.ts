@@ -1,4 +1,5 @@
 import { SelectMatch } from '../../types/selection-types';
+import { MatchContext } from './match-context';
 
 interface Position {
   line: number;
@@ -22,56 +23,40 @@ export class SelectPatternMatcher {
 
   private findMultilineMatches(content: string, pattern: RegExp, lines: string[]): SelectMatch[] {
     const matches: SelectMatch[] = [];
+    const context = new MatchContext(content, lines, '');
     let match;
     
     while ((match = pattern.exec(content)) !== null) {
-      this.processMultilineMatch(match, content, lines, matches);
+      this.processMultilineMatch(match, context, matches);
     }
     
     return matches;
   }
 
-  private processMultilineMatch(match: RegExpExecArray, content: string, lines: string[], matches: SelectMatch[]): void {
-    const selectMatch = this.createMultilineMatch(match, content, lines);
-    if (selectMatch && !this.isMatchInComment(selectMatch, content)) {
+  private processMultilineMatch(match: RegExpExecArray, context: MatchContext, matches: SelectMatch[]): void {
+    const selectMatch = this.createMultilineMatch(match, context);
+    if (selectMatch && !context.isMatchInComment(selectMatch)) {
       matches.push(selectMatch);
     }
   }
 
-  private isMatchInComment(selectMatch: SelectMatch, content: string): boolean {
-    const beforeMatch = content.substring(0, this.getIndexFromLineColumn(content, selectMatch.line, selectMatch.column));
-    const commentStartIndex = beforeMatch.lastIndexOf('/**');
-    const commentEndIndex = beforeMatch.lastIndexOf('*/');
-    
-    return commentStartIndex > commentEndIndex;
-  }
 
-  private getIndexFromLineColumn(content: string, line: number, column: number): number {
-    const lines = content.split('\n');
-    let index = 0;
-    
-    for (let i = 0; i < line - 1; i++) {
-      index += lines[i].length + 1;
-    }
-    
-    return index + column - 1;
-  }
 
-  private createMultilineMatch(match: RegExpExecArray, content: string, lines: string[]): SelectMatch | null {
-    const positions = this.getMatchPositions(match, content);
+  private createMultilineMatch(match: RegExpExecArray, context: MatchContext): SelectMatch | null {
+    const positions = this.getMatchPositions(match, context);
     if (!positions) return null;
     
-    const { textToUse, adjustedStartPos } = this.extractMultilineMatchDetails(match, positions.startPos, content);
+    const { textToUse, adjustedStartPos } = this.extractMultilineMatchDetails(match, positions.startPos, context);
     
-    return this.buildMultilineSelectMatch(adjustedStartPos, positions.endPos, textToUse, lines);
+    return this.buildMultilineSelectMatch(adjustedStartPos, positions.endPos, textToUse, context.lines);
   }
 
-  private getMatchPositions(match: RegExpExecArray, content: string) {
+  private getMatchPositions(match: RegExpExecArray, context: MatchContext) {
     const startIndex = match.index;
     const endIndex = match.index + match[0].length;
     
-    const startPos = this.getLineColumnFromIndex(content, startIndex);
-    const endPos = this.getLineColumnFromIndex(content, endIndex);
+    const startPos = context.getLineColumnFromIndex(startIndex);
+    const endPos = context.getLineColumnFromIndex(endIndex);
     
     return startPos && endPos ? { startPos, endPos } : null;
   }
@@ -87,27 +72,20 @@ export class SelectPatternMatcher {
     };
   }
 
-  private getLineColumnFromIndex(content: string, index: number): { line: number; column: number } | null {
-    const beforeIndex = content.substring(0, index);
-    const lines = beforeIndex.split('\n');
-    const line = lines.length;
-    const column = lines[lines.length - 1].length + 1;
-    return { line, column };
-  }
 
-  private extractMultilineMatchDetails(match: RegExpExecArray, startPos: { line: number; column: number }, content: string): { textToUse: string; adjustedStartPos: { line: number; column: number } } {
+  private extractMultilineMatchDetails(match: RegExpExecArray, startPos: { line: number; column: number }, context: MatchContext): { textToUse: string; adjustedStartPos: { line: number; column: number } } {
     const hasCapture = match.length > 1 && match[1] !== undefined;
     const textToUse = hasCapture ? match[1] : match[0];
     
-    const adjustedStartPos = this.calculateAdjustedStartPos(match, hasCapture, startPos, content);
+    const adjustedStartPos = this.calculateAdjustedStartPos(match, hasCapture, startPos, context);
     
     return { textToUse, adjustedStartPos };
   }
 
-  private calculateAdjustedStartPos(match: RegExpExecArray, hasCapture: boolean, startPos: { line: number; column: number }, content: string): { line: number; column: number } {
+  private calculateAdjustedStartPos(match: RegExpExecArray, hasCapture: boolean, startPos: { line: number; column: number }, context: MatchContext): { line: number; column: number } {
     if (hasCapture) {
       const captureStart = match.index + match[0].indexOf(match[1]);
-      const adjustedStartPos = this.getLineColumnFromIndex(content, captureStart);
+      const adjustedStartPos = context.getLineColumnFromIndex(captureStart);
       return adjustedStartPos || startPos;
     }
     
