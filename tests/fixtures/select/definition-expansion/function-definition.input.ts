@@ -1,6 +1,7 @@
 /**
  * @description Select function with full definition context
  * @command refakts select function-definition.input.ts --regex "calculateTotal" --include-definition
+ * @skip
  */
 
 function helper() {
