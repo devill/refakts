@@ -102,14 +102,13 @@ export class PositionData {
 
   /**
    * Converts to SelectMatch format (requires text content)
-   * Test comment to check baseline system
    */
-  toSelectMatch(text: string, fullLine: string, _endLine?: number, _endColumn?: number): SelectMatch {
+  toSelectMatch(text: string, fullLine: string): SelectMatch {
     return {
       line: this.line,
       column: this.column,
-      endLine: _endLine ?? this.line,
-      endColumn: _endColumn ?? this.column,
+      endLine: this.line,
+      endColumn: this.column,
       text,
       fullLine
     };

@@ -3,7 +3,7 @@
 import { QualityIssue } from './quality-check-interface';
 import { loadQualityChecks } from './plugin-loader';
 import { generateReport } from './quality-reporter';
-import { loadBaseline, shouldFilterViolation } from './baseline-manager';
+import { loadBaseline, shouldFilterViolation, cleanupResolvedFiles } from './baseline-manager';
 import { program } from 'commander';
 const runQualityChecks = async (sourceDir: string): Promise<QualityIssue[]> => {
   const checks = loadQualityChecks();
@@ -51,6 +51,7 @@ const main = async (): Promise<void> => {
   const allIssues = [...srcIssues, ...testIssues];
   
   const baseline = loadBaseline();
+  cleanupResolvedFiles(allIssues);
   const issues = allIssues.filter(issue => !shouldFilterViolation(issue, baseline));
   
   const linterIssues = issues.filter(issue => issue.type === 'linter-violation' || issue.type === 'linter-error');

@@ -1,10 +1,4 @@
 {
-  "src/core/position-data.ts": {
-    "lastCommitId": "9509e8a33cdf6e73d8d6ceac0594af53415fc27b",
-    "violations": [
-      "manyParameters"
-    ]
-  },
   "src/locators/node-analyzer.ts": {
     "lastCommitId": "9509e8a33cdf6e73d8d6ceac0594af53415fc27b",
     "violations": [
