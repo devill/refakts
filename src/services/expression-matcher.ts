@@ -2,7 +2,11 @@ import { Node, Expression } from 'ts-morph';
 import { ExtractionScopeAnalyzer } from './extraction-scope-analyzer';
 
 export class ExpressionMatcher {
-  constructor(private scopeAnalyzer: ExtractionScopeAnalyzer) {}
+  private scopeAnalyzer: ExtractionScopeAnalyzer;
+  
+  constructor(scopeAnalyzer: ExtractionScopeAnalyzer) {
+    this.scopeAnalyzer = scopeAnalyzer;
+  }
 
   findAllMatchingExpressions(targetNode: Node): Expression[] {
     const expressionText = targetNode.getText();

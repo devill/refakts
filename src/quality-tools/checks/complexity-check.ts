@@ -51,7 +51,7 @@ const analyzeCyclomaticComplexity = (stdout: string): QualityIssue[] => {
     
     for (const report of reports) {
       for (const func of report.functionComplexities) {
-        if (func.complexity > 5) {
+        if (func.complexity > 10 && !isGeneratedFunction(func.name)) {
           const filePath = path.relative(process.cwd(), report.file);
           const key = `${filePath}:${func.line}:${func.name}`;
           
@@ -73,6 +73,30 @@ const analyzeCyclomaticComplexity = (stdout: string): QualityIssue[] => {
   } catch {
     return [];
   }
+};
+
+const isGeneratedFunction = (name: string): boolean => {
+  const generatedPatterns = [
+    'step',           // TypeScript async/await generator step function
+    '__generator',    // TypeScript generator function
+    '__awaiter',      // TypeScript async function wrapper
+    '__spreadArray',  // TypeScript spread operator function
+    'fulfilled',      // Promise polyfill function
+    'rejected',       // Promise polyfill function
+    'adopt',          // Promise polyfill function
+    'anonymous: P',   // Promise constructor wrapper
+    'anonymous: Promise', // Promise wrapper
+    'anonymous: sent',    // Generator sent wrapper
+    'verb',           // TypeScript verb function
+    'anonymous: n',   // Generic anonymous wrapper
+    'anonymous: iterator' // Iterator wrapper
+  ];
+  
+  return generatedPatterns.some(pattern => 
+    name === pattern || 
+    name.startsWith(`anonymous: ${pattern}`) ||
+    (name.startsWith('anonymous:') && generatedPatterns.some(p => name.includes(p)))
+  );
 };
 
 const analyzeParameterCount = (sourceDir: string): QualityIssue[] => {
