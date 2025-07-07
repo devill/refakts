@@ -100,6 +100,10 @@ class TestCaseBuilder {
       return null;
     }
     
+    return this.createTestCaseFromMetaFile(testDir, subDir, subDirPath, metaFile);
+  }
+
+  private static createTestCaseFromMetaFile(testDir: string, subDir: string, subDirPath: string, metaFile: string): TestCase {
     const meta = this.loadMetaFromFile(metaFile);
     return this.buildMultiFileTestCase(testDir, subDir, subDirPath, meta);
   }
@@ -136,13 +140,17 @@ class TestCaseBuilder {
     const testCases: TestCase[] = [];
     
     for (const inputFile of inputFiles) {
-      const testCase = this.createSingleFileTestCase(testDir, testPath, inputFile, files, expectedExtension);
-      if (testCase) {
-        testCases.push(testCase);
-      }
+      this.addTestCaseIfValid(testCases, testDir, testPath, inputFile, files, expectedExtension);
     }
     
     return testCases;
+  }
+
+  private static addTestCaseIfValid(testCases: TestCase[], testDir: string, testPath: string, inputFile: string, files: string[], expectedExtension: string): void {
+    const testCase = this.createSingleFileTestCase(testDir, testPath, inputFile, files, expectedExtension);
+    if (testCase) {
+      testCases.push(testCase);
+    }
   }
 
   private static createSingleFileTestCase(testDir: string, testPath: string, inputFile: string, files: string[], expectedExtension: string): TestCase | null {
@@ -177,8 +185,19 @@ class TestCaseBuilder {
   }
 
   private static createTestCaseFromData(testDir: string, baseName: string, meta: TestMeta, inputPath: string, testPaths: { expectedFile: string; receivedFile: string }): TestCase {
+    const testName = this.buildTestName(testDir, baseName);
+    const testCase = this.buildTestCaseStructure(testName, meta, inputPath, testPaths);
+    
+    return testCase;
+  }
+
+  private static buildTestName(testDir: string, baseName: string): string {
+    return `${testDir}/${baseName}`;
+  }
+
+  private static buildTestCaseStructure(name: string, meta: TestMeta, inputPath: string, testPaths: { expectedFile: string; receivedFile: string }): TestCase {
     return {
-      name: `${testDir}/${baseName}`,
+      name,
       description: meta.description,
       commands: meta.commands,
       inputFile: inputPath,
