@@ -4,11 +4,20 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
+let gitDiffChecked = false;
+let gitDiffResult: QualityIssue[] = [];
+
 export const gitDiffCheck: QualityCheck = {
   name: 'diffSize',
   check: async (): Promise<QualityIssue[]> => {
+    if (gitDiffChecked) {
+      return [];
+    }
+    
+    gitDiffChecked = true;
     const diffResult = await checkGitDiffSize();
-    return diffResult.message ? [createDiffIssue(diffResult.message)] : [];
+    gitDiffResult = diffResult.message ? [createDiffIssue(diffResult.message)] : [];
+    return gitDiffResult;
   },
   getGroupDefinition: (groupKey: string) => groupKey === 'diffSize' ? {
     title: 'LARGE CHANGES',
