@@ -2,6 +2,7 @@ import * as ts from 'typescript';
 import { Node, SourceFile } from 'ts-morph';
 import { SourceFileHelper } from './source-file-helper';
 import { ShadowingDetector } from './shadowing-detector';
+import { VariableContext } from '../core/variable-context';
 
 export class VariableNodeMatcher {
   private shadowingDetector = new ShadowingDetector();
@@ -14,15 +15,16 @@ export class VariableNodeMatcher {
   findUsages(sourceFile: SourceFile, variableName: string, declaration: Node): Node[] {
     const usages: Node[] = [];
     const declarationIdentifier = this.getDeclarationIdentifier(declaration);
+    const context = new VariableContext(variableName, declaration, declarationIdentifier, sourceFile);
     
-    this.collectUsages(sourceFile, usages, variableName, declarationIdentifier, declaration);
+    this.collectUsages(usages, context);
     
     return usages;
   }
 
-  private collectUsages(sourceFile: SourceFile, usages: Node[], variableName: string, declarationIdentifier: Node | undefined, declaration: Node): void {
-    sourceFile.forEachDescendant((node: Node) => {
-      if (this.isValidUsage(node, variableName, declarationIdentifier, declaration)) {
+  private collectUsages(usages: Node[], context: VariableContext): void {
+    context.sourceFile.forEachDescendant((node: Node) => {
+      if (this.isValidUsage(node, context)) {
         usages.push(node);
       }
     });
@@ -56,18 +58,18 @@ export class VariableNodeMatcher {
     return identifier?.getText() === variableName;
   }
 
-  private isValidUsage(node: Node, variableName: string, declarationIdentifier: Node | undefined, declaration: Node): boolean {
-    return this.isUsageNode(node, variableName, declarationIdentifier) && 
-           this.shadowingDetector.isUsageInScope(node, declaration);
+  private isValidUsage(node: Node, context: VariableContext): boolean {
+    return this.isUsageNode(node, context) && 
+           this.shadowingDetector.isUsageInScope(node, context.declaration);
   }
 
   private getDeclarationIdentifier(declaration: Node): Node | undefined {
     return declaration.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
   }
 
-  private isUsageNode(node: Node, variableName: string, declarationIdentifier: Node | undefined): boolean {
+  private isUsageNode(node: Node, context: VariableContext): boolean {
     return node.getKind() === ts.SyntaxKind.Identifier && 
-           node.getText() === variableName && 
-           node !== declarationIdentifier;
+           node.getText() === context.variableName && 
+           node !== context.declarationIdentifier;
   }
 }
