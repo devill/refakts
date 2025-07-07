@@ -3,7 +3,6 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { Project } from 'ts-morph';
 import * as path from 'path';
-import { limitViolations } from '../violation-limiter';
 
 const execAsync = promisify(exec);
 
@@ -70,7 +69,7 @@ const analyzeCyclomaticComplexity = (stdout: string): QualityIssue[] => {
       }
     }
     
-    return limitViolations(issues, 'cyclomaticComplexity', 'complexity');
+    return issues;
   } catch {
     return [];
   }
@@ -131,7 +130,7 @@ const analyzeParameterCount = (sourceDir: string): QualityIssue[] => {
     });
   });
   
-  return limitViolations(issues, 'manyParameters', 'parameter');
+  return issues;
 };
 
 const shouldSkipFile = (filePath: string): boolean =>

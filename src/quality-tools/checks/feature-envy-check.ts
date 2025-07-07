@@ -1,7 +1,6 @@
 import { QualityCheck, QualityIssue } from '../quality-check-interface';
 import { Project, MethodDeclaration, PropertyAccessExpression, CallExpression, ClassDeclaration, SyntaxKind, SourceFile } from 'ts-morph';
 import * as path from 'path';
-import { limitViolations } from '../violation-limiter';
 
 export const featureEnvyCheck: QualityCheck = {
   name: 'featureEnvy',
@@ -41,7 +40,7 @@ export const featureEnvyCheck: QualityCheck = {
       });
     });
     
-    return limitViolations(issues, 'featureEnvy', 'feature envy');
+    return issues;
   },
   getGroupDefinition: (groupKey: string) => groupKey === 'featureEnvy' ? {
     title: 'FEATURE ENVY',
