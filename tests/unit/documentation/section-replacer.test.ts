@@ -10,7 +10,7 @@ import {
 import { SectionReplacer } from '../../../src/documentation/SectionReplacer';
 import { SectionReplacementRequest } from '../../../src/core/section-replacement-request';
 
-const sectionReplacer = new SectionReplacer();
+const sectionReplacer = new SectionReplacer(true);
 
 function replaceSection(content: string, startMarker: string, endMarker: string, newContent: string): string {
   const request = new SectionReplacementRequest(content, startMarker, endMarker, newContent);
