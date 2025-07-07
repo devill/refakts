@@ -1,9 +1,8 @@
-import * as fs from 'fs';
 import { SelectMatch, DefinitionRange } from '../../types/selection-types';
 
 export class DefinitionRangeDetector {
   findDefinitionRange(match: SelectMatch, file: string): DefinitionRange | null {
-    const lines = this.readFileLines(file);
+    const lines = file.split("\n");
     const matchLine = match.line - 1;
     
     if (!this.isDefinitionLine(lines[matchLine])) {
@@ -11,11 +10,6 @@ export class DefinitionRangeDetector {
     }
     
     return this.buildDefinitionRange(lines, matchLine);
-  }
-
-  private readFileLines(file: string): string[] {
-    const content = fs.readFileSync(file, 'utf8');
-    return content.split('\n');
   }
 
   private buildDefinitionRange(lines: string[], matchLine: number): DefinitionRange {

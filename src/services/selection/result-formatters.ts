@@ -82,20 +82,17 @@ export class DefinitionFormatter implements SelectResultFormatter {
   }
 
   format(matches: SelectMatch[], fileName: string, file: string): SelectResult[] {
-    const results: SelectResult[] = [];
-    const context = MatchContext.fromContent(file, fileName);
-    
-    for (const match of matches) {
-      this.processMatchForDefinition(match, context, results);
-    }
-    
-    return results;
+    return this.createDefinitionResults(matches, MatchContext.fromContent(file, fileName));
   }
 
-  private processMatchForDefinition(match: SelectMatch, context: MatchContext, results: SelectResult[]): void {
-    const result = this.createDefinitionResult(match, context.fileName, context.content);
-    if (result) {
-      results.push(result);
+  private createDefinitionResults(matches: SelectMatch[], context: MatchContext) {
+    const results: SelectResult[] = [];
+    for (const match of matches) {
+      const result = this.createDefinitionResult(match, context.fileName, context.content);
+      if (result) {
+        results.push(result);
+      }
     }
+    return results;
   }
 }
