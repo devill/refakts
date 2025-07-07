@@ -4,6 +4,7 @@ import { ASTService } from '../services/ast-service';
 import { ExtractionScopeAnalyzer } from '../services/extraction-scope-analyzer';
 import { VariableNameValidator } from '../services/variable-name-validator';
 import { StatementInserter } from '../services/statement-inserter';
+import { ExpressionMatcher } from '../services/expression-matcher';
 import { LocationRange } from '../core/location-parser';
 
 export class ExtractVariableCommand implements RefactoringCommand {
@@ -15,6 +16,7 @@ export class ExtractVariableCommand implements RefactoringCommand {
   private scopeAnalyzer = new ExtractionScopeAnalyzer();
   private nameValidator = new VariableNameValidator();
   private statementInserter = new StatementInserter();
+  private expressionMatcher = new ExpressionMatcher(this.scopeAnalyzer);
 
   async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
@@ -60,17 +62,11 @@ export class ExtractVariableCommand implements RefactoringCommand {
 
   private async extractAllOccurrences(targetNode: Node, variableName: string): Promise<void> {
     this.validateExpressionNode(targetNode);
-    const allExpressions = this.findAllMatchingExpressions(targetNode);
+    const allExpressions = this.expressionMatcher.findAllMatchingExpressions(targetNode);
     this.validateExpressionsFound(allExpressions);
     
-    const groupedExpressions = this.groupExpressionsByScope(allExpressions);
+    const groupedExpressions = this.expressionMatcher.groupExpressionsByScope(allExpressions);
     this.extractInEachScope(groupedExpressions, variableName);
-  }
-
-  private findAllMatchingExpressions(targetNode: Node): Expression[] {
-    const expressionText = targetNode.getText();
-    const sourceFile = targetNode.getSourceFile();
-    return this.findMatchingExpressions(sourceFile, expressionText);
   }
 
   private validateExpressionNode(node: Node): void {
@@ -85,27 +81,6 @@ export class ExtractVariableCommand implements RefactoringCommand {
     }
   }
 
-  private groupExpressionsByScope(expressions: Expression[]): Map<Node, Expression[]> {
-    const groupedExpressions = new Map<Node, Expression[]>();
-    
-    for (const expression of expressions) {
-      this.addExpressionToScope(groupedExpressions, expression);
-    }
-    
-    return groupedExpressions;
-  }
-
-  private addExpressionToScope(groupedExpressions: Map<Node, Expression[]>, expression: Expression): void {
-    const scope = this.scopeAnalyzer.findExtractionScope(expression);
-    if (!groupedExpressions.has(scope)) {
-      groupedExpressions.set(scope, []);
-    }
-    const expressionsForScope = groupedExpressions.get(scope);
-    if (expressionsForScope) {
-      expressionsForScope.push(expression);
-    }
-  }
-
   private extractInEachScope(expressionsByScope: Map<Node, Expression[]>, variableName: string): void {
     for (const [scope, expressions] of expressionsByScope) {
       const uniqueName = this.nameValidator.generateUniqueName(variableName, scope);
@@ -114,22 +89,6 @@ export class ExtractVariableCommand implements RefactoringCommand {
       for (const expression of expressions) {
         expression.replaceWithText(uniqueName);
       }
-    }
-  }
-
-  private findMatchingExpressions(scope: Node, expressionText: string): Expression[] {
-    const expressions: Expression[] = [];
-    
-    scope.forEachDescendant((node) => {
-      this.addMatchingExpression(node, expressionText, expressions);
-    });
-    
-    return expressions;
-  }
-
-  private addMatchingExpression(node: Node, expressionText: string, expressions: Expression[]): void {
-    if (Node.isExpression(node) && node.getText() === expressionText) {
-      expressions.push(node);
     }
   }
 }
