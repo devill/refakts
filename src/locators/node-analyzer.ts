@@ -1,23 +1,18 @@
 import * as ts from 'typescript';
 import { Node, SourceFile, BinaryExpression } from 'ts-morph';
+import { NodeTypeClassifier } from './node-type-classifier';
 
 export class NodeAnalyzer {
   static isDeclaration(node: Node): boolean {
-    return node.getKind() === ts.SyntaxKind.VariableDeclaration ||
-           node.getKind() === ts.SyntaxKind.Parameter;
+    return NodeTypeClassifier.isDeclaration(node);
   }
 
   static isAnyDeclaration(node: Node): boolean {
-    return node.getKind() === ts.SyntaxKind.VariableDeclaration ||
-           node.getKind() === ts.SyntaxKind.Parameter;
+    return NodeTypeClassifier.isAnyDeclaration(node);
   }
 
   static isScopeNode(node: Node): boolean {
-    return node.getKind() === ts.SyntaxKind.FunctionDeclaration ||
-           node.getKind() === ts.SyntaxKind.FunctionExpression ||
-           node.getKind() === ts.SyntaxKind.ArrowFunction ||
-           node.getKind() === ts.SyntaxKind.Block ||
-           node.getKind() === ts.SyntaxKind.SourceFile;
+    return NodeTypeClassifier.isScopeNode(node);
   }
 
   static isAssignmentContext(parent: Node | undefined, node: Node): boolean {
@@ -156,13 +151,11 @@ export class NodeAnalyzer {
 
 
   static validateIdentifierNode(node: Node): void {
-    if (node.getKind() !== ts.SyntaxKind.Identifier) {
-      throw new Error(`Expected identifier, got ${node.getKindName()}`);
-    }
+    NodeTypeClassifier.validateIdentifierNode(node);
   }
 
   static isIdentifierNode(node: Node): boolean {
-    return node.getKind() === ts.SyntaxKind.Identifier;
+    return NodeTypeClassifier.isIdentifierNode(node);
   }
 
   static getVariableNameFromNode(node: Node): string {

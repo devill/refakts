@@ -58,13 +58,11 @@ export class SelectPatternMatcher {
     if (!positions) return null;
     
     const { textToUse, adjustedStartPos } = this.extractMultilineMatchDetails(match, positions.startPos, context);
-    
-    const buildContext: MatchBuildContext = {
-      adjustedStartPos,
-      endPos: positions.endPos,
-      textToUse,
-      lines: context.lines
-    };
+    return this.buildMatchFromContext(adjustedStartPos, positions.endPos, textToUse, context.lines);
+  }
+
+  private buildMatchFromContext(adjustedStartPos: Position, endPos: Position, textToUse: string, lines: string[]): SelectMatch {
+    const buildContext: MatchBuildContext = { adjustedStartPos, endPos, textToUse, lines };
     return this.buildMultilineSelectMatch(buildContext);
   }
 
