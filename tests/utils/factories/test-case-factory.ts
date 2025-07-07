@@ -22,14 +22,17 @@ export class TestCaseFactory {
   private static buildSingleFileTestCases(testDir: string, testPath: string, inputFiles: string[], files: string[], expectedExtension: string): TestCase[] {
     const testCases: TestCase[] = [];
     
+    this.processInputFiles(inputFiles, testDir, testPath, files, expectedExtension, testCases);
+    return testCases;
+  }
+
+  private static processInputFiles(inputFiles: string[], testDir: string, testPath: string, files: string[], expectedExtension: string, testCases: TestCase[]): void {
     for (const inputFile of inputFiles) {
       const testCase = this.createTestCaseFromInput(testDir, testPath, inputFile, files, expectedExtension);
       if (testCase) {
         testCases.push(testCase);
       }
     }
-    
-    return testCases;
   }
 
   private static createTestCaseFromInput(testDir: string, testPath: string, inputFile: string, files: string[], expectedExtension: string): TestCase | null {

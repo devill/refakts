@@ -38,6 +38,10 @@ export class CommandExecutor {
     const { commandName, file, options } = this.parser.parseCommand(commandString);
     const command = this.findCommand(commandName);
     
+    return this.buildAndExecuteCommand(command, file, options, commandName, commandString);
+  }
+
+  private buildAndExecuteCommand(command: any, file: string, options: any, commandName: string, commandString: string): Promise<string | void> {
     return CommandExecutionBuilder.create()
       .withCommand(command)
       .withFile(file)

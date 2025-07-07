@@ -126,15 +126,21 @@ export class TestCaseBuilder {
    * based on the testPath, baseName, and expectedExtension.
    */
   withStandardFiles(): TestCaseBuilder {
+    this.validateFilePathRequirements();
+    this.assignStandardFilePaths();
+    return this;
+  }
+
+  private validateFilePathRequirements(): void {
     if (!this.testPath || !this.baseName) {
       throw new Error('testPath and baseName must be set before calling withStandardFiles()');
     }
+  }
 
+  private assignStandardFilePaths(): void {
     this.testCase.inputFile = path.join(this.testPath, `${this.baseName}.input.ts`);
     this.testCase.expectedFile = path.join(this.testPath, `${this.baseName}.expected.${this.expectedExtension}`);
     this.testCase.receivedFile = path.join(this.testPath, `${this.baseName}.received.${this.expectedExtension}`);
-
-    return this;
   }
 
   /**
