@@ -1,47 +1,19 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as yaml from 'js-yaml';
 import {TestCase, TestMeta} from '../types/test-case-types';
 import {extractMetaFromFile} from '../parsers/meta-parser';
 import {TestCaseBuilder} from '../builders/test-case-builder';
 
 export class TestCaseFactory {
-  static createMultiFileTestCase(testDir: string, testPath: string, subDir: string): TestCase | null {
-    const subDirPath = path.join(testPath, subDir);
-    const metaFile = path.join(subDirPath, 'meta.yaml');
-    
-    if (!this.hasMetaFile(metaFile)) {
-      return null;
-    }
-    
-    return this.createTestCaseFromMetaFile(testDir, subDir, subDirPath, metaFile);
-  }
 
   static createSingleFileTestCases(testDir: string, testPath: string, files: string[], expectedExtension: string): TestCase[] {
     const inputFiles = this.getInputFiles(files);
     return this.buildSingleFileTestCases(testDir, testPath, inputFiles, files, expectedExtension);
   }
 
-  private static hasMetaFile(metaFile: string): boolean {
-    return fs.existsSync(metaFile);
-  }
 
-  private static createTestCaseFromMetaFile(testDir: string, subDir: string, subDirPath: string, metaFile: string): TestCase {
-    const meta = this.loadMetaFromFile(metaFile);
-    return this.buildMultiFileTestCase(testDir, subDir, subDirPath, meta);
-  }
 
-  private static loadMetaFromFile(metaFile: string): TestMeta {
-    return yaml.load(fs.readFileSync(metaFile, 'utf8')) as TestMeta;
-  }
 
-  private static buildMultiFileTestCase(testDir: string, subDir: string, subDirPath: string, meta: TestMeta): TestCase {
-    return TestCaseBuilder.create()
-      .withName(`${testDir}/${subDir}`)
-      .withMeta(meta)
-      .withMultiFileDirectory(subDirPath)
-      .build();
-  }
 
   private static getInputFiles(files: string[]): string[] {
     return files.filter(file => file.endsWith('.input.ts'));

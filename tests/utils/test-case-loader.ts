@@ -31,18 +31,9 @@ function processTestDirectory(testDir: string, fixturesDir: string, expectedExte
   const testPath = path.join(fixturesDir, testDir);
   const files = scanner.getTestDirectoryFiles(testPath);
   
-  return [
-    ...getMultiFileTestCases(testDir, testPath, files, scanner),
-    ...getSingleFileTestCases(testDir, testPath, files, expectedExtension)
-  ];
+  return getSingleFileTestCases(testDir, testPath, files, expectedExtension);
 }
 
-function getMultiFileTestCases(testDir: string, testPath: string, files: string[], scanner: FileSystemScanner): TestCase[] {
-  const subDirs = scanner.getSubDirectories(testPath, files);
-  return subDirs
-    .map(subDir => TestCaseFactory.createMultiFileTestCase(testDir, testPath, subDir))
-    .filter(testCase => testCase !== null) as TestCase[];
-}
 
 function getSingleFileTestCases(testDir: string, testPath: string, files: string[], expectedExtension: string): TestCase[] {
   return TestCaseFactory.createSingleFileTestCases(testDir, testPath, files, expectedExtension);

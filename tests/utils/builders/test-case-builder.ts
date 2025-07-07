@@ -149,15 +149,6 @@ export class TestCaseBuilder {
     return this;
   }
 
-  /**
-   * Builds multi-file test case paths where all files are in the same directory.
-   */
-  withMultiFileDirectory(directory: string): TestCaseBuilder {
-    this.testCase.inputFile = directory;
-    this.testCase.expectedFile = directory;
-    this.testCase.receivedFile = directory;
-    return this;
-  }
 
   /**
    * Builds the final TestCase object.
