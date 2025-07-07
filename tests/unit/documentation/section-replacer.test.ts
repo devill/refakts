@@ -7,31 +7,14 @@ import {
   NO_MARKERS,
   NESTED_MARKERS
 } from '../../fixtures/unit/documentation/section-samples';
+import { SectionReplacer } from '../../../src/documentation/SectionReplacer';
+import { SectionReplacementRequest } from '../../../src/core/section-replacement-request';
 
-// Import the section replacement logic
-// We'll need to extract these to a testable module, but for now we'll copy the logic
+const sectionReplacer = new SectionReplacer();
 
 function replaceSection(content: string, startMarker: string, endMarker: string, newContent: string): string {
-  const markerPositions = findMarkerPositions(content, startMarker, endMarker);
-  
-  if (markerPositions.startIndex === -1 || markerPositions.endIndex === -1) {
-    return content;
-  }
-  
-  return buildReplacementContent(content, markerPositions, startMarker, newContent);
-}
-
-function findMarkerPositions(content: string, startMarker: string, endMarker: string) {
-  return {
-    startIndex: content.indexOf(startMarker),
-    endIndex: content.indexOf(endMarker)
-  };
-}
-
-function buildReplacementContent(content: string, positions: { startIndex: number; endIndex: number }, startMarker: string, newContent: string): string {
-  return content.substring(0, positions.startIndex) + 
-         startMarker + '\n' + newContent + '\n' + 
-         content.substring(positions.endIndex);
+  const request = new SectionReplacementRequest(content, startMarker, endMarker, newContent);
+  return sectionReplacer.replaceSection(request);
 }
 
 describe('Section Replacer', () => {

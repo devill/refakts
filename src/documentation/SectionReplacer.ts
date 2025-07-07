@@ -1,25 +1,27 @@
+import { SectionReplacementRequest } from '../core/section-replacement-request';
+
 export class SectionReplacer {
-  replaceSection(content: string, startMarker: string, endMarker: string, newContent: string): string {
-    const markerPositions = this.findMarkerPositions(content, startMarker, endMarker);
+  replaceSection(request: SectionReplacementRequest): string {
+    const markerPositions = this.findMarkerPositions(request);
     
     if (markerPositions.startIndex === -1 || markerPositions.endIndex === -1) {
-      process.stderr.write(`Warning: Markers ${startMarker}/${endMarker} not found\n`);
-      return content;
+      process.stderr.write(`Warning: Markers ${request.startMarker}/${request.endMarker} not found\n`);
+      return request.content;
     }
     
-    return this.buildReplacementContent(content, markerPositions, startMarker, newContent);
+    return this.buildReplacementContent(request, markerPositions);
   }
 
-  private findMarkerPositions(content: string, startMarker: string, endMarker: string) {
+  private findMarkerPositions(request: SectionReplacementRequest) {
     return {
-      startIndex: content.indexOf(startMarker),
-      endIndex: content.indexOf(endMarker)
+      startIndex: request.content.indexOf(request.startMarker),
+      endIndex: request.content.indexOf(request.endMarker)
     };
   }
 
-  private buildReplacementContent(content: string, positions: { startIndex: number; endIndex: number }, startMarker: string, newContent: string): string {
-    return content.substring(0, positions.startIndex) + 
-           startMarker + '\n' + newContent + '\n' + 
-           content.substring(positions.endIndex);
+  private buildReplacementContent(request: SectionReplacementRequest, positions: { startIndex: number; endIndex: number }): string {
+    return request.content.substring(0, positions.startIndex) + 
+           request.startMarker + '\n' + request.newContent + '\n' + 
+           request.content.substring(positions.endIndex);
   }
 }

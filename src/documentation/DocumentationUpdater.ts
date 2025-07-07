@@ -4,6 +4,7 @@ import { SectionReplacer } from './SectionReplacer';
 import { FileManager } from './FileManager';
 import { ClaudeFormatter } from './formatters/ClaudeFormatter';
 import { ReadmeFormatter } from './formatters/ReadmeFormatter';
+import { SectionReplacementRequest } from '../core/section-replacement-request';
 
 export class DocumentationUpdater {
   private helpExtractor = new HelpContentExtractor();
@@ -22,12 +23,13 @@ export class DocumentationUpdater {
   }
 
   private replaceHelpSection(content: string, formattedHelp: string): string {
-    return this.sectionReplacer.replaceSection(
+    const request = new SectionReplacementRequest(
       content,
       '<!-- AUTO-GENERATED HELP START -->',
       '<!-- AUTO-GENERATED HELP END -->',
       formattedHelp
     );
+    return this.sectionReplacer.replaceSection(request);
   }
 
   async updateReadmeFile(filePath: string): Promise<void> {
@@ -63,20 +65,22 @@ export class DocumentationUpdater {
   }
 
   private replaceHelpSectionInReadme(content: string, formattedHelp: string): string {
-    return this.sectionReplacer.replaceSection(
+    const request = new SectionReplacementRequest(
       content,
       '<!-- AUTO-GENERATED HELP START -->',
       '<!-- AUTO-GENERATED HELP END -->',
       formattedHelp
     );
+    return this.sectionReplacer.replaceSection(request);
   }
 
   private replaceQualitySection(content: string, formattedQuality: string): string {
-    return this.sectionReplacer.replaceSection(
+    const request = new SectionReplacementRequest(
       content,
       '<!-- AUTO-GENERATED QUALITY-CHECKS START -->',
       '<!-- AUTO-GENERATED QUALITY-CHECKS END -->',
       formattedQuality
     );
+    return this.sectionReplacer.replaceSection(request);
   }
 }
