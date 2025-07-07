@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 import {TestCase, TestMeta} from '../types/test-case-types';
 import {extractMetaFromFile} from '../parsers/meta-parser';
-import {TestCaseConfiguration} from '../test-case-configuration';
+import {TestCaseBuilder} from '../builders/test-case-builder';
 
 export class TestCaseFactory {
   static createMultiFileTestCase(testDir: string, testPath: string, subDir: string): TestCase | null {
@@ -36,14 +36,11 @@ export class TestCaseFactory {
   }
 
   private static buildMultiFileTestCase(testDir: string, subDir: string, subDirPath: string, meta: TestMeta): TestCase {
-    return {
-      name: `${testDir}/${subDir}`,
-      description: meta.description,
-      commands: meta.commands,
-      inputFile: subDirPath,
-      expectedFile: subDirPath,
-      receivedFile: subDirPath
-    };
+    return TestCaseBuilder.create()
+      .withName(`${testDir}/${subDir}`)
+      .withMeta(meta)
+      .withMultiFileDirectory(subDirPath)
+      .build();
   }
 
   private static getInputFiles(files: string[]): string[] {
@@ -54,50 +51,45 @@ export class TestCaseFactory {
     const testCases: TestCase[] = [];
     
     for (const inputFile of inputFiles) {
-      this.addTestCaseIfValid(testCases, testDir, testPath, inputFile, files, expectedExtension);
+      const testCase = this.createTestCaseFromInput(testDir, testPath, inputFile, files, expectedExtension);
+      if (testCase) {
+        testCases.push(testCase);
+      }
     }
     
     return testCases;
   }
 
-  private static addTestCaseIfValid(testCases: TestCase[], testDir: string, testPath: string, inputFile: string, files: string[], expectedExtension: string): void {
+  private static createTestCaseFromInput(testDir: string, testPath: string, inputFile: string, files: string[], expectedExtension: string): TestCase | null {
     const baseName = inputFile.replace('.input.ts', '');
-    const configuration = new TestCaseConfiguration(testDir, testPath, baseName, expectedExtension);
-    const testCase = this.createSingleFileTestCase(configuration, files);
-    if (testCase) {
-      testCases.push(testCase);
-    }
-  }
-
-  private static createSingleFileTestCase(configuration: TestCaseConfiguration, files: string[]): TestCase | null {
-    const inputFile = `${configuration.baseName}.input.ts`;
-    const expectedFile = `${configuration.baseName}.expected.${configuration.expectedExtension}`;
+    const expectedFile = `${baseName}.expected.${expectedExtension}`;
     
     if (!files.includes(expectedFile)) {
       return null;
     }
     
-    return this.buildTestCase(configuration, inputFile, expectedFile);
+    return this.buildTestCaseWithBuilder(testDir, testPath, baseName, expectedExtension);
   }
 
-  private static buildTestCase(configuration: TestCaseConfiguration, inputFile: string, expectedFile: string): TestCase {
-    return {
-      name: `${configuration.testDir}/${configuration.baseName}`,
-      inputFile: path.join(configuration.testPath, inputFile),
-      ...(this.extractMetaFromInputFile(path.join(configuration.testPath, inputFile))),
-      ...(this.buildTestPaths(configuration, expectedFile))
-    };
+  private static buildTestCaseWithBuilder(testDir: string, testPath: string, baseName: string, expectedExtension: string): TestCase {
+    const inputFile = path.join(testPath, `${baseName}.input.ts`);
+    const meta = this.extractMetaFromInputFile(inputFile);
+    
+    return TestCaseBuilder.create()
+      .withTestDir(testDir)
+      .withTestPath(testPath)
+      .withBaseName(baseName)
+      .withExpectedExtension(expectedExtension)
+      .withMeta(meta)
+      .withStandardName()
+      .withStandardFiles()
+      .build();
   }
+
 
   private static extractMetaFromInputFile(inputPath: string): TestMeta {
     const content = fs.readFileSync(inputPath, 'utf8');
     return extractMetaFromFile(content);
   }
 
-  private static buildTestPaths(configuration: TestCaseConfiguration, expectedFile: string): { expectedFile: string; receivedFile: string } {
-    return {
-      expectedFile: path.join(configuration.testPath, expectedFile),
-      receivedFile: path.join(configuration.testPath, `${configuration.baseName}.received.${configuration.expectedExtension}`)
-    };
-  }
 }

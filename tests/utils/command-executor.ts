@@ -4,6 +4,7 @@ import * as path from 'path';
 import { CommandLineParser } from './command-line-parser';
 import { ConsoleCapture } from './console-capture';
 import { CliExecutor } from './cli-executor';
+import { CommandExecutionBuilder } from './builders/command-execution-builder';
 
 export interface CommandExecutorOptions {
   useCli?: boolean; // If true, uses CLI subprocess. If false, calls commands directly
@@ -37,7 +38,13 @@ export class CommandExecutor {
     const { commandName, file, options } = this.parser.parseCommand(commandString);
     const command = this.findCommand(commandName);
     
-    return this.executeValidatedCommand(command, file, options, commandName, commandString);
+    return CommandExecutionBuilder.create()
+      .withCommand(command)
+      .withFile(file)
+      .withOptions(options)
+      .withCommandName(commandName)
+      .withCommandString(commandString)
+      .execute(this.consoleCapture);
   }
 
   private findCommand(commandName: string) {
@@ -51,31 +58,10 @@ export class CommandExecutor {
     return command;
   }
 
-  private async executeValidatedCommand(command: any, file: string, options: any, commandName: string, commandString: string): Promise<string | void> {
-    try {
-      command.validateOptions(options);
-      return this.runValidatedCommand(command, file, options, commandName);
-    } catch (error) {
-      this.handleExecutionError(commandString, error);
-    }
-  }
-
   private handleExecutionError(commandString: string, error: unknown): never {
     throw new Error(`Command execution failed: ${commandString}\n${(error as Error).message}`);
   }
 
-  private async runValidatedCommand(command: any, file: string, options: any, commandName: string): Promise<string | void> {
-    if (this.isLocatorCommand(commandName)) {
-      return this.consoleCapture.captureOutput(() => command.execute(file, options));
-    } else {
-      await command.execute(file, options);
-      return;
-    }
-  }
-
-  private isLocatorCommand(commandName: string): boolean {
-    return commandName.includes('locator') || commandName === 'select';
-  }
 
 
 
