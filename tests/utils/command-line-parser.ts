@@ -37,16 +37,18 @@ export class CommandLineParser {
     const target = args[startIndex + 1];
     
     const locationResult = this.locationParser.parse(target);
+    const options = this.buildOptionsWithLocation(args, startIndex, locationResult.location);
+    
+    return { commandName, file: locationResult.file, options };
+  }
+
+  private buildOptionsWithLocation(args: string[], startIndex: number, location: any): any {
     const options = this.optionParser.parse(args, startIndex);
     
-    if (locationResult.location) {
-      options.location = locationResult.location;
+    if (location) {
+      options.location = location;
     }
     
-    return { 
-      commandName, 
-      file: locationResult.file, 
-      options 
-    };
+    return options;
   }
 }

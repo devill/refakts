@@ -1,7 +1,11 @@
 export class OptionParser {
   parse(args: string[], startIndex: number): Record<string, any> {
     const options: Record<string, any> = {};
-    
+    this.processOptionFlags(args, startIndex, options);
+    return options;
+  }
+
+  private processOptionFlags(args: string[], startIndex: number, options: Record<string, any>): void {
     for (let i = startIndex + 2; i < args.length; i++) {
       const arg = args[i];
       
@@ -9,8 +13,6 @@ export class OptionParser {
         i = this.processOptionFlag(args, i, options);
       }
     }
-    
-    return options;
   }
 
   private processOptionFlag(args: string[], index: number, options: Record<string, any>): number {
