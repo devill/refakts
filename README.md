@@ -116,7 +116,6 @@ RefakTS development demonstrates an approach for helping AI agents develop pract
 - **CODE DUPLICATION** (Duplicated code increases maintenance burden and error risk.)
 - **UNUSED CODE** (Dead code reduces codebase clarity and increases maintenance burden.)
 - **INCOMPLETE REFACTORINGS** (Incomplete refactorings should be finished or marked complete.)
-- **HIGH COMPLEXITY** (Complex functions are harder to understand, test, and maintain.)
 - **LARGE CHANGES** (Large diffs are harder to review and more likely to introduce bugs.)
 - **OPEN-CLOSED PRINCIPLE VIOLATIONS** (Files changing frequently suggest design should be extensible without modification.)
 - **ABSTRACTION LEAKAGE** (Files changing together suggest concerns not properly encapsulated.)
