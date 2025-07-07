@@ -44,18 +44,21 @@ export class TestCaseFactory {
   }
 
   private static buildTestCaseWithBuilder(testDir: string, testPath: string, baseName: string, expectedExtension: string): TestCase {
-    const inputFile = path.join(testPath, `${baseName}.input.ts`);
-    const meta = this.extractMetaFromInputFile(inputFile);
+    const meta = this.extractMetaFromInputFile(path.join(testPath, `${baseName}.input.ts`));
     
-    return TestCaseBuilder.create()
-      .withTestDir(testDir)
-      .withTestPath(testPath)
-      .withBaseName(baseName)
-      .withExpectedExtension(expectedExtension)
+    return this.createBuilderWithPaths(testDir, testPath, baseName, expectedExtension)
       .withMeta(meta)
       .withStandardName()
       .withStandardFiles()
       .build();
+  }
+
+  private static createBuilderWithPaths(testDir: string, testPath: string, baseName: string, expectedExtension: string): TestCaseBuilder {
+    return TestCaseBuilder.create()
+      .withTestDir(testDir)
+      .withTestPath(testPath)
+      .withBaseName(baseName)
+      .withExpectedExtension(expectedExtension);
   }
 
 

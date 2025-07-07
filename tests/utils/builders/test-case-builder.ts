@@ -154,26 +154,29 @@ export class TestCaseBuilder {
    * Builds the final TestCase object.
    */
   build(): TestCase {
-    if (!this.testCase.name) {
-      throw new Error('Test case name is required');
+    this.validateRequiredFields();
+    return this.testCase as TestCase;
+  }
+
+  private validateRequiredFields(): void {
+    this.validateField(this.testCase.name, 'Test case name is required');
+    this.validateField(this.testCase.description, 'Test case description is required');
+    this.validateCommands();
+    this.validateField(this.testCase.inputFile, 'Test case inputFile is required');
+    this.validateField(this.testCase.expectedFile, 'Test case expectedFile is required');
+    this.validateField(this.testCase.receivedFile, 'Test case receivedFile is required');
+  }
+
+  private validateField(field: string | undefined, message: string): void {
+    if (!field) {
+      throw new Error(message);
     }
-    if (!this.testCase.description) {
-      throw new Error('Test case description is required');
-    }
+  }
+
+  private validateCommands(): void {
     if (!this.testCase.commands || this.testCase.commands.length === 0) {
       throw new Error('Test case commands are required');
     }
-    if (!this.testCase.inputFile) {
-      throw new Error('Test case inputFile is required');
-    }
-    if (!this.testCase.expectedFile) {
-      throw new Error('Test case expectedFile is required');
-    }
-    if (!this.testCase.receivedFile) {
-      throw new Error('Test case receivedFile is required');
-    }
-
-    return this.testCase as TestCase;
   }
 
   /**

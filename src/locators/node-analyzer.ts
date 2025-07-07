@@ -240,12 +240,20 @@ export class NodeAnalyzer {
     }
     
     const binaryExpr = node.asKindOrThrow(ts.SyntaxKind.BinaryExpression);
-    const operator = binaryExpr.getOperatorToken().getKind();
     
-    if (operator !== ts.SyntaxKind.PlusToken && operator !== ts.SyntaxKind.MinusToken) {
+    if (!this.isArithmeticExpression(binaryExpr)) {
       return false;
     }
     
+    return this.hasSimpleOperands(binaryExpr);
+  }
+
+  private static isArithmeticExpression(binaryExpr: BinaryExpression): boolean {
+    const operator = binaryExpr.getOperatorToken().getKind();
+    return operator === ts.SyntaxKind.PlusToken || operator === ts.SyntaxKind.MinusToken;
+  }
+
+  private static hasSimpleOperands(binaryExpr: BinaryExpression): boolean {
     const left = binaryExpr.getLeft();
     const right = binaryExpr.getRight();
     return (Node.isIdentifier(left) || Node.isNumericLiteral(left)) &&
