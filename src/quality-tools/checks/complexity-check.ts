@@ -22,12 +22,12 @@ export const complexityCheck: QualityCheck = {
     if (groupKey === 'cyclomaticComplexity') return {
       title: 'HIGH CYCLOMATIC COMPLEXITY',
       description: 'Complex functions are harder to understand, test, and maintain.',
-      actionGuidance: 'Break down complex functions into smaller, single-purpose methods.'
+      actionGuidance: 'High complexity often indicates multiple responsibilities. Look for: (1) Decision trees that could be strategy patterns, (2) Multiple concerns that belong in separate methods, (3) State machines that could be explicit classes. Focus on extracting meaningful abstractions, not just reducing complexity metrics.'
     };
     if (groupKey === 'manyParameters') return {
       title: 'TOO MANY PARAMETERS',
       description: 'Functions with many parameters violate single responsibility principle.',
-      actionGuidance: 'Consider grouping parameters into meaningful classes or objects.'
+      actionGuidance: 'Before grouping parameters: (1) Should this method actually belong ON the parameter object as a class method? (2) For static methods with many parameters - this is often a class waiting to happen. (3) Group cohesive data into meaningful objects and pass those around, even if some methods don\'t need every field. Favor declarative style over many locals.'
     };
     return undefined;
   }
