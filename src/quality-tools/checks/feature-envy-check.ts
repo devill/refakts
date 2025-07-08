@@ -1,6 +1,7 @@
 import { QualityCheck, QualityIssue } from '../quality-check-interface';
-import { Project, MethodDeclaration, PropertyAccessExpression, CallExpression, ClassDeclaration, SyntaxKind, SourceFile, Node } from 'ts-morph';
+import { Project } from 'ts-morph';
 import * as path from 'path';
+import { ImportSymbolExtractor, FeatureEnvyDetector } from './services';
 
 export const featureEnvyCheck: QualityCheck = {
   name: 'featureEnvy',
@@ -16,11 +17,11 @@ export const featureEnvyCheck: QualityCheck = {
       
       if (shouldSkipFile(filePath)) return;
       
-      const importedSymbols = getImportedSymbols(sourceFile);
+      const importedSymbols = ImportSymbolExtractor.getImportedSymbols(sourceFile);
       
       sourceFile.getClasses().forEach(cls => {
         cls.getMethods().forEach(method => {
-          const envy = analyzeMethodForFeatureEnvy(method, importedSymbols);
+          const envy = FeatureEnvyDetector.analyzeMethodForFeatureEnvy(method, importedSymbols);
           if (envy) {
             const line = method.getStartLineNumber();
             const key = `${filePath}:${line}:${method.getName()}`;
@@ -47,166 +48,6 @@ export const featureEnvyCheck: QualityCheck = {
     description: 'Methods that use another class more than their own class.',
     actionGuidance: 'Consider moving these methods to the class they depend on most, or extract shared behavior.'
   } : undefined
-};
-
-interface FeatureEnvyResult {
-  enviedClass: string;
-  count: number;
-  ownUsage: number;
-}
-
-const analyzeMethodForFeatureEnvy = (method: MethodDeclaration, importedSymbols: Set<string>): FeatureEnvyResult | null => {
-  const ownClassName = getOwnClassName(method);
-  if (!ownClassName) return null;
-  
-  const usageAnalysis = analyzeUsagePatterns(method, importedSymbols);
-  return findFeatureEnvyViolation(usageAnalysis);
-};
-
-const getOwnClassName = (method: MethodDeclaration): string | null => {
-  const parent = method.getParent();
-  if (!parent || parent.getKind() !== SyntaxKind.ClassDeclaration) return null;
-  return (parent as ClassDeclaration).getName() || null;
-};
-
-interface UsageAnalysis {
-  externalUsage: Map<string, number>;
-  ownUsage: number;
-}
-
-const analyzeUsagePatterns = (method: MethodDeclaration, importedSymbols: Set<string>): UsageAnalysis => {
-  const externalUsage = new Map<string, number>();
-  let ownUsage = 0;
-  
-  method.forEachDescendant(node => {
-    const propertyUsage = analyzePropertyAccess(node, importedSymbols);
-    if (propertyUsage.isOwnUsage) {
-      ownUsage++;
-    } else if (propertyUsage.externalClass) {
-      const count = externalUsage.get(propertyUsage.externalClass) || 0;
-      externalUsage.set(propertyUsage.externalClass, count + 1);
-    }
-    
-    const callUsage = analyzeCallExpression(node, importedSymbols);
-    if (callUsage.isOwnUsage) {
-      ownUsage++;
-    } else if (callUsage.externalClass) {
-      const count = externalUsage.get(callUsage.externalClass) || 0;
-      externalUsage.set(callUsage.externalClass, count + 1);
-    }
-  });
-  
-  return { externalUsage, ownUsage };
-};
-
-interface UsageResult {
-  isOwnUsage: boolean;
-  externalClass?: string;
-}
-
-const analyzePropertyAccess = (node: Node, importedSymbols: Set<string>): UsageResult => {
-  if (node.getKind() !== SyntaxKind.PropertyAccessExpression) {
-    return { isOwnUsage: false };
-  }
-  
-  const propAccess = node as PropertyAccessExpression;
-  const expression = propAccess.getExpression();
-  
-  if (expression.getKind() === SyntaxKind.ThisKeyword) {
-    return { isOwnUsage: true };
-  }
-  
-  const expressionText = expression.getText();
-  if (isInternalClassReference(expressionText, importedSymbols)) {
-    return { isOwnUsage: false, externalClass: expressionText };
-  }
-  
-  return { isOwnUsage: false };
-};
-
-const analyzeCallExpression = (node: Node, importedSymbols: Set<string>): UsageResult => {
-  if (node.getKind() !== SyntaxKind.CallExpression) {
-    return { isOwnUsage: false };
-  }
-  
-  const callExpr = node as CallExpression;
-  const expression = callExpr.getExpression();
-  
-  if (expression.getKind() !== SyntaxKind.PropertyAccessExpression) {
-    return { isOwnUsage: false };
-  }
-  
-  const propAccess = expression as PropertyAccessExpression;
-  const objectExpr = propAccess.getExpression();
-  
-  if (objectExpr.getKind() === SyntaxKind.ThisKeyword) {
-    return { isOwnUsage: true };
-  }
-  
-  const expressionText = objectExpr.getText();
-  if (isInternalClassReference(expressionText, importedSymbols)) {
-    return { isOwnUsage: false, externalClass: expressionText };
-  }
-  
-  return { isOwnUsage: false };
-};
-
-const findFeatureEnvyViolation = (analysis: UsageAnalysis): FeatureEnvyResult | null => {
-  for (const [className, count] of analysis.externalUsage.entries()) {
-    if (count >= 3 && count > analysis.ownUsage * 1.5) {
-      return {
-        enviedClass: className,
-        count: count,
-        ownUsage: analysis.ownUsage
-      };
-    }
-  }
-  return null;
-};
-
-const getImportedSymbols = (sourceFile: SourceFile): Set<string> => {
-  const importedSymbols = new Set<string>();
-  
-  sourceFile.getImportDeclarations().forEach(importDecl => {
-    const moduleSpecifier = importDecl.getModuleSpecifierValue();
-    
-    if (isExternalModule(moduleSpecifier)) {
-      importDecl.getNamedImports().forEach(namedImport => {
-        importedSymbols.add(namedImport.getName());
-      });
-      
-      const defaultImport = importDecl.getDefaultImport();
-      if (defaultImport) {
-        importedSymbols.add(defaultImport.getText());
-      }
-      
-      const namespaceImport = importDecl.getNamespaceImport();
-      if (namespaceImport) {
-        importedSymbols.add(namespaceImport.getText());
-      }
-    }
-  });
-  
-  return importedSymbols;
-};
-
-const isExternalModule = (moduleSpecifier: string): boolean => {
-  return !moduleSpecifier.startsWith('.') && !moduleSpecifier.startsWith('/');
-};
-
-const isInternalClassReference = (text: string, importedSymbols: Set<string>): boolean => {
-  if (!/^[a-z][a-zA-Z0-9]*$/.test(text)) return false;
-  
-  const builtInClasses = [
-    'console', 'process', 'window', 'document', 'Math', 'Date', 'JSON', 'Object', 'Array', 'String', 'Number', 'Boolean',
-    'Promise', 'Error', 'RegExp', 'Map', 'Set', 'WeakMap', 'WeakSet', 'Symbol', 'Buffer'
-  ];
-  
-  if (builtInClasses.includes(text)) return false;
-  
-  if (importedSymbols.has(text)) return false;
-  
-  return true;
 };
 
 const shouldSkipFile = (filePath: string): boolean =>
