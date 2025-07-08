@@ -40,6 +40,7 @@ npm run snooze clear                 # Clear expired snoozes
 npm run roadmap:status               # Check current feature priorities
 npm run roadmap:vote <feature-name>  # Vote for useful features
 npm run roadmap:add --feature <name> --description <desc>  # Add new feature ideas
+npm run roadmap:remove <feature-name>  # Remove completed or obsolete features
 
 # Usage tracking (automatic via git hooks)
 npm run usage:report                 # View command usage statistics

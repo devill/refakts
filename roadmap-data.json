@@ -163,27 +163,6 @@
       "status": "proposed"
     },
     {
-      "name": "detect-feature-envy",
-      "description": "Identify methods that use more data/methods from other classes than their own class",
-      "why": "Quality check that suggests move-method or make-non-static refactorings - helps identify misplaced functionality through mechanical analysis of method calls and field access",
-      "score": 0,
-      "status": "proposed"
-    },
-    {
-      "name": "detect-long-parameter-list",
-      "description": "Identify functions with excessive parameters that could be grouped into objects",
-      "why": "Quality check that suggests extract-parameter-object refactoring - improves function readability and maintainability by grouping related parameters",
-      "score": 0,
-      "status": "proposed"
-    },
-    {
-      "name": "extract-parameter-object",
-      "description": "Group related parameters into a single object parameter",
-      "why": "Refactoring to fix long parameter lists - improves function signatures and enables easier parameter evolution",
-      "score": 0,
-      "status": "proposed"
-    },
-    {
       "name": "detect-data-class",
       "description": "Identify classes that only contain data with getters/setters but no behavior",
       "why": "Quality check that suggests moving related behavior into the data class - helps identify anemic domain models",
@@ -221,7 +200,21 @@
       "score": 0,
       "status": "proposed",
       "githubIssue": "https://github.com/devill/refakts/issues/3"
+    },
+    {
+      "name": "introduce-parameter-object",
+      "description": "Transforms a long list of parameters into an interface with those members. (It can be selected which parameters should be added)",
+      "why": "Refactoring to fix long parameter lists - improves function signatures and enables easier parameter evolution",
+      "score": 0,
+      "status": "proposed"
+    },
+    {
+      "name": "promote-to-class",
+      "description": "Converts an interface into a class while maintaining type compatibility",
+      "why": "Essential refactoring for evolving data structures into behavior-rich classes when interfaces need methods or inheritance",
+      "score": 0,
+      "status": "proposed"
     }
   ],
-  "lastUpdated": "2025-07-05T10:56:47.533Z"
+  "lastUpdated": "2025-07-08T10:08:49.647Z"
 }
