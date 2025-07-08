@@ -47,7 +47,6 @@ export class ShadowingDetector {
   private hasShadowingDeclaration(scope: Node, variableName: string, originalDeclaration: Node): boolean {
     let hasShadowing = false;
     const scopeContext = new ScopeContext(scope, scope, originalDeclaration);
-    
     scope.forEachDescendant((child: Node) => {
       if (this.checkChildForShadowing(scopeContext, child, variableName)) {
         hasShadowing = true;

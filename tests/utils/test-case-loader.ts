@@ -33,7 +33,6 @@ export function getTestCases(fixturesDir: string, expectedExtension: string): Te
 function loadTestCasesFromDirectories(fixturesDir: string, expectedExtension: string, scanner: FileSystemScanner): TestCase[] {
   const testCases: TestCase[] = [];
   const testDirs = scanner.getDirectoryNames(fixturesDir);
-  
   for (const testDir of testDirs) {
     const config = createTestDirectoryConfig(testDir, fixturesDir, expectedExtension, scanner);
     testCases.push(...processTestDirectory(config));

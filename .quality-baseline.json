@@ -27,13 +27,6 @@
       "featureEnvy"
     ]
   },
-  "src/services/selection/pattern-matcher.ts": {
-    "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
-    "violations": [
-      "manyParameters",
-      "featureEnvy"
-    ]
-  },
   "src/commands/variable-locator-command.ts": {
     "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
     "violations": [
@@ -42,6 +35,12 @@
   },
   "src/core/location-parser.ts": {
     "lastCommitId": "6846af16151fb17a9b4fe67b48eeb0058fcc099e",
+    "violations": [
+      "featureEnvy"
+    ]
+  },
+  "src/core/node-context.ts": {
+    "lastCommitId": "a3cba1b69f2197d468489da9b2f28fbfab2c4594",
     "violations": [
       "featureEnvy"
     ]
@@ -58,14 +57,20 @@
       "featureEnvy"
     ]
   },
+  "src/locators/NodeContext.ts": {
+    "lastCommitId": "a3cba1b69f2197d468489da9b2f28fbfab2c4594",
+    "violations": [
+      "featureEnvy"
+    ]
+  },
   "src/locators/position-finder.ts": {
-    "lastCommitId": "4ce8f1bea2d7a652baa6f46b874a1fa23a15bbb2",
+    "lastCommitId": "24172269b128d1492e6133c2aa13dc6ea66880c7",
     "violations": [
       "featureEnvy"
     ]
   },
   "src/locators/shadowing-detector.ts": {
-    "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
+    "lastCommitId": "24172269b128d1492e6133c2aa13dc6ea66880c7",
     "violations": [
       "featureEnvy"
     ]
@@ -107,7 +112,7 @@
     ]
   },
   "src/services/range-analysis-request.ts": {
-    "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
+    "lastCommitId": "f8058fae9afe347b752d9c029dfd5ae3a37926f2",
     "violations": [
       "featureEnvy"
     ]
@@ -125,7 +130,7 @@
     ]
   },
   "src/services/variable-reference-request.ts": {
-    "lastCommitId": "c101a973d989b979e24469b276f521d6dda8655a",
+    "lastCommitId": "4064268c44577ae54af770b10caa48f776e73ecd",
     "violations": [
       "featureEnvy"
     ]
@@ -138,6 +143,36 @@
   },
   "src/transformations/rename-variable-transformation.ts": {
     "lastCommitId": "d0affc8ab6c11cd8ff50dab129e2cd1297bbb7e2",
+    "violations": [
+      "featureEnvy"
+    ]
+  },
+  "src/locators/services/node-assignment-analyzer.ts": {
+    "lastCommitId": "4064268c44577ae54af770b10caa48f776e73ecd",
+    "violations": [
+      "featureEnvy"
+    ]
+  },
+  "src/locators/services/node-declaration-matcher.ts": {
+    "lastCommitId": "4064268c44577ae54af770b10caa48f776e73ecd",
+    "violations": [
+      "featureEnvy"
+    ]
+  },
+  "src/locators/services/node-position-service.ts": {
+    "lastCommitId": "be3dadb9baa85a1185e5b24293372ffe2347bb29",
+    "violations": [
+      "featureEnvy"
+    ]
+  },
+  "src/locators/services/node-scope-analyzer.ts": {
+    "lastCommitId": "58209a7eb5ba6f9c4f047ecd0fe704e79eeb9b67",
+    "violations": [
+      "featureEnvy"
+    ]
+  },
+  "src/locators/services/variable-name-extractor.ts": {
+    "lastCommitId": "1eb95b31ce8ca4ac02e4c4aacd198530708f0104",
     "violations": [
       "featureEnvy"
     ]
@@ -160,8 +195,39 @@
       "featureEnvy"
     ]
   },
+  "src/quality-tools/checks/services/import-symbol-extractor.ts": {
+    "lastCommitId": "58209a7eb5ba6f9c4f047ecd0fe704e79eeb9b67",
+    "violations": [
+      "featureEnvy"
+    ]
+  },
+  "src/quality-tools/checks/services/method-usage-analyzer.ts": {
+    "lastCommitId": "24172269b128d1492e6133c2aa13dc6ea66880c7",
+    "violations": [
+      "featureEnvy"
+    ]
+  },
+  "src/services/selection/contexts/line-processing-context.ts": {
+    "lastCommitId": "24172269b128d1492e6133c2aa13dc6ea66880c7",
+    "violations": [
+      "featureEnvy"
+    ]
+  },
   "tests/utils/file-operations.ts": {
     "lastCommitId": "89ea54e72e552715acec38f728fc0face807d2ad",
+    "violations": [
+      "manyParameters",
+      "featureEnvy"
+    ]
+  },
+  "tests/utils/test-case-loader.ts": {
+    "lastCommitId": "24172269b128d1492e6133c2aa13dc6ea66880c7",
+    "violations": [
+      "manyParameters"
+    ]
+  },
+  "tests/utils/parsers/option-parser.ts": {
+    "lastCommitId": "24172269b128d1492e6133c2aa13dc6ea66880c7",
     "violations": [
       "manyParameters",
       "featureEnvy"
@@ -175,6 +241,12 @@
   },
   "tests/utils/refactoring-validator.ts": {
     "lastCommitId": "89ea54e72e552715acec38f728fc0face807d2ad",
+    "violations": [
+      "featureEnvy"
+    ]
+  },
+  "tests/utils/factories/test-case-factory.ts": {
+    "lastCommitId": "58209a7eb5ba6f9c4f047ecd0fe704e79eeb9b67",
     "violations": [
       "featureEnvy"
     ]

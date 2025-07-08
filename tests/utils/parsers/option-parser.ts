@@ -25,7 +25,6 @@ export class OptionParser {
   private processOptionFlag(args: string[], index: number, options: Record<string, any>): number {
     const optionName = this.extractOptionName(args[index]);
     const nextArg = args[index + 1];
-    
     if (this.isBooleanFlag(nextArg)) {
       return this.handleBooleanFlag(options, optionName, index);
     }
