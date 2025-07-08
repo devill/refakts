@@ -1,10 +1,10 @@
-import { Node, MethodDeclaration } from 'ts-morph';
+import { MethodDeclaration } from 'ts-morph';
 
 export class UsageAnalysisRequest {
   readonly method: MethodDeclaration;
   readonly importedSymbols: Set<string>;
   readonly externalUsage: Map<string, number>;
-  private _ownUsage: number = 0;
+  private _ownUsage = 0;
 
   constructor(method: MethodDeclaration, importedSymbols: Set<string>) {
     this.method = method;

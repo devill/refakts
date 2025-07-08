@@ -75,7 +75,6 @@ export class NodeContext {
     return new NodeContext(node, this.sourceFile, this.position);
   }
 
-  // Analysis methods consolidated from various services
   isVariableDeclaration(variableName: string): boolean {
     return this.node.getKind() === ts.SyntaxKind.VariableDeclaration &&
            this.matchesVariableName(variableName);
@@ -109,12 +108,13 @@ export class NodeContext {
   private isBinaryAssignment(parent: Node): boolean {
     if (parent.getKind() !== ts.SyntaxKind.BinaryExpression) return false;
     
-    const binaryExpr = parent as any;
+    const binaryExpr = parent.asKindOrThrow(ts.SyntaxKind.BinaryExpression);
     return this.isAssignmentOperator(binaryExpr) && binaryExpr.getLeft() === this.node;
   }
 
-  private isAssignmentOperator(binaryExpr: any): boolean {
-    return binaryExpr.getOperatorToken().getKind() === ts.SyntaxKind.EqualsToken;
+  private isAssignmentOperator(binaryExpr: Node): boolean {
+    const binExpr = binaryExpr.asKindOrThrow(ts.SyntaxKind.BinaryExpression);
+    return binExpr.getOperatorToken().getKind() === ts.SyntaxKind.EqualsToken;
   }
 
   private isUnaryUpdateExpression(parent: Node): boolean {
@@ -127,7 +127,7 @@ export class NodeContext {
       return false;
     }
     
-    const binaryExpr = parent as any;
+    const binaryExpr = parent.asKindOrThrow(ts.SyntaxKind.BinaryExpression);
     return this.isCompoundAssignmentOperator(binaryExpr.getOperatorToken().getKind()) &&
            binaryExpr.getLeft() === this.node;
   }

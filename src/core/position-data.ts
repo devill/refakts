@@ -137,6 +137,6 @@ export class PositionData {
   }
 
   private static calculateOffset(line: number, column: number): number {
-    return (line - 1) * 80 + (column - 1); // Assuming 80 chars per line average
+    return (line - 1) * 80 + (column - 1);
   }
 }

@@ -42,7 +42,6 @@ export class NodeContext {
     return this.node.getFirstDescendantByKind(kind);
   }
 
-  // Position operations
   getPosition(): { line: number; column: number } {
     const sourceFile = this.getSourceFile();
     const start = this.getStart();
@@ -62,7 +61,6 @@ export class NodeContext {
     return new NodeContext(node);
   }
 
-  // Scope operations
   getScope(): NodeContext {
     let current = this.getParent();
     while (current) {
@@ -105,7 +103,6 @@ export class NodeContext {
     return false;
   }
 
-  // Traversal operations
   findContainingDeclaration(): NodeContext | undefined {
     let current: Node | undefined = this.node;
     while (current) {
