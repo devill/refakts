@@ -1,11 +1,4 @@
 {
-  "src/locators/node-analyzer.ts": {
-    "lastCommitId": "9509e8a33cdf6e73d8d6ceac0594af53415fc27b",
-    "violations": [
-      "manyParameters",
-      "featureEnvy"
-    ]
-  },
   "src/locators/node-position-helper.ts": {
     "lastCommitId": "c101a973d989b979e24469b276f521d6dda8655a",
     "violations": [
@@ -68,12 +61,6 @@
   },
   "src/documentation/QualityChecksExtractor.ts": {
     "lastCommitId": "1f7beb997ee03de710aa7746a607c94e16e834b2",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/documentation/SectionReplacer.ts": {
-    "lastCommitId": "befdc6216473f33b7a0297fda081144105d48a75",
     "violations": [
       "featureEnvy"
     ]
