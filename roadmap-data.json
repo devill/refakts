@@ -15,7 +15,7 @@
       "name": "find-usages",
       "description": "Finds all usages of a symbol or file in a code base. **IMPORTANT**: Research existing tools before implementing. Ideally we should integrate something",
       "why": "Helps with identifying where a symbol is defined as well as where it is used. Unlocks critical features",
-      "score": 4,
+      "score": 5,
       "status": "proposed",
       "note": "Replaces variable-locator. **IMPORTANT**: Once this is implemented variable-locator should be removed.",
       "githubIssue": "https://github.com/devill/refakts/issues/2"
@@ -130,7 +130,7 @@
       "name": "move-method-between-classes",
       "description": "Move methods from one class to another with automatic reference updates",
       "why": "Common refactoring for better class organization - moves methods to their most appropriate class based on data usage",
-      "score": 0,
+      "score": 1,
       "status": "proposed"
     },
     {
@@ -172,7 +172,7 @@
       "name": "rename-symbol",
       "description": "Rename any symbol (functions, classes, interfaces, types, properties, methods, modules) and update all references",
       "why": "Current rename command only handles variables. Need generalized renaming for all symbol types to enable comprehensive refactoring workflows",
-      "score": 0,
+      "score": 1,
       "status": "proposed",
       "dependencies": [
         "find-usages"
@@ -197,30 +197,30 @@
       "name": "introduce-parameter-object",
       "description": "Transforms a long list of parameters into an interface with those members. (It can be selected which parameters should be added)",
       "why": "Refactoring to fix long parameter lists - improves function signatures and enables easier parameter evolution",
-      "score": 0,
+      "score": 1,
       "status": "proposed"
     },
     {
       "name": "promote-to-class",
       "description": "Converts an interface into a class while maintaining type compatibility",
       "why": "Essential refactoring for evolving data structures into behavior-rich classes when interfaces need methods or inheritance",
-      "score": 0,
+      "score": 1,
       "status": "proposed"
     },
     {
       "name": "extract-variable-let",
       "description": "Extract expressions into mutable variables using let declarations",
       "why": "Complements extract-constant for cases where extracted values need to be modified after extraction",
-      "score": 0,
+      "score": 1,
       "status": "proposed"
     },
     {
       "name": "rename-extract-variable-to-extract-constant",
       "description": "Rename current extract-variable command to extract-constant to reflect its actual behavior (uses const declarations)",
       "why": "The current extract-variable command creates const declarations, so it should be named extract-constant for semantic correctness",
-      "score": 0,
+      "score": 1,
       "status": "proposed"
     }
   ],
-  "lastUpdated": "2025-07-08T10:19:27.279Z"
+  "lastUpdated": "2025-07-08T10:22:17.596Z"
 }
