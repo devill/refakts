@@ -3,6 +3,20 @@ import { TestCase } from './types/test-case-types';
 import { FileSystemScanner } from './scanners/file-system-scanner';
 import { TestCaseFactory } from './factories/test-case-factory';
 
+interface TestDirectoryConfig {
+  testDir: string;
+  fixturesDir: string;
+  expectedExtension: string;
+  scanner: FileSystemScanner;
+}
+
+interface TestCaseProcessingConfig {
+  testDir: string;
+  testPath: string;
+  files: string[];
+  expectedExtension: string;
+}
+
 export { TestCase, TestMeta } from './types/test-case-types';
 export { extractMetaFromFile } from './parsers/meta-parser';
 
@@ -21,25 +35,39 @@ function loadTestCasesFromDirectories(fixturesDir: string, expectedExtension: st
   const testDirs = scanner.getDirectoryNames(fixturesDir);
   
   for (const testDir of testDirs) {
-    testCases.push(...processTestDirectory(testDir, fixturesDir, expectedExtension, scanner));
+    const config: TestDirectoryConfig = {
+      testDir,
+      fixturesDir,
+      expectedExtension,
+      scanner
+    };
+    testCases.push(...processTestDirectory(config));
   }
   
   return testCases;
 }
 
-function processTestDirectory(testDir: string, fixturesDir: string, expectedExtension: string, scanner: FileSystemScanner): TestCase[] {
-  const testPath = path.join(fixturesDir, testDir);
-  const files = scanner.getTestDirectoryFiles(testPath);
+function processTestDirectory(config: TestDirectoryConfig): TestCase[] {
+  const testPath = path.join(config.fixturesDir, config.testDir);
+  const files = config.scanner.getTestDirectoryFiles(testPath);
   
-  return getSingleFileTestCases(testDir, testPath, files, expectedExtension);
+  const processingConfig: TestCaseProcessingConfig = {
+    testDir: config.testDir,
+    testPath,
+    files,
+    expectedExtension: config.expectedExtension
+  };
+  
+  return getSingleFileTestCases(processingConfig);
 }
 
 
-function getSingleFileTestCases(testDir: string, testPath: string, files: string[], expectedExtension: string): TestCase[] {
-  const config = {
-    testDir,
-    testPath,
-    expectedExtension
+function getSingleFileTestCases(config: TestCaseProcessingConfig): TestCase[] {
+  const factoryConfig = {
+    testDir: config.testDir,
+    testPath: config.testPath,
+    expectedExtension: config.expectedExtension
   };
-  return TestCaseFactory.createSingleFileTestCases(config, files);
+  
+  return TestCaseFactory.createSingleFileTestCases(factoryConfig, config.files);
 }

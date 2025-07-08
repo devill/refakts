@@ -1,3 +1,10 @@
+interface OptionProcessingConfig {
+  options: Record<string, any>;
+  optionName: string;
+  nextArg: string;
+  index: number;
+}
+
 export class OptionParser {
   parse(args: string[]): Record<string, any> {
     const options: Record<string, any> = {};
@@ -23,7 +30,14 @@ export class OptionParser {
       return this.handleBooleanFlag(options, optionName, index);
     }
     
-    return this.handleValueFlag(options, optionName, nextArg, index);
+    const config: OptionProcessingConfig = {
+      options,
+      optionName,
+      nextArg,
+      index
+    };
+    
+    return this.handleValueFlag(config);
   }
 
   private handleBooleanFlag(options: Record<string, any>, optionName: string, index: number): number {
@@ -31,9 +45,9 @@ export class OptionParser {
     return index;
   }
 
-  private handleValueFlag(options: Record<string, any>, optionName: string, nextArg: string, index: number): number {
-    this.setOptionValue(options, optionName, nextArg);
-    return index + 1;
+  private handleValueFlag(config: OptionProcessingConfig): number {
+    this.setOptionValue(config.options, config.optionName, config.nextArg);
+    return config.index + 1;
   }
 
   private extractOptionName(arg: string): string {
