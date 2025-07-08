@@ -1,26 +1,20 @@
-import { Node, SourceFile } from 'ts-morph';
+import { SourceFile } from 'ts-morph';
+import { NodeContext, PositionRequest } from './NodeContext';
 
 export class NodePositionHelper {
   
 
   static calculatePosition(sourceFile: SourceFile, line: number, column: number): number {
-    return sourceFile.compilerNode.getPositionOfLineAndCharacter(line - 1, column - 1);
+    return NodeContext.calculatePosition(sourceFile, line, column);
   }
 
 
-  static getNodeAtPosition(sourceFile: SourceFile, position: number, line: number, column: number): Node {
-    const node = sourceFile.getDescendantAtPos(position);
-    if (!node) {
-      throw new Error(`No node found at line ${line}, column ${column}`);
-    }
-    return node;
+  static getNodeAtPosition(sourceFile: SourceFile, request: PositionRequest): NodeContext {
+    return NodeContext.getNodeAtPosition(sourceFile, request);
   }
 
 
-  static getNodePosition(node: Node): { line: number; column: number } {
-    const sourceFile = node.getSourceFile();
-    const start = node.getStart();
-    const lineAndColumn = sourceFile.getLineAndColumnAtPos(start);
-    return { line: lineAndColumn.line, column: lineAndColumn.column };
+  static getNodePosition(nodeContext: NodeContext): { line: number; column: number } {
+    return nodeContext.getPosition();
   }
 }
