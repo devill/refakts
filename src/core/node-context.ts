@@ -1,3 +1,4 @@
+import * as ts from 'typescript';
 import { Node, SourceFile } from 'ts-morph';
 import { PositionData } from './position-data';
 import { NodeDeclarationMatcher } from '../locators/services/node-declaration-matcher';
@@ -42,7 +43,7 @@ export class NodeContext {
   }
 
   isIdentifier(): boolean {
-    return this.node.getKind() === 80; // SyntaxKind.Identifier
+    return this.node.getKind() === ts.SyntaxKind.Identifier;
   }
 
   isDeclaration(): boolean {
@@ -72,5 +73,69 @@ export class NodeContext {
 
   withNode(node: Node): NodeContext {
     return new NodeContext(node, this.sourceFile, this.position);
+  }
+
+  // Analysis methods consolidated from various services
+  isVariableDeclaration(variableName: string): boolean {
+    return this.node.getKind() === ts.SyntaxKind.VariableDeclaration &&
+           this.matchesVariableName(variableName);
+  }
+
+  isParameterDeclaration(variableName: string): boolean {
+    return this.node.getKind() === ts.SyntaxKind.Parameter &&
+           this.matchesVariableName(variableName);
+  }
+
+  isMatchingDeclaration(variableName: string): boolean {
+    return this.isVariableDeclaration(variableName) || 
+           this.isParameterDeclaration(variableName);
+  }
+
+  isAssignmentContext(): boolean {
+    const parent = this.node.getParent();
+    if (!parent) return false;
+    
+    return this.isBinaryAssignment(parent);
+  }
+
+  isUpdateContext(): boolean {
+    const parent = this.node.getParent();
+    if (!parent) return false;
+    
+    return this.isUnaryUpdateExpression(parent) || 
+           this.isCompoundAssignment(parent);
+  }
+
+  private isBinaryAssignment(parent: Node): boolean {
+    if (parent.getKind() !== ts.SyntaxKind.BinaryExpression) return false;
+    
+    const binaryExpr = parent as any;
+    return this.isAssignmentOperator(binaryExpr) && binaryExpr.getLeft() === this.node;
+  }
+
+  private isAssignmentOperator(binaryExpr: any): boolean {
+    return binaryExpr.getOperatorToken().getKind() === ts.SyntaxKind.EqualsToken;
+  }
+
+  private isUnaryUpdateExpression(parent: Node): boolean {
+    return parent.getKind() === ts.SyntaxKind.PostfixUnaryExpression ||
+           parent.getKind() === ts.SyntaxKind.PrefixUnaryExpression;
+  }
+
+  private isCompoundAssignment(parent: Node): boolean {
+    if (parent.getKind() !== ts.SyntaxKind.BinaryExpression) {
+      return false;
+    }
+    
+    const binaryExpr = parent as any;
+    return this.isCompoundAssignmentOperator(binaryExpr.getOperatorToken().getKind()) &&
+           binaryExpr.getLeft() === this.node;
+  }
+
+  private isCompoundAssignmentOperator(operator: number): boolean {
+    return operator === ts.SyntaxKind.PlusEqualsToken ||
+           operator === ts.SyntaxKind.MinusEqualsToken ||
+           operator === ts.SyntaxKind.AsteriskEqualsToken ||
+           operator === ts.SyntaxKind.SlashEqualsToken;
   }
 }

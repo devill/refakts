@@ -1,5 +1,6 @@
 import { MethodDeclaration, PropertyAccessExpression, CallExpression, SyntaxKind, Node } from 'ts-morph';
 import { ImportSymbolExtractor } from './import-symbol-extractor';
+import { UsageAnalysisRequest } from '../../../core/usage-analysis-request';
 
 export interface UsageAnalysis {
   externalUsage: Map<string, number>;
@@ -13,19 +14,21 @@ interface UsageResult {
 
 export class MethodUsageAnalyzer {
   static analyzeUsagePatterns(method: MethodDeclaration, importedSymbols: Set<string>): UsageAnalysis {
-    const externalUsage = new Map<string, number>();
-    let ownUsage = 0;
+    const request = new UsageAnalysisRequest(method, importedSymbols);
     
     method.forEachDescendant(node => {
-      ownUsage += this.analyzeNodeUsage(node, importedSymbols, externalUsage);
+      this.analyzeNodeUsage(node, request);
     });
     
-    return { externalUsage, ownUsage };
+    return { 
+      externalUsage: request.getExternalUsage(), 
+      ownUsage: request.getOwnUsage() 
+    };
   }
 
-  private static analyzeNodeUsage(node: Node, importedSymbols: Set<string>, externalUsage: Map<string, number>): number {
-    const usageResults = this.getNodeUsageResults(node, importedSymbols);
-    return this.processUsageResults(usageResults, externalUsage);
+  private static analyzeNodeUsage(node: Node, request: UsageAnalysisRequest): void {
+    const usageResults = this.getNodeUsageResults(node, request.importedSymbols);
+    this.processUsageResults(usageResults, request);
   }
 
   private static getNodeUsageResults(node: Node, importedSymbols: Set<string>): UsageResult[] {
@@ -34,24 +37,14 @@ export class MethodUsageAnalyzer {
     return [propertyUsage, callUsage];
   }
 
-  private static processUsageResults(usageResults: UsageResult[], externalUsage: Map<string, number>): number {
-    let ownCount = 0;
+  private static processUsageResults(usageResults: UsageResult[], request: UsageAnalysisRequest): void {
     usageResults.forEach(usage => {
-      ownCount += this.updateOwnUsage(usage);
-      this.updateExternalUsage(usage, externalUsage);
+      if (usage.isOwnUsage) {
+        request.addOwnUsage();
+      } else if (usage.externalClass) {
+        request.addExternalUsage(usage.externalClass);
+      }
     });
-    return ownCount;
-  }
-
-  private static updateOwnUsage(usage: UsageResult): number {
-    return usage.isOwnUsage ? 1 : 0;
-  }
-
-  private static updateExternalUsage(usage: UsageResult, externalUsage: Map<string, number>): void {
-    if (usage.externalClass) {
-      const count = externalUsage.get(usage.externalClass) || 0;
-      externalUsage.set(usage.externalClass, count + 1);
-    }
   }
 
   private static analyzePropertyAccess(node: Node, importedSymbols: Set<string>): UsageResult {

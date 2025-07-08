@@ -1,11 +1,4 @@
 {
-  "src/locators/node-position-helper.ts": {
-    "lastCommitId": "c101a973d989b979e24469b276f521d6dda8655a",
-    "violations": [
-      "manyParameters",
-      "featureEnvy"
-    ]
-  },
   "src/roadmap/roadmap-service.ts": {
     "lastCommitId": "1f7beb997ee03de710aa7746a607c94e16e834b2",
     "violations": [
@@ -61,18 +54,6 @@
   },
   "src/documentation/QualityChecksExtractor.ts": {
     "lastCommitId": "1f7beb997ee03de710aa7746a607c94e16e834b2",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/locators/node-scope-helper.ts": {
-    "lastCommitId": "c101a973d989b979e24469b276f521d6dda8655a",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/locators/node-traversal-helper.ts": {
-    "lastCommitId": "c101a973d989b979e24469b276f521d6dda8655a",
     "violations": [
       "featureEnvy"
     ]
@@ -184,18 +165,6 @@
     "violations": [
       "manyParameters",
       "featureEnvy"
-    ]
-  },
-  "tests/utils/test-case-loader.ts": {
-    "lastCommitId": "db8852969bfb6bb9b9cd369530b07d7012ed256a",
-    "violations": [
-      "manyParameters"
-    ]
-  },
-  "tests/utils/parsers/option-parser.ts": {
-    "lastCommitId": "b2b028b1b4dd632ba721bdbf9dd0090363515bcc",
-    "violations": [
-      "manyParameters"
     ]
   },
   "tests/utils/output-validators.ts": {

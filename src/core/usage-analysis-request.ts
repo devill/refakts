@@ -4,17 +4,16 @@ export class UsageAnalysisRequest {
   readonly method: MethodDeclaration;
   readonly importedSymbols: Set<string>;
   readonly externalUsage: Map<string, number>;
-  readonly ownUsage: number;
+  private _ownUsage: number = 0;
 
   constructor(method: MethodDeclaration, importedSymbols: Set<string>) {
     this.method = method;
     this.importedSymbols = importedSymbols;
     this.externalUsage = new Map<string, number>();
-    this.ownUsage = 0;
   }
 
   addOwnUsage(): void {
-    (this as any).ownUsage++;
+    this._ownUsage++;
   }
 
   addExternalUsage(className: string): void {
@@ -23,7 +22,7 @@ export class UsageAnalysisRequest {
   }
 
   getOwnUsage(): number {
-    return this.ownUsage;
+    return this._ownUsage;
   }
 
   getExternalUsage(): Map<string, number> {

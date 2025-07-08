@@ -1,5 +1,6 @@
 import * as ts from 'typescript';
 import { Node } from 'ts-morph';
+import { NodeContext } from '../../core/node-context';
 
 export class NodeDeclarationMatcher {
   static findContainingDeclaration(node: Node): Node | undefined {
@@ -28,18 +29,18 @@ export class NodeDeclarationMatcher {
   }
 
   static isVariableDeclaration(node: Node, variableName: string): boolean {
-    return node.getKind() === ts.SyntaxKind.VariableDeclaration &&
-           this.hasMatchingIdentifier(node, variableName);
+    const nodeContext = NodeContext.create(node, node.getSourceFile());
+    return nodeContext.isVariableDeclaration(variableName);
   }
 
   static isParameterDeclaration(node: Node, variableName: string): boolean {
-    return node.getKind() === ts.SyntaxKind.Parameter &&
-           this.hasMatchingIdentifier(node, variableName);
+    const nodeContext = NodeContext.create(node, node.getSourceFile());
+    return nodeContext.isParameterDeclaration(variableName);
   }
 
   static isMatchingDeclaration(node: Node, variableName: string): boolean {
-    return this.isVariableDeclaration(node, variableName) || 
-           this.isParameterDeclaration(node, variableName);
+    const nodeContext = NodeContext.create(node, node.getSourceFile());
+    return nodeContext.isMatchingDeclaration(variableName);
   }
 
   static isUsageNode(node: Node, variableName: string, declarationIdentifier: Node | undefined): boolean {
