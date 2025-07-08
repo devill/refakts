@@ -1,9 +1,6 @@
 import { ConsoleCapture } from '../console-capture';
+import {CommandExecutionContext} from "../command-executor";
 
-/**
- * Builder for command execution with validation and error handling.
- * Reduces parameter count by encapsulating command execution logic.
- */
 export class CommandExecutionBuilder {
   private command: any;
   private file = '';
@@ -11,49 +8,15 @@ export class CommandExecutionBuilder {
   private commandName = '';
   private commandString = '';
 
-  /**
-   * Sets the command to execute.
-   */
-  withCommand(command: any): CommandExecutionBuilder {
-    this.command = command;
+  withContext(context: CommandExecutionContext) {
+    this.command = context.command;
+    this.commandString = context.commandString;
+    this.commandName = context.commandName;
+    this.file = context.file;
+    this.options = context.options;
     return this;
   }
 
-  /**
-   * Sets the file parameter.
-   */
-  withFile(file: string): CommandExecutionBuilder {
-    this.file = file;
-    return this;
-  }
-
-  /**
-   * Sets the options parameter.
-   */
-  withOptions(options: any): CommandExecutionBuilder {
-    this.options = options;
-    return this;
-  }
-
-  /**
-   * Sets the command name.
-   */
-  withCommandName(commandName: string): CommandExecutionBuilder {
-    this.commandName = commandName;
-    return this;
-  }
-
-  /**
-   * Sets the command string for error reporting.
-   */
-  withCommandString(commandString: string): CommandExecutionBuilder {
-    this.commandString = commandString;
-    return this;
-  }
-
-  /**
-   * Executes the command with validation and error handling.
-   */
   async execute(consoleCapture: ConsoleCapture): Promise<string | void> {
     try {
       this.command.validateOptions(this.options);
@@ -80,9 +43,6 @@ export class CommandExecutionBuilder {
     throw new Error(`Command execution failed: ${this.commandString}\n${(error as Error).message}`);
   }
 
-  /**
-   * Creates a new builder instance.
-   */
   static create(): CommandExecutionBuilder {
     return new CommandExecutionBuilder();
   }

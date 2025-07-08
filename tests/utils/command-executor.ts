@@ -1,16 +1,16 @@
-import { CommandRegistry } from '../../src/command-registry';
+import {CommandRegistry} from '../../src/command-registry';
 import * as fs from 'fs';
 import * as path from 'path';
-import { CommandLineParser } from './command-line-parser';
-import { ConsoleCapture } from './console-capture';
-import { CliExecutor } from './cli-executor';
-import { CommandExecutionBuilder } from './builders/command-execution-builder';
+import {CommandLineParser} from './command-line-parser';
+import {ConsoleCapture} from './console-capture';
+import {CliExecutor} from './cli-executor';
+import {CommandExecutionBuilder} from './builders/command-execution-builder';
 
 export interface CommandExecutorOptions {
   useCli?: boolean; // If true, uses CLI subprocess. If false, calls commands directly
 }
 
-interface CommandExecutionContext {
+export interface CommandExecutionContext {
   command: any;
   file: string;
   options: any;
@@ -43,28 +43,13 @@ export class CommandExecutor {
 
 
   private async executeDirect(commandString: string): Promise<string | void> {
-    const { commandName, file, options } = this.parser.parseCommand(commandString);
-    const command = this.findCommand(commandName);
-    
-    const context: CommandExecutionContext = {
-      command,
-      file,
-      options,
-      commandName,
-      commandString
-    };
-    
-    return this.buildAndExecuteCommand(context);
-  }
-
-  private buildAndExecuteCommand(context: CommandExecutionContext): Promise<string | void> {
+    const parsedCommand = this.parser.parseCommand(commandString);
     return CommandExecutionBuilder.create()
-      .withCommand(context.command)
-      .withFile(context.file)
-      .withOptions(context.options)
-      .withCommandName(context.commandName)
-      .withCommandString(context.commandString)
-      .execute(this.consoleCapture);
+        .withContext({
+          command: this.findCommand(parsedCommand.commandName),
+          ...parsedCommand
+        })
+        .execute(this.consoleCapture);
   }
 
   private findCommand(commandName: string) {
