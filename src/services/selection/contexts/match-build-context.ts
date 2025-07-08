@@ -7,20 +7,20 @@ interface Position {
 
 export class MatchBuildContext {
   constructor(
-    public adjustedStartPos: Position,
-    public endPos: Position,
-    public textToUse: string,
-    public lines: string[]
+    public _adjustedStartPos: Position,
+    public _endPos: Position,
+    public _textToUse: string,
+    public _lines: string[]
   ) {}
 
   buildSelectMatch(): SelectMatch {
     return {
-      line: this.adjustedStartPos.line,
-      column: this.adjustedStartPos.column,
-      endLine: this.endPos.line,
-      endColumn: this.endPos.column,
-      text: this.textToUse,
-      fullLine: this.lines[this.adjustedStartPos.line - 1] || ''
+      line: this._adjustedStartPos.line,
+      column: this._adjustedStartPos.column,
+      endLine: this._endPos.line,
+      endColumn: this._endPos.column,
+      text: this._textToUse,
+      fullLine: this._lines[this._adjustedStartPos.line - 1] || ''
     };
   }
 }
