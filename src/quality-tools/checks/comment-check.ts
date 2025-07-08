@@ -32,7 +32,11 @@ const findCommentsInFile = (sourceFile: SourceFile): QualityIssue[] => {
     .filter((comment: Node) => !isEsLintDisable(comment.getText()))
     .map((comment: Node) => createCommentIssue(filePath, comment, 'multi'));
     
-  return [...singleComments, ...multiComments];
+  const jsDocComments = sourceFile.getDescendantsOfKind(SyntaxKind.JSDocComment)
+    .filter((comment: Node) => isValidJSDocComment(comment.getText().trim()))
+    .map((comment: Node) => createCommentIssue(filePath, comment, 'JSDoc'));
+    
+  return [...singleComments, ...multiComments, ...jsDocComments];
 };
 
 const createCommentIssue = (filePath: string, comment: Node, type: string): QualityIssue => ({
@@ -43,10 +47,18 @@ const createCommentIssue = (filePath: string, comment: Node, type: string): Qual
 });
 
 const isValidSingleComment = (text: string): boolean =>
-  text.startsWith('//') && !text.startsWith('// @') && text.length >= 10;
+  text.startsWith('//') && !isExecutableAnnotation(text) && text.length >= 10;
 
 const isValidMultiComment = (text: string): boolean =>
-  !text.startsWith('/**') && text.length >= 15;
+  (text.startsWith('/**') || text.startsWith('/*')) && !isExecutableAnnotation(text) && text.length >= 15;
+
+const isValidJSDocComment = (text: string): boolean =>
+  text.startsWith('/**') && !isExecutableAnnotation(text) && text.length >= 15;
+
+const isExecutableAnnotation = (comment: string): boolean => {
+  const executableAnnotations = ['@description', '@command', '@skip'];
+  return executableAnnotations.some(annotation => comment.includes(annotation));
+};
 
 const isEsLintDisable = (comment: string): boolean =>
     comment.includes('eslint-disable');
