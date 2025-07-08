@@ -64,14 +64,6 @@
       "githubIssue": "https://github.com/devill/refakts/issues/11"
     },
     {
-      "name": "extract-constant",
-      "description": "Extract literal values and expressions into named constants",
-      "why": "Essential refactoring for improving code readability and maintainability - converts magic numbers/strings into meaningful constants",
-      "score": 3,
-      "status": "proposed",
-      "githubIssue": "https://github.com/devill/refakts/issues/13"
-    },
-    {
       "name": "extract-field",
       "description": "Extract expressions into class fields/properties",
       "why": "Allows converting method-local computations into class-level properties for better encapsulation and reusability",
@@ -214,7 +206,21 @@
       "why": "Essential refactoring for evolving data structures into behavior-rich classes when interfaces need methods or inheritance",
       "score": 0,
       "status": "proposed"
+    },
+    {
+      "name": "extract-variable-let",
+      "description": "Extract expressions into mutable variables using let declarations",
+      "why": "Complements extract-constant for cases where extracted values need to be modified after extraction",
+      "score": 0,
+      "status": "proposed"
+    },
+    {
+      "name": "rename-extract-variable-to-extract-constant",
+      "description": "Rename current extract-variable command to extract-constant to reflect its actual behavior (uses const declarations)",
+      "why": "The current extract-variable command creates const declarations, so it should be named extract-constant for semantic correctness",
+      "score": 0,
+      "status": "proposed"
     }
   ],
-  "lastUpdated": "2025-07-08T10:08:49.647Z"
+  "lastUpdated": "2025-07-08T10:19:27.279Z"
 }
