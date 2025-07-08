@@ -1,3 +1,5 @@
+import {CommandValidator} from "../validators/command-validator";
+
 interface TokenizerState {
   current: string;
   inQuotes: boolean;
@@ -5,14 +7,24 @@ interface TokenizerState {
 }
 
 export class CommandLineTokenizer {
-  tokenize(commandString: string): string[] {
+  tokenize(commandString: string): { commandName: string; locationString: string; options: string[] } {
+    const args = this.processString(commandString);
+    CommandValidator.validateParsedCommandString(args, commandString);
+    
+    return {
+      commandName: args[0],
+      locationString: args[1],
+      options: args.slice(2)
+    };
+  }
+
+  private processString(commandString: string) {
     const args: string[] = [];
     const state = this.createParsingState();
 
     this.processAllCharacters(commandString, args, state);
     this.addArgumentIfPresent(args, state.current);
-    
-    return args;
+    return this.argsWithoutCommand(args)
   }
 
   private createParsingState(): TokenizerState {
@@ -68,5 +80,9 @@ export class CommandLineTokenizer {
       return '';
     }
     return current;
+  }
+
+  private argsWithoutCommand(args: string[]) {
+    return args[0] === 'refakts' ? args.slice(1) : args;
   }
 }

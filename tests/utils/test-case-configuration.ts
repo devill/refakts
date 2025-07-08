@@ -1,7 +1,3 @@
-/**
- * Configuration class for test case creation parameters.
- * Encapsulates the essential properties needed for test case factory operations.
- */
 export class TestCaseConfiguration {
   readonly testDir: string;
   readonly testPath: string;

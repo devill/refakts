@@ -1,12 +1,12 @@
 export class OptionParser {
-  parse(args: string[], startIndex: number): Record<string, any> {
+  parse(args: string[]): Record<string, any> {
     const options: Record<string, any> = {};
-    this.processOptionFlags(args, startIndex, options);
+    this.processOptionFlags(args, options);
     return options;
   }
 
-  private processOptionFlags(args: string[], startIndex: number, options: Record<string, any>): void {
-    for (let i = startIndex + 2; i < args.length; i++) {
+  private processOptionFlags(args: string[], options: Record<string, any>): void {
+    for (let i = 0; i < args.length; i++) {
       const arg = args[i];
       
       if (arg.startsWith('--')) {
