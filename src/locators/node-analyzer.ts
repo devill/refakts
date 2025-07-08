@@ -2,6 +2,7 @@ import { Node, SourceFile } from 'ts-morph';
 import { NodeTypeClassifier } from './node-type-classifier';
 import { 
   NodePositionService, 
+  NodePositionParams,
   NodeScopeAnalyzer, 
   NodeAssignmentAnalyzer, 
   VariableNameExtractor, 
@@ -25,8 +26,8 @@ export class NodeAnalyzer {
     return NodePositionService.calculatePosition(sourceFile, line, column);
   }
 
-  static getNodeAtPosition(sourceFile: SourceFile, position: number, line: number, column: number): Node {
-    return NodePositionService.getNodeAtPosition(sourceFile, position, line, column);
+  static getNodeAtPosition(sourceFile: SourceFile, params: NodePositionParams): Node {
+    return NodePositionService.getNodeAtPosition(sourceFile, params);
   }
 
   static getNodePosition(node: Node): { line: number; column: number } {

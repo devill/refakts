@@ -13,6 +13,34 @@ interface MatchBuildContext {
   lines: string[];
 }
 
+interface ProcessingContext {
+  pattern: RegExp;
+  content: string;
+  context: MatchContext;
+  matches: SelectMatch[];
+}
+
+interface LineProcessingContext {
+  line: string;
+  lineIndex: number;
+  pattern: RegExp;
+  matches: SelectMatch[];
+}
+
+interface MatchDetailsContext {
+  match: RegExpExecArray;
+  hasCapture: boolean;
+  startPos: Position;
+  context: MatchContext;
+}
+
+interface SelectMatchContext {
+  textToUse: string;
+  startIndex: number;
+  lineIndex: number;
+  line: string;
+}
+
 export class SelectPatternMatcher {
   findMatches(content: string, pattern: RegExp): SelectMatch[] {
     const lines = content.split('\n');
@@ -32,14 +60,13 @@ export class SelectPatternMatcher {
     const matches: SelectMatch[] = [];
     const context = new MatchContext(content, lines, '');
     
-    this.processAllMatches(pattern, content, context, matches);
+    this.processAllMatches({ pattern, content, context, matches });
     return matches;
   }
 
-  private processAllMatches(pattern: RegExp, content: string, context: MatchContext, matches: SelectMatch[]): void {
-    const processingContext = { pattern, content, context, matches };
+  private processAllMatches(processingContext: ProcessingContext): void {
     let match;
-    while ((match = pattern.exec(content)) !== null) {
+    while ((match = processingContext.pattern.exec(processingContext.content)) !== null) {
       this.processMultilineMatch(match, processingContext.context, processingContext.matches);
     }
   }
@@ -58,11 +85,10 @@ export class SelectPatternMatcher {
     if (!positions) return null;
     
     const { textToUse, adjustedStartPos } = this.extractMultilineMatchDetails(match, positions.startPos, context);
-    return this.buildMatchFromContext(adjustedStartPos, positions.endPos, textToUse, context.lines);
+    return this.buildMatchFromContext({ adjustedStartPos, endPos: positions.endPos, textToUse, lines: context.lines });
   }
 
-  private buildMatchFromContext(adjustedStartPos: Position, endPos: Position, textToUse: string, lines: string[]): SelectMatch {
-    const buildContext: MatchBuildContext = { adjustedStartPos, endPos, textToUse, lines };
+  private buildMatchFromContext(buildContext: MatchBuildContext): SelectMatch {
     return this.buildMultilineSelectMatch(buildContext);
   }
 
@@ -92,37 +118,37 @@ export class SelectPatternMatcher {
     const hasCapture = match.length > 1 && match[1] !== undefined;
     const textToUse = hasCapture ? match[1] : match[0];
     
-    const adjustedStartPos = this.calculateAdjustedStartPos(match, hasCapture, startPos, context);
+    const adjustedStartPos = this.calculateAdjustedStartPos({ match, hasCapture, startPos, context });
     
     return { textToUse, adjustedStartPos };
   }
 
-  private calculateAdjustedStartPos(match: RegExpExecArray, hasCapture: boolean, startPos: { line: number; column: number }, context: MatchContext): { line: number; column: number } {
-    if (hasCapture) {
-      const captureStart = match.index + match[0].indexOf(match[1]);
-      const adjustedStartPos = context.getLineColumnFromIndex(captureStart);
-      return adjustedStartPos || startPos;
+  private calculateAdjustedStartPos(detailsContext: MatchDetailsContext): Position {
+    if (detailsContext.hasCapture) {
+      const captureStart = detailsContext.match.index + detailsContext.match[0].indexOf(detailsContext.match[1]);
+      const adjustedStartPos = detailsContext.context.getLineColumnFromIndex(captureStart);
+      return adjustedStartPos || detailsContext.startPos;
     }
     
-    return startPos;
+    return detailsContext.startPos;
   }
 
   private findRegexMatches(lines: string[], pattern: RegExp): SelectMatch[] {
     const matches: SelectMatch[] = [];
     
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-      this.processLineForMatches(lines[lineIndex], lineIndex, pattern, matches);
+      this.processLineForMatches({ line: lines[lineIndex], lineIndex, pattern, matches });
     }
     
     return matches;
   }
 
-  private processLineForMatches(line: string, lineIndex: number, pattern: RegExp, matches: SelectMatch[]): void {
-    if (this.isCommentLine(line)) {
+  private processLineForMatches(lineContext: LineProcessingContext): void {
+    if (this.isCommentLine(lineContext.line)) {
       return;
     }
     
-    this.extractMatchesFromLine(line, lineIndex, pattern, matches);
+    this.extractMatchesFromLine(lineContext);
   }
 
   private isCommentLine(line: string): boolean {
@@ -130,18 +156,18 @@ export class SelectPatternMatcher {
     return trimmedLine.startsWith('//') || trimmedLine.startsWith('*') || trimmedLine.startsWith('/*');
   }
 
-  private extractMatchesFromLine(line: string, lineIndex: number, pattern: RegExp, matches: SelectMatch[]): void {
+  private extractMatchesFromLine(lineContext: LineProcessingContext): void {
     let match;
-    pattern.lastIndex = 0;
+    lineContext.pattern.lastIndex = 0;
     
-    while ((match = pattern.exec(line)) !== null) {
-      matches.push(this.createSelectMatch(match, lineIndex, line));
+    while ((match = lineContext.pattern.exec(lineContext.line)) !== null) {
+      lineContext.matches.push(this.createSelectMatch(match, lineContext.lineIndex, lineContext.line));
     }
   }
 
   private createSelectMatch(match: RegExpExecArray, lineIndex: number, line: string): SelectMatch {
     const { textToUse, startIndex } = this.extractMatchDetails(match);
-    return this.buildSelectMatch(textToUse, startIndex, lineIndex, line);
+    return this.buildSelectMatch({ textToUse, startIndex, lineIndex, line });
   }
 
   private extractMatchDetails(match: RegExpExecArray): { textToUse: string; startIndex: number } {
@@ -151,14 +177,14 @@ export class SelectPatternMatcher {
     return { textToUse, startIndex };
   }
 
-  private buildSelectMatch(textToUse: string, startIndex: number, lineIndex: number, line: string): SelectMatch {
+  private buildSelectMatch(matchContext: SelectMatchContext): SelectMatch {
     return {
-      line: lineIndex + 1,
-      column: startIndex + 1,
-      endLine: lineIndex + 1,
-      endColumn: startIndex + textToUse.length + 1,
-      text: textToUse,
-      fullLine: line
+      line: matchContext.lineIndex + 1,
+      column: matchContext.startIndex + 1,
+      endLine: matchContext.lineIndex + 1,
+      endColumn: matchContext.startIndex + matchContext.textToUse.length + 1,
+      text: matchContext.textToUse,
+      fullLine: matchContext.line
     };
   }
 }
