@@ -16,12 +16,12 @@ export const functionSizeCheck: QualityCheck = {
     if (groupKey === 'criticalFunctions') return {
       title: 'CRITICAL: OVERSIZED FUNCTIONS',
       description: 'Functions over 10 lines violate single responsibility principle.',
-      actionGuidance: 'CRITICAL: Analyze responsibilities first - what distinct concerns does this function handle? Consider: (1) Are these separate responsibilities that belong in different methods? (2) Should this become a class with multiple methods? (3) Can you group cohesive data into objects to reduce local variables? Avoid mechanical extraction - find true responsibility boundaries.'
+      actionGuidance: 'CRITICAL: Analyze responsibilities first - what distinct concerns does this function handle? Consider: (1) Are these separate responsibilities that belong in different methods? (2) Should this become a class with multiple methods? (3) Can you group cohesive data into objects to reduce local variables? Avoid mechanical extraction - find true responsibility boundaries. If the code has many misplaced responsibilities you may need to first inline methods to see the whole picture and find a better way of redistributing functionality. Think of this when reducing line count seems particularly hard. Taking a step backwards may open up new, better possibilities.'
     };
     if (groupKey === 'largeFunctions') return {
       title: 'LARGE FUNCTIONS',
       description: 'Functions approaching size limits should be refactored.',
-      actionGuidance: 'Analyze what this function is trying to accomplish. Look for responsibility boundaries, not just line count. Consider grouping related data into objects and passing those around rather than having many local variables.'
+      actionGuidance: 'Analyze what this function is trying to accomplish. Look for responsibility boundaries, not just line count. Consider grouping related data into objects and passing those around rather than having many local variables. If the code has many misplaced responsibilities you may need to first inline methods to see the whole picture and find a better way of redistributing functionality. Think of this when reducing line count seems particularly hard. Taking a step backwards may open up new, better possibilities.'
     };
     return undefined;
   }

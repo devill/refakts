@@ -22,7 +22,7 @@ export const complexityCheck: QualityCheck = {
     if (groupKey === 'cyclomaticComplexity') return {
       title: 'HIGH CYCLOMATIC COMPLEXITY',
       description: 'Complex functions are harder to understand, test, and maintain.',
-      actionGuidance: 'High complexity often indicates multiple responsibilities. Look for: (1) Decision trees that could be strategy patterns, (2) Multiple concerns that belong in separate methods, (3) State machines that could be explicit classes. Focus on extracting meaningful abstractions, not just reducing complexity metrics.'
+      actionGuidance: 'High complexity often indicates multiple responsibilities. Look for: (1) Decision trees that could be strategy patterns, (2) Multiple concerns that belong in separate methods, (3) State machines that could be explicit classes. Focus on extracting meaningful abstractions, not just reducing complexity metrics. If the code has many misplaced responsibilities you may need to first inline methods to see the whole picture and find a better way of redistributing functionality. Think of this when reducing complexity seems particularly hard. Taking a step backwards may open up new, better possibilities.'
     };
     if (groupKey === 'manyParameters') return {
       title: 'TOO MANY PARAMETERS',
