@@ -1,4 +1,4 @@
-import { SourceFile } from 'ts-morph';
+import { SourceFile, ImportDeclaration, ImportSpecifier } from 'ts-morph';
 
 export class ImportSymbolExtractor {
   static getImportedSymbols(sourceFile: SourceFile): Set<string> {
@@ -15,26 +15,26 @@ export class ImportSymbolExtractor {
     return importedSymbols;
   }
 
-  private static extractSymbolsFromImport(importDecl: any, importedSymbols: Set<string>): void {
+  private static extractSymbolsFromImport(importDecl: ImportDeclaration, importedSymbols: Set<string>): void {
     this.addNamedImports(importDecl, importedSymbols);
     this.addDefaultImport(importDecl, importedSymbols);
     this.addNamespaceImport(importDecl, importedSymbols);
   }
 
-  private static addNamedImports(importDecl: any, importedSymbols: Set<string>): void {
-    importDecl.getNamedImports().forEach((namedImport: any) => {
+  private static addNamedImports(importDecl: ImportDeclaration, importedSymbols: Set<string>): void {
+    importDecl.getNamedImports().forEach((namedImport: ImportSpecifier) => {
       importedSymbols.add(namedImport.getName());
     });
   }
 
-  private static addDefaultImport(importDecl: any, importedSymbols: Set<string>): void {
+  private static addDefaultImport(importDecl: ImportDeclaration, importedSymbols: Set<string>): void {
     const defaultImport = importDecl.getDefaultImport();
     if (defaultImport) {
       importedSymbols.add(defaultImport.getText());
     }
   }
 
-  private static addNamespaceImport(importDecl: any, importedSymbols: Set<string>): void {
+  private static addNamespaceImport(importDecl: ImportDeclaration, importedSymbols: Set<string>): void {
     const namespaceImport = importDecl.getNamespaceImport();
     if (namespaceImport) {
       importedSymbols.add(namespaceImport.getText());

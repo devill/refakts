@@ -17,40 +17,33 @@ export class MethodUsageAnalyzer {
     let ownUsage = 0;
     
     method.forEachDescendant(node => {
-      const { ownCount, externalCount } = this.analyzeNodeUsage(node, importedSymbols, externalUsage);
-      ownUsage += ownCount;
+      ownUsage += this.analyzeNodeUsage(node, importedSymbols, externalUsage);
     });
     
     return { externalUsage, ownUsage };
   }
 
-  private static analyzeNodeUsage(node: Node, importedSymbols: Set<string>, externalUsage: Map<string, number>): { ownCount: number; externalCount: number } {
-    let ownCount = 0;
-    let externalCount = 0;
-
+  private static analyzeNodeUsage(node: Node, importedSymbols: Set<string>, externalUsage: Map<string, number>): number {
     const propertyUsage = this.analyzePropertyAccess(node, importedSymbols);
     const callUsage = this.analyzeCallExpression(node, importedSymbols);
 
-    ownCount += this.updateOwnUsage(propertyUsage);
-    ownCount += this.updateOwnUsage(callUsage);
+    const ownCount = this.updateOwnUsage(propertyUsage) + this.updateOwnUsage(callUsage);
     
-    externalCount += this.updateExternalUsage(propertyUsage, externalUsage);
-    externalCount += this.updateExternalUsage(callUsage, externalUsage);
+    this.updateExternalUsage(propertyUsage, externalUsage);
+    this.updateExternalUsage(callUsage, externalUsage);
 
-    return { ownCount, externalCount };
+    return ownCount;
   }
 
   private static updateOwnUsage(usage: UsageResult): number {
     return usage.isOwnUsage ? 1 : 0;
   }
 
-  private static updateExternalUsage(usage: UsageResult, externalUsage: Map<string, number>): number {
+  private static updateExternalUsage(usage: UsageResult, externalUsage: Map<string, number>): void {
     if (usage.externalClass) {
       const count = externalUsage.get(usage.externalClass) || 0;
       externalUsage.set(usage.externalClass, count + 1);
-      return 1;
     }
-    return 0;
   }
 
   private static analyzePropertyAccess(node: Node, importedSymbols: Set<string>): UsageResult {
@@ -72,6 +65,18 @@ export class MethodUsageAnalyzer {
     const callExpr = node as CallExpression;
     const expression = callExpr.getExpression();
     
+    return this.analyzeCallExpressionNode(expression, importedSymbols);
+  }
+
+  private static analyzeExpression(expression: Node, importedSymbols: Set<string>): UsageResult {
+    if (expression.getKind() === SyntaxKind.ThisKeyword) {
+      return { isOwnUsage: true };
+    }
+    
+    return this.analyzeExternalClassReference(expression, importedSymbols);
+  }
+
+  private static analyzeCallExpressionNode(expression: Node, importedSymbols: Set<string>): UsageResult {
     if (expression.getKind() !== SyntaxKind.PropertyAccessExpression) {
       return { isOwnUsage: false };
     }
@@ -82,11 +87,7 @@ export class MethodUsageAnalyzer {
     return this.analyzeExpression(objectExpr, importedSymbols);
   }
 
-  private static analyzeExpression(expression: Node, importedSymbols: Set<string>): UsageResult {
-    if (expression.getKind() === SyntaxKind.ThisKeyword) {
-      return { isOwnUsage: true };
-    }
-    
+  private static analyzeExternalClassReference(expression: Node, importedSymbols: Set<string>): UsageResult {
     const expressionText = expression.getText();
     if (ImportSymbolExtractor.isInternalClassReference(expressionText, importedSymbols)) {
       return { isOwnUsage: false, externalClass: expressionText };
