@@ -24,14 +24,22 @@ export class FeatureEnvyDetector {
 
   private static findFeatureEnvyViolation(analysis: UsageAnalysis): FeatureEnvyResult | null {
     for (const [className, count] of analysis.externalUsage.entries()) {
-      if (count >= 3 && count > analysis.ownUsage * 1.5) {
-        return {
-          enviedClass: className,
-          count: count,
-          ownUsage: analysis.ownUsage
-        };
+      if (this.isFeatureEnvyViolation(count, analysis.ownUsage)) {
+        return this.createFeatureEnvyResult(className, count, analysis.ownUsage);
       }
     }
     return null;
+  }
+
+  private static isFeatureEnvyViolation(externalCount: number, ownUsage: number): boolean {
+    return externalCount >= 3 && externalCount > ownUsage * 1.5;
+  }
+
+  private static createFeatureEnvyResult(className: string, count: number, ownUsage: number): FeatureEnvyResult {
+    return {
+      enviedClass: className,
+      count: count,
+      ownUsage: ownUsage
+    };
   }
 }

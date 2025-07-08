@@ -4,11 +4,28 @@ import {TestCase, TestMeta} from '../types/test-case-types';
 import {extractMetaFromFile} from '../parsers/meta-parser';
 import {TestCaseBuilder} from '../builders/test-case-builder';
 
+interface TestCaseFactoryConfig {
+  testDir: string;
+  testPath: string;
+  expectedExtension: string;
+}
+
+interface FileProcessingContext {
+  files: string[];
+  inputFiles: string[];
+  config: TestCaseFactoryConfig;
+}
+
 export class TestCaseFactory {
 
-  static createSingleFileTestCases(testDir: string, testPath: string, files: string[], expectedExtension: string): TestCase[] {
+  static createSingleFileTestCases(config: TestCaseFactoryConfig, files: string[]): TestCase[] {
     const inputFiles = this.getInputFiles(files);
-    return this.buildSingleFileTestCases(testDir, testPath, inputFiles, files, expectedExtension);
+    const context: FileProcessingContext = {
+      files,
+      inputFiles,
+      config
+    };
+    return this.buildSingleFileTestCases(context);
   }
 
 
@@ -19,49 +36,49 @@ export class TestCaseFactory {
     return files.filter(file => file.endsWith('.input.ts'));
   }
 
-  private static buildSingleFileTestCases(testDir: string, testPath: string, inputFiles: string[], files: string[], expectedExtension: string): TestCase[] {
+  private static buildSingleFileTestCases(context: FileProcessingContext): TestCase[] {
     const testCases: TestCase[] = [];
     
-    this.processInputFiles(inputFiles, testDir, testPath, files, expectedExtension, testCases);
+    this.processInputFiles(context, testCases);
     return testCases;
   }
 
-  private static processInputFiles(inputFiles: string[], testDir: string, testPath: string, files: string[], expectedExtension: string, testCases: TestCase[]): void {
-    for (const inputFile of inputFiles) {
-      const testCase = this.createTestCaseFromInput(testDir, testPath, inputFile, files, expectedExtension);
+  private static processInputFiles(context: FileProcessingContext, testCases: TestCase[]): void {
+    for (const inputFile of context.inputFiles) {
+      const testCase = this.createTestCaseFromInput(context, inputFile);
       if (testCase) {
         testCases.push(testCase);
       }
     }
   }
 
-  private static createTestCaseFromInput(testDir: string, testPath: string, inputFile: string, files: string[], expectedExtension: string): TestCase | null {
+  private static createTestCaseFromInput(context: FileProcessingContext, inputFile: string): TestCase | null {
     const baseName = inputFile.replace('.input.ts', '');
-    const expectedFile = `${baseName}.expected.${expectedExtension}`;
+    const expectedFile = `${baseName}.expected.${context.config.expectedExtension}`;
     
-    if (!files.includes(expectedFile)) {
+    if (!context.files.includes(expectedFile)) {
       return null;
     }
     
-    return this.buildTestCaseWithBuilder(testDir, testPath, baseName, expectedExtension);
+    return this.buildTestCaseWithBuilder(context.config, baseName);
   }
 
-  private static buildTestCaseWithBuilder(testDir: string, testPath: string, baseName: string, expectedExtension: string): TestCase {
-    const meta = this.extractMetaFromInputFile(path.join(testPath, `${baseName}.input.ts`));
+  private static buildTestCaseWithBuilder(config: TestCaseFactoryConfig, baseName: string): TestCase {
+    const meta = this.extractMetaFromInputFile(path.join(config.testPath, `${baseName}.input.ts`));
     
-    return this.createBuilderWithPaths(testDir, testPath, baseName, expectedExtension)
+    return this.createBuilderWithPaths(config, baseName)
       .withMeta(meta)
       .withStandardName()
       .withStandardFiles()
       .build();
   }
 
-  private static createBuilderWithPaths(testDir: string, testPath: string, baseName: string, expectedExtension: string): TestCaseBuilder {
+  private static createBuilderWithPaths(config: TestCaseFactoryConfig, baseName: string): TestCaseBuilder {
     return TestCaseBuilder.create()
-      .withTestDir(testDir)
-      .withTestPath(testPath)
+      .withTestDir(config.testDir)
+      .withTestPath(config.testPath)
       .withBaseName(baseName)
-      .withExpectedExtension(expectedExtension);
+      .withExpectedExtension(config.expectedExtension);
   }
 
 

@@ -1,6 +1,5 @@
 import * as ts from 'typescript';
 import { Node } from 'ts-morph';
-import { NodeTypeChecker } from './node-type-checker';
 
 /**
  * Static utility methods for traversing and matching TypeScript nodes.
@@ -13,12 +12,17 @@ export class NodeTraversalHelper {
   static findContainingDeclaration(node: Node): Node | undefined {
     let current: Node | undefined = node;
     while (current) {
-      if (NodeTypeChecker.isDeclaration(current)) {
+      if (this.isDeclaration(current)) {
         return current;
       }
       current = current.getParent();
     }
     return undefined;
+  }
+
+  private static isDeclaration(node: Node): boolean {
+    return node.getKind() === ts.SyntaxKind.VariableDeclaration ||
+           node.getKind() === ts.SyntaxKind.Parameter;
   }
 
   /**

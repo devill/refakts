@@ -24,14 +24,22 @@ export class MethodUsageAnalyzer {
   }
 
   private static analyzeNodeUsage(node: Node, importedSymbols: Set<string>, externalUsage: Map<string, number>): number {
+    const usageResults = this.getNodeUsageResults(node, importedSymbols);
+    return this.processUsageResults(usageResults, externalUsage);
+  }
+
+  private static getNodeUsageResults(node: Node, importedSymbols: Set<string>): UsageResult[] {
     const propertyUsage = this.analyzePropertyAccess(node, importedSymbols);
     const callUsage = this.analyzeCallExpression(node, importedSymbols);
+    return [propertyUsage, callUsage];
+  }
 
-    const ownCount = this.updateOwnUsage(propertyUsage) + this.updateOwnUsage(callUsage);
-    
-    this.updateExternalUsage(propertyUsage, externalUsage);
-    this.updateExternalUsage(callUsage, externalUsage);
-
+  private static processUsageResults(usageResults: UsageResult[], externalUsage: Map<string, number>): number {
+    let ownCount = 0;
+    usageResults.forEach(usage => {
+      ownCount += this.updateOwnUsage(usage);
+      this.updateExternalUsage(usage, externalUsage);
+    });
     return ownCount;
   }
 

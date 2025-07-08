@@ -1,3 +1,4 @@
+import * as ts from 'typescript';
 import { Node } from 'ts-morph';
 import { TypeScriptScopeAnalyzer } from './typescript-scope-analyzer';
 import { ScopeContext } from '../core/scope-context';
@@ -64,10 +65,15 @@ export class ShadowingDetector {
   }
 
   private isShadowingDeclaration(scopeContext: ScopeContext, child: Node, variableName: string): boolean {
-    return NodeAnalyzer.isAnyDeclaration(child) && 
+    return this.isAnyDeclaration(child) && 
            NodeAnalyzer.hasMatchingIdentifier(child, variableName) &&
            child !== scopeContext.targetNode &&
            this.scopeAnalyzer.getScope(child) === scopeContext.usageScope;
+  }
+
+  private isAnyDeclaration(node: Node): boolean {
+    return node.getKind() === ts.SyntaxKind.VariableDeclaration ||
+           node.getKind() === ts.SyntaxKind.Parameter;
   }
 
 }

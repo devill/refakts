@@ -12,8 +12,20 @@ import { SectionReplacementRequest } from '../../../src/core/section-replacement
 
 const sectionReplacer = new SectionReplacer(true);
 
-function replaceSection(content: string, startMarker: string, endMarker: string, newContent: string): string {
-  const request = new SectionReplacementRequest(content, startMarker, endMarker, newContent);
+interface SectionReplacementParams {
+  content: string;
+  startMarker: string;
+  endMarker: string;
+  newContent: string;
+}
+
+function replaceSection(params: SectionReplacementParams): string {
+  const request = new SectionReplacementRequest(
+    params.content,
+    params.startMarker,
+    params.endMarker,
+    params.newContent
+  );
   return sectionReplacer.replaceSection(request);
 }
 
@@ -21,12 +33,12 @@ describe('Section Replacer', () => {
   const expectedDir = path.join(__dirname, '../../fixtures/unit/documentation');
 
   test('replaces section with valid markers', () => {
-    const result = replaceSection(
-      BASIC_MARKDOWN_CONTENT,
-      '<!-- AUTO-GENERATED HELP START -->',
-      '<!-- AUTO-GENERATED HELP END -->',
-      'New help content'
-    );
+    const result = replaceSection({
+      content: BASIC_MARKDOWN_CONTENT,
+      startMarker: '<!-- AUTO-GENERATED HELP START -->',
+      endMarker: '<!-- AUTO-GENERATED HELP END -->',
+      newContent: 'New help content'
+    });
     
     const expectedPath = path.join(expectedDir, 'basic-section-replacement.expected.txt');
     
@@ -39,12 +51,12 @@ describe('Section Replacer', () => {
   });
 
   test('handles missing start marker', () => {
-    const result = replaceSection(
-      MISSING_START_MARKER,
-      '<!-- AUTO-GENERATED HELP START -->',
-      '<!-- AUTO-GENERATED HELP END -->',
-      'New help content'
-    );
+    const result = replaceSection({
+      content: MISSING_START_MARKER,
+      startMarker: '<!-- AUTO-GENERATED HELP START -->',
+      endMarker: '<!-- AUTO-GENERATED HELP END -->',
+      newContent: 'New help content'
+    });
     
     const expectedPath = path.join(expectedDir, 'missing-start-marker.expected.txt');
     
@@ -57,12 +69,12 @@ describe('Section Replacer', () => {
   });
 
   test('handles missing end marker', () => {
-    const result = replaceSection(
-      MISSING_END_MARKER,
-      '<!-- AUTO-GENERATED HELP START -->',
-      '<!-- AUTO-GENERATED HELP END -->',
-      'New help content'
-    );
+    const result = replaceSection({
+      content: MISSING_END_MARKER,
+      startMarker: '<!-- AUTO-GENERATED HELP START -->',
+      endMarker: '<!-- AUTO-GENERATED HELP END -->',
+      newContent: 'New help content'
+    });
     
     const expectedPath = path.join(expectedDir, 'missing-end-marker.expected.txt');
     
@@ -75,12 +87,12 @@ describe('Section Replacer', () => {
   });
 
   test('handles content with no markers', () => {
-    const result = replaceSection(
-      NO_MARKERS,
-      '<!-- AUTO-GENERATED HELP START -->',
-      '<!-- AUTO-GENERATED HELP END -->',
-      'New help content'
-    );
+    const result = replaceSection({
+      content: NO_MARKERS,
+      startMarker: '<!-- AUTO-GENERATED HELP START -->',
+      endMarker: '<!-- AUTO-GENERATED HELP END -->',
+      newContent: 'New help content'
+    });
     
     const expectedPath = path.join(expectedDir, 'no-markers.expected.txt');
     
@@ -93,12 +105,12 @@ describe('Section Replacer', () => {
   });
 
   test('handles nested markers correctly', () => {
-    const result = replaceSection(
-      NESTED_MARKERS,
-      '<!-- AUTO-GENERATED HELP START -->',
-      '<!-- AUTO-GENERATED HELP END -->',
-      'New help content'
-    );
+    const result = replaceSection({
+      content: NESTED_MARKERS,
+      startMarker: '<!-- AUTO-GENERATED HELP START -->',
+      endMarker: '<!-- AUTO-GENERATED HELP END -->',
+      newContent: 'New help content'
+    });
     
     const expectedPath = path.join(expectedDir, 'nested-markers.expected.txt');
     
@@ -111,12 +123,12 @@ describe('Section Replacer', () => {
   });
 
   test('replaces quality checks section', () => {
-    const result = replaceSection(
-      BASIC_MARKDOWN_CONTENT,
-      '<!-- AUTO-GENERATED QUALITY-CHECKS START -->',
-      '<!-- AUTO-GENERATED QUALITY-CHECKS END -->',
-      '**Quality Checks Include:**\n````\n- **COMMENTS DETECTED** (Comments indicate code that is not self-documenting.)\n````'
-    );
+    const result = replaceSection({
+      content: BASIC_MARKDOWN_CONTENT,
+      startMarker: '<!-- AUTO-GENERATED QUALITY-CHECKS START -->',
+      endMarker: '<!-- AUTO-GENERATED QUALITY-CHECKS END -->',
+      newContent: '**Quality Checks Include:**\n````\n- **COMMENTS DETECTED** (Comments indicate code that is not self-documenting.)\n````'
+    });
     
     const expectedPath = path.join(expectedDir, 'quality-section-replacement.expected.txt');
     

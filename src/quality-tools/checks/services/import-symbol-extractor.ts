@@ -3,16 +3,20 @@ import { SourceFile, ImportDeclaration, ImportSpecifier } from 'ts-morph';
 export class ImportSymbolExtractor {
   static getImportedSymbols(sourceFile: SourceFile): Set<string> {
     const importedSymbols = new Set<string>();
+    const externalImports = this.getExternalImports(sourceFile);
     
-    sourceFile.getImportDeclarations().forEach(importDecl => {
-      const moduleSpecifier = importDecl.getModuleSpecifierValue();
-      
-      if (this.isExternalModule(moduleSpecifier)) {
-        this.extractSymbolsFromImport(importDecl, importedSymbols);
-      }
+    externalImports.forEach(importDecl => {
+      this.extractSymbolsFromImport(importDecl, importedSymbols);
     });
     
     return importedSymbols;
+  }
+
+  private static getExternalImports(sourceFile: SourceFile): ImportDeclaration[] {
+    return sourceFile.getImportDeclarations().filter(importDecl => {
+      const moduleSpecifier = importDecl.getModuleSpecifierValue();
+      return this.isExternalModule(moduleSpecifier);
+    });
   }
 
   private static extractSymbolsFromImport(importDecl: ImportDeclaration, importedSymbols: Set<string>): void {

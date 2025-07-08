@@ -1,17 +1,21 @@
 import * as ts from 'typescript';
 import { Node } from 'ts-morph';
-import { NodeTypeClassifier } from '../node-type-classifier';
 
 export class NodeDeclarationMatcher {
   static findContainingDeclaration(node: Node): Node | undefined {
     let current: Node | undefined = node;
     while (current) {
-      if (NodeTypeClassifier.isDeclaration(current)) {
+      if (this.isDeclaration(current)) {
         return current;
       }
       current = current.getParent();
     }
     return undefined;
+  }
+
+  private static isDeclaration(node: Node): boolean {
+    return node.getKind() === ts.SyntaxKind.VariableDeclaration ||
+           node.getKind() === ts.SyntaxKind.Parameter;
   }
 
   static hasMatchingIdentifier(node: Node, variableName: string): boolean {

@@ -10,17 +10,6 @@ import {
 } from './services';
 
 export class NodeAnalyzer {
-  static isDeclaration(node: Node): boolean {
-    return NodeTypeClassifier.isDeclaration(node);
-  }
-
-  static isAnyDeclaration(node: Node): boolean {
-    return NodeTypeClassifier.isAnyDeclaration(node);
-  }
-
-  static isScopeNode(node: Node): boolean {
-    return NodeTypeClassifier.isScopeNode(node);
-  }
 
   static calculatePosition(sourceFile: SourceFile, line: number, column: number): number {
     return NodePositionService.calculatePosition(sourceFile, line, column);

@@ -1,5 +1,5 @@
+import * as ts from 'typescript';
 import { Node } from 'ts-morph';
-import { NodeTypeChecker } from './node-type-checker';
 
 /**
  * Static utility methods for analyzing TypeScript node scopes.
@@ -12,7 +12,7 @@ export class NodeScopeHelper {
   static getNodeScope(node: Node): Node {
     let current = node.getParent();
     while (current) {
-      if (NodeTypeChecker.isScopeNode(current)) {
+      if (this.isScopeNode(current)) {
         return current;
       }
       current = current.getParent();
@@ -26,12 +26,20 @@ export class NodeScopeHelper {
   static getParentScope(scope: Node): Node | undefined {
     let current = scope.getParent();
     while (current) {
-      if (NodeTypeChecker.isScopeNode(current)) {
+      if (this.isScopeNode(current)) {
         return current;
       }
       current = current.getParent();
     }
     return undefined;
+  }
+
+  private static isScopeNode(node: Node): boolean {
+    return node.getKind() === ts.SyntaxKind.FunctionDeclaration ||
+           node.getKind() === ts.SyntaxKind.FunctionExpression ||
+           node.getKind() === ts.SyntaxKind.ArrowFunction ||
+           node.getKind() === ts.SyntaxKind.Block ||
+           node.getKind() === ts.SyntaxKind.SourceFile;
   }
 
   /**

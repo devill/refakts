@@ -1,3 +1,4 @@
+import * as ts from 'typescript';
 import { Node } from 'ts-morph';
 import { NodeAnalyzer } from './node-analyzer';
 
@@ -7,7 +8,11 @@ export class TypeScriptScopeAnalyzer {
   }
 
   isScopeNode(node: Node): boolean {
-    return NodeAnalyzer.isScopeNode(node);
+    return node.getKind() === ts.SyntaxKind.FunctionDeclaration ||
+           node.getKind() === ts.SyntaxKind.FunctionExpression ||
+           node.getKind() === ts.SyntaxKind.ArrowFunction ||
+           node.getKind() === ts.SyntaxKind.Block ||
+           node.getKind() === ts.SyntaxKind.SourceFile;
   }
 
   isScopeContainedIn(innerScope: Node, outerScope: Node): boolean {

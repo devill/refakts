@@ -77,12 +77,6 @@
       "featureEnvy"
     ]
   },
-  "src/locators/node-type-checker.ts": {
-    "lastCommitId": "c101a973d989b979e24469b276f521d6dda8655a",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
   "src/locators/position-finder.ts": {
     "lastCommitId": "4ce8f1bea2d7a652baa6f46b874a1fa23a15bbb2",
     "violations": [
@@ -193,12 +187,6 @@
     ]
   },
   "tests/utils/test-case-loader.ts": {
-    "lastCommitId": "db8852969bfb6bb9b9cd369530b07d7012ed256a",
-    "violations": [
-      "manyParameters"
-    ]
-  },
-  "tests/utils/factories/test-case-factory.ts": {
     "lastCommitId": "db8852969bfb6bb9b9cd369530b07d7012ed256a",
     "violations": [
       "manyParameters"

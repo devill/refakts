@@ -10,6 +10,14 @@ export interface CommandExecutorOptions {
   useCli?: boolean; // If true, uses CLI subprocess. If false, calls commands directly
 }
 
+interface CommandExecutionContext {
+  command: any;
+  file: string;
+  options: any;
+  commandName: string;
+  commandString: string;
+}
+
 export class CommandExecutor {
   private commandRegistry = new CommandRegistry();
   private useCli: boolean;
@@ -38,16 +46,24 @@ export class CommandExecutor {
     const { commandName, file, options } = this.parser.parseCommand(commandString);
     const command = this.findCommand(commandName);
     
-    return this.buildAndExecuteCommand(command, file, options, commandName, commandString);
+    const context: CommandExecutionContext = {
+      command,
+      file,
+      options,
+      commandName,
+      commandString
+    };
+    
+    return this.buildAndExecuteCommand(context);
   }
 
-  private buildAndExecuteCommand(command: any, file: string, options: any, commandName: string, commandString: string): Promise<string | void> {
+  private buildAndExecuteCommand(context: CommandExecutionContext): Promise<string | void> {
     return CommandExecutionBuilder.create()
-      .withCommand(command)
-      .withFile(file)
-      .withOptions(options)
-      .withCommandName(commandName)
-      .withCommandString(commandString)
+      .withCommand(context.command)
+      .withFile(context.file)
+      .withOptions(context.options)
+      .withCommandName(context.commandName)
+      .withCommandString(context.commandString)
       .execute(this.consoleCapture);
   }
 

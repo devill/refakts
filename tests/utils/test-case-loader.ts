@@ -36,5 +36,10 @@ function processTestDirectory(testDir: string, fixturesDir: string, expectedExte
 
 
 function getSingleFileTestCases(testDir: string, testPath: string, files: string[], expectedExtension: string): TestCase[] {
-  return TestCaseFactory.createSingleFileTestCases(testDir, testPath, files, expectedExtension);
+  const config = {
+    testDir,
+    testPath,
+    expectedExtension
+  };
+  return TestCaseFactory.createSingleFileTestCases(config, files);
 }
