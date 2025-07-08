@@ -70,7 +70,7 @@
     ]
   },
   "src/locators/shadowing-detector.ts": {
-    "lastCommitId": "24172269b128d1492e6133c2aa13dc6ea66880c7",
+    "lastCommitId": "fd78eb4291a41281fcc8c11b90028f02e430e076",
     "violations": [
       "featureEnvy"
     ]
@@ -221,13 +221,13 @@
     ]
   },
   "tests/utils/test-case-loader.ts": {
-    "lastCommitId": "24172269b128d1492e6133c2aa13dc6ea66880c7",
+    "lastCommitId": "fd78eb4291a41281fcc8c11b90028f02e430e076",
     "violations": [
       "manyParameters"
     ]
   },
   "tests/utils/parsers/option-parser.ts": {
-    "lastCommitId": "24172269b128d1492e6133c2aa13dc6ea66880c7",
+    "lastCommitId": "fd78eb4291a41281fcc8c11b90028f02e430e076",
     "violations": [
       "manyParameters",
       "featureEnvy"
