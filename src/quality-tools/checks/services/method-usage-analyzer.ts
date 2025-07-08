@@ -20,6 +20,10 @@ export class MethodUsageAnalyzer {
       this.analyzeNodeUsage(node, request);
     });
     
+    return this.buildUsageAnalysis(request);
+  }
+
+  private static buildUsageAnalysis(request: UsageAnalysisRequest): UsageAnalysis {
     return { 
       externalUsage: request.getExternalUsage(), 
       ownUsage: request.getOwnUsage() 

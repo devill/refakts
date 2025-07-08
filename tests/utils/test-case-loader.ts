@@ -35,30 +35,37 @@ function loadTestCasesFromDirectories(fixturesDir: string, expectedExtension: st
   const testDirs = scanner.getDirectoryNames(fixturesDir);
   
   for (const testDir of testDirs) {
-    const config: TestDirectoryConfig = {
-      testDir,
-      fixturesDir,
-      expectedExtension,
-      scanner
-    };
+    const config = createTestDirectoryConfig(testDir, fixturesDir, expectedExtension, scanner);
     testCases.push(...processTestDirectory(config));
   }
   
   return testCases;
 }
 
+function createTestDirectoryConfig(testDir: string, fixturesDir: string, expectedExtension: string, scanner: FileSystemScanner): TestDirectoryConfig {
+  return {
+    testDir,
+    fixturesDir,
+    expectedExtension,
+    scanner
+  };
+}
+
 function processTestDirectory(config: TestDirectoryConfig): TestCase[] {
   const testPath = path.join(config.fixturesDir, config.testDir);
   const files = config.scanner.getTestDirectoryFiles(testPath);
   
-  const processingConfig: TestCaseProcessingConfig = {
+  const processingConfig = createTestCaseProcessingConfig(config, testPath, files);
+  return getSingleFileTestCases(processingConfig);
+}
+
+function createTestCaseProcessingConfig(config: TestDirectoryConfig, testPath: string, files: string[]): TestCaseProcessingConfig {
+  return {
     testDir: config.testDir,
     testPath,
     files,
     expectedExtension: config.expectedExtension
   };
-  
-  return getSingleFileTestCases(processingConfig);
 }
 
 

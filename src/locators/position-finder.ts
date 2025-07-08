@@ -8,6 +8,10 @@ export class PositionFinder {
     const position = NodeAnalyzer.calculatePosition(sourceFile, positionData.line, positionData.column);
     const node = NodeAnalyzer.getNodeAtPosition(sourceFile, { position, line: positionData.line, column: positionData.column });
     
+    return this.extractDeclarationFromNode(node, sourceFile, positionData);
+  }
+
+  private extractDeclarationFromNode(node: Node, sourceFile: SourceFile, positionData: PositionData): Node {
     const nodeContext = NodeContext.create(node, sourceFile);
     const declarationNode = nodeContext.getContainingDeclaration();
     if (!declarationNode) {

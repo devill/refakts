@@ -14,15 +14,13 @@ export class ShadowingDetector {
     if (!variableName) return false;
     
     const request = ShadowingAnalysisRequest.create(usage, declaration, variableName);
-    
+    return this.validateScopeContainment(request) && !this.isShadowedByDeclaration(request);
+  }
+
+  private validateScopeContainment(request: ShadowingAnalysisRequest): boolean {
     const declarationScope = request.getDeclarationScope();
     const usageScope = request.getUsageScope();
-    
-    if (!this.scopeAnalyzer.isScopeContainedIn(usageScope, declarationScope)) {
-      return false;
-    }
-    
-    return !this.isShadowedByDeclaration(request);
+    return this.scopeAnalyzer.isScopeContainedIn(usageScope, declarationScope);
   }
 
   private isShadowedByDeclaration(request: ShadowingAnalysisRequest): boolean {
@@ -48,14 +46,19 @@ export class ShadowingDetector {
 
   private hasShadowingDeclaration(scope: Node, variableName: string, originalDeclaration: Node): boolean {
     let hasShadowing = false;
+    const scopeContext = new ScopeContext(scope, scope, originalDeclaration);
+    
     scope.forEachDescendant((child: Node) => {
-      const childContext = NodeContext.create(child, child.getSourceFile());
-      const scopeContext = new ScopeContext(scope, scope, originalDeclaration);
-      if (this.isShadowingDeclaration(scopeContext, childContext, variableName)) {
+      if (this.checkChildForShadowing(scopeContext, child, variableName)) {
         hasShadowing = true;
       }
     });
     return hasShadowing;
+  }
+
+  private checkChildForShadowing(scopeContext: ScopeContext, child: Node, variableName: string): boolean {
+    const childContext = NodeContext.create(child, child.getSourceFile());
+    return this.isShadowingDeclaration(scopeContext, childContext, variableName);
   }
 
   private isShadowingDeclaration(scopeContext: ScopeContext, childContext: NodeContext, variableName: string): boolean {

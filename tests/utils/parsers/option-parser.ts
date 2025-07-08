@@ -30,14 +30,17 @@ export class OptionParser {
       return this.handleBooleanFlag(options, optionName, index);
     }
     
-    const config: OptionProcessingConfig = {
+    const config = this.createOptionProcessingConfig(options, optionName, nextArg, index);
+    return this.handleValueFlag(config);
+  }
+
+  private createOptionProcessingConfig(options: Record<string, any>, optionName: string, nextArg: string, index: number): OptionProcessingConfig {
+    return {
       options,
       optionName,
       nextArg,
       index
     };
-    
-    return this.handleValueFlag(config);
   }
 
   private handleBooleanFlag(options: Record<string, any>, optionName: string, index: number): number {
