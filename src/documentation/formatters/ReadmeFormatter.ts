@@ -13,4 +13,12 @@ ${helpCommands}
 ${qualityChecks}
 \`\`\`\``;
   }
+
+  formatContentForReadme(rawContent: { helpCommands: string; qualityChecks: string; content: string }) {
+    return {
+      content: rawContent.content,
+      formattedHelp: this.formatHelpSection(rawContent.helpCommands),
+      formattedQuality: this.formatQualitySection(rawContent.qualityChecks)
+    };
+  }
 }

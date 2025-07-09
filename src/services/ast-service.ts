@@ -11,15 +11,27 @@ export class ASTService {
   }
 
   loadSourceFile(filePath: string): SourceFile {
-    const absolutePath = path.resolve(filePath);
-    const existingFile = this.project.getSourceFile(absolutePath);
+    const absolutePath = this.resolveAbsolutePath(filePath);
+    const existingFile = this.getExistingSourceFile(absolutePath);
     if (existingFile) {
       return existingFile;
     }
+    return this.addSourceFileAtPath(absolutePath, filePath);
+  }
+
+  private resolveAbsolutePath(filePath: string): string {
+    return path.resolve(filePath);
+  }
+
+  private getExistingSourceFile(absolutePath: string): SourceFile | undefined {
+    return this.project.getSourceFile(absolutePath);
+  }
+
+  private addSourceFileAtPath(absolutePath: string, originalPath: string): SourceFile {
     try {
       return this.project.addSourceFileAtPath(absolutePath);
     } catch {
-      throw new Error(`File not found: ${filePath}`);
+      throw new Error(`File not found: ${originalPath}`);
     }
   }
 
@@ -59,33 +71,33 @@ export class ASTService {
   private findBestMatchingNode(sourceFile: SourceFile, node: Node, location: LocationRange): Node | null {
     const expectedEnd = this.calculateExpectedEnd(sourceFile, location);
     const expectedStart = this.getStartPosition(sourceFile, location);
-    return this.traverseToFindMatchingNode(node, expectedStart, expectedEnd);
+    return this.traverseToFindMatchingNode(node, { start: expectedStart, end: expectedEnd });
   }
 
   private calculateExpectedEnd(sourceFile: SourceFile, location: LocationRange): number {
     return sourceFile.compilerNode.getPositionOfLineAndCharacter(location.endLine - 1, location.endColumn - 1);
   }
 
-  private traverseToFindMatchingNode(node: Node | undefined, expectedStart: number, expectedEnd: number, bestMatch: Node | null = null, bestScore = Infinity): Node | null {
-    if (!node) return bestMatch;
-    if (this.isNodeRangeCloseToExpected(node, expectedStart, expectedEnd)) {
-      const score = this.calculateNodeScore(node, expectedStart, expectedEnd);
-      if (score < bestScore) {
-        return this.traverseToFindMatchingNode(node.getParent(), expectedStart, expectedEnd, node, score);
+  private traverseToFindMatchingNode(node: Node | undefined, expectedRange: { start: number; end: number }, searchState: { bestMatch: Node | null; bestScore: number } = { bestMatch: null, bestScore: Infinity }): Node | null {
+    if (!node) return searchState.bestMatch;
+    if (this.isNodeRangeCloseToExpected(node, expectedRange.start, expectedRange.end)) {
+      const score = this.calculateNodeScore(node, expectedRange.start, expectedRange.end);
+      if (score < searchState.bestScore) {
+        return this.traverseToFindMatchingNode(node.getParent(), expectedRange, { bestMatch: node, bestScore: score });
       }
     }
-    return this.traverseToFindMatchingNode(node.getParent(), expectedStart, expectedEnd, bestMatch, bestScore);
+    return this.traverseToFindMatchingNode(node.getParent(), expectedRange, searchState);
   }
 
-  private traverseToFindMatchingNodeWithPosition(node: Node | undefined, expectedPositions: { start: number; end: number }, bestMatch: Node | null = null, bestScore = Infinity): Node | null {
-    if (!node) return bestMatch;
+  private traverseToFindMatchingNodeWithPosition(node: Node | undefined, expectedPositions: { start: number; end: number }, searchState: { bestMatch: Node | null; bestScore: number } = { bestMatch: null, bestScore: Infinity }): Node | null {
+    if (!node) return searchState.bestMatch;
     if (this.isNodeRangeCloseToExpected(node, expectedPositions.start, expectedPositions.end)) {
       const score = this.calculateNodeScore(node, expectedPositions.start, expectedPositions.end);
-      if (score < bestScore) {
-        return this.traverseToFindMatchingNodeWithPosition(node.getParent(), expectedPositions, node, score);
+      if (score < searchState.bestScore) {
+        return this.traverseToFindMatchingNodeWithPosition(node.getParent(), expectedPositions, { bestMatch: node, bestScore: score });
       }
     }
-    return this.traverseToFindMatchingNodeWithPosition(node.getParent(), expectedPositions, bestMatch, bestScore);
+    return this.traverseToFindMatchingNodeWithPosition(node.getParent(), expectedPositions, searchState);
   }
 
   private isNodeRangeCloseToExpected(node: Node, expectedStart: number, expectedEnd: number): boolean {

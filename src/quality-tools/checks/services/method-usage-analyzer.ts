@@ -94,14 +94,16 @@ export class MethodUsageAnalyzer {
   private static analyzeExternalClassReference(expression: Node, importedSymbols: Set<string>): UsageResult {
     const symbol = this.extractSymbolFromExpression(expression);
     if (!symbol) {
-      return { isOwnUsage: false };
+      return this.createNonOwnUsageResult();
     }
-
     if (this.isSystemType(symbol)) {
-      return { isOwnUsage: false };
+      return this.createNonOwnUsageResult();
     }
-
     return this.processSymbolName(symbol, importedSymbols);
+  }
+
+  private static createNonOwnUsageResult(): UsageResult {
+    return { isOwnUsage: false };
   }
 
   private static extractSymbolFromExpression(expression: Node): Symbol | undefined {

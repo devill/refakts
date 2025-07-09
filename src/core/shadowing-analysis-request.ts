@@ -13,9 +13,7 @@ export class ShadowingAnalysisRequest {
   }
 
   static create(usage: Node, declaration: Node, variableName: string): ShadowingAnalysisRequest {
-    const usageContext = NodeContext.create(usage, usage.getSourceFile());
-    const declarationContext = NodeContext.create(declaration, declaration.getSourceFile());
-    return new ShadowingAnalysisRequest(usageContext, declarationContext, variableName);
+    return NodeContext.createShadowingAnalysisRequest(usage, declaration, variableName);
   }
 
   getUsageScope(): Node {
@@ -35,7 +33,57 @@ export class ShadowingAnalysisRequest {
   }
 
   matchesVariableName(node: Node): boolean {
-    const context = NodeContext.create(node, node.getSourceFile());
-    return context.matchesVariableName(this.variableName);
+    return NodeContext.matchesVariableName(node, this.variableName);
+  }
+
+  validateScopeContainment(): boolean {
+    const declarationScope = this.getDeclarationScope();
+    const usageScope = this.getUsageScope();
+    const { NodeContext: LocatorNodeContext } = require('../locators/NodeContext');
+    return LocatorNodeContext.isScopeContainedIn(usageScope, declarationScope);
+  }
+
+  getScopeContext() {
+    const { ScopeContext } = require('./scope-context');
+    return new ScopeContext(this.getUsageScope(), this.getDeclarationScope(), this.getTargetNode());
+  }
+
+  isShadowedByDeclaration(): boolean {
+    if (this.isSameScope()) {
+      return false;
+    }
+    
+    const scopeContext = this.getScopeContext();
+    return this.findShadowingInScopeChain(scopeContext);
+  }
+
+  private findShadowingInScopeChain(scopeContext: { usageScope: Node; declarationScope: Node; targetNode: Node }): boolean {
+    const { NodeContext: LocatorNodeContext } = require('../locators/NodeContext');
+    let current: Node | undefined = scopeContext.usageScope;
+    while (current && current !== scopeContext.declarationScope) {
+      if (this.hasShadowingDeclaration(current, scopeContext.targetNode)) {
+        return true;
+      }
+      current = LocatorNodeContext.getParentScope(current);
+    }
+    return false;
+  }
+
+  private hasShadowingDeclaration(scope: Node, originalDeclaration: Node): boolean {
+    const { ScopeContext } = require('./scope-context');
+    let hasShadowing = false;
+    const scopeContext = new ScopeContext(scope, scope, originalDeclaration);
+    scope.forEachDescendant((child: Node) => {
+      if (this.checkChildForShadowing(scopeContext, child)) {
+        hasShadowing = true;
+      }
+    });
+    return hasShadowing;
+  }
+
+  private checkChildForShadowing(scopeContext: { usageScope: Node; targetNode: Node }, child: Node): boolean {
+    const { NodeContext: LocatorNodeContext } = require('../locators/NodeContext');
+    const childContext = new LocatorNodeContext(child);
+    return childContext.isShadowingDeclaration(this.variableName, scopeContext.targetNode, scopeContext.usageScope);
   }
 }

@@ -51,11 +51,7 @@ export class DocumentationUpdater {
   }
 
   private formatContentForReadme(rawContent: { helpCommands: string; qualityChecks: string; content: string }) {
-    return {
-      content: rawContent.content,
-      formattedHelp: this.readmeFormatter.formatHelpSection(rawContent.helpCommands),
-      formattedQuality: this.readmeFormatter.formatQualitySection(rawContent.qualityChecks)
-    };
+    return this.readmeFormatter.formatContentForReadme(rawContent);
   }
 
   private replaceBothSections(data: { content: string; formattedHelp: string; formattedQuality: string }) {
