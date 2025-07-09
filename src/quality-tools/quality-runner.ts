@@ -5,9 +5,11 @@ import { loadQualityChecks } from './plugin-loader';
 import { generateReport } from './quality-reporter';
 import { loadBaseline, shouldFilterViolation, cleanupResolvedFiles } from './baseline-manager';
 import { program } from 'commander';
-const runQualityChecks = async (sourceDir: string): Promise<QualityIssue[]> => {
+import { resolveGlobPatterns } from './glob-resolver';
+
+const runQualityChecks = async (files: string[]): Promise<QualityIssue[]> => {
   const checks = loadQualityChecks();
-  const allIssues = await Promise.all(checks.map(check => check.check(sourceDir)));
+  const allIssues = await Promise.all(checks.map(check => check.check(files)));
   return allIssues.flat();
 };
 
@@ -41,14 +43,18 @@ const main = async (): Promise<void> => {
   program
     .name('quality-runner')
     .option('--no-limit', 'Show all violations without limiting to 10 per type')
+    .argument('[patterns...]', 'Glob patterns for files to check (e.g., "src/**/*.ts", "src/commands/*.ts")')
     .parse();
   
   const options = program.opts();
   const noLimit = !options.limit;
   
-  const srcIssues = await runQualityChecks('src');
-  const testIssues = await runQualityChecks('tests');
-  const allIssues = [...srcIssues, ...testIssues];
+  const patterns = program.args.length > 0 
+    ? program.args 
+    : ['src/**/*.ts', 'tests/**/*.ts'];
+    
+  const files = await resolveGlobPatterns(patterns);
+  const allIssues = await runQualityChecks(files);
   
   const baseline = loadBaseline();
   cleanupResolvedFiles(allIssues);

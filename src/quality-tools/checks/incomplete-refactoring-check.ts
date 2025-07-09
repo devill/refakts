@@ -4,7 +4,7 @@ import { isCheckSnoozed, clearExpiredSnoozes } from '../snooze-tracker';
 
 export const incompleteRefactoringCheck: QualityCheck = {
   name: 'incompleteRefactoring',
-  check: (): QualityIssue[] => {
+  check: (_files: string[]): QualityIssue[] => {
     clearExpiredSnoozes();
     const incompleteRefactorings = getIncompleteRefactorings();
     const activelySnoozedRefactorings = filterSnoozedRefactorings(incompleteRefactorings);

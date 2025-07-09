@@ -17,10 +17,12 @@ interface KnipOutput {
 
 export const unusedMethodCheck: QualityCheck = {
   name: 'unusedMethod',
-  check: async (): Promise<QualityIssue[]> => {
+  check: async (files: string[]): Promise<QualityIssue[]> => {
     try {
       const members = await getUnusedClassMembers();
-      return members.map(toQualityIssue);
+      return members
+        .filter(member => files.includes(member.file))
+        .map(toQualityIssue);
     } catch {
       return [];
     }

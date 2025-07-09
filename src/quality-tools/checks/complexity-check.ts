@@ -8,14 +8,15 @@ const execAsync = promisify(exec);
 
 export const complexityCheck: QualityCheck = {
   name: 'complexity',
-  check: async (sourceDir: string): Promise<QualityIssue[]> => {
+  check: async (files: string[]): Promise<QualityIssue[]> => {
     try {
-      const { stdout } = await execAsync(`npx cyclomatic-complexity '${sourceDir}/**/*.ts' --json`);
+      const fileArgs = files.map(f => `'${f}'`).join(' ');
+      const { stdout } = await execAsync(`npx cyclomatic-complexity ${fileArgs} --json`);
       const cyclomaticIssues = analyzeCyclomaticComplexity(stdout);
-      const parameterIssues = analyzeParameterCount(sourceDir);
+      const parameterIssues = analyzeParameterCountFromFiles(files);
       return [...cyclomaticIssues, ...parameterIssues];
     } catch {
-      return analyzeParameterCount(sourceDir);
+      return analyzeParameterCountFromFiles(files);
     }
   },
   getGroupDefinition: (groupKey: string) => {
@@ -99,9 +100,10 @@ const isGeneratedFunction = (name: string): boolean => {
   );
 };
 
-const analyzeParameterCount = (sourceDir: string): QualityIssue[] => {
+
+const analyzeParameterCountFromFiles = (files: string[]): QualityIssue[] => {
   const project = new Project();
-  project.addSourceFilesAtPaths(`${sourceDir}/**/*.ts`);
+  project.addSourceFilesAtPaths(files);
   
   const issues: QualityIssue[] = [];
   const processed = new Set<string>();

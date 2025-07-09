@@ -11,7 +11,7 @@ interface ExecError extends Error {
 
 export const duplicationCheck: QualityCheck = {
   name: 'duplication',
-  check: async (): Promise<QualityIssue[]> => {
+  check: async (_files: string[]): Promise<QualityIssue[]> => {
     const issues: QualityIssue[] = [];
     
     await checkSourceCodeDuplication(issues);

@@ -4,18 +4,21 @@ import { program } from 'commander';
 import { loadQualityChecks } from './plugin-loader';
 import { generateBaseline, saveBaseline, getBaselineStatus } from './baseline-manager';
 import { QualityIssue } from './quality-check-interface';
+import { resolveGlobPatterns } from './glob-resolver';
 
-const runQualityChecks = async (sourceDir: string): Promise<QualityIssue[]> => {
+const runQualityChecks = async (files: string[]): Promise<QualityIssue[]> => {
   const checks = loadQualityChecks();
-  const allIssues = await Promise.all(checks.map(check => check.check(sourceDir)));
+  const allIssues = await Promise.all(checks.map(check => check.check(files)));
   return allIssues.flat();
 };
 
 const generateCommand = async (): Promise<void> => {
   process.stdout.write('Generating quality baseline...\n');
   
-  const srcIssues = await runQualityChecks('src');
-  const testIssues = await runQualityChecks('tests');
+  const srcFiles = await resolveGlobPatterns(['src/**/*.ts']);
+  const testFiles = await resolveGlobPatterns(['tests/**/*.ts']);
+  const srcIssues = await runQualityChecks(srcFiles);
+  const testIssues = await runQualityChecks(testFiles);
   const allIssues = [...srcIssues, ...testIssues];
   
   const baseline = generateBaseline(allIssues);
