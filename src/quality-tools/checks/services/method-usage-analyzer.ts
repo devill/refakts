@@ -1,4 +1,4 @@
-import { MethodDeclaration, PropertyAccessExpression, CallExpression, SyntaxKind, Node } from 'ts-morph';
+import { MethodDeclaration, PropertyAccessExpression, CallExpression, SyntaxKind, Node, Symbol } from 'ts-morph';
 import { ImportSymbolExtractor } from './import-symbol-extractor';
 import { UsageAnalysisRequest } from '../../../core/usage-analysis-request';
 
@@ -93,11 +93,73 @@ export class MethodUsageAnalyzer {
   }
 
   private static analyzeExternalClassReference(expression: Node, importedSymbols: Set<string>): UsageResult {
-    const expressionText = expression.getText();
-    if (ImportSymbolExtractor.isInternalClassReference(expressionText, importedSymbols)) {
-      return { isOwnUsage: false, externalClass: expressionText };
+    // Get the type of the expression
+    const type = expression.getType();
+    if (!type) {
+      return { isOwnUsage: false };
     }
+
+    // Get the symbol from the type
+    const symbol = type.getSymbol();
+    if (!symbol) {
+      return { isOwnUsage: false };
+    }
+
+    // Check if it's an external library type
+    if (this.isExternalLibraryType(symbol)) {
+      return { isOwnUsage: false }; // External library, not feature envy
+    }
+
+    // Check if it's a built-in TypeScript/Node.js type
+    if (this.isBuiltInType(symbol)) {
+      return { isOwnUsage: false };
+    }
+
+    // Check if it's imported from external modules
+    const symbolName = symbol.getName();
+    if (importedSymbols.has(symbolName)) {
+      return { isOwnUsage: false };
+    }
+
+    // It's an internal class - this is feature envy!
+    return { isOwnUsage: false, externalClass: symbolName };
+  }
+
+  private static isExternalLibraryType(symbol: Symbol): boolean {
+    const declarations = symbol.getDeclarations();
+    if (!declarations || declarations.length === 0) {
+      return false;
+    }
+
+    const sourceFile = declarations[0].getSourceFile();
+    const filePath = sourceFile.getFilePath();
     
-    return { isOwnUsage: false };
+    // Check if it comes from external libraries
+    return filePath.includes('node_modules') || 
+           filePath.includes('@types') ||
+           filePath.includes('lib.d.ts') ||
+           filePath.includes('lib.es') ||
+           this.isTypeScriptLibFile(filePath);
+  }
+
+  private static isBuiltInType(symbol: Symbol): boolean {
+    const declarations = symbol.getDeclarations();
+    if (!declarations || declarations.length === 0) {
+      return false;
+    }
+
+    const sourceFile = declarations[0].getSourceFile();
+    const filePath = sourceFile.getFilePath();
+    
+    // TypeScript built-in types
+    return filePath.includes('lib.d.ts') ||
+           filePath.includes('lib.es') ||
+           filePath.includes('typescript/lib') ||
+           this.isTypeScriptLibFile(filePath);
+  }
+
+  private static isTypeScriptLibFile(filePath: string): boolean {
+    const libFilePattern = /lib\.(es\d+|dom|node|esnext)/;
+    return libFilePattern.test(filePath);
   }
 }

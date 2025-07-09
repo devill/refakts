@@ -48,25 +48,4 @@ export class ImportSymbolExtractor {
   static isExternalModule(moduleSpecifier: string): boolean {
     return !moduleSpecifier.startsWith('.') && !moduleSpecifier.startsWith('/');
   }
-
-  static isInternalClassReference(text: string, importedSymbols: Set<string>): boolean {
-    if (!this.isValidClassName(text)) return false;
-    if (this.isBuiltInClass(text)) return false;
-    if (importedSymbols.has(text)) return false;
-    
-    return true;
-  }
-
-  private static isValidClassName(text: string): boolean {
-    return /^[a-z][a-zA-Z0-9]*$/.test(text);
-  }
-
-  private static isBuiltInClass(text: string): boolean {
-    const builtInClasses = [
-      'console', 'process', 'window', 'document', 'Math', 'Date', 'JSON', 'Object', 'Array', 'String', 'Number', 'Boolean',
-      'Promise', 'Error', 'RegExp', 'Map', 'Set', 'WeakMap', 'WeakSet', 'Symbol', 'Buffer'
-    ];
-    
-    return builtInClasses.includes(text);
-  }
 }
