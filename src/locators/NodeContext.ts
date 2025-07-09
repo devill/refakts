@@ -145,4 +145,36 @@ export class NodeContext {
   equals(other: NodeContext): boolean {
     return this.node === other.getWrappedNode();
   }
+
+  static getNodeScope(node: Node): Node {
+    const nodeContext = new NodeContext(node);
+    return nodeContext.getScope().getWrappedNode();
+  }
+
+  static getParentScope(scope: Node): Node | undefined {
+    const nodeContext = new NodeContext(scope);
+    const parentScope = nodeContext.getParentScope();
+    return parentScope?.getWrappedNode();
+  }
+
+  static isScopeContainedIn(innerScope: Node, outerScope: Node): boolean {
+    const innerContext = new NodeContext(innerScope);
+    const outerContext = new NodeContext(outerScope);
+    return innerContext.isScopeContainedIn(outerContext);
+  }
+
+  static findContainingDeclaration(node: Node): NodeContext | undefined {
+    const nodeContext = new NodeContext(node);
+    return nodeContext.findContainingDeclaration();
+  }
+
+  static getScope(node: Node): NodeContext {
+    const nodeContext = new NodeContext(node);
+    return nodeContext.getScope();
+  }
+
+  static getParentScopeContext(node: Node): NodeContext | undefined {
+    const nodeContext = new NodeContext(node);
+    return nodeContext.getParentScope();
+  }
 }

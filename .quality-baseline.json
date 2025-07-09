@@ -6,13 +6,6 @@
       "featureEnvy"
     ]
   },
-  "src/services/ast-service.ts": {
-    "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
-    "violations": [
-      "manyParameters",
-      "featureEnvy"
-    ]
-  },
   "src/services/range-analyzer.ts": {
     "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
     "violations": [
@@ -191,18 +184,6 @@
   },
   "src/services/selection/result-formatters.ts": {
     "lastCommitId": "59e791a5e6dab67d6e8eca6ac7d9acf4ce77ab21",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/quality-tools/checks/services/import-symbol-extractor.ts": {
-    "lastCommitId": "58209a7eb5ba6f9c4f047ecd0fe704e79eeb9b67",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/quality-tools/checks/services/method-usage-analyzer.ts": {
-    "lastCommitId": "24172269b128d1492e6133c2aa13dc6ea66880c7",
     "violations": [
       "featureEnvy"
     ]

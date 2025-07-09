@@ -136,6 +136,14 @@ export class PositionData {
     return this.line === other.line && this.column === other.column;
   }
 
+  toSourceFilePosition(sourceFile: SourceFile): number {
+    try {
+      return this.toOffset(sourceFile);
+    } catch {
+      throw new Error(`No node found at position ${this.line}:${this.column}`);
+    }
+  }
+
   private static calculateOffset(line: number, column: number): number {
     return (line - 1) * 80 + (column - 1);
   }

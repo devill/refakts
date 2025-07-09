@@ -1,13 +1,12 @@
 import * as ts from 'typescript';
 import { Node } from 'ts-morph';
-import { TypeScriptScopeAnalyzer } from './typescript-scope-analyzer';
 import { ScopeContext } from '../core/scope-context';
 import { NodeAnalyzer } from './node-analyzer';
 import { ShadowingAnalysisRequest } from '../core/shadowing-analysis-request';
 import { NodeContext } from '../core/node-context';
+import { NodeContext as LocatorNodeContext } from './NodeContext';
 
 export class ShadowingDetector {
-  private scopeAnalyzer = new TypeScriptScopeAnalyzer();
 
   isUsageInScope(usage: Node, declaration: Node): boolean {
     const variableName = NodeAnalyzer.getVariableName(declaration);
@@ -20,7 +19,7 @@ export class ShadowingDetector {
   private validateScopeContainment(request: ShadowingAnalysisRequest): boolean {
     const declarationScope = request.getDeclarationScope();
     const usageScope = request.getUsageScope();
-    return this.scopeAnalyzer.isScopeContainedIn(usageScope, declarationScope);
+    return LocatorNodeContext.isScopeContainedIn(usageScope, declarationScope);
   }
 
   private isShadowedByDeclaration(request: ShadowingAnalysisRequest): boolean {
@@ -39,7 +38,7 @@ export class ShadowingDetector {
       if (this.hasShadowingDeclaration(current, variableName, scopeContext.targetNode)) {
         return true;
       }
-      current = this.scopeAnalyzer.getParentScope(current);
+      current = LocatorNodeContext.getParentScope(current);
     }
     return false;
   }
@@ -64,7 +63,7 @@ export class ShadowingDetector {
     return this.isAnyDeclaration(childContext.node) && 
            childContext.matchesVariableName(variableName) &&
            childContext.node !== scopeContext.targetNode &&
-           this.scopeAnalyzer.getScope(childContext.node) === scopeContext.usageScope;
+           LocatorNodeContext.getNodeScope(childContext.node) === scopeContext.usageScope;
   }
 
   private isAnyDeclaration(node: Node): boolean {

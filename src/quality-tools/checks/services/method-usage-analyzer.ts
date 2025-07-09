@@ -1,5 +1,4 @@
 import { MethodDeclaration, PropertyAccessExpression, CallExpression, SyntaxKind, Node, Symbol } from 'ts-morph';
-import { ImportSymbolExtractor } from './import-symbol-extractor';
 import { UsageAnalysisRequest } from '../../../core/usage-analysis-request';
 
 export interface UsageAnalysis {
@@ -93,48 +92,53 @@ export class MethodUsageAnalyzer {
   }
 
   private static analyzeExternalClassReference(expression: Node, importedSymbols: Set<string>): UsageResult {
-    // Get the type of the expression
-    const type = expression.getType();
-    if (!type) {
-      return { isOwnUsage: false };
-    }
-
-    // Get the symbol from the type
-    const symbol = type.getSymbol();
+    const symbol = this.extractSymbolFromExpression(expression);
     if (!symbol) {
       return { isOwnUsage: false };
     }
 
-    // Check if it's an external library type
-    if (this.isExternalLibraryType(symbol)) {
-      return { isOwnUsage: false }; // External library, not feature envy
-    }
-
-    // Check if it's a built-in TypeScript/Node.js type
-    if (this.isBuiltInType(symbol)) {
+    if (this.isSystemType(symbol)) {
       return { isOwnUsage: false };
     }
 
-    // Check if it's imported from external modules
+    return this.processSymbolName(symbol, importedSymbols);
+  }
+
+  private static extractSymbolFromExpression(expression: Node): Symbol | undefined {
+    const type = expression.getType();
+    return type?.getSymbol();
+  }
+
+  private static isSystemType(symbol: Symbol): boolean {
+    return this.isExternalLibraryType(symbol) || this.isBuiltInType(symbol);
+  }
+
+  private static processSymbolName(symbol: Symbol, importedSymbols: Set<string>): UsageResult {
     const symbolName = symbol.getName();
     if (importedSymbols.has(symbolName)) {
       return { isOwnUsage: false };
     }
-
-    // It's an internal class - this is feature envy!
     return { isOwnUsage: false, externalClass: symbolName };
   }
 
   private static isExternalLibraryType(symbol: Symbol): boolean {
-    const declarations = symbol.getDeclarations();
-    if (!declarations || declarations.length === 0) {
+    const filePath = this.getSymbolFilePath(symbol);
+    if (!filePath) {
       return false;
     }
-
-    const sourceFile = declarations[0].getSourceFile();
-    const filePath = sourceFile.getFilePath();
     
-    // Check if it comes from external libraries
+    return this.matchesExternalLibraryPatterns(filePath);
+  }
+
+  private static getSymbolFilePath(symbol: Symbol): string | undefined {
+    const declarations = symbol.getDeclarations();
+    if (!declarations || declarations.length === 0) {
+      return undefined;
+    }
+    return declarations[0].getSourceFile().getFilePath();
+  }
+
+  private static matchesExternalLibraryPatterns(filePath: string): boolean {
     return filePath.includes('node_modules') || 
            filePath.includes('@types') ||
            filePath.includes('lib.d.ts') ||
@@ -143,15 +147,15 @@ export class MethodUsageAnalyzer {
   }
 
   private static isBuiltInType(symbol: Symbol): boolean {
-    const declarations = symbol.getDeclarations();
-    if (!declarations || declarations.length === 0) {
+    const filePath = this.getSymbolFilePath(symbol);
+    if (!filePath) {
       return false;
     }
-
-    const sourceFile = declarations[0].getSourceFile();
-    const filePath = sourceFile.getFilePath();
     
-    // TypeScript built-in types
+    return this.matchesBuiltInTypePatterns(filePath);
+  }
+
+  private static matchesBuiltInTypePatterns(filePath: string): boolean {
     return filePath.includes('lib.d.ts') ||
            filePath.includes('lib.es') ||
            filePath.includes('typescript/lib') ||

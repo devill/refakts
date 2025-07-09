@@ -45,16 +45,7 @@ export class ASTService {
 
   private getStartPosition(sourceFile: SourceFile, location: LocationRange): number {
     const positionData = PositionData.fromLocation(location);
-    return this.getPositionFromData(sourceFile, positionData);
-  }
-
-  private getPositionFromData(sourceFile: SourceFile, positionData: PositionData): number {
-    try {
-      const zeroBased = positionData.toZeroBased();
-      return sourceFile.compilerNode.getPositionOfLineAndCharacter(zeroBased.line, zeroBased.column);
-    } catch {
-      throw new Error(`No node found at position ${positionData.line}:${positionData.column}`);
-    }
+    return positionData.toSourceFilePosition(sourceFile);
   }
 
   private getNodeAtPosition(sourceFile: SourceFile, startPos: number, location: LocationRange): Node {
