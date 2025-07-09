@@ -1,21 +1,39 @@
 #!/bin/bash
 
-if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-  # Get changed .ts files in the PR
-  CHANGED_FILES=$(git diff --name-only $PR_BASE_SHA $PR_HEAD_SHA | grep '\.ts$' | tr '\n' ' ')
-  if [ -n "$CHANGED_FILES" ]; then
-    echo "Running quality checks on changed files: $CHANGED_FILES"
-    npm run quality -- $CHANGED_FILES
-  else
-    echo "No TypeScript files changed, skipping quality checks"
-  fi
-else
-  # For push events, run on files changed in the current commit
-  CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD | grep '\.ts$' | tr '\n' ' ')
-  if [ -n "$CHANGED_FILES" ]; then
-    echo "Running quality checks on files changed in current commit: $CHANGED_FILES"
-    npm run quality -- $CHANGED_FILES
-  else
-    echo "No TypeScript files changed in current commit, skipping quality checks"
-  fi
-fi
+set -e
+
+get_changed_ts_files() {
+    local base_ref="$1"
+    local head_ref="$2"
+    
+    if [ -n "$base_ref" ] && [ -n "$head_ref" ]; then
+        git diff --name-only "$base_ref" "$head_ref" | grep '\.ts$' || true
+    else
+        git diff --name-only HEAD~1 HEAD | grep '\.ts$' || true
+    fi
+}
+
+run_quality_checks() {
+    local event_type="$1"
+    local changed_files_raw
+    
+    if [ "$event_type" == "pull_request" ]; then
+        changed_files_raw=$(get_changed_ts_files "$PR_BASE_SHA" "$PR_HEAD_SHA")
+        local context_message="changed files in the PR"
+    else
+        changed_files_raw=$(get_changed_ts_files)
+        local context_message="files changed in current commit"
+    fi
+    
+    if [ -n "$changed_files_raw" ]; then
+        # Convert to array
+        readarray -t changed_files <<< "$changed_files_raw"
+        
+        echo "Running quality checks on $context_message: ${changed_files[*]}"
+        npm run quality -- "${changed_files[@]}"
+    else
+        echo "No TypeScript files changed, skipping quality checks"
+    fi
+}
+
+run_quality_checks "$GITHUB_EVENT_NAME"
