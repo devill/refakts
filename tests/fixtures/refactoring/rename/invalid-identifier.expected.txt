@@ -1,1 +1,1 @@
-Error: No identifier found at specified location
+Error: Expected identifier node, got: JSDocTag

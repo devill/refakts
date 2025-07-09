@@ -1,6 +1,6 @@
 /**
  * @description Test error handling for invalid identifier location
- * @command rename "[invalid-identifier.input.ts 3:1-3:5]"
+ * @command rename "[invalid-identifier.input.ts 3:1-3:5]" --to newName
  * @expect-error true
  */
 function example() {

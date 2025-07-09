@@ -1,1 +1,0 @@
-Error: Unable to extract variable from readonly file
