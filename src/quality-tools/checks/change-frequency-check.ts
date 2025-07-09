@@ -6,10 +6,12 @@ const execAsync = promisify(exec);
 
 export const changeFrequencyCheck: QualityCheck = {
   name: 'changeFrequency',
-  check: async (): Promise<QualityIssue[]> => {
+  check: async (files: string[]): Promise<QualityIssue[]> => {
     const changeIssues = await analyzeChangeFrequency();
     const filteredIssues = await filterRecentlyFixedIssues(changeIssues);
-    return filteredIssues.map(toQualityIssue);
+    return filteredIssues
+      .filter(issue => files.some(file => issue.includes(file)))
+      .map(toQualityIssue);
   },
   getGroupDefinition: (groupKey: string) => {
     if (groupKey === 'changeFrequency') return {

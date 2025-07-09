@@ -5,9 +5,9 @@ import { ImportSymbolExtractor, FeatureEnvyDetector } from './services';
 
 export const featureEnvyCheck: QualityCheck = {
   name: 'featureEnvy',
-  check: (sourceDir: string): QualityIssue[] => {
+  check: (files: string[]): QualityIssue[] => {
     const project = new Project();
-    project.addSourceFilesAtPaths(`${sourceDir}/**/*.ts`);
+    project.addSourceFilesAtPaths(files);
     
     const issues: QualityIssue[] = [];
     const processed = new Set<string>();

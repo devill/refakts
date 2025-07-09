@@ -29,7 +29,7 @@ npm run dev -- <command>
 npm run dev -- inline-variable "[src/example.ts 5:8-5:18]"
 
 # Quality tools
-npm run quality              # Run all quality checks
+npm run quality -- "src/**/*.ts" "tests/**/*.ts"  # Run quality checks on specific glob patterns
 npm run quality:full         # Run all quality checks with no limit (show all violations)
 
 # Snooze quality alerts (24 hours)

@@ -69,9 +69,14 @@ function parseEslintResults(stdout: string): QualityIssue[] {
 
 export const linterCheck: QualityCheck = {
   name: 'linter-check',
-  check: async (_sourceDir: string): Promise<QualityIssue[]> => {
+  check: async (files: string[]): Promise<QualityIssue[]> => {
+    if (files.length === 0) {
+      return [];
+    }
+    
     try {
-      const { stdout, stderr } = await execAsync('npx eslint src tests/integration tests/utils tests/unit --ext .ts --format json');
+      const fileArgs = files.map(f => `'${f}'`).join(' ');
+      const { stdout, stderr } = await execAsync(`npx eslint ${fileArgs} --format json --no-warn-ignored`);
       
       if (stderr && !stderr.includes('warning')) {
         return [{

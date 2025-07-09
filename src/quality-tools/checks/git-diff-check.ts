@@ -9,7 +9,7 @@ let gitDiffResult: QualityIssue[] = [];
 
 export const gitDiffCheck: QualityCheck = {
   name: 'diffSize',
-  check: async (): Promise<QualityIssue[]> => {
+  check: async (_files: string[]): Promise<QualityIssue[]> => {
     if (gitDiffChecked) {
       return [];
     }

@@ -4,9 +4,9 @@ import * as path from 'path';
 
 export const fileSizeCheck: QualityCheck = {
   name: 'fileSize',
-  check: (sourceDir: string): QualityIssue[] => {
+  check: (files: string[]): QualityIssue[] => {
     const project = new Project();
-    project.addSourceFilesAtPaths(`${sourceDir}/**/*.ts`);
+    project.addSourceFilesAtPaths(files);
     
     return project.getSourceFiles()
       .map(createFileSizeIssue)
