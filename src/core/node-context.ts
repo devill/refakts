@@ -139,15 +139,4 @@ export class NodeContext {
            operator === ts.SyntaxKind.SlashEqualsToken;
   }
 
-  static createShadowingAnalysisRequest(usage: Node, declaration: Node, variableName: string) {
-    const usageContext = NodeContext.create(usage, usage.getSourceFile());
-    const declarationContext = NodeContext.create(declaration, declaration.getSourceFile());
-    const { ShadowingAnalysisRequest } = require('./shadowing-analysis-request');
-    return new ShadowingAnalysisRequest(usageContext, declarationContext, variableName);
-  }
-
-  static matchesVariableName(node: Node, variableName: string): boolean {
-    const context = NodeContext.create(node, node.getSourceFile());
-    return context.matchesVariableName(variableName);
-  }
 }

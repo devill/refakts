@@ -32,12 +32,6 @@
       "featureEnvy"
     ]
   },
-  "src/core/node-context.ts": {
-    "lastCommitId": "a3cba1b69f2197d468489da9b2f28fbfab2c4594",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
   "src/documentation/HelpContentExtractor.ts": {
     "lastCommitId": "abbd9c5de2c05bc25858e02ba2fb767cfa9e5b00",
     "violations": [

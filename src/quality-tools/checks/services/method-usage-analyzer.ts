@@ -23,10 +23,7 @@ export class MethodUsageAnalyzer {
   }
 
   private static buildUsageAnalysis(request: UsageAnalysisRequest): UsageAnalysis {
-    return { 
-      externalUsage: request.getExternalUsage(), 
-      ownUsage: request.getOwnUsage() 
-    };
+    return request.buildUsageAnalysis();
   }
 
   private static analyzeNodeUsage(node: Node, request: UsageAnalysisRequest): void {
@@ -41,13 +38,7 @@ export class MethodUsageAnalyzer {
   }
 
   private static processUsageResults(usageResults: UsageResult[], request: UsageAnalysisRequest): void {
-    usageResults.forEach(usage => {
-      if (usage.isOwnUsage) {
-        request.addOwnUsage();
-      } else if (usage.externalClass) {
-        request.addExternalUsage(usage.externalClass);
-      }
-    });
+    request.processUsageResults(usageResults);
   }
 
   private static analyzePropertyAccess(node: Node, importedSymbols: Set<string>): UsageResult {

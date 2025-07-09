@@ -56,8 +56,7 @@ export class ASTService {
   }
 
   private getStartPosition(sourceFile: SourceFile, location: LocationRange): number {
-    const positionData = PositionData.fromLocation(location);
-    return positionData.toSourceFilePosition(sourceFile);
+    return PositionData.getStartPosition(sourceFile, location);
   }
 
   private getNodeAtPosition(sourceFile: SourceFile, startPos: number, location: LocationRange): Node {

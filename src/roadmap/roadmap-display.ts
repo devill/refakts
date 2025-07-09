@@ -71,8 +71,12 @@ export class RoadmapDisplay {
     
     process.stdout.write('🏆 Top Voted Features:\n');
     topFeatures.forEach((f, i) => {
-      process.stdout.write(`  ${i + 1}. ${f.name} (${f.score} votes)\n`);
+      process.stdout.write(`  ${i + 1}. ${this.formatFeatureDisplay(f)}\n`);
     });
+  }
+
+  private formatFeatureDisplay(feature: RoadmapFeature): string {
+    return `${feature.name} (${feature.score} votes)`;
   }
 
   private printLastUpdated(data: RoadmapData): void {

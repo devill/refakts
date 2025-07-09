@@ -13,7 +13,9 @@ export class ShadowingAnalysisRequest {
   }
 
   static create(usage: Node, declaration: Node, variableName: string): ShadowingAnalysisRequest {
-    return NodeContext.createShadowingAnalysisRequest(usage, declaration, variableName);
+    const usageContext = NodeContext.create(usage, usage.getSourceFile());
+    const declarationContext = NodeContext.create(declaration, declaration.getSourceFile());
+    return new ShadowingAnalysisRequest(usageContext, declarationContext, variableName);
   }
 
   getUsageScope(): Node {
@@ -33,7 +35,8 @@ export class ShadowingAnalysisRequest {
   }
 
   matchesVariableName(node: Node): boolean {
-    return NodeContext.matchesVariableName(node, this.variableName);
+    const context = NodeContext.create(node, node.getSourceFile());
+    return context.matchesVariableName(this.variableName);
   }
 
   validateScopeContainment(): boolean {

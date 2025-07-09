@@ -28,4 +28,21 @@ export class UsageAnalysisRequest {
   getExternalUsage(): Map<string, number> {
     return new Map(this.externalUsage);
   }
+
+  buildUsageAnalysis() {
+    return { 
+      externalUsage: this.getExternalUsage(), 
+      ownUsage: this.getOwnUsage() 
+    };
+  }
+
+  processUsageResults(usageResults: Array<{ isOwnUsage: boolean; externalClass?: string }>): void {
+    usageResults.forEach(usage => {
+      if (usage.isOwnUsage) {
+        this.addOwnUsage();
+      } else if (usage.externalClass) {
+        this.addExternalUsage(usage.externalClass);
+      }
+    });
+  }
 }
