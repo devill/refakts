@@ -18,7 +18,7 @@ export class ASTService {
     }
     try {
       return this.project.addSourceFileAtPath(absolutePath);
-    } catch (error) {
+    } catch {
       throw new Error(`File not found: ${filePath}`);
     }
   }
