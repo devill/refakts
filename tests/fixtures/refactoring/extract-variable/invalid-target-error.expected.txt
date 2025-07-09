@@ -1,1 +1,1 @@
-Error: File not found: /Users/ivett/Documents/git/refakts/nonexistent-file.ts
+Error: File not found: nonexistent-file.ts

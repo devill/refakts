@@ -16,7 +16,11 @@ export class ASTService {
     if (existingFile) {
       return existingFile;
     }
-    return this.project.addSourceFileAtPath(absolutePath);
+    try {
+      return this.project.addSourceFileAtPath(absolutePath);
+    } catch (error) {
+      throw new Error(`File not found: ${filePath}`);
+    }
   }
 
 
