@@ -1,9 +1,17 @@
-export interface LocationRange {
-  file: string;
-  startLine: number;
-  startColumn: number;
-  endLine: number;
-  endColumn: number;
+export class LocationRange {
+  /* eslint-disable no-unused-vars */
+  constructor(
+    public readonly file: string,
+    public readonly startLine: number,
+    public readonly startColumn: number,
+    public readonly endLine: number,
+    public readonly endColumn: number
+  ) {}
+  /* eslint-enable no-unused-vars */
+
+  toString(): string {
+    return `[${this.file} ${this.startLine}:${this.startColumn}-${this.endLine}:${this.endColumn}]`;
+  }
 }
 
 export class LocationParser {
@@ -23,13 +31,13 @@ export class LocationParser {
   }
 
   private static buildLocationRange(groups: Record<string, string>): LocationRange {
-    return {
-      file: groups.file,
-      startLine: parseInt(groups.startLine, 10),
-      startColumn: this.parseColumnOrDefault(groups.startColumn, 0),
-      endLine: this.parseLineOrDefault(groups.endLine, parseInt(groups.startLine, 10)),
-      endColumn: this.parseColumnOrDefault(groups.endColumn, Number.MAX_SAFE_INTEGER)
-    };
+    return new LocationRange(
+      groups.file,
+      parseInt(groups.startLine, 10),
+      this.parseColumnOrDefault(groups.startColumn, 0),
+      this.parseLineOrDefault(groups.endLine, parseInt(groups.startLine, 10)),
+      this.parseColumnOrDefault(groups.endColumn, Number.MAX_SAFE_INTEGER)
+    );
   }
   private static parseColumnOrDefault(value: string | undefined, defaultValue: number): number {
     return !value || value === '' ? defaultValue : parseInt(value, 10);
@@ -44,8 +52,7 @@ export class LocationParser {
   }
 
   static formatLocation(location: LocationRange): string {
-    const { PositionData } = require('./position-data');
-    return PositionData.formatLocationRange(location);
+    return location.toString();
   }
 
   static getZeroBasedStartPosition(location: LocationRange): { line: number; column: number } {

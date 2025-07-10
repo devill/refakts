@@ -71,13 +71,13 @@ export class PositionData {
   }
 
   toLocationRange(file: string, endLine?: number, endColumn?: number): LocationRange {
-    return {
+    return new LocationRange(
       file,
-      startLine: this.line,
-      startColumn: this.column,
-      endLine: endLine ?? this.line,
-      endColumn: endColumn ?? this.column
-    };
+      this.line,
+      this.column,
+      endLine ?? this.line,
+      endColumn ?? this.column
+    );
   }
 
   toSelectMatch(text: string, fullLine: string): SelectMatch {
@@ -142,10 +142,6 @@ export class PositionData {
     } catch {
       throw new Error(`No node found at position ${this.line}:${this.column}`);
     }
-  }
-
-  static formatLocationRange(location: LocationRange): string {
-    return `[${location.file} ${location.startLine}:${location.startColumn}-${location.endLine}:${location.endColumn}]`;
   }
 
 

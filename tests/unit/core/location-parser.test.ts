@@ -1,4 +1,4 @@
-import { LocationParser } from '../../../src/core/location-parser';
+import { LocationParser, LocationRange } from '../../../src/core/location-parser';
 
 describe('LocationParser', () => {
   describe('parseLocation', () => {
@@ -126,35 +126,17 @@ describe('LocationParser', () => {
 
   describe('formatLocation', () => {
     it('should format location correctly', () => {
-      const location = {
-        file: 'src/test.ts',
-        startLine: 5,
-        startColumn: 8,
-        endLine: 5,
-        endColumn: 18
-      };
+      const location = new LocationRange('src/test.ts', 5, 8, 5, 18);
       expect(LocationParser.formatLocation(location)).toBe('[src/test.ts 5:8-5:18]');
     });
 
     it('should format multi-line location correctly', () => {
-      const location = {
-        file: 'src/test.ts',
-        startLine: 5,
-        startColumn: 8,
-        endLine: 10,
-        endColumn: 18
-      };
+      const location = new LocationRange('src/test.ts', 5, 8, 10, 18);
       expect(LocationParser.formatLocation(location)).toBe('[src/test.ts 5:8-10:18]');
     });
 
     it('should format location with special values correctly', () => {
-      const location = {
-        file: 'src/test.ts',
-        startLine: 5,
-        startColumn: 0,
-        endLine: 5,
-        endColumn: Number.MAX_SAFE_INTEGER
-      };
+      const location = new LocationRange('src/test.ts', 5, 0, 5, Number.MAX_SAFE_INTEGER);
       expect(LocationParser.formatLocation(location)).toBe(`[src/test.ts 5:0-5:${Number.MAX_SAFE_INTEGER}]`);
     });
   });
