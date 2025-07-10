@@ -87,15 +87,25 @@ export class FixtureValidator {
   }
 
   private compareFileContents(expectedFile: string, receivedFile: string): void {
+    const { normalizedExpected, normalizedReceived } = this.readAndNormalizeFiles(expectedFile, receivedFile);
+    
+    if (normalizedReceived !== normalizedExpected) {
+      throw this.createMismatchError(receivedFile, normalizedExpected, normalizedReceived);
+    }
+  }
+
+  private readAndNormalizeFiles(expectedFile: string, receivedFile: string) {
     const expected = fs.readFileSync(expectedFile, 'utf8').trim();
     const received = fs.readFileSync(receivedFile, 'utf8').trim();
     
-    const normalizedExpected = this.normalizePaths(expected);
-    const normalizedReceived = this.normalizePaths(received);
-    
-    if (normalizedReceived !== normalizedExpected) {
-      throw new Error(`Content mismatch in ${receivedFile}.\nExpected:\n${normalizedExpected}\nReceived:\n${normalizedReceived}`);
-    }
+    return {
+      normalizedExpected: this.normalizePaths(expected),
+      normalizedReceived: this.normalizePaths(received)
+    };
+  }
+
+  private createMismatchError(receivedFile: string, expected: string, received: string): Error {
+    return new Error(`Content mismatch in ${receivedFile}.\nExpected:\n${expected}\nReceived:\n${received}`);
   }
 
   private normalizePaths(content: string): string {
