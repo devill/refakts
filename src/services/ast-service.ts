@@ -1,6 +1,5 @@
 import { Project, Node, SourceFile } from 'ts-morph';
 import { LocationRange } from '../core/location-parser';
-import { PositionData } from '../core/position-data';
 import * as path from 'path';
 
 export class ASTService {
@@ -50,14 +49,17 @@ export class ASTService {
   }
 
   private findNodeInRange(sourceFile: SourceFile, location: LocationRange): Node {
-    const startPos = this.getStartPosition(sourceFile, location);
+    const zeroBased = { line: location.startLine - 1, column: location.startColumn - 1 };
+    let startPos: number;
+    try {
+      startPos = sourceFile.compilerNode.getPositionOfLineAndCharacter(zeroBased.line, zeroBased.column);
+    } catch {
+      throw new Error(`No node found at position ${location.startLine}:${location.startColumn}`);
+    }
     const node = this.getNodeAtPosition(sourceFile, startPos, location);
     return this.findBestMatchingNode(sourceFile, node, location) || node;
   }
 
-  private getStartPosition(sourceFile: SourceFile, location: LocationRange): number {
-    return PositionData.getStartPosition(sourceFile, location);
-  }
 
   private getNodeAtPosition(sourceFile: SourceFile, startPos: number, location: LocationRange): Node {
     const node = sourceFile.getDescendantAtPos(startPos);
@@ -69,7 +71,13 @@ export class ASTService {
 
   private findBestMatchingNode(sourceFile: SourceFile, node: Node, location: LocationRange): Node | null {
     const expectedEnd = this.calculateExpectedEnd(sourceFile, location);
-    const expectedStart = this.getStartPosition(sourceFile, location);
+    const zeroBased = { line: location.startLine - 1, column: location.startColumn - 1 };
+    let expectedStart: number;
+    try {
+      expectedStart = sourceFile.compilerNode.getPositionOfLineAndCharacter(zeroBased.line, zeroBased.column);
+    } catch {
+      throw new Error(`No node found at position ${location.startLine}:${location.startColumn}`);
+    }
     return this.traverseToFindMatchingNode(node, { start: expectedStart, end: expectedEnd });
   }
 

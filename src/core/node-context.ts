@@ -22,6 +22,13 @@ export class NodeContext {
     return new NodeContext(node, sourceFile, position);
   }
 
+  static createShadowingAnalysisRequest(usage: Node, declaration: Node, variableName: string): any {
+    const usageContext = NodeContext.create(usage, usage.getSourceFile());
+    const declarationContext = NodeContext.create(declaration, declaration.getSourceFile());
+    const { ShadowingAnalysisRequest } = require('./shadowing-analysis-request');
+    return new ShadowingAnalysisRequest(usageContext, declarationContext, variableName);
+  }
+
   getContainingDeclaration(): Node | undefined {
     return NodeDeclarationMatcher.findContainingDeclaration(this.node);
   }
@@ -138,5 +145,6 @@ export class NodeContext {
            operator === ts.SyntaxKind.AsteriskEqualsToken ||
            operator === ts.SyntaxKind.SlashEqualsToken;
   }
+
 
 }

@@ -10,11 +10,10 @@ export interface ShadowingContext {
   usageScope: Node;
 }
 
-export class ShadowingAnalyzer {
-  static isShadowingDeclaration(context: ShadowingContext): boolean {
-    return DeclarationFinder.isAnyDeclaration(context.node) && 
-           VariableNameOperations.matchesVariableName(context.node, context.variableName) &&
-           context.node !== context.targetNode &&
-           ScopeAnalyzer.getNodeScope(context.node) === context.usageScope;
-  }
+export function isShadowingDeclaration(context: ShadowingContext): boolean {
+  return DeclarationFinder.isAnyDeclaration(context.node) && 
+         VariableNameOperations.matchesVariableName(context.node, context.variableName) &&
+         context.node !== context.targetNode &&
+         ScopeAnalyzer.getNodeScope(context.node) === context.usageScope;
 }
+

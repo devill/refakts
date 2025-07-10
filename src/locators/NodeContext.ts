@@ -3,7 +3,7 @@ import { Node, SourceFile } from 'ts-morph';
 import { ScopeAnalyzer } from './ScopeAnalyzer';
 import { DeclarationFinder } from './DeclarationFinder';
 import { VariableNameOperations } from './VariableNameOperations';
-import { ShadowingAnalyzer } from './ShadowingAnalyzer';
+import { isShadowingDeclaration } from './ShadowingAnalyzer';
 
 export class NodeContext {
   private readonly node: Node;
@@ -54,8 +54,8 @@ export class NodeContext {
   }
 
   getParentScope(): NodeContext | undefined {
-    const currentScope = ScopeAnalyzer.getNodeScope(this.node);
-    const parentScope = ScopeAnalyzer.getParentScope(currentScope);
+    const scope = this.getScope();
+    const parentScope = ScopeAnalyzer.getParentScope(scope.getWrappedNode());
     return parentScope ? new NodeContext(parentScope) : undefined;
   }
 
@@ -123,7 +123,7 @@ export class NodeContext {
   }
 
   isShadowingDeclaration(variableName: string, targetNode: Node, usageScope: Node): boolean {
-    return ShadowingAnalyzer.isShadowingDeclaration({
+    return isShadowingDeclaration({
       node: this.node,
       variableName,
       targetNode,
