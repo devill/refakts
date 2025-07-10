@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { TestCase } from './types/test-case-types';
 import { FileSystemScanner } from './scanners/file-system-scanner';
-import { TestCaseFactory } from './factories/test-case-factory';
+import { FixtureLocation } from './fixture-location';
 
 interface TestDirectoryConfig {
   testDir: string;
@@ -81,12 +81,8 @@ function createTestCaseProcessingConfig(config: TestDirectoryConfig, testPath: s
 
 
 function getSingleFileTestCases(config: TestCaseProcessingConfig): TestCase[] {
-  return TestCaseFactory.createSingleFileTestCases(
-    config.testDir, 
-    config.testPath, 
-    config.expectedExtension, 
-    config.files
-  );
+  const context = { testDir: config.testDir, testPath: config.testPath, files: config.files };
+  return FixtureLocation.createSingleFileTestCases(context, config.expectedExtension);
 }
 
 function loadTestCasesRecursively(fixturesDir: string, scanner: FileSystemScanner): TestCase[] {
@@ -97,7 +93,7 @@ function loadTestCasesRecursively(fixturesDir: string, scanner: FileSystemScanne
 function createTestCasesFromInputFiles(inputFiles: string[]): TestCase[] {
   const testCases: TestCase[] = [];
   for (const inputFile of inputFiles) {
-    const testCase = TestCaseFactory.createInputTestCase(inputFile);
+    const testCase = FixtureLocation.createInputTestCase(inputFile);
     if (testCase) {
       testCases.push(testCase);
     }

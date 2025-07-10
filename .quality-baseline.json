@@ -171,12 +171,6 @@
       "featureEnvy"
     ]
   },
-  "tests/utils/test-case-loader.ts": {
-    "lastCommitId": "fd78eb4291a41281fcc8c11b90028f02e430e076",
-    "violations": [
-      "manyParameters"
-    ]
-  },
   "tests/utils/parsers/option-parser.ts": {
     "lastCommitId": "fd78eb4291a41281fcc8c11b90028f02e430e076",
     "violations": [
@@ -192,12 +186,6 @@
   },
   "tests/utils/refactoring-validator.ts": {
     "lastCommitId": "89ea54e72e552715acec38f728fc0face807d2ad",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "tests/utils/factories/test-case-factory.ts": {
-    "lastCommitId": "58209a7eb5ba6f9c4f047ecd0fe704e79eeb9b67",
     "violations": [
       "featureEnvy"
     ]
