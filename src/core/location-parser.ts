@@ -46,4 +46,8 @@ export class LocationParser {
   static formatLocation(location: LocationRange): string {
     return `[${location.file} ${location.startLine}:${location.startColumn}-${location.endLine}:${location.endColumn}]`;
   }
+
+  static getZeroBasedStartPosition(location: LocationRange): { line: number; column: number } {
+    return { line: location.startLine - 1, column: location.startColumn - 1 };
+  }
 }

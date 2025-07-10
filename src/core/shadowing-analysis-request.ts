@@ -18,6 +18,7 @@ export class ShadowingAnalysisRequest {
     return NodeContext.createShadowingAnalysisRequest(usage, declaration, variableName);
   }
 
+
   getUsageScope(): Node {
     return this.usage.getScope();
   }
