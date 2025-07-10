@@ -1,0 +1,12 @@
+[multiline-matches.received.ts 6:1-8:2] function simple() {
+    return 42;
+}
+[multiline-matches.received.ts 6:1-8:2]
+
+
+[multiline-matches.received.ts 10:1-14:2] function complex() {
+    const value = calculate();
+    const result = process(value);
+    return result;
+}
+[multiline-matches.received.ts 10:1-14:2]

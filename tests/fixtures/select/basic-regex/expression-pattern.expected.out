@@ -1,0 +1,3 @@
+[expression-pattern.received.ts 9:18-9:32] width * height
+[expression-pattern.received.ts 10:23-10:37] width + height
+[expression-pattern.received.ts 11:32-11:63] width * width + height * height

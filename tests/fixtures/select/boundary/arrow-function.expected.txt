@@ -1,5 +1,0 @@
-[arrow-function.input.ts 2:17-5:2]
-(event) => {
-  event.preventDefault();
-  return false;
-}

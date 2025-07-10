@@ -21,11 +21,17 @@ export class FixtureValidator {
     // Write all received files
     const receivedFiles = this.writeReceivedFiles(testCase.inputFile, outputs);
     
-    // Compare with expected files (only if they exist)
-    this.compareWithExpected(testCase.inputFile, receivedFiles);
-    
-    // Clean up received files based on test result
-    this.cleanupReceivedFiles(receivedFiles);
+    let testPassed = true;
+    try {
+      // Compare with expected files (only if they exist)
+      this.compareWithExpected(testCase.inputFile, receivedFiles);
+    } catch (error) {
+      testPassed = false;
+      throw error;
+    } finally {
+      // Clean up received files based on test result
+      this.cleanupReceivedFiles(receivedFiles, testPassed);
+    }
   }
 
   private setupTestFile(inputFile: string, receivedFile: string): void {
@@ -129,15 +135,21 @@ export class FixtureValidator {
     }
   }
 
-  private cleanupReceivedFiles(receivedFiles: any): void {
-    // Keep received files that had corresponding expected files for debugging
-    // Remove received files that don't have expected counterparts
+  private cleanupReceivedFiles(receivedFiles: any, testPassed: boolean): void {
+    // Delete received files when test passes, as stated in requirements
+    // Keep received files that had corresponding expected files (even if they matched)
+    // Remove received files that don't have expected counterparts (regardless of pass/fail)
     Object.values(receivedFiles).forEach((file: any) => {
       if (fs.existsSync(file)) {
         const expectedFile = file.replace('.received.', '.expected.');
-        if (!fs.existsSync(expectedFile)) {
+        const hasExpectedFile = fs.existsSync(expectedFile);
+        
+        if (testPassed && !hasExpectedFile) {
+          // Delete received files when test passes and no expected file exists
           fs.unlinkSync(file);
         }
+        // Keep received files that have corresponding expected files, even if they matched
+        // This allows debugging when tests pass but you want to see what was generated
       }
     });
   }

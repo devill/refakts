@@ -1,0 +1,11 @@
+[begin-end-regex.received.ts 7:5-10:22]     const input = getData();
+    const processed = transform(input);
+    const validated = validate(processed);
+    return validated;
+[begin-end-regex.received.ts 7:5-10:22]
+
+[begin-end-regex.received.ts 14:5-17:18]     const sum = items.reduce((acc, item) => acc + item, 0);
+    const tax = sum * 0.1;
+    const total = sum + tax;
+    return total;
+[begin-end-regex.received.ts 14:5-17:18]
