@@ -1,2 +1,0 @@
-Command execution failed: extract-variable "[/Users/ivett/Documents/git/refakts/tests/fixtures/refactoring/extract-variable/missing-name-option.received.ts 2:17-2:25]"
---name must be specified
