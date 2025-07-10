@@ -1,11 +1,16 @@
 import * as path from 'path';
+import * as fs from 'fs';
+import { TestCase, TestMeta } from './types/test-case-types';
+import { extractMetaFromFile } from './parsers/meta-parser';
 
 export class FixtureLocation {
   constructor(
     private testDir: string,
     private testPath: string,
     private baseName: string
-  ) {}
+  ) {
+    // Parameters are used in methods below
+  }
 
   getTestName(): string {
     return `${this.testDir}/${this.baseName}`;
@@ -15,11 +20,11 @@ export class FixtureLocation {
     return path.join(this.testPath, `${this.baseName}.input.ts`);
   }
 
-  getExpectedFile(extension: string = 'ts'): string {
+  getExpectedFile(extension = 'ts'): string {
     return path.join(this.testPath, `${this.baseName}.expected.${extension}`);
   }
 
-  getReceivedFile(extension: string = 'ts'): string {
+  getReceivedFile(extension = 'ts'): string {
     return path.join(this.testPath, `${this.baseName}.received.${extension}`);
   }
 
@@ -47,5 +52,51 @@ export class FixtureLocation {
     const testDir = path.basename(testPath);
     
     return new FixtureLocation(testDir, testPath, baseName);
+  }
+
+  createTestCase(): TestCase {
+    const meta = this.extractMeta();
+    
+    return {
+      name: this.getTestName(),
+      inputFile: this.getInputFile(),
+      expectedFile: this.getExpectedFile('ts'), // Default to .ts
+      receivedFile: this.getReceivedFile('ts'),
+      ...meta
+    };
+  }
+
+  static createTestCaseFromInputFile(inputFile: string): TestCase {
+    const location = FixtureLocation.fromInputFile(inputFile);
+    const meta = location.extractMeta();
+    
+    return {
+      name: path.relative(process.cwd(), inputFile).replace('.input.ts', ''),
+      inputFile: location.getInputFile(),
+      expectedFile: location.getExpectedFile('ts'),
+      receivedFile: location.getReceivedFile('ts'),
+      ...meta
+    };
+  }
+
+  private extractMeta(): TestMeta {
+    const content = fs.readFileSync(this.getInputFile(), 'utf8');
+    return extractMetaFromFile(content);
+  }
+
+  static createSingleFileTestCases(testDir: string, testPath: string, expectedExtension: string, files: string[]): TestCase[] {
+    const inputFiles = files.filter(file => file.endsWith('.input.ts'));
+    const testCases: TestCase[] = [];
+    
+    for (const inputFile of inputFiles) {
+      const location = FixtureLocation.fromInputFile(inputFile);
+      const expectedFile = location.getExpectedFile(expectedExtension);
+      
+      if (files.includes(expectedFile)) {
+        testCases.push(location.createTestCase());
+      }
+    }
+    
+    return testCases;
   }
 }
