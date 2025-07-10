@@ -17,8 +17,15 @@ export class FixtureValidator {
     const outputs = await this.executeCommand(testCase, receivedTsFile);
     const receivedFiles = this.writeReceivedFiles(testCase.inputFile, outputs);
     
-    const testPassed = this.tryCompareWithExpected(testCase.inputFile, receivedFiles);
-    this.cleanupReceivedFiles(receivedFiles, testPassed);
+    let testPassed = true;
+    try {
+      this.compareWithExpected(testCase.inputFile, receivedFiles);
+    } catch (error) {
+      testPassed = false;
+      throw error;
+    } finally {
+      this.cleanupReceivedFiles(receivedFiles, testPassed);
+    }
   }
 
   private setupTestFile(inputFile: string, receivedFile: string): void {
@@ -106,15 +113,6 @@ export class FixtureValidator {
     
     for (const entry of entries) {
       this.copyEntry(src, dest, entry);
-    }
-  }
-
-  private tryCompareWithExpected(inputFile: string, receivedFiles: any): boolean {
-    try {
-      this.compareWithExpected(inputFile, receivedFiles);
-      return true;
-    } catch (error) {
-      throw error;
     }
   }
 
