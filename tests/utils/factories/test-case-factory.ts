@@ -99,18 +99,24 @@ export class TestCaseFactory {
   }
 
   private static createWithConfig(config: TestCaseFactoryConfig, baseName: string, meta: TestMeta): TestCase {
-    const inputFile = path.join(config.testPath, `${baseName}.input.ts`);
-    const expectedFile = path.join(config.testPath, `${baseName}.expected.${config.expectedExtension}`);
-    const receivedFile = path.join(config.testPath, `${baseName}.received.${config.expectedExtension}`);
+    const files = this.createTestFilePaths(config, baseName);
     
     return {
       name: `${config.testDir}/${baseName}`,
       description: meta.description,
       commands: meta.commands,
-      inputFile,
-      expectedFile,
-      receivedFile,
+      inputFile: files.inputFile,
+      expectedFile: files.expectedFile,
+      receivedFile: files.receivedFile,
       skip: meta.skip
+    };
+  }
+
+  private static createTestFilePaths(config: TestCaseFactoryConfig, baseName: string) {
+    return {
+      inputFile: path.join(config.testPath, `${baseName}.input.ts`),
+      expectedFile: path.join(config.testPath, `${baseName}.expected.${config.expectedExtension}`),
+      receivedFile: path.join(config.testPath, `${baseName}.received.${config.expectedExtension}`)
     };
   }
 

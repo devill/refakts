@@ -53,12 +53,15 @@ function loadTestCase(): any {
   const testCases = getTestCases(fixturesDir, 'input');
   const testCase = testCases.find(tc => tc.inputFile === normalizedPath);
   
+  validateTestCaseExists(testCase);
+  return testCase;
+}
+
+function validateTestCaseExists(testCase: any): void {
   if (!testCase) {
     console.error(`Test case not found for: ${normalizedPath}`);
     process.exit(1);
   }
-  
-  return testCase;
 }
 
 function displayTestInfo(testCase: any): void {

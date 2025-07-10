@@ -54,15 +54,9 @@ function createReceivedFilePaths(inputFile: string): string[] {
 }
 
 function approveReceivedFiles(receivedFiles: string[]): number {
-  let approvedCount = 0;
-  
-  for (const receivedFile of receivedFiles) {
-    if (fs.existsSync(receivedFile)) {
-      approvedCount += approveSingleFile(receivedFile);
-    }
-  }
-  
-  return approvedCount;
+  return receivedFiles
+    .filter(fs.existsSync)
+    .reduce((count, file) => count + approveSingleFile(file), 0);
 }
 
 function approveSingleFile(receivedFile: string): number {
