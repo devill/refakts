@@ -7,13 +7,9 @@ describe('Fixture Integration Tests', () => {
   const fixturesDir = path.join(__dirname, '..', 'fixtures');
   const commandExecutor = new CommandExecutor();
   const validator = new FixtureValidator(commandExecutor);
-  
-  // Get all *.input.ts files from fixtures directory recursively
+
   const testCases = getTestCases(fixturesDir, 'input');
-  
-  console.log(`Found ${testCases.length} fixture test cases`);
-  testCases.forEach(tc => console.log(`- ${tc.name}: ${tc.description}`));
-  
+
   if (testCases.length === 0) {
     it('should have fixture test cases (none found)', () => {
       console.warn('No fixture test cases found in', fixturesDir);

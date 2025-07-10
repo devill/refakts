@@ -1,3 +1,0 @@
-[simple-variable.input.ts 9:11-9:21] tempResult
-[simple-variable.input.ts 10:17-10:27] tempResult
-[simple-variable.input.ts 11:12-11:22] tempResult

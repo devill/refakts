@@ -1,7 +1,6 @@
 node_modules/
 dist/
-*.received.ts
-*.received.txt
+*.received.*
 *.log
 .DS_Store
 coverage/

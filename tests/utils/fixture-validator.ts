@@ -44,8 +44,6 @@ export class FixtureValidator {
   }> {
     const command = this.prepareCommand(testCase.commands[0], receivedFile);
     
-    console.log(`Executing command: ${command}`);
-    
     let stdout = '';
     let stderr = '';
     let success = false;
@@ -54,11 +52,9 @@ export class FixtureValidator {
       const output = await this.commandExecutor.executeCommand(command);
       stdout = typeof output === 'string' ? output : '';
       success = true;
-      console.log(`Command output: "${stdout}"`);
     } catch (error) {
       stderr = (error as Error).message;
       success = false;
-      console.log(`Command error: "${stderr}"`);
     }
     
     const fileContent = fs.readFileSync(receivedFile, 'utf8');
@@ -88,18 +84,13 @@ export class FixtureValidator {
     
     // Write file content (always written since file was modified)
     fs.writeFileSync(receivedFiles.tsFile, outputs.fileContent);
-    console.log(`Written file content to: ${receivedFiles.tsFile}`);
     
-    // Write stdout if not empty
     if (outputs.stdout.trim()) {
       fs.writeFileSync(receivedFiles.outFile, outputs.stdout.trim());
-      console.log(`Written stdout to: ${receivedFiles.outFile}`);
     }
     
-    // Write stderr if not empty
     if (outputs.stderr.trim()) {
       fs.writeFileSync(receivedFiles.errFile, outputs.stderr.trim());
-      console.log(`Written stderr to: ${receivedFiles.errFile}`);
     }
     
     return receivedFiles;
@@ -139,12 +130,8 @@ export class FixtureValidator {
     Object.values(receivedFiles).forEach((file: any) => {
       if (fs.existsSync(file)) {
         const expectedFile = file.replace('.received.', '.expected.');
-        console.log(`Checking cleanup for ${file}: expected file ${expectedFile} exists: ${fs.existsSync(expectedFile)}`);
         if (!fs.existsSync(expectedFile)) {
-          console.log(`Removing ${file} because no expected file exists`);
           fs.unlinkSync(file);
-        } else {
-          console.log(`Keeping ${file} because expected file exists`);
         }
       }
     });
