@@ -31,11 +31,7 @@ export class FixtureValidator {
   }
 
   private setupTestFile(inputFile: string, receivedFile: string): void {
-    if (fs.statSync(inputFile).isDirectory()) {
-      this.copyDirectory(inputFile, receivedFile);
-    } else {
-      fs.copyFileSync(inputFile, receivedFile);
-    }
+    fs.copyFileSync(inputFile, receivedFile);
   }
 
   private async executeCommand(testCase: TestCase, receivedFile: string): Promise<{
@@ -115,15 +111,6 @@ export class FixtureValidator {
     return inputFile.replace('.input.ts', `.expected${extension}`);
   }
 
-  private copyDirectory(src: string, dest: string): void {
-    this.ensureDirectoryExists(dest);
-    const entries = fs.readdirSync(src, { withFileTypes: true });
-    
-    for (const entry of entries) {
-      this.copyEntry(src, dest, entry);
-    }
-  }
-
   private removeRefaktsPrefix(command: string): string {
     return command.replace(/^refakts\s+/, '').trim();
   }
@@ -151,23 +138,6 @@ export class FixtureValidator {
     const expectedFile = file.replace('.received.', '.expected.');
     if (!fs.existsSync(expectedFile)) {
       fs.unlinkSync(file);
-    }
-  }
-
-  private ensureDirectoryExists(dest: string): void {
-    if (!fs.existsSync(dest)) {
-      fs.mkdirSync(dest, { recursive: true });
-    }
-  }
-
-  private copyEntry(src: string, dest: string, entry: fs.Dirent): void {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-    
-    if (entry.isDirectory()) {
-      this.copyDirectory(srcPath, destPath);
-    } else {
-      fs.copyFileSync(srcPath, destPath);
     }
   }
 
