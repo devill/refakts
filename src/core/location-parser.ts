@@ -1,13 +1,22 @@
 export class LocationRange {
-  /* eslint-disable no-unused-vars */
+  public readonly file: string;
+  public readonly startLine: number;
+  public readonly startColumn: number;
+  public readonly endLine: number;
+  public readonly endColumn: number;
+
   constructor(
-    public readonly file: string,
-    public readonly startLine: number,
-    public readonly startColumn: number,
-    public readonly endLine: number,
-    public readonly endColumn: number
-  ) {}
-  /* eslint-enable no-unused-vars */
+    file: string,
+    startLine: number, startColumn: number,
+    endLine: number, endColumn: number
+  ) {
+    
+    this.endColumn = endColumn;
+    this.endLine = endLine;
+    this.startColumn = startColumn;
+    this.startLine = startLine;
+    this.file = file;
+  }
 
   toString(): string {
     return `[${this.file} ${this.startLine}:${this.startColumn}-${this.endLine}:${this.endColumn}]`;
