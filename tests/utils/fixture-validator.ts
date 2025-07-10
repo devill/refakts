@@ -21,10 +21,9 @@ export class FixtureValidator {
   }
 
   private validateAndCleanup(inputFile: string, receivedFiles: any): void {
-    let testPassed = true;
     try {
       this.compareWithExpected(inputFile, receivedFiles);
-      this.cleanupReceivedFiles(receivedFiles, testPassed);
+      this.cleanupReceivedFiles(receivedFiles, true);
     } catch (error) {
       this.cleanupReceivedFiles(receivedFiles, false);
       throw error;

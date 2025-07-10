@@ -87,9 +87,7 @@ export class TestCaseFactory {
   private static createFromInputFile(inputFile: string, meta: TestMeta): TestCase {
     return {
       name: path.relative(process.cwd(), inputFile).replace('.input.ts', ''),
-      description: meta.description,
-      commands: meta.commands,
-      inputFile,
+      description: meta.description, commands: meta.commands, inputFile,
       expectedFile: inputFile.replace('.input.ts', '.expected.ts'),
       receivedFile: inputFile.replace('.input.ts', '.received.ts'),
       skip: meta.skip
