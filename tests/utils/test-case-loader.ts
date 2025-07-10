@@ -27,11 +27,13 @@ export function getTestCases(fixturesDir: string, expectedExtension: string): Te
     return [];
   }
   
-  // Special handling for unified 'input' pattern - scan recursively for all *.input.ts files
+  return loadTestCasesBasedOnExtension(fixturesDir, expectedExtension, scanner);
+}
+
+function loadTestCasesBasedOnExtension(fixturesDir: string, expectedExtension: string, scanner: FileSystemScanner): TestCase[] {
   if (expectedExtension === 'input') {
     return loadTestCasesRecursively(fixturesDir, scanner);
   }
-  
   return loadTestCasesFromDirectories(fixturesDir, expectedExtension, scanner);
 }
 
@@ -84,16 +86,18 @@ function getSingleFileTestCases(config: TestCaseProcessingConfig): TestCase[] {
 }
 
 function loadTestCasesRecursively(fixturesDir: string, scanner: FileSystemScanner): TestCase[] {
-  const testCases: TestCase[] = [];
   const inputFiles = findInputFilesRecursively(fixturesDir, scanner);
-  
+  return createTestCasesFromInputFiles(inputFiles);
+}
+
+function createTestCasesFromInputFiles(inputFiles: string[]): TestCase[] {
+  const testCases: TestCase[] = [];
   for (const inputFile of inputFiles) {
     const testCase = TestCaseFactory.createInputTestCase(inputFile);
     if (testCase) {
       testCases.push(testCase);
     }
   }
-  
   return testCases;
 }
 
@@ -102,16 +106,24 @@ function findInputFilesRecursively(dir: string, scanner: FileSystemScanner): str
   const entries = scanner.getTestDirectoryFiles(dir);
   
   for (const entry of entries) {
-    const fullPath = path.join(dir, entry);
-    if (scanner.fileExists(fullPath)) {
-      const stat = require('fs').statSync(fullPath);
-      if (stat.isDirectory()) {
-        inputFiles.push(...findInputFilesRecursively(fullPath, scanner));
-      } else if (entry.endsWith('.input.ts')) {
-        inputFiles.push(fullPath);
-      }
-    }
+    processDirectoryEntry(dir, entry, scanner, inputFiles);
   }
   
   return inputFiles;
+}
+
+function processDirectoryEntry(dir: string, entry: string, scanner: FileSystemScanner, inputFiles: string[]): void {
+  const fullPath = path.join(dir, entry);
+  if (scanner.fileExists(fullPath)) {
+    handleFileOrDirectory(fullPath, entry, scanner, inputFiles);
+  }
+}
+
+function handleFileOrDirectory(fullPath: string, entry: string, scanner: FileSystemScanner, inputFiles: string[]): void {
+  const stat = require('fs').statSync(fullPath);
+  if (stat.isDirectory()) {
+    inputFiles.push(...findInputFilesRecursively(fullPath, scanner));
+  } else if (entry.endsWith('.input.ts')) {
+    inputFiles.push(fullPath);
+  }
 }

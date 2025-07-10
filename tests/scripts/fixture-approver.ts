@@ -4,9 +4,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { getTestCases } from '../utils/test-case-loader';
 
-// Get fixture path from command line arguments
 const isApproveAll = process.argv.includes('--all');
-const fixturePath = isApproveAll ? null : process.argv[2];
+const fixturePath = parseFixturePathFromArgs();
+
+function parseFixturePathFromArgs(): string | null {
+  return isApproveAll ? null : process.argv[2];
+}
 
 if (!isApproveAll && !fixturePath) {
   console.error('Usage: npm run test:fixture:approve <fixture_path>');
@@ -16,13 +19,41 @@ if (!isApproveAll && !fixturePath) {
 }
 
 function approveFixture(inputFile: string): void {
+  const receivedFiles = createReceivedFilePaths(inputFile);
+  const approvedCount = approveReceivedFiles(receivedFiles);
+  
+  if (approvedCount === 0) {
+    console.log(`⚠️  No received files found for: ${path.basename(inputFile)}`);
+  }
+}
+
+function approveAllFixtures(): void {
+  const testCases = loadAllTestCases();
+  const totalApproved = processAllTestCases(testCases);
+  
+  console.log(`✅ Approved ${totalApproved} files across ${testCases.length} test cases`);
+}
+
+function main(): void {
+  if (isApproveAll) {
+    approveAllFixtures();
+  } else {
+    const normalizedPath = normalizeFixturePath(fixturePath!);
+    validateFixtureExists(normalizedPath);
+    approveFixture(normalizedPath);
+  }
+}
+
+function createReceivedFilePaths(inputFile: string): string[] {
   const basePath = inputFile.replace('.input.ts', '');
-  const receivedFiles = [
+  return [
     `${basePath}.received.ts`,
     `${basePath}.received.out`,
     `${basePath}.received.err`
   ];
-  
+}
+
+function approveReceivedFiles(receivedFiles: string[]): number {
   let approvedCount = 0;
   
   for (const receivedFile of receivedFiles) {
@@ -34,52 +65,35 @@ function approveFixture(inputFile: string): void {
     }
   }
   
-  if (approvedCount === 0) {
-    console.log(`⚠️  No received files found for: ${path.basename(inputFile)}`);
-  }
+  return approvedCount;
 }
 
-function approveAllFixtures(): void {
+function loadAllTestCases() {
   const fixturesDir = path.join(__dirname, '..', 'fixtures');
-  const testCases = getTestCases(fixturesDir, 'input');
-  
+  return getTestCases(fixturesDir, 'input');
+}
+
+function processAllTestCases(testCases: any[]): number {
   let totalApproved = 0;
   
   for (const testCase of testCases) {
-    const basePath = testCase.inputFile.replace('.input.ts', '');
-    const receivedFiles = [
-      `${basePath}.received.ts`,
-      `${basePath}.received.out`,
-      `${basePath}.received.err`
-    ];
-    
-    for (const receivedFile of receivedFiles) {
-      if (fs.existsSync(receivedFile)) {
-        const expectedFile = receivedFile.replace('.received.', '.expected.');
-        fs.copyFileSync(receivedFile, expectedFile);
-        totalApproved++;
-      }
-    }
+    const receivedFiles = createReceivedFilePaths(testCase.inputFile);
+    totalApproved += approveReceivedFiles(receivedFiles);
   }
   
-  console.log(`✅ Approved ${totalApproved} files across ${testCases.length} test cases`);
+  return totalApproved;
 }
 
-function main(): void {
-  if (isApproveAll) {
-    approveAllFixtures();
-  } else {
-    // Normalize the fixture path to include .input.ts if not present
-    const normalizedPath = fixturePath!.endsWith('.input.ts') 
-      ? fixturePath! 
-      : `${fixturePath!}.input.ts`;
-    
-    if (!fs.existsSync(normalizedPath)) {
-      console.error(`Fixture not found: ${normalizedPath}`);
-      process.exit(1);
-    }
-    
-    approveFixture(normalizedPath);
+function normalizeFixturePath(fixturePath: string): string {
+  return fixturePath.endsWith('.input.ts') 
+    ? fixturePath 
+    : `${fixturePath}.input.ts`;
+}
+
+function validateFixtureExists(normalizedPath: string): void {
+  if (!fs.existsSync(normalizedPath)) {
+    console.error(`Fixture not found: ${normalizedPath}`);
+    process.exit(1);
   }
 }
 
