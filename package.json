@@ -31,6 +31,10 @@
     "usage-report": "ts-node scripts/usage-report.ts",
     "usage-consolidate": "ts-node scripts/consolidate-usage.ts",
     "check-junk-files": "ts-node scripts/check-junk-files.ts",
+    "test:fixture": "ts-node tests/scripts/fixture-runner.ts",
+    "test:fixture:approve": "ts-node tests/scripts/fixture-approver.ts",
+    "test:fixture:approve:all": "ts-node tests/scripts/fixture-approver.ts --all",
+    "test:fixture:review": "ts-node tests/scripts/fixture-reviewer.ts",
     "prepack": "npm run build",
     "prepublishOnly": "npm run lint && npm run test"
   },

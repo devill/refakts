@@ -28,6 +28,26 @@ export class TestCaseFactory {
     return this.buildSingleFileTestCases(context);
   }
 
+  static createInputTestCase(inputFile: string): TestCase | null {
+    const meta = this.extractMetaFromInputFile(inputFile);
+    if (!meta.commands || meta.commands.length === 0) {
+      return null;
+    }
+    
+    const baseName = path.basename(inputFile, '.input.ts');
+    const testDir = path.dirname(inputFile);
+    const testPath = path.dirname(inputFile);
+    
+    return TestCaseBuilder.create()
+      .withTestDir(path.basename(testDir))
+      .withTestPath(testPath)
+      .withBaseName(baseName)
+      .withExpectedExtension('input')
+      .withMeta(meta)
+      .withInputFile(inputFile)
+      .build();
+  }
+
 
 
 

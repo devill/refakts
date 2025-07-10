@@ -65,6 +65,19 @@ export class TestCaseBuilder {
     return this;
   }
 
+  withInputFile(inputFile: string): TestCaseBuilder {
+    this.testCase.inputFile = inputFile;
+    // For unified approach, we don't require expected/received files to exist
+    this.testCase.expectedFile = inputFile.replace('.input.ts', '.expected.ts');
+    this.testCase.receivedFile = inputFile.replace('.input.ts', '.received.ts');
+    
+    // Set name based on input file path
+    const relativePath = path.relative(process.cwd(), inputFile);
+    this.testCase.name = relativePath.replace('.input.ts', '');
+    
+    return this;
+  }
+
   build(): TestCase {
     this.validateRequiredFields();
     return this.testCase as TestCase;
@@ -75,8 +88,12 @@ export class TestCaseBuilder {
     this.validateField(this.testCase.description, 'Test case description is required');
     this.validateCommands();
     this.validateField(this.testCase.inputFile, 'Test case inputFile is required');
-    this.validateField(this.testCase.expectedFile, 'Test case expectedFile is required');
-    this.validateField(this.testCase.receivedFile, 'Test case receivedFile is required');
+    
+    // For unified approach, expectedFile and receivedFile can be computed but not required to exist
+    if (this.expectedExtension !== 'input') {
+      this.validateField(this.testCase.expectedFile, 'Test case expectedFile is required');
+      this.validateField(this.testCase.receivedFile, 'Test case receivedFile is required');
+    }
   }
 
   private validateField(field: string | undefined, message: string): void {

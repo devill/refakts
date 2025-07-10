@@ -27,6 +27,11 @@ export function getTestCases(fixturesDir: string, expectedExtension: string): Te
     return [];
   }
   
+  // Special handling for unified 'input' pattern - scan recursively for all *.input.ts files
+  if (expectedExtension === 'input') {
+    return loadTestCasesRecursively(fixturesDir, scanner);
+  }
+  
   return loadTestCasesFromDirectories(fixturesDir, expectedExtension, scanner);
 }
 
@@ -76,4 +81,37 @@ function getSingleFileTestCases(config: TestCaseProcessingConfig): TestCase[] {
   };
   
   return TestCaseFactory.createSingleFileTestCases(factoryConfig, config.files);
+}
+
+function loadTestCasesRecursively(fixturesDir: string, scanner: FileSystemScanner): TestCase[] {
+  const testCases: TestCase[] = [];
+  const inputFiles = findInputFilesRecursively(fixturesDir, scanner);
+  
+  for (const inputFile of inputFiles) {
+    const testCase = TestCaseFactory.createInputTestCase(inputFile);
+    if (testCase) {
+      testCases.push(testCase);
+    }
+  }
+  
+  return testCases;
+}
+
+function findInputFilesRecursively(dir: string, scanner: FileSystemScanner): string[] {
+  const inputFiles: string[] = [];
+  const entries = scanner.getTestDirectoryFiles(dir);
+  
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry);
+    if (scanner.fileExists(fullPath)) {
+      const stat = require('fs').statSync(fullPath);
+      if (stat.isDirectory()) {
+        inputFiles.push(...findInputFilesRecursively(fullPath, scanner));
+      } else if (entry.endsWith('.input.ts')) {
+        inputFiles.push(fullPath);
+      }
+    }
+  }
+  
+  return inputFiles;
 }
