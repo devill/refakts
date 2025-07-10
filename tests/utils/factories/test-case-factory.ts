@@ -85,10 +85,10 @@ export class TestCaseFactory {
   }
 
   private static createFromInputFile(inputFile: string, meta: TestMeta): TestCase {
-    const relativePath = path.relative(process.cwd(), inputFile);
+    const name = path.relative(process.cwd(), inputFile).replace('.input.ts', '');
     
     return {
-      name: relativePath.replace('.input.ts', ''),
+      name,
       description: meta.description,
       commands: meta.commands,
       inputFile,

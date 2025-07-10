@@ -26,10 +26,10 @@ export class FixtureValidator {
       this.compareWithExpected(inputFile, receivedFiles);
     } catch (error) {
       testPassed = false;
-      throw error;
-    } finally {
       this.cleanupReceivedFiles(receivedFiles, testPassed);
+      throw error;
     }
+    this.cleanupReceivedFiles(receivedFiles, testPassed);
   }
 
   private setupTestFile(inputFile: string, receivedFile: string): void {
