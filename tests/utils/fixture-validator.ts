@@ -24,12 +24,11 @@ export class FixtureValidator {
     let testPassed = true;
     try {
       this.compareWithExpected(inputFile, receivedFiles);
-    } catch (error) {
-      testPassed = false;
       this.cleanupReceivedFiles(receivedFiles, testPassed);
+    } catch (error) {
+      this.cleanupReceivedFiles(receivedFiles, false);
       throw error;
     }
-    this.cleanupReceivedFiles(receivedFiles, testPassed);
   }
 
   private setupTestFile(inputFile: string, receivedFile: string): void {
@@ -41,16 +40,11 @@ export class FixtureValidator {
   }
 
   private async executeCommand(testCase: TestCase, receivedFile: string): Promise<{
-    stdout: string;
-    stderr: string;
-    fileContent: string;
-    success: boolean;
+    stdout: string; stderr: string; fileContent: string; success: boolean;
   }> {
     const command = this.prepareCommand(testCase.commands[0], receivedFile);
     const executionResult = await this.runCommand(command);
-    const fileContent = this.readFileContent(receivedFile);
-    
-    return { ...executionResult, fileContent };
+    return { ...executionResult, fileContent: this.readFileContent(receivedFile) };
   }
 
   private prepareCommand(command: string, receivedFile: string): string {

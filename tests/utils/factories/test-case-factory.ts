@@ -85,10 +85,8 @@ export class TestCaseFactory {
   }
 
   private static createFromInputFile(inputFile: string, meta: TestMeta): TestCase {
-    const name = path.relative(process.cwd(), inputFile).replace('.input.ts', '');
-    
     return {
-      name,
+      name: path.relative(process.cwd(), inputFile).replace('.input.ts', ''),
       description: meta.description,
       commands: meta.commands,
       inputFile,
@@ -99,13 +97,11 @@ export class TestCaseFactory {
   }
 
   private static createWithConfig(config: TestCaseFactoryConfig, baseName: string, meta: TestMeta): TestCase {
-    const files = this.createTestFilePaths(config, baseName);
-    
     return {
       name: `${config.testDir}/${baseName}`,
       description: meta.description,
       commands: meta.commands,
-      ...files,
+      ...this.createTestFilePaths(config, baseName),
       skip: meta.skip
     };
   }
