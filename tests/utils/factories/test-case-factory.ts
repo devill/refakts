@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import {TestCase, TestMeta} from '../types/test-case-types';
 import {extractMetaFromFile} from '../parsers/meta-parser';
 import {FixtureLocation} from '../fixture-location';

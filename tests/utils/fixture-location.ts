@@ -8,9 +8,7 @@ export class FixtureLocation {
     private testDir: string,
     private testPath: string,
     private baseName: string
-  ) {
-    // Parameters are used in methods below
-  }
+  ) {}
 
   getTestName(): string {
     return `${this.testDir}/${this.baseName}`;
@@ -60,7 +58,7 @@ export class FixtureLocation {
     return {
       name: this.getTestName(),
       inputFile: this.getInputFile(),
-      expectedFile: this.getExpectedFile('ts'), // Default to .ts
+      expectedFile: this.getExpectedFile('ts'),
       receivedFile: this.getReceivedFile('ts'),
       ...meta
     };
@@ -68,14 +66,13 @@ export class FixtureLocation {
 
   static createTestCaseFromInputFile(inputFile: string): TestCase {
     const location = FixtureLocation.fromInputFile(inputFile);
-    const meta = location.extractMeta();
     
     return {
       name: path.relative(process.cwd(), inputFile).replace('.input.ts', ''),
       inputFile: location.getInputFile(),
       expectedFile: location.getExpectedFile('ts'),
       receivedFile: location.getReceivedFile('ts'),
-      ...meta
+      ...location.extractMeta()
     };
   }
 
@@ -86,17 +83,26 @@ export class FixtureLocation {
 
   static createSingleFileTestCases(testDir: string, testPath: string, expectedExtension: string, files: string[]): TestCase[] {
     const inputFiles = files.filter(file => file.endsWith('.input.ts'));
+    return this.processInputFiles(inputFiles, files, expectedExtension);
+  }
+
+  private static processInputFiles(inputFiles: string[], files: string[], expectedExtension: string): TestCase[] {
     const testCases: TestCase[] = [];
     
     for (const inputFile of inputFiles) {
-      const location = FixtureLocation.fromInputFile(inputFile);
-      const expectedFile = location.getExpectedFile(expectedExtension);
-      
-      if (files.includes(expectedFile)) {
-        testCases.push(location.createTestCase());
+      const testCase = this.createTestCaseIfValid(inputFile, files, expectedExtension);
+      if (testCase) {
+        testCases.push(testCase);
       }
     }
     
     return testCases;
+  }
+
+  private static createTestCaseIfValid(inputFile: string, files: string[], expectedExtension: string): TestCase | null {
+    const location = FixtureLocation.fromInputFile(inputFile);
+    const expectedFile = location.getExpectedFile(expectedExtension);
+    
+    return files.includes(expectedFile) ? location.createTestCase() : null;
   }
 }
