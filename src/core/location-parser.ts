@@ -44,7 +44,8 @@ export class LocationParser {
   }
 
   static formatLocation(location: LocationRange): string {
-    return `[${location.file} ${location.startLine}:${location.startColumn}-${location.endLine}:${location.endColumn}]`;
+    const { PositionData } = require('./position-data');
+    return PositionData.formatLocationRange(location);
   }
 
   static getZeroBasedStartPosition(location: LocationRange): { line: number; column: number } {

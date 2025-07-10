@@ -26,12 +26,6 @@
       "featureEnvy"
     ]
   },
-  "src/core/location-parser.ts": {
-    "lastCommitId": "6846af16151fb17a9b4fe67b48eeb0058fcc099e",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
   "src/documentation/HelpContentExtractor.ts": {
     "lastCommitId": "abbd9c5de2c05bc25858e02ba2fb767cfa9e5b00",
     "violations": [

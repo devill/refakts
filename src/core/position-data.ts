@@ -144,6 +144,10 @@ export class PositionData {
     }
   }
 
+  static formatLocationRange(location: LocationRange): string {
+    return `[${location.file} ${location.startLine}:${location.startColumn}-${location.endLine}:${location.endColumn}]`;
+  }
+
 
   private static calculateOffset(line: number, column: number): number {
     return (line - 1) * 80 + (column - 1);
