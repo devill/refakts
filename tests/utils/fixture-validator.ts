@@ -57,7 +57,12 @@ export class FixtureValidator {
       success = false;
     }
     
-    const fileContent = fs.readFileSync(receivedFile, 'utf8');
+    let fileContent: string;
+    try {
+      fileContent = fs.readFileSync(receivedFile, 'utf8');
+    } catch (error) {
+      throw new Error(`Failed to read received file ${receivedFile}. Ensure file was properly set up. Original error: ${error}`);
+    }
     
     return { stdout, stderr, fileContent, success };
   }

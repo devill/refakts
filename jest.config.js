@@ -7,4 +7,5 @@ module.exports = {
     'src/**/*.ts',
     '!src/**/*.d.ts',
   ],
+  maxWorkers: '50%', // Reduce parallelism to avoid file conflicts
 };
