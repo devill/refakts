@@ -46,19 +46,19 @@ function loadTestCasesFromDirectories(fixturesDir: string, expectedExtension: st
   const testCases: TestCase[] = [];
   const testDirs = scanner.getDirectoryNames(fixturesDir);
   for (const testDir of testDirs) {
-    const config = createTestDirectoryConfig(testDir, fixturesDir, expectedExtension, scanner);
+    const config = createTestDirectoryConfig({ testDir, fixturesDir, expectedExtension, scanner });
     testCases.push(...processTestDirectory(config));
   }
   
   return testCases;
 }
 
-function createTestDirectoryConfig(testDir: string, fixturesDir: string, expectedExtension: string, scanner: FileSystemScanner): TestDirectoryConfig {
+function createTestDirectoryConfig(params: { testDir: string; fixturesDir: string; expectedExtension: string; scanner: FileSystemScanner }): TestDirectoryConfig {
   return {
-    testDir,
-    fixturesDir,
-    expectedExtension,
-    scanner
+    testDir: params.testDir,
+    fixturesDir: params.fixturesDir,
+    expectedExtension: params.expectedExtension,
+    scanner: params.scanner
   };
 }
 
@@ -112,13 +112,16 @@ function findInputFilesRecursively(dir: string, scanner: FileSystemScanner): str
     inputFiles: []
   };
   
+  processDirectoryEntries(dir, context);
+  return context.inputFiles;
+}
+
+function processDirectoryEntries(dir: string, context: DirectoryProcessingContext): void {
   const entries = context.scanner.getTestDirectoryFiles(dir);
   
   for (const entry of entries) {
     processDirectoryEntry(dir, entry, context);
   }
-  
-  return context.inputFiles;
 }
 
 function processDirectoryEntry(dir: string, entry: string, context: DirectoryProcessingContext): void {

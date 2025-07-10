@@ -17,9 +17,13 @@ export class FixtureValidator {
     const outputs = await this.executeCommand(testCase, receivedTsFile);
     const receivedFiles = this.writeReceivedFiles(testCase.inputFile, outputs);
     
+    this.validateAndCleanup(testCase.inputFile, receivedFiles);
+  }
+
+  private validateAndCleanup(inputFile: string, receivedFiles: any): void {
     let testPassed = true;
     try {
-      this.compareWithExpected(testCase.inputFile, receivedFiles);
+      this.compareWithExpected(inputFile, receivedFiles);
     } catch (error) {
       testPassed = false;
       throw error;
