@@ -5,6 +5,5 @@
  */
 function example() {
   let x;
-  x = 42;
   return x;
 }
