@@ -114,4 +114,31 @@ export class TestCaseBuilder {
   static create(): TestCaseBuilder {
     return new TestCaseBuilder();
   }
+
+  static createFromInputFile(inputFile: string, meta: TestMeta): TestCase {
+    const baseName = path.basename(inputFile, '.input.ts');
+    const testDir = path.dirname(inputFile);
+    const testPath = path.dirname(inputFile);
+    
+    return this.create()
+      .withTestDir(path.basename(testDir))
+      .withTestPath(testPath)
+      .withBaseName(baseName)
+      .withExpectedExtension('input')
+      .withMeta(meta)
+      .withInputFile(inputFile)
+      .build();
+  }
+
+  static createWithConfig(config: any, baseName: string, meta: TestMeta): TestCase {
+    return this.create()
+      .withTestDir(config.testDir)
+      .withTestPath(config.testPath)
+      .withBaseName(baseName)
+      .withExpectedExtension(config.expectedExtension)
+      .withMeta(meta)
+      .withStandardName()
+      .withStandardFiles()
+      .build();
+  }
 }

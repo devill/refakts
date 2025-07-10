@@ -34,18 +34,7 @@ export class TestCaseFactory {
       return null;
     }
     
-    const baseName = path.basename(inputFile, '.input.ts');
-    const testDir = path.dirname(inputFile);
-    const testPath = path.dirname(inputFile);
-    
-    return TestCaseBuilder.create()
-      .withTestDir(path.basename(testDir))
-      .withTestPath(testPath)
-      .withBaseName(baseName)
-      .withExpectedExtension('input')
-      .withMeta(meta)
-      .withInputFile(inputFile)
-      .build();
+    return TestCaseBuilder.createFromInputFile(inputFile, meta);
   }
 
 
@@ -86,20 +75,9 @@ export class TestCaseFactory {
   private static buildTestCaseWithBuilder(config: TestCaseFactoryConfig, baseName: string): TestCase {
     const meta = this.extractMetaFromInputFile(path.join(config.testPath, `${baseName}.input.ts`));
     
-    return this.createBuilderWithPaths(config, baseName)
-      .withMeta(meta)
-      .withStandardName()
-      .withStandardFiles()
-      .build();
+    return TestCaseBuilder.createWithConfig(config, baseName, meta);
   }
 
-  private static createBuilderWithPaths(config: TestCaseFactoryConfig, baseName: string): TestCaseBuilder {
-    return TestCaseBuilder.create()
-      .withTestDir(config.testDir)
-      .withTestPath(config.testPath)
-      .withBaseName(baseName)
-      .withExpectedExtension(config.expectedExtension);
-  }
 
 
   private static extractMetaFromInputFile(inputPath: string): TestMeta {
