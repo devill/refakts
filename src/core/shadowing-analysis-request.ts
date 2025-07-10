@@ -1,5 +1,6 @@
 import { Node } from 'ts-morph';
 import { NodeContext } from './node-context';
+import { NodeDeclarationMatcher } from '../locators/services/node-declaration-matcher';
 
 export class ShadowingAnalysisRequest {
   readonly usage: NodeContext;
@@ -13,9 +14,11 @@ export class ShadowingAnalysisRequest {
   }
 
   static create(usage: Node, declaration: Node, variableName: string): ShadowingAnalysisRequest {
-    const usageContext = NodeContext.create(usage, usage.getSourceFile());
-    const declarationContext = NodeContext.create(declaration, declaration.getSourceFile());
-    return new ShadowingAnalysisRequest(usageContext, declarationContext, variableName);
+    return new ShadowingAnalysisRequest(
+      NodeContext.create(usage, usage.getSourceFile()),
+      NodeContext.create(declaration, declaration.getSourceFile()),
+      variableName
+    );
   }
 
   getUsageScope(): Node {
@@ -35,8 +38,7 @@ export class ShadowingAnalysisRequest {
   }
 
   matchesVariableName(node: Node): boolean {
-    const context = NodeContext.create(node, node.getSourceFile());
-    return context.matchesVariableName(this.variableName);
+    return NodeDeclarationMatcher.hasMatchingIdentifier(node, this.variableName);
   }
 
   validateScopeContainment(): boolean {
@@ -64,9 +66,7 @@ export class ShadowingAnalysisRequest {
     const { NodeContext: LocatorNodeContext } = require('../locators/NodeContext');
     let current: Node | undefined = scopeContext.usageScope;
     while (current && current !== scopeContext.declarationScope) {
-      if (this.hasShadowingDeclaration(current, scopeContext.targetNode)) {
-        return true;
-      }
+      if (this.hasShadowingDeclaration(current, scopeContext.targetNode)) return true;
       current = LocatorNodeContext.getParentScope(current);
     }
     return false;
@@ -74,12 +74,10 @@ export class ShadowingAnalysisRequest {
 
   private hasShadowingDeclaration(scope: Node, originalDeclaration: Node): boolean {
     const { ScopeContext } = require('./scope-context');
-    let hasShadowing = false;
     const scopeContext = new ScopeContext(scope, scope, originalDeclaration);
+    let hasShadowing = false;
     scope.forEachDescendant((child: Node) => {
-      if (this.checkChildForShadowing(scopeContext, child)) {
-        hasShadowing = true;
-      }
+      if (this.checkChildForShadowing(scopeContext, child)) hasShadowing = true;
     });
     return hasShadowing;
   }

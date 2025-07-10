@@ -1,11 +1,9 @@
 import * as ts from 'typescript';
 import { Node, SourceFile } from 'ts-morph';
-
-export interface PositionRequest {
-  line: number;
-  column: number;
-  position: number;
-}
+import { ScopeAnalyzer } from './ScopeAnalyzer';
+import { DeclarationFinder } from './DeclarationFinder';
+import { VariableNameOperations } from './VariableNameOperations';
+import { ShadowingAnalyzer } from './ShadowingAnalyzer';
 
 export class NodeContext {
   private readonly node: Node;
@@ -49,51 +47,21 @@ export class NodeContext {
     return { line: lineAndColumn.line, column: lineAndColumn.column };
   }
 
-  static calculatePosition(sourceFile: SourceFile, line: number, column: number): number {
-    return sourceFile.compilerNode.getPositionOfLineAndCharacter(line - 1, column - 1);
-  }
-
-  static getNodeAtPosition(sourceFile: SourceFile, request: PositionRequest): NodeContext {
-    const node = sourceFile.getDescendantAtPos(request.position);
-    if (!node) {
-      throw new Error(NodeContext.createPositionErrorMessage(request));
-    }
-    return new NodeContext(node);
-  }
-
-  private static createPositionErrorMessage(request: PositionRequest): string {
-    return `No node found at line ${request.line}, column ${request.column}`;
-  }
 
   getScope(): NodeContext {
-    let current = this.getParent();
-    while (current) {
-      if (this.isScopeNode(current)) {
-        return new NodeContext(current);
-      }
-      current = current.getParent();
-    }
-    return new NodeContext(this.getSourceFile());
+    const scope = ScopeAnalyzer.getNodeScope(this.node);
+    return new NodeContext(scope);
   }
 
   getParentScope(): NodeContext | undefined {
-    let current = this.getParent();
-    while (current) {
-      if (this.isScopeNode(current)) {
-        return new NodeContext(current);
-      }
-      current = current.getParent();
-    }
-    return undefined;
+    const currentScope = ScopeAnalyzer.getNodeScope(this.node);
+    const parentScope = ScopeAnalyzer.getParentScope(currentScope);
+    return parentScope ? new NodeContext(parentScope) : undefined;
   }
 
   isScopeNode(node?: Node): boolean {
     const targetNode = node || this.node;
-    return targetNode.getKind() === ts.SyntaxKind.FunctionDeclaration ||
-           targetNode.getKind() === ts.SyntaxKind.FunctionExpression ||
-           targetNode.getKind() === ts.SyntaxKind.ArrowFunction ||
-           targetNode.getKind() === ts.SyntaxKind.Block ||
-           targetNode.getKind() === ts.SyntaxKind.SourceFile;
+    return ScopeAnalyzer.isScopeNode(targetNode);
   }
 
   isScopeContainedIn(outerScope: NodeContext): boolean {
@@ -110,7 +78,7 @@ export class NodeContext {
   findContainingDeclaration(): NodeContext | undefined {
     let current: Node | undefined = this.node;
     while (current) {
-      if (this.isDeclaration(current)) {
+      if (DeclarationFinder.isDeclaration(current)) {
         return new NodeContext(current);
       }
       current = current.getParent();
@@ -118,37 +86,24 @@ export class NodeContext {
     return undefined;
   }
 
-  private isDeclaration(node: Node): boolean {
-    return node.getKind() === ts.SyntaxKind.VariableDeclaration ||
-           node.getKind() === ts.SyntaxKind.Parameter;
-  }
-
   getVariableName(): string | undefined {
-    const identifier = this.node.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
-    return identifier?.getText();
+    return VariableNameOperations.getVariableName(this.node);
   }
 
   getVariableNameRequired(): string {
-    const identifier = this.node.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
-    if (!identifier) {
-      throw new Error('Declaration node does not contain an identifier');
-    }
-    return identifier.getText();
+    return VariableNameOperations.getVariableNameRequired(this.node);
   }
 
   getDeclarationIdentifier(): Node | undefined {
-    return this.node.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
+    return VariableNameOperations.getDeclarationIdentifier(this.node);
   }
 
   isUsageNode(variableName: string, declarationIdentifier: Node | undefined): boolean {
-    return this.node.getKind() === ts.SyntaxKind.Identifier && 
-           this.node.getText() === variableName && 
-           this.node !== declarationIdentifier;
+    return VariableNameOperations.isUsageNode(this.node, variableName, declarationIdentifier);
   }
 
   matchesVariableName(variableName: string): boolean {
-    const identifier = this.node.getFirstDescendantByKind(ts.SyntaxKind.Identifier);
-    return identifier?.getText() === variableName;
+    return VariableNameOperations.matchesVariableName(this.node, variableName);
   }
 
   equals(other: NodeContext): boolean {
@@ -156,64 +111,32 @@ export class NodeContext {
   }
 
   static getNodeScope(node: Node): Node {
-    return NodeContext.findNodeScope(node);
+    return ScopeAnalyzer.getNodeScope(node);
   }
 
   static getParentScope(scope: Node): Node | undefined {
-    return NodeContext.findParentScope(scope);
-  }
-
-  private static findNodeScope(node: Node): Node {
-    let current = node.getParent();
-    while (current) {
-      if (NodeContext.isScopeNodeStatic(current)) {
-        return current;
-      }
-      current = current.getParent();
-    }
-    return node.getSourceFile();
-  }
-
-  private static findParentScope(scope: Node): Node | undefined {
-    let current = scope.getParent();
-    while (current) {
-      if (NodeContext.isScopeNodeStatic(current)) {
-        return current;
-      }
-      current = current.getParent();
-    }
-    return undefined;
-  }
-
-  private static isScopeNodeStatic(node: Node): boolean {
-    return node.getKind() === ts.SyntaxKind.FunctionDeclaration ||
-           node.getKind() === ts.SyntaxKind.FunctionExpression ||
-           node.getKind() === ts.SyntaxKind.ArrowFunction ||
-           node.getKind() === ts.SyntaxKind.Block ||
-           node.getKind() === ts.SyntaxKind.SourceFile;
+    return ScopeAnalyzer.getParentScope(scope);
   }
 
   static isScopeContainedIn(innerScope: Node, outerScope: Node): boolean {
-    const innerContext = new NodeContext(innerScope);
-    const outerContext = new NodeContext(outerScope);
-    return innerContext.isScopeContainedIn(outerContext);
+    return ScopeAnalyzer.isScopeContainedIn(innerScope, outerScope);
   }
 
   isShadowingDeclaration(variableName: string, targetNode: Node, usageScope: Node): boolean {
-    return this.isAnyDeclaration() && 
-           this.matchesVariableName(variableName) &&
-           this.node !== targetNode &&
-           NodeContext.getNodeScope(this.node) === usageScope;
+    return ShadowingAnalyzer.isShadowingDeclaration({
+      node: this.node,
+      variableName,
+      targetNode,
+      usageScope
+    });
   }
 
   isAnyDeclaration(): boolean {
-    return this.node.getKind() === ts.SyntaxKind.VariableDeclaration ||
-           this.node.getKind() === ts.SyntaxKind.Parameter;
+    return DeclarationFinder.isAnyDeclaration(this.node);
   }
 
   static findContainingDeclaration(node: Node): NodeContext | undefined {
-    const nodeContext = new NodeContext(node);
-    return nodeContext.findContainingDeclaration();
+    return DeclarationFinder.findContainingDeclaration(node);
   }
 
   static getScope(node: Node): NodeContext {

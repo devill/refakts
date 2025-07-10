@@ -145,7 +145,8 @@ export class PositionData {
   }
 
   static getStartPosition(sourceFile: SourceFile, location: LocationRange): number {
-    return PositionData.fromLocation(location).toSourceFilePosition(sourceFile);
+    const positionData = PositionData.fromLocation(location);
+    return positionData.toSourceFilePosition(sourceFile);
   }
 
   private static calculateOffset(line: number, column: number): number {

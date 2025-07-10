@@ -74,12 +74,6 @@
       "featureEnvy"
     ]
   },
-  "src/services/context-analyzer.ts": {
-    "lastCommitId": "5ebd46de91df11378651335978a0b01024b892f2",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
   "src/services/expression-matcher.ts": {
     "lastCommitId": "2a6f1d47b56dcac1db4d656bfb95bea5d8b9cdb5",
     "violations": [

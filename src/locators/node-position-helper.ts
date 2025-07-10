@@ -1,16 +1,17 @@
 import { SourceFile } from 'ts-morph';
-import { NodeContext, PositionRequest } from './NodeContext';
+import { NodeContext } from './NodeContext';
+import { PositionRequest, PositionService } from './PositionService';
 
 export class NodePositionHelper {
   
 
   static calculatePosition(sourceFile: SourceFile, line: number, column: number): number {
-    return NodeContext.calculatePosition(sourceFile, line, column);
+    return PositionService.calculatePosition(sourceFile, line, column);
   }
 
 
   static getNodeAtPosition(sourceFile: SourceFile, request: PositionRequest): NodeContext {
-    return NodeContext.getNodeAtPosition(sourceFile, request);
+    return PositionService.getNodeAtPosition(sourceFile, request);
   }
 
 
