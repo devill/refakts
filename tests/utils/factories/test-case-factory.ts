@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {TestCase, TestMeta} from '../types/test-case-types';
 import {extractMetaFromFile} from '../parsers/meta-parser';
-import {TestCaseBuilder} from '../builders/test-case-builder';
 
 interface TestCaseFactoryConfig {
   testDir: string;
@@ -34,7 +33,7 @@ export class TestCaseFactory {
       return null;
     }
     
-    return TestCaseBuilder.createFromInputFile(inputFile, meta);
+    return this.createFromInputFile(inputFile, meta);
   }
 
 
@@ -75,7 +74,7 @@ export class TestCaseFactory {
   private static buildTestCaseWithBuilder(config: TestCaseFactoryConfig, baseName: string): TestCase {
     const meta = this.extractMetaFromInputFile(path.join(config.testPath, `${baseName}.input.ts`));
     
-    return TestCaseBuilder.createWithConfig(config, baseName, meta);
+    return this.createWithConfig(config, baseName, meta);
   }
 
 
@@ -83,6 +82,36 @@ export class TestCaseFactory {
   private static extractMetaFromInputFile(inputPath: string): TestMeta {
     const content = fs.readFileSync(inputPath, 'utf8');
     return extractMetaFromFile(content);
+  }
+
+  private static createFromInputFile(inputFile: string, meta: TestMeta): TestCase {
+    const relativePath = path.relative(process.cwd(), inputFile);
+    
+    return {
+      name: relativePath.replace('.input.ts', ''),
+      description: meta.description,
+      commands: meta.commands,
+      inputFile,
+      expectedFile: inputFile.replace('.input.ts', '.expected.ts'),
+      receivedFile: inputFile.replace('.input.ts', '.received.ts'),
+      skip: meta.skip
+    };
+  }
+
+  private static createWithConfig(config: TestCaseFactoryConfig, baseName: string, meta: TestMeta): TestCase {
+    const inputFile = path.join(config.testPath, `${baseName}.input.ts`);
+    const expectedFile = path.join(config.testPath, `${baseName}.expected.${config.expectedExtension}`);
+    const receivedFile = path.join(config.testPath, `${baseName}.received.${config.expectedExtension}`);
+    
+    return {
+      name: `${config.testDir}/${baseName}`,
+      description: meta.description,
+      commands: meta.commands,
+      inputFile,
+      expectedFile,
+      receivedFile,
+      skip: meta.skip
+    };
   }
 
 }
