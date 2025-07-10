@@ -136,20 +136,20 @@ export class FixtureValidator {
   }
 
   private cleanupReceivedFiles(receivedFiles: any, testPassed: boolean): void {
-    // Delete received files when test passes, as stated in requirements
-    // Keep received files that had corresponding expected files (even if they matched)
-    // Remove received files that don't have expected counterparts (regardless of pass/fail)
+    // Delete received files when test passes (regardless of expected files)
+    // Keep received files when test fails (only if they have corresponding expected files)
     Object.values(receivedFiles).forEach((file: any) => {
       if (fs.existsSync(file)) {
-        const expectedFile = file.replace('.received.', '.expected.');
-        const hasExpectedFile = fs.existsSync(expectedFile);
-        
-        if (testPassed && !hasExpectedFile) {
-          // Delete received files when test passes and no expected file exists
+        if (testPassed) {
+          // Delete all received files when test passes
           fs.unlinkSync(file);
+        } else {
+          // Test failed - only keep received files that have corresponding expected files
+          const expectedFile = file.replace('.received.', '.expected.');
+          if (!fs.existsSync(expectedFile)) {
+            fs.unlinkSync(file);
+          }
         }
-        // Keep received files that have corresponding expected files, even if they matched
-        // This allows debugging when tests pass but you want to see what was generated
       }
     });
   }
