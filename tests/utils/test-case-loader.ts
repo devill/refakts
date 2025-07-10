@@ -17,6 +17,11 @@ interface TestCaseProcessingConfig {
   expectedExtension: string;
 }
 
+interface DirectoryProcessingContext {
+  scanner: FileSystemScanner;
+  inputFiles: string[];
+}
+
 export { TestCase, TestMeta } from './types/test-case-types';
 export { extractMetaFromFile } from './parsers/meta-parser';
 
@@ -102,28 +107,32 @@ function createTestCasesFromInputFiles(inputFiles: string[]): TestCase[] {
 }
 
 function findInputFilesRecursively(dir: string, scanner: FileSystemScanner): string[] {
-  const inputFiles: string[] = [];
-  const entries = scanner.getTestDirectoryFiles(dir);
+  const context: DirectoryProcessingContext = {
+    scanner,
+    inputFiles: []
+  };
+  
+  const entries = context.scanner.getTestDirectoryFiles(dir);
   
   for (const entry of entries) {
-    processDirectoryEntry(dir, entry, scanner, inputFiles);
+    processDirectoryEntry(dir, entry, context);
   }
   
-  return inputFiles;
+  return context.inputFiles;
 }
 
-function processDirectoryEntry(dir: string, entry: string, scanner: FileSystemScanner, inputFiles: string[]): void {
+function processDirectoryEntry(dir: string, entry: string, context: DirectoryProcessingContext): void {
   const fullPath = path.join(dir, entry);
-  if (scanner.fileExists(fullPath)) {
-    handleFileOrDirectory(fullPath, entry, scanner, inputFiles);
+  if (context.scanner.fileExists(fullPath)) {
+    handleFileOrDirectory(fullPath, entry, context);
   }
 }
 
-function handleFileOrDirectory(fullPath: string, entry: string, scanner: FileSystemScanner, inputFiles: string[]): void {
+function handleFileOrDirectory(fullPath: string, entry: string, context: DirectoryProcessingContext): void {
   const stat = require('fs').statSync(fullPath);
   if (stat.isDirectory()) {
-    inputFiles.push(...findInputFilesRecursively(fullPath, scanner));
+    context.inputFiles.push(...findInputFilesRecursively(fullPath, context.scanner));
   } else if (entry.endsWith('.input.ts')) {
-    inputFiles.push(fullPath);
+    context.inputFiles.push(fullPath);
   }
 }

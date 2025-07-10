@@ -78,16 +78,23 @@ export class FixtureValidator {
 
   private compareIfExpected(expectedFile: string, receivedFile: string): void {
     if (fs.existsSync(expectedFile)) {
-      if (!fs.existsSync(receivedFile)) {
-        throw new Error(`Expected file ${expectedFile} exists but received file ${receivedFile} was not generated`);
-      }
-      
-      const expected = fs.readFileSync(expectedFile, 'utf8').trim();
-      const received = fs.readFileSync(receivedFile, 'utf8').trim();
-      
-      if (received !== expected) {
-        throw new Error(`Content mismatch in ${receivedFile}.\nExpected:\n${expected}\nReceived:\n${received}`);
-      }
+      this.validateReceivedFileExists(expectedFile, receivedFile);
+      this.compareFileContents(expectedFile, receivedFile);
+    }
+  }
+
+  private validateReceivedFileExists(expectedFile: string, receivedFile: string): void {
+    if (!fs.existsSync(receivedFile)) {
+      throw new Error(`Expected file ${expectedFile} exists but received file ${receivedFile} was not generated`);
+    }
+  }
+
+  private compareFileContents(expectedFile: string, receivedFile: string): void {
+    const expected = fs.readFileSync(expectedFile, 'utf8').trim();
+    const received = fs.readFileSync(receivedFile, 'utf8').trim();
+    
+    if (received !== expected) {
+      throw new Error(`Content mismatch in ${receivedFile}.\nExpected:\n${expected}\nReceived:\n${received}`);
     }
   }
 

@@ -116,18 +116,28 @@ export class TestCaseBuilder {
   }
 
   static createFromInputFile(inputFile: string, meta: TestMeta): TestCase {
-    const baseName = path.basename(inputFile, '.input.ts');
-    const testDir = path.dirname(inputFile);
-    const testPath = path.dirname(inputFile);
+    const inputFileInfo = this.extractInputFileInfo(inputFile);
     
     return this.create()
-      .withTestDir(path.basename(testDir))
-      .withTestPath(testPath)
-      .withBaseName(baseName)
+      .withTestDir(inputFileInfo.testDirName)
+      .withTestPath(inputFileInfo.testPath)
+      .withBaseName(inputFileInfo.baseName)
       .withExpectedExtension('input')
       .withMeta(meta)
       .withInputFile(inputFile)
       .build();
+  }
+
+  private static extractInputFileInfo(inputFile: string) {
+    const baseName = path.basename(inputFile, '.input.ts');
+    const testDir = path.dirname(inputFile);
+    const testPath = path.dirname(inputFile);
+    
+    return {
+      baseName,
+      testDirName: path.basename(testDir),
+      testPath
+    };
   }
 
   static createWithConfig(config: any, baseName: string, meta: TestMeta): TestCase {

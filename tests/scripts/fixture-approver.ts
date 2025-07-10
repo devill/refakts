@@ -58,14 +58,18 @@ function approveReceivedFiles(receivedFiles: string[]): number {
   
   for (const receivedFile of receivedFiles) {
     if (fs.existsSync(receivedFile)) {
-      const expectedFile = receivedFile.replace('.received.', '.expected.');
-      fs.copyFileSync(receivedFile, expectedFile);
-      console.log(`✅ Approved: ${path.basename(expectedFile)}`);
-      approvedCount++;
+      approvedCount += approveSingleFile(receivedFile);
     }
   }
   
   return approvedCount;
+}
+
+function approveSingleFile(receivedFile: string): number {
+  const expectedFile = receivedFile.replace('.received.', '.expected.');
+  fs.copyFileSync(receivedFile, expectedFile);
+  console.log(`✅ Approved: ${path.basename(expectedFile)}`);
+  return 1;
 }
 
 function loadAllTestCases() {
