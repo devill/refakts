@@ -2,29 +2,24 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {TestCase, TestMeta} from '../types/test-case-types';
 import {extractMetaFromFile} from '../parsers/meta-parser';
-
-interface TestCaseFactoryConfig {
-  testDir: string;
-  testPath: string;
-  expectedExtension: string;
-}
+import {FixtureLocation} from '../fixture-location';
 
 interface FileProcessingContext {
   files: string[];
   inputFiles: string[];
-  config: TestCaseFactoryConfig;
+  location: FixtureLocation;
+  expectedExtension: string; // Keep for legacy compatibility
 }
 
 export class TestCaseFactory {
 
-  static createSingleFileTestCases(config: TestCaseFactoryConfig, files: string[]): TestCase[] {
-    const inputFiles = this.getInputFiles(files);
-    const context: FileProcessingContext = {
+  static createSingleFileTestCases(testDir: string, testPath: string, expectedExtension: string, files: string[]): TestCase[] {
+    return this.buildSingleFileTestCases({
       files,
-      inputFiles,
-      config
-    };
-    return this.buildSingleFileTestCases(context);
+      inputFiles: this.getInputFiles(files),
+      location: new FixtureLocation(testDir, testPath, ''), // Placeholder location
+      expectedExtension
+    });
   }
 
   static createInputTestCase(inputFile: string): TestCase | null {
@@ -35,10 +30,6 @@ export class TestCaseFactory {
     
     return this.createFromInputFile(inputFile, meta);
   }
-
-
-
-
 
   private static getInputFiles(files: string[]): string[] {
     return files.filter(file => file.endsWith('.input.ts'));
@@ -61,20 +52,26 @@ export class TestCaseFactory {
   }
 
   private static createTestCaseFromInput(context: FileProcessingContext, inputFile: string): TestCase | null {
-    const baseName = inputFile.replace('.input.ts', '');
-    const expectedFile = `${baseName}.expected.${context.config.expectedExtension}`;
+    const location = FixtureLocation.fromInputFile(inputFile);
+    const expectedFile = location.getExpectedFile(context.expectedExtension);
     
     if (!context.files.includes(expectedFile)) {
       return null;
     }
     
-    return this.buildTestCaseWithBuilder(context.config, baseName);
+    return this.createFromFixtureLocation(location);
   }
 
-  private static buildTestCaseWithBuilder(config: TestCaseFactoryConfig, baseName: string): TestCase {
-    const meta = this.extractMetaFromInputFile(path.join(config.testPath, `${baseName}.input.ts`));
+  private static createFromFixtureLocation(location: FixtureLocation): TestCase {
+    const meta = this.extractMetaFromInputFile(location.getInputFile());
     
-    return this.createWithConfig(config, baseName, meta);
+    return {
+      name: location.getTestName(),
+      inputFile: location.getInputFile(),
+      expectedFile: location.getExpectedFile('ts'), // Default to .ts for legacy
+      receivedFile: location.getReceivedFile('ts'),
+      ...meta
+    };
   }
 
 
@@ -85,31 +82,16 @@ export class TestCaseFactory {
   }
 
   private static createFromInputFile(inputFile: string, meta: TestMeta): TestCase {
+    const location = FixtureLocation.fromInputFile(inputFile);
+    
     return {
       name: path.relative(process.cwd(), inputFile).replace('.input.ts', ''),
-      description: meta.description, commands: meta.commands, inputFile,
-      expectedFile: inputFile.replace('.input.ts', '.expected.ts'),
-      receivedFile: inputFile.replace('.input.ts', '.received.ts'),
-      skip: meta.skip
+      inputFile: location.getInputFile(),
+      expectedFile: location.getExpectedFile('ts'),
+      receivedFile: location.getReceivedFile('ts'),
+      ...meta
     };
   }
 
-  private static createWithConfig(config: TestCaseFactoryConfig, baseName: string, meta: TestMeta): TestCase {
-    return {
-      name: `${config.testDir}/${baseName}`,
-      description: meta.description,
-      commands: meta.commands,
-      ...this.createTestFilePaths(config, baseName),
-      skip: meta.skip
-    };
-  }
-
-  private static createTestFilePaths(config: TestCaseFactoryConfig, baseName: string) {
-    return {
-      inputFile: path.join(config.testPath, `${baseName}.input.ts`),
-      expectedFile: path.join(config.testPath, `${baseName}.expected.${config.expectedExtension}`),
-      receivedFile: path.join(config.testPath, `${baseName}.received.${config.expectedExtension}`)
-    };
-  }
 
 }

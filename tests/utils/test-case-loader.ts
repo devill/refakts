@@ -81,13 +81,12 @@ function createTestCaseProcessingConfig(config: TestDirectoryConfig, testPath: s
 
 
 function getSingleFileTestCases(config: TestCaseProcessingConfig): TestCase[] {
-  const factoryConfig = {
-    testDir: config.testDir,
-    testPath: config.testPath,
-    expectedExtension: config.expectedExtension
-  };
-  
-  return TestCaseFactory.createSingleFileTestCases(factoryConfig, config.files);
+  return TestCaseFactory.createSingleFileTestCases(
+    config.testDir, 
+    config.testPath, 
+    config.expectedExtension, 
+    config.files
+  );
 }
 
 function loadTestCasesRecursively(fixturesDir: string, scanner: FileSystemScanner): TestCase[] {
