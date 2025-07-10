@@ -11,27 +11,14 @@ export class FixtureValidator {
   }
 
   async validate(testCase: TestCase): Promise<void> {
-    // Set up test file
     const receivedTsFile = this.getReceivedPath(testCase.inputFile, '.ts');
     this.setupTestFile(testCase.inputFile, receivedTsFile);
     
-    // Execute command and capture all outputs
     const outputs = await this.executeCommand(testCase, receivedTsFile);
-    
-    // Write all received files
     const receivedFiles = this.writeReceivedFiles(testCase.inputFile, outputs);
     
-    let testPassed = true;
-    try {
-      // Compare with expected files (only if they exist)
-      this.compareWithExpected(testCase.inputFile, receivedFiles);
-    } catch (error) {
-      testPassed = false;
-      throw error;
-    } finally {
-      // Clean up received files based on test result
-      this.cleanupReceivedFiles(receivedFiles, testPassed);
-    }
+    const testPassed = this.tryCompareWithExpected(testCase.inputFile, receivedFiles);
+    this.cleanupReceivedFiles(receivedFiles, testPassed);
   }
 
   private setupTestFile(inputFile: string, receivedFile: string): void {
@@ -49,37 +36,15 @@ export class FixtureValidator {
     success: boolean;
   }> {
     const command = this.prepareCommand(testCase.commands[0], receivedFile);
+    const executionResult = await this.runCommand(command);
+    const fileContent = this.readFileContent(receivedFile);
     
-    let stdout = '';
-    let stderr = '';
-    let success = false;
-    
-    try {
-      const output = await this.commandExecutor.executeCommand(command);
-      stdout = typeof output === 'string' ? output : '';
-      success = true;
-    } catch (error) {
-      stderr = (error as Error).message;
-      success = false;
-    }
-    
-    let fileContent: string;
-    try {
-      fileContent = fs.readFileSync(receivedFile, 'utf8');
-    } catch (error) {
-      throw new Error(`Failed to read received file ${receivedFile}. Ensure file was properly set up. Original error: ${error}`);
-    }
-    
-    return { stdout, stderr, fileContent, success };
+    return { ...executionResult, fileContent };
   }
 
   private prepareCommand(command: string, receivedFile: string): string {
-    // Remove 'refakts' prefix if present
-    const cleanCommand = command.replace(/^refakts\s+/, '').trim();
-    
-    // Replace input file reference with received file
-    const inputFileName = path.basename(receivedFile).replace('.received.ts', '.input.ts');
-    return cleanCommand.replace(inputFileName, receivedFile);
+    const cleanCommand = this.removeRefaktsPrefix(command);
+    return this.replaceInputFileReference(cleanCommand, receivedFile);
   }
 
   private writeReceivedFiles(inputFile: string, outputs: any): {
@@ -87,23 +52,8 @@ export class FixtureValidator {
     outFile: string;
     errFile: string;
   } {
-    const receivedFiles = {
-      tsFile: this.getReceivedPath(inputFile, '.ts'),
-      outFile: this.getReceivedPath(inputFile, '.out'), 
-      errFile: this.getReceivedPath(inputFile, '.err')
-    };
-    
-    // Write file content (always written since file was modified)
-    fs.writeFileSync(receivedFiles.tsFile, outputs.fileContent);
-    
-    if (outputs.stdout.trim()) {
-      fs.writeFileSync(receivedFiles.outFile, outputs.stdout.trim());
-    }
-    
-    if (outputs.stderr.trim()) {
-      fs.writeFileSync(receivedFiles.errFile, outputs.stderr.trim());
-    }
-    
+    const receivedFiles = this.createReceivedFilePaths(inputFile);
+    this.writeAllReceivedFiles(receivedFiles, outputs);
     return receivedFiles;
   }
 
@@ -114,7 +64,6 @@ export class FixtureValidator {
       errFile: this.getExpectedPath(inputFile, '.err')
     };
     
-    // Compare each file type if expected file exists
     this.compareIfExpected(expectedFiles.tsFile, receivedFiles.tsFile);
     this.compareIfExpected(expectedFiles.outFile, receivedFiles.outFile);
     this.compareIfExpected(expectedFiles.errFile, receivedFiles.errFile);
@@ -136,20 +85,9 @@ export class FixtureValidator {
   }
 
   private cleanupReceivedFiles(receivedFiles: any, testPassed: boolean): void {
-    // Delete received files when test passes (regardless of expected files)
-    // Keep received files when test fails (only if they have corresponding expected files)
     Object.values(receivedFiles).forEach((file: any) => {
       if (fs.existsSync(file)) {
-        if (testPassed) {
-          // Delete all received files when test passes
-          fs.unlinkSync(file);
-        } else {
-          // Test failed - only keep received files that have corresponding expected files
-          const expectedFile = file.replace('.received.', '.expected.');
-          if (!fs.existsSync(expectedFile)) {
-            fs.unlinkSync(file);
-          }
-        }
+        this.cleanupSingleFile(file, testPassed);
       }
     });
   }
@@ -163,21 +101,98 @@ export class FixtureValidator {
   }
 
   private copyDirectory(src: string, dest: string): void {
-    if (!fs.existsSync(dest)) {
-      fs.mkdirSync(dest, { recursive: true });
-    }
-    
+    this.ensureDirectoryExists(dest);
     const entries = fs.readdirSync(src, { withFileTypes: true });
     
     for (const entry of entries) {
-      const srcPath = path.join(src, entry.name);
-      const destPath = path.join(dest, entry.name);
-      
-      if (entry.isDirectory()) {
-        this.copyDirectory(srcPath, destPath);
-      } else {
-        fs.copyFileSync(srcPath, destPath);
-      }
+      this.copyEntry(src, dest, entry);
     }
+  }
+
+  private tryCompareWithExpected(inputFile: string, receivedFiles: any): boolean {
+    try {
+      this.compareWithExpected(inputFile, receivedFiles);
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  private removeRefaktsPrefix(command: string): string {
+    return command.replace(/^refakts\s+/, '').trim();
+  }
+
+  private replaceInputFileReference(command: string, receivedFile: string): string {
+    const inputFileName = path.basename(receivedFile).replace('.received.ts', '.input.ts');
+    return command.replace(inputFileName, receivedFile);
+  }
+
+  private writeOutputIfPresent(filePath: string, output: string): void {
+    if (output.trim()) {
+      fs.writeFileSync(filePath, output.trim());
+    }
+  }
+
+  private cleanupSingleFile(file: string, testPassed: boolean): void {
+    if (testPassed) {
+      fs.unlinkSync(file);
+    } else {
+      this.cleanupFailedTestFile(file);
+    }
+  }
+
+  private cleanupFailedTestFile(file: string): void {
+    const expectedFile = file.replace('.received.', '.expected.');
+    if (!fs.existsSync(expectedFile)) {
+      fs.unlinkSync(file);
+    }
+  }
+
+  private ensureDirectoryExists(dest: string): void {
+    if (!fs.existsSync(dest)) {
+      fs.mkdirSync(dest, { recursive: true });
+    }
+  }
+
+  private copyEntry(src: string, dest: string, entry: fs.Dirent): void {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    
+    if (entry.isDirectory()) {
+      this.copyDirectory(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+
+  private async runCommand(command: string): Promise<{ stdout: string; stderr: string; success: boolean }> {
+    try {
+      const output = await this.commandExecutor.executeCommand(command);
+      return { stdout: typeof output === 'string' ? output : '', stderr: '', success: true };
+    } catch (error) {
+      return { stdout: '', stderr: (error as Error).message, success: false };
+    }
+  }
+
+  private readFileContent(filePath: string): string {
+    try {
+      return fs.readFileSync(filePath, 'utf8');
+    } catch (error) {
+      throw new Error(`Failed to read received file ${filePath}. Ensure file was properly set up. Original error: ${error}`);
+    }
+  }
+
+  private createReceivedFilePaths(inputFile: string): { tsFile: string; outFile: string; errFile: string } {
+    return {
+      tsFile: this.getReceivedPath(inputFile, '.ts'),
+      outFile: this.getReceivedPath(inputFile, '.out'), 
+      errFile: this.getReceivedPath(inputFile, '.err')
+    };
+  }
+
+  private writeAllReceivedFiles(receivedFiles: any, outputs: any): void {
+    fs.writeFileSync(receivedFiles.tsFile, outputs.fileContent);
+    this.writeOutputIfPresent(receivedFiles.outFile, outputs.stdout);
+    this.writeOutputIfPresent(receivedFiles.errFile, outputs.stderr);
   }
 }
