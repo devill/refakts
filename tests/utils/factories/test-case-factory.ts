@@ -105,9 +105,7 @@ export class TestCaseFactory {
       name: `${config.testDir}/${baseName}`,
       description: meta.description,
       commands: meta.commands,
-      inputFile: files.inputFile,
-      expectedFile: files.expectedFile,
-      receivedFile: files.receivedFile,
+      ...files,
       skip: meta.skip
     };
   }

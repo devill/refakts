@@ -69,15 +69,19 @@ export class FixtureValidator {
   }
 
   private compareWithExpected(inputFile: string, receivedFiles: any): void {
-    const expectedFiles = {
-      tsFile: this.getExpectedPath(inputFile, '.ts'),
-      outFile: this.getExpectedPath(inputFile, '.out'),
-      errFile: this.getExpectedPath(inputFile, '.err')
-    };
+    const expectedFiles = this.createExpectedFilePaths(inputFile);
     
     this.compareIfExpected(expectedFiles.tsFile, receivedFiles.tsFile);
     this.compareIfExpected(expectedFiles.outFile, receivedFiles.outFile);
     this.compareIfExpected(expectedFiles.errFile, receivedFiles.errFile);
+  }
+
+  private createExpectedFilePaths(inputFile: string) {
+    return {
+      tsFile: this.getExpectedPath(inputFile, '.ts'),
+      outFile: this.getExpectedPath(inputFile, '.out'),
+      errFile: this.getExpectedPath(inputFile, '.err')
+    };
   }
 
   private compareIfExpected(expectedFile: string, receivedFile: string): void {
