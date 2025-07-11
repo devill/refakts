@@ -2,7 +2,6 @@ import { RefactoringCommand, CommandOptions } from '../command';
 import { LocationParser, LocationRange } from '../core/location-parser';
 import { ASTService } from '../services/ast-service';
 import { CrossFileReferenceFinder, UsageLocation } from '../services/cross-file-reference-finder';
-import { SymbolResolver } from '../locators/symbol-resolver';
 import * as path from 'path';
 
 export class FindUsagesCommand implements RefactoringCommand {
@@ -26,8 +25,6 @@ export class FindUsagesCommand implements RefactoringCommand {
   private async executeFinUsagesOperation(options: CommandOptions): Promise<void> {
     const location = options.location as LocationRange;
     
-    // For now, use a simple approach like variable-locator
-    // Create a new project and try to load all related files
     const project = new (require('ts-morph').Project)();
     const finder = new CrossFileReferenceFinder(project);
     

@@ -11,52 +11,41 @@ export class SymbolResolver {
 
   static getSymbolType(node: Node): string {
     const kind = node.getKind();
-    
-    switch (kind) {
-      case SyntaxKind.FunctionDeclaration:
-        return 'function';
-      case SyntaxKind.ClassDeclaration:
-        return 'class';
-      case SyntaxKind.InterfaceDeclaration:
-        return 'interface';
-      case SyntaxKind.TypeAliasDeclaration:
-        return 'type';
-      case SyntaxKind.EnumDeclaration:
-        return 'enum';
-      case SyntaxKind.VariableDeclaration:
-        return 'variable';
-      case SyntaxKind.MethodDeclaration:
-        return 'method';
-      case SyntaxKind.PropertyDeclaration:
-        return 'property';
-      case SyntaxKind.Parameter:
-        return 'parameter';
-      case SyntaxKind.Identifier:
-        return this.getIdentifierType(node);
-      default:
-        return 'unknown';
-    }
+    return this.mapKindToType(kind, node);
+  }
+
+  private static mapKindToType(kind: SyntaxKind, node: Node): string {
+    const typeMap = new Map([
+      [SyntaxKind.FunctionDeclaration, 'function'],
+      [SyntaxKind.ClassDeclaration, 'class'],
+      [SyntaxKind.InterfaceDeclaration, 'interface'],
+      [SyntaxKind.TypeAliasDeclaration, 'type'],
+      [SyntaxKind.EnumDeclaration, 'enum'],
+      [SyntaxKind.VariableDeclaration, 'variable'],
+      [SyntaxKind.MethodDeclaration, 'method'],
+      [SyntaxKind.PropertyDeclaration, 'property'],
+      [SyntaxKind.Parameter, 'parameter']
+    ]);
+
+    return typeMap.get(kind) || 
+           (kind === SyntaxKind.Identifier ? this.getIdentifierType(node) : 'unknown');
   }
 
   private static extractSymbolName(node: Node): string {
-    // Try to get the name from different node types
     if (node.getKind() === SyntaxKind.Identifier) {
       return node.getText();
     }
 
-    // For declarations, get the name identifier
-    const nameNode = (node as any).getName?.();
+    const nameNode = (node as unknown as { getName?: () => string }).getName?.();
     if (nameNode) {
       return nameNode;
     }
 
-    // For nodes with identifier children
     const identifiers = node.getChildrenOfKind(SyntaxKind.Identifier);
     if (identifiers.length > 0) {
       return identifiers[0].getText();
     }
 
-    // Fallback to full text
     return node.getText();
   }
 
@@ -64,32 +53,24 @@ export class SymbolResolver {
     const parent = node.getParent();
     if (!parent) return 'identifier';
 
-    const parentKind = parent.getKind();
-    switch (parentKind) {
-      case SyntaxKind.FunctionDeclaration:
-        return 'function';
-      case SyntaxKind.ClassDeclaration:
-        return 'class';
-      case SyntaxKind.InterfaceDeclaration:
-        return 'interface';
-      case SyntaxKind.TypeAliasDeclaration:
-        return 'type';
-      case SyntaxKind.EnumDeclaration:
-        return 'enum';
-      case SyntaxKind.VariableDeclaration:
-        return 'variable';
-      case SyntaxKind.MethodDeclaration:
-        return 'method';
-      case SyntaxKind.PropertyDeclaration:
-        return 'property';
-      case SyntaxKind.Parameter:
-        return 'parameter';
-      case SyntaxKind.ImportSpecifier:
-        return 'import';
-      case SyntaxKind.ExportSpecifier:
-        return 'export';
-      default:
-        return 'identifier';
-    }
+    return this.mapParentKindToType(parent.getKind());
+  }
+
+  private static mapParentKindToType(parentKind: SyntaxKind): string {
+    const parentTypeMap = new Map([
+      [SyntaxKind.FunctionDeclaration, 'function'],
+      [SyntaxKind.ClassDeclaration, 'class'],
+      [SyntaxKind.InterfaceDeclaration, 'interface'],
+      [SyntaxKind.TypeAliasDeclaration, 'type'],
+      [SyntaxKind.EnumDeclaration, 'enum'],
+      [SyntaxKind.VariableDeclaration, 'variable'],
+      [SyntaxKind.MethodDeclaration, 'method'],
+      [SyntaxKind.PropertyDeclaration, 'property'],
+      [SyntaxKind.Parameter, 'parameter'],
+      [SyntaxKind.ImportSpecifier, 'import'],
+      [SyntaxKind.ExportSpecifier, 'export']
+    ]);
+
+    return parentTypeMap.get(parentKind) || 'identifier';
   }
 }

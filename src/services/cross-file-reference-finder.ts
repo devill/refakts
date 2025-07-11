@@ -1,4 +1,4 @@
-import { Project, Node, SyntaxKind } from 'ts-morph';
+import { Project, Node, SyntaxKind, SourceFile } from 'ts-morph';
 import { LocationRange } from '../core/location-parser';
 import * as path from 'path';
 
@@ -18,19 +18,17 @@ export interface FindUsagesResult {
 }
 
 export class CrossFileReferenceFinder {
-  constructor(private project: Project) {}
+  constructor(private _project: Project) {}
 
   async findAllReferences(location: LocationRange): Promise<FindUsagesResult> {
-    // Load all TypeScript files in the directory and subdirectories
     const projectDir = path.dirname(location.file);
     this.loadAllFilesInDirectory(projectDir);
     
-    // First try to get the source file, if not found, add it to the project
-    let sourceFile = this.project.getSourceFile(location.file);
+    let sourceFile = this._project.getSourceFile(location.file);
     if (!sourceFile) {
       try {
-        sourceFile = this.project.addSourceFileAtPath(location.file);
-      } catch (error) {
+        sourceFile = this._project.addSourceFileAtPath(location.file);
+      } catch {
         throw new Error(`File not found: ${location.file}`);
       }
     }
@@ -41,8 +39,6 @@ export class CrossFileReferenceFinder {
     }
 
     const symbol = this.getSymbolFromNode(node);
-    
-    // Use a simple approach for now: find all identifiers with the same name
     const usages = this.findUsagesInProject(symbol);
     
     return {
@@ -70,15 +66,15 @@ export class CrossFileReferenceFinder {
         this.loadAllFilesInDirectory(fullPath);
       } else if (entry.endsWith('.ts') && !entry.endsWith('.d.ts')) {
         try {
-          this.project.addSourceFileAtPath(fullPath);
-        } catch (error) {
-          // Ignore files that can't be loaded
+          this._project.addSourceFileAtPath(fullPath);
+        } catch {
+          continue;
         }
       }
     }
   }
 
-  private findNodeAtLocation(sourceFile: any, location: LocationRange): Node | null {
+  private findNodeAtLocation(sourceFile: SourceFile, location: LocationRange): Node | null {
     const startPos = sourceFile.compilerNode.getPositionOfLineAndCharacter(
       location.startLine - 1,
       location.startColumn - 1
@@ -88,12 +84,10 @@ export class CrossFileReferenceFinder {
   }
 
   private getSymbolFromNode(node: Node): string {
-    // Extract symbol name from different node types
     if (node.getKind() === SyntaxKind.Identifier) {
       return node.getText();
     }
     
-    // For other node types, try to find the identifier
     const identifiers = node.getChildrenOfKind(SyntaxKind.Identifier);
     if (identifiers.length > 0) {
       return identifiers[0].getText();
@@ -105,7 +99,7 @@ export class CrossFileReferenceFinder {
   private findUsagesInProject(symbolName: string): UsageLocation[] {
     const usages: UsageLocation[] = [];
     
-    for (const sourceFile of this.project.getSourceFiles()) {
+    for (const sourceFile of this._project.getSourceFiles()) {
       const fileUsages = this.findUsagesInFile(sourceFile, symbolName);
       usages.push(...fileUsages);
     }
@@ -113,10 +107,10 @@ export class CrossFileReferenceFinder {
     return usages;
   }
 
-  private findUsagesInFile(sourceFile: any, symbolName: string): UsageLocation[] {
+  private findUsagesInFile(sourceFile: SourceFile, symbolName: string): UsageLocation[] {
     const usages: UsageLocation[] = [];
     
-    sourceFile.getDescendantsOfKind(SyntaxKind.Identifier).forEach((identifier: any) => {
+    sourceFile.getDescendantsOfKind(SyntaxKind.Identifier).forEach((identifier) => {
       if (identifier.getText() === symbolName) {
         const start = sourceFile.getLineAndColumnAtPos(identifier.getStart());
         const end = sourceFile.getLineAndColumnAtPos(identifier.getEnd());
