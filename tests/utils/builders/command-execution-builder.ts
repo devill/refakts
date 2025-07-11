@@ -27,19 +27,7 @@ export class CommandExecutionBuilder {
   }
 
   private async runValidatedCommand(consoleCapture: ConsoleCapture): Promise<string | void> {
-    if (this.isLocatorCommand()) {
-      return consoleCapture.captureOutput(() => this.command.execute(this.file, this.options));
-    } else {
-      await this.command.execute(this.file, this.options);
-      return;
-    }
-  }
-
-  private isLocatorCommand(): boolean {
-    return this.commandName.includes('locator') || 
-           this.commandName === 'select' ||
-           this.commandName === 'find-usages' ||
-           this.commandName === 'move-method';
+    return consoleCapture.captureOutput(() => this.command.execute(this.file, this.options));
   }
 
   private handleExecutionError(error: unknown): never {

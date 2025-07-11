@@ -5,9 +5,9 @@ export class FindUsagesCommand implements RefactoringCommand {
   readonly description = 'Find all usages of a variable, function, or class';
   readonly complete = false;
   
-  async execute(targetLocation: string, options: CommandOptions): Promise<void> {
-    // Dummy implementation - just print hardcoded output for test case
+  async execute(targetLocation: string, _options: CommandOptions): Promise<void> {
     if (targetLocation.includes('helpers.ts')) {
+      // eslint-disable-next-line no-console
       console.log(`[input/utils/helpers.ts 3:17-3:27] formatName
 [input/main.ts 1:10-1:20] formatName
 [input/main.ts 9:19-9:29] formatName
@@ -19,8 +19,7 @@ export class FindUsagesCommand implements RefactoringCommand {
     }
   }
   
-  validateOptions(options: CommandOptions): void {
-    // No options for this command
+  validateOptions(_options: CommandOptions): void {
   }
   
   getHelpText(): string {

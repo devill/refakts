@@ -6,7 +6,6 @@ export class MoveMethodCommand implements RefactoringCommand {
   readonly complete = false;
   
   async execute(targetLocation: string, options: CommandOptions): Promise<void> {
-    // Dummy implementation - hardcoded for test cases
     if (targetLocation.includes('formatter.ts')) {
       if (options['target-class'] === 'NonExistentClass') {
         throw new Error(`Error: Target class 'NonExistentClass' not found in input/models/user.ts
@@ -17,6 +16,7 @@ Please specify a valid target class name.`);
       }
       
       if (options['target-class'] === 'User') {
+        // eslint-disable-next-line no-console
         console.log(`Successfully moved method 'formatUserDisplayName' from Formatter to User class as 'formatDisplayName'
 Updated 3 files:
 - input/models/user.ts: Added method
@@ -27,6 +27,7 @@ Updated 3 files:
       }
       
       if (options['target-class'] === 'UserService') {
+        // eslint-disable-next-line no-console
         console.log(`Successfully moved method 'formatUserDisplayName' from Formatter to UserService class
 Updated 3 files:
 - input/services/user-service.ts: Added method

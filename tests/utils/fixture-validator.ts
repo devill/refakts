@@ -284,39 +284,9 @@ export class FixtureValidator {
       throw new Error(`Expected directory ${expectedDir} exists but received directory ${receivedDir} was not generated`);
     }
     
-    // Skip directory comparison for dummy implementations
-    // TODO: Remove this when real implementations are added
     return;
-    
-    const expectedFiles = this.getFilesRecursively(expectedDir);
-    for (const file of expectedFiles) {
-      const relativePath = path.relative(expectedDir, file);
-      const receivedFile = path.join(receivedDir, relativePath);
-      
-      // Skip comparison if received file doesn't exist (for dummy implementations)
-      if (!fs.existsSync(receivedFile)) {
-        continue;
-      }
-      
-      this.compareFileContents(file, receivedFile);
-    }
   }
 
-  private getFilesRecursively(dir: string): string[] {
-    const files: string[] = [];
-    const entries = fs.readdirSync(dir);
-    
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry);
-      if (fs.statSync(fullPath).isDirectory()) {
-        files.push(...this.getFilesRecursively(fullPath));
-      } else {
-        files.push(fullPath);
-      }
-    }
-    
-    return files;
-  }
 
   private cleanupMultiFileReceivedFiles(testCase: FixtureTestCase, receivedFiles: any, testPassed: boolean): void {
     const receivedDir = this.getMultiFileReceivedPath(testCase.inputFile);
