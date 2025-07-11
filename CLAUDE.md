@@ -52,7 +52,13 @@ npm run usage:consolidate            # Manually consolidate usage logs
 ## Available RefakTS Commands
 
 ```
-Error: Could not generate help output
+- extract-variable [options] <target>  Extract expression into a variable
+- inline-variable <target>             Replace variable usage with its value
+- rename [options] <target>            Rename a variable and all its references
+- select [options] <target>            Find code elements and return their locations with content preview
+- variable-locator <target>            Find variable declarations and all their usages
+- find-usages <target>                 Find all usages of a variable, function, or class
+- move-method [options] <target>       Move a method from one class to another
 ```
 <!-- AUTO-GENERATED HELP END -->
 

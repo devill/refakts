@@ -1,14 +1,10 @@
 [
   {
-    "name": "to",
-    "type": "string",
-    "description": "Target file to move the method to",
-    "required": true
+    "flags": "--to <file>",
+    "description": "Target file to move the method to"
   },
   {
-    "name": "target-class",
-    "type": "string", 
-    "description": "Name of the class to move the method to",
-    "required": true
+    "flags": "--target-class <className>",
+    "description": "Name of the class to move the method to"
   }
 ]
