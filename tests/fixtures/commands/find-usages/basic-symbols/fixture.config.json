@@ -1,0 +1,38 @@
+[
+  {
+    "id": "exported-function",
+    "description": "Find usages of exported function across files",
+    "command": "find-usages '[input/utils/math.ts 3:17-3:20]'",
+    "skip": "Implementation pending - find-usages command not yet implemented"
+  },
+  {
+    "id": "class-definition",
+    "description": "Find usages of class definition and instantiations",
+    "command": "find-usages '[input/models/user.ts 3:14-3:18]'",
+    "skip": "Implementation pending - find-usages command not yet implemented"
+  },
+  {
+    "id": "interface-usage",
+    "description": "Find usages of interface in type annotations",
+    "command": "find-usages '[input/types/api.ts 3:18-3:25]'",
+    "skip": "Implementation pending - find-usages command not yet implemented"
+  },
+  {
+    "id": "type-alias",
+    "description": "Find usages of type alias in type annotations",
+    "command": "find-usages '[input/types/api.ts 9:13-9:17]'",
+    "skip": "Implementation pending - find-usages command not yet implemented"
+  },
+  {
+    "id": "enum-definition",
+    "description": "Find usages of enum values",
+    "command": "find-usages '[input/enums/status.ts 3:12-3:18]'",
+    "skip": "Implementation pending - find-usages command not yet implemented"
+  },
+  {
+    "id": "const-variable",
+    "description": "Find usages of exported const variable",
+    "command": "find-usages '[input/constants/config.ts 3:14-3:25]'",
+    "skip": "Implementation pending - find-usages command not yet implemented"
+  }
+]

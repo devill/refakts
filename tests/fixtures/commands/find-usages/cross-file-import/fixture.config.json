@@ -3,6 +3,6 @@
     "id": "basic-cross-file-usage",
     "description": "Find usages of a function exported from one file and imported in another",
     "command": "find-usages '[input/utils/helpers.ts 3:17-3:27]'",
-    "skipReason": null
+    "skip": false
   }
 ]

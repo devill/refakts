@@ -25,7 +25,6 @@ export class MultiFileTestCaseFactory {
 
   private createTestCases(testCaseConfigs: any[], configDir: string): TestCase[] {
     return testCaseConfigs
-      .filter(config => !config.skipReason)
       .map(config => this.createTestCaseFromConfig(config, configDir));
   }
 
@@ -48,7 +47,18 @@ export class MultiFileTestCaseFactory {
 
   private buildFixtureConfig(params: FixtureConfigParams): FixtureTestCaseConfig {
     const { config, baseName, testCaseId, inputDir, filePaths } = params;
-    return { name: `${baseName}/${testCaseId}`, description: config.description, commands: [config.command], inputFile: inputDir, ...filePaths, skip: false, projectDirectory: inputDir, expectedDirectory: filePaths.expectedDir, testCaseId };
+    const skipValue = this.determineSkipValue(config);
+    return { name: `${baseName}/${testCaseId}`, description: config.description, commands: [config.command], inputFile: inputDir, ...filePaths, skip: skipValue, projectDirectory: inputDir, expectedDirectory: filePaths.expectedDir, testCaseId };
+  }
+
+  private determineSkipValue(config: any): boolean | string {
+    if (config.skip === true || config.skip === false) {
+      return config.skip;
+    }
+    if (typeof config.skip === 'string') {
+      return config.skip;
+    }
+    return false;
   }
 
   private getFilePaths(configDir: string, testCaseId: string): FilePaths {

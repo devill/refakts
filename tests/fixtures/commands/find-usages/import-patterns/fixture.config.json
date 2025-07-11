@@ -1,0 +1,32 @@
+[
+  {
+    "id": "named-import",
+    "description": "Find usages of named import across files",
+    "command": "find-usages '[input/lib/utils.ts 3:17-3:23]'",
+    "skip": "Implementation pending - find-usages command not yet implemented"
+  },
+  {
+    "id": "default-import",
+    "description": "Find usages of default exported class",
+    "command": "find-usages '[input/lib/logger.ts 3:21-3:27]'",
+    "skip": "Implementation pending - find-usages command not yet implemented"
+  },
+  {
+    "id": "namespace-import",
+    "description": "Find usages when imported as namespace",
+    "command": "find-usages '[input/modules/api.ts 3:17-3:20]'",
+    "skip": "Implementation pending - find-usages command not yet implemented"
+  },
+  {
+    "id": "re-export",
+    "description": "Find usages of re-exported symbol",
+    "command": "find-usages '[input/lib/utils.ts 7:17-7:23]'",
+    "skip": "Implementation pending - find-usages command not yet implemented"
+  },
+  {
+    "id": "dynamic-import",
+    "description": "Find usages accessed via dynamic import",
+    "command": "find-usages '[input/modules/lazy.ts 3:17-3:27]'",
+    "skip": "Implementation pending - find-usages command not yet implemented"
+  }
+]

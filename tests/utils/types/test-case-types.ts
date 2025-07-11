@@ -9,7 +9,7 @@ export interface FixtureTestCaseConfig {
   inputFile: string;
   expectedFile: string;
   receivedFile: string;
-  skip?: boolean;
+  skip?: boolean | string;
   projectDirectory?: string;
   expectedDirectory?: string;
   testCaseId?: string;
@@ -23,7 +23,7 @@ export class FixtureTestCase {
     public inputFile: string,
     public expectedFile: string,
     public receivedFile: string,
-    public skip?: boolean,
+    public skip?: boolean | string,
     public projectDirectory?: string,
     public expectedDirectory?: string,
     public testCaseId?: string
@@ -69,11 +69,11 @@ export interface TestCase {
   inputFile: string;
   expectedFile: string;
   receivedFile: string;
-  skip?: boolean;
+  skip?: boolean | string;
 }
 
 export interface TestMeta {
   description: string;
   commands: string[];
-  skip?: boolean;
+  skip?: boolean | string;
 }

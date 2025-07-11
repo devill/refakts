@@ -21,6 +21,27 @@ function parseLine(trimmed: string, meta: TestMeta): void {
   } else if (trimmed.startsWith('* @command')) {
     meta.commands.push(trimmed.replace('* @command', '').trim());
   } else if (trimmed.startsWith('* @skip')) {
-    meta.skip = true;
+    meta.skip = parseSkipValue(trimmed);
   }
+}
+
+function parseSkipValue(line: string): boolean | string {
+  const skipContent = line.replace('* @skip', '').trim();
+  
+  if (skipContent === '') {
+    return true; // Just @skip without reason
+  }
+  
+  // Handle quoted strings: @skip "reason text"
+  if (skipContent.startsWith('"') && skipContent.endsWith('"')) {
+    return skipContent.slice(1, -1);
+  }
+  
+  // Handle single-quoted strings: @skip 'reason text'
+  if (skipContent.startsWith("'") && skipContent.endsWith("'")) {
+    return skipContent.slice(1, -1);
+  }
+  
+  // Handle unquoted text: @skip reason text
+  return skipContent;
 }
