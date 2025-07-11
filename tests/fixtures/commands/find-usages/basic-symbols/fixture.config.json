@@ -3,7 +3,7 @@
     "id": "exported-function",
     "description": "Find usages of exported function across files",
     "command": "find-usages '[input/utils/math.ts 3:17-3:20]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "skip": false
   },
   {
     "id": "class-definition",
