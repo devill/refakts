@@ -185,10 +185,8 @@ function createTestCasesFromConfigFiles(configFiles: string[]): TestCase[] {
 }
 
 function createMultiFileTestCases(configFile: string): TestCase[] {
-  const fs = require('fs');
+  const testCaseConfigs = readConfigFile(configFile);
   const configDir = path.dirname(configFile);
-  const configContent = fs.readFileSync(configFile, 'utf8');
-  const testCaseConfigs = JSON.parse(configContent);
   
   const testCases: TestCase[] = [];
   for (const config of testCaseConfigs) {
@@ -196,22 +194,31 @@ function createMultiFileTestCases(configFile: string): TestCase[] {
       continue;
     }
     
-    const inputDir = path.join(configDir, 'input');
-    const testCase = new FixtureTestCase(
-      `${path.basename(configDir)}/${config.id}`,
-      config.description,
-      [config.command],
-      inputDir,
-      path.join(configDir, `${config.id}.expected.ts`),
-      path.join(configDir, `${config.id}.received.ts`),
-      false,
-      inputDir,
-      path.join(configDir, `${config.id}.expected`),
-      config.id
-    );
-    
+    const testCase = createTestCaseFromConfig(config, configDir);
     testCases.push(testCase);
   }
   
   return testCases;
+}
+
+function readConfigFile(configFile: string): any[] {
+  const fs = require('fs');
+  const configContent = fs.readFileSync(configFile, 'utf8');
+  return JSON.parse(configContent);
+}
+
+function createTestCaseFromConfig(config: any, configDir: string): TestCase {
+  const inputDir = path.join(configDir, 'input');
+  return new FixtureTestCase(
+    `${path.basename(configDir)}/${config.id}`,
+    config.description,
+    [config.command],
+    inputDir,
+    path.join(configDir, `${config.id}.expected.ts`),
+    path.join(configDir, `${config.id}.received.ts`),
+    false,
+    inputDir,
+    path.join(configDir, `${config.id}.expected`),
+    config.id
+  );
 }

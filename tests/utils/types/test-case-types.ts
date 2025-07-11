@@ -1,4 +1,7 @@
 /* eslint-disable no-unused-vars */
+import * as fs from 'fs';
+import * as path from 'path';
+
 export class FixtureTestCase {
   constructor(
     public name: string,
@@ -23,6 +26,18 @@ export class FixtureTestCase {
 
   getWorkingDirectory(): string {
     return this.projectDirectory || process.cwd();
+  }
+
+  writeReceivedFiles(outputs: any): { outFile: string; errFile: string } {
+    const receivedFiles = {
+      outFile: path.join(path.dirname(this.inputFile), `${this.testCaseId}.received.out`),
+      errFile: path.join(path.dirname(this.inputFile), `${this.testCaseId}.received.err`)
+    };
+    
+    fs.writeFileSync(receivedFiles.outFile, outputs.stdout || '');
+    fs.writeFileSync(receivedFiles.errFile, outputs.stderr || '');
+    
+    return receivedFiles;
   }
 }
 export interface TestCase {

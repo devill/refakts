@@ -2,12 +2,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { CommandExecutor } from './command-executor';
 import { TestCase, FixtureTestCase } from './test-case-loader';
+import { FileOperations } from './file-operations';
 
 export class FixtureValidator {
   private commandExecutor: CommandExecutor;
+  private fileOperations: FileOperations;
   
   constructor(commandExecutor: CommandExecutor) {
     this.commandExecutor = commandExecutor;
+    this.fileOperations = new FileOperations();
   }
 
   async validate(testCase: TestCase): Promise<void> {
@@ -33,7 +36,7 @@ export class FixtureValidator {
     this.setupMultiFileProject(testCase.inputFile, receivedDir);
     
     const outputs = await this.executeMultiFileCommand(testCase, receivedDir);
-    const receivedFiles = this.writeMultiFileReceivedFiles(testCase, outputs);
+    const receivedFiles = testCase.writeReceivedFiles(outputs);
     
     this.validateAndCleanupMultiFile(testCase, receivedFiles);
   }
@@ -207,26 +210,9 @@ export class FixtureValidator {
   }
 
   private setupMultiFileProject(inputDir: string, receivedDir: string): void {
-    this.copyDirectoryRecursively(inputDir, receivedDir);
+    this.fileOperations.copyDirectory(inputDir, receivedDir);
   }
 
-  private copyDirectoryRecursively(src: string, dest: string): void {
-    if (!fs.existsSync(dest)) {
-      fs.mkdirSync(dest, { recursive: true });
-    }
-    
-    const entries = fs.readdirSync(src);
-    for (const entry of entries) {
-      const srcPath = path.join(src, entry);
-      const destPath = path.join(dest, entry);
-      
-      if (fs.statSync(srcPath).isDirectory()) {
-        this.copyDirectoryRecursively(srcPath, destPath);
-      } else {
-        fs.copyFileSync(srcPath, destPath);
-      }
-    }
-  }
 
   private async executeMultiFileCommand(testCase: FixtureTestCase, receivedDir: string): Promise<{
     stdout: string; stderr: string; success: boolean;
@@ -240,20 +226,6 @@ export class FixtureValidator {
     return cleanCommand.replace(/input\//g, path.basename(receivedDir) + '/');
   }
 
-  private writeMultiFileReceivedFiles(testCase: FixtureTestCase, outputs: any): {
-    outFile: string;
-    errFile: string;
-  } {
-    const receivedFiles = {
-      outFile: path.join(path.dirname(testCase.inputFile), `${testCase.testCaseId}.received.out`),
-      errFile: path.join(path.dirname(testCase.inputFile), `${testCase.testCaseId}.received.err`)
-    };
-    
-    fs.writeFileSync(receivedFiles.outFile, outputs.stdout || '');
-    fs.writeFileSync(receivedFiles.errFile, outputs.stderr || '');
-    
-    return receivedFiles;
-  }
 
   private validateAndCleanupMultiFile(testCase: FixtureTestCase, receivedFiles: any): void {
     try {
