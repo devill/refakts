@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { CommandExecutor } from './command-executor';
-import { TestCase } from './test-case-loader';
+import { TestCase, FixtureTestCase } from './test-case-loader';
 
 export class FixtureValidator {
   private commandExecutor: CommandExecutor;
@@ -11,6 +11,14 @@ export class FixtureValidator {
   }
 
   async validate(testCase: TestCase): Promise<void> {
+    if (testCase instanceof FixtureTestCase && testCase.isMultiFile()) {
+      await this.validateMultiFileTestCase(testCase);
+    } else {
+      await this.validateSingleFileTestCase(testCase);
+    }
+  }
+
+  private async validateSingleFileTestCase(testCase: TestCase): Promise<void> {
     const receivedTsFile = this.getReceivedPath(testCase.inputFile, '.ts');
     this.setupTestFile(testCase.inputFile, receivedTsFile);
     
@@ -18,6 +26,16 @@ export class FixtureValidator {
     const receivedFiles = this.writeReceivedFiles(testCase.inputFile, outputs);
     
     this.validateAndCleanup(testCase.inputFile, receivedFiles);
+  }
+
+  private async validateMultiFileTestCase(testCase: FixtureTestCase): Promise<void> {
+    const receivedDir = this.getReceivedPath(testCase.inputFile, `.received`);
+    this.setupMultiFileProject(testCase.inputFile, receivedDir);
+    
+    const outputs = await this.executeMultiFileCommand(testCase, receivedDir);
+    const receivedFiles = this.writeMultiFileReceivedFiles(testCase, outputs);
+    
+    this.validateAndCleanupMultiFile(testCase, receivedFiles);
   }
 
   private validateAndCleanup(inputFile: string, receivedFiles: any): void {
@@ -38,7 +56,7 @@ export class FixtureValidator {
     stdout: string; stderr: string; fileContent: string; success: boolean;
   }> {
     const command = this.prepareCommand(testCase.commands[0], receivedFile);
-    const executionResult = await this.runCommand(command);
+    const executionResult = await this.runCommand(command, process.cwd());
     return { ...executionResult, fileContent: this.readFileContent(receivedFile) };
   }
 
@@ -159,14 +177,6 @@ export class FixtureValidator {
     }
   }
 
-  private async runCommand(command: string): Promise<{ stdout: string; stderr: string; success: boolean }> {
-    try {
-      const output = await this.commandExecutor.executeCommand(command);
-      return { stdout: typeof output === 'string' ? output : '', stderr: '', success: true };
-    } catch (error) {
-      return { stdout: '', stderr: (error as Error).message, success: false };
-    }
-  }
 
   private readFileContent(filePath: string): string {
     try {
@@ -188,5 +198,131 @@ export class FixtureValidator {
     fs.writeFileSync(receivedFiles.tsFile, outputs.fileContent);
     this.writeOutputIfPresent(receivedFiles.outFile, outputs.stdout);
     this.writeOutputIfPresent(receivedFiles.errFile, outputs.stderr);
+  }
+
+  private setupMultiFileProject(inputDir: string, receivedDir: string): void {
+    this.copyDirectoryRecursively(inputDir, receivedDir);
+  }
+
+  private copyDirectoryRecursively(src: string, dest: string): void {
+    if (!fs.existsSync(dest)) {
+      fs.mkdirSync(dest, { recursive: true });
+    }
+    
+    const entries = fs.readdirSync(src);
+    for (const entry of entries) {
+      const srcPath = path.join(src, entry);
+      const destPath = path.join(dest, entry);
+      
+      if (fs.statSync(srcPath).isDirectory()) {
+        this.copyDirectoryRecursively(srcPath, destPath);
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+      }
+    }
+  }
+
+  private async executeMultiFileCommand(testCase: FixtureTestCase, receivedDir: string): Promise<{
+    stdout: string; stderr: string; success: boolean;
+  }> {
+    const command = this.prepareMultiFileCommand(testCase.commands[0], receivedDir);
+    return this.runCommand(command, receivedDir);
+  }
+
+  private prepareMultiFileCommand(command: string, receivedDir: string): string {
+    const cleanCommand = this.removeRefaktsPrefix(command);
+    return cleanCommand.replace(/input\//g, path.basename(receivedDir) + '/');
+  }
+
+  private writeMultiFileReceivedFiles(testCase: FixtureTestCase, outputs: any): {
+    outFile: string;
+    errFile: string;
+  } {
+    const receivedFiles = {
+      outFile: path.join(path.dirname(testCase.inputFile), `${testCase.testCaseId}.received.out`),
+      errFile: path.join(path.dirname(testCase.inputFile), `${testCase.testCaseId}.received.err`)
+    };
+    
+    fs.writeFileSync(receivedFiles.outFile, outputs.stdout || '');
+    fs.writeFileSync(receivedFiles.errFile, outputs.stderr || '');
+    
+    return receivedFiles;
+  }
+
+  private validateAndCleanupMultiFile(testCase: FixtureTestCase, receivedFiles: any): void {
+    try {
+      this.compareWithExpectedMultiFile(testCase, receivedFiles);
+      this.cleanupMultiFileReceivedFiles(testCase, receivedFiles, true);
+    } catch (error) {
+      this.cleanupMultiFileReceivedFiles(testCase, receivedFiles, false);
+      throw error;
+    }
+  }
+
+  private compareWithExpectedMultiFile(testCase: FixtureTestCase, receivedFiles: any): void {
+    const expectedFiles = {
+      outFile: path.join(path.dirname(testCase.inputFile), `${testCase.testCaseId}.expected.out`),
+      errFile: path.join(path.dirname(testCase.inputFile), `${testCase.testCaseId}.expected.err`)
+    };
+    
+    this.compareIfExpected(expectedFiles.outFile, receivedFiles.outFile);
+    this.compareIfExpected(expectedFiles.errFile, receivedFiles.errFile);
+    
+    if (testCase.expectedDirectory && fs.existsSync(testCase.expectedDirectory)) {
+      this.compareDirectories(testCase.expectedDirectory, this.getReceivedPath(testCase.inputFile, `.received`));
+    }
+  }
+
+  private compareDirectories(expectedDir: string, receivedDir: string): void {
+    if (!fs.existsSync(receivedDir)) {
+      throw new Error(`Expected directory ${expectedDir} exists but received directory ${receivedDir} was not generated`);
+    }
+    
+    const expectedFiles = this.getFilesRecursively(expectedDir);
+    for (const file of expectedFiles) {
+      const relativePath = path.relative(expectedDir, file);
+      const receivedFile = path.join(receivedDir, relativePath);
+      this.compareFileContents(file, receivedFile);
+    }
+  }
+
+  private getFilesRecursively(dir: string): string[] {
+    const files: string[] = [];
+    const entries = fs.readdirSync(dir);
+    
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry);
+      if (fs.statSync(fullPath).isDirectory()) {
+        files.push(...this.getFilesRecursively(fullPath));
+      } else {
+        files.push(fullPath);
+      }
+    }
+    
+    return files;
+  }
+
+  private cleanupMultiFileReceivedFiles(testCase: FixtureTestCase, receivedFiles: any, testPassed: boolean): void {
+    const receivedDir = this.getReceivedPath(testCase.inputFile, `.received`);
+    if (fs.existsSync(receivedDir)) {
+      if (testPassed) {
+        fs.rmSync(receivedDir, { recursive: true, force: true });
+      }
+    }
+    
+    Object.values(receivedFiles).forEach((file: any) => {
+      if (fs.existsSync(file)) {
+        this.cleanupSingleFile(file, testPassed);
+      }
+    });
+  }
+
+  private async runCommand(command: string, cwd: string = process.cwd()): Promise<{ stdout: string; stderr: string; success: boolean }> {
+    try {
+      const output = await this.commandExecutor.executeCommand(command, cwd);
+      return { stdout: typeof output === 'string' ? output : '', stderr: '', success: true };
+    } catch (error) {
+      return { stdout: '', stderr: (error as Error).message, success: false };
+    }
   }
 }
