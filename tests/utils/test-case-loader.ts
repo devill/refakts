@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { TestCase } from './types/test-case-types';
+import { TestCase, FixtureTestCase } from './types/test-case-types';
 import { FileSystemScanner } from './scanners/file-system-scanner';
 import { FixtureLocation } from './fixture-location';
 
@@ -22,7 +22,7 @@ interface DirectoryProcessingContext {
   inputFiles: string[];
 }
 
-export { TestCase, TestMeta } from './types/test-case-types';
+export { TestCase, FixtureTestCase, TestMeta } from './types/test-case-types';
 export { extractMetaFromFile } from './parsers/meta-parser';
 
 export function getTestCases(fixturesDir: string, expectedExtension: string): TestCase[] {
@@ -87,7 +87,13 @@ function getSingleFileTestCases(config: TestCaseProcessingConfig): TestCase[] {
 
 function loadTestCasesRecursively(fixturesDir: string, scanner: FileSystemScanner): TestCase[] {
   const inputFiles = findInputFilesRecursively(fixturesDir, scanner);
-  return createTestCasesFromInputFiles(inputFiles);
+  const configFiles = findConfigFilesRecursively(fixturesDir, scanner);
+  
+  const testCases: TestCase[] = [];
+  testCases.push(...createTestCasesFromInputFiles(inputFiles));
+  testCases.push(...createTestCasesFromConfigFiles(configFiles));
+  
+  return testCases;
 }
 
 function createTestCasesFromInputFiles(inputFiles: string[]): TestCase[] {
@@ -133,4 +139,79 @@ function handleFileOrDirectory(fullPath: string, entry: string, context: Directo
   } else if (entry.endsWith('.input.ts')) {
     context.inputFiles.push(fullPath);
   }
+}
+
+function findConfigFilesRecursively(dir: string, scanner: FileSystemScanner): string[] {
+  const context: DirectoryProcessingContext = {
+    scanner,
+    inputFiles: []
+  };
+  
+  processConfigDirectoryEntries(dir, context);
+  return context.inputFiles;
+}
+
+function processConfigDirectoryEntries(dir: string, context: DirectoryProcessingContext): void {
+  const entries = context.scanner.getTestDirectoryFiles(dir);
+  
+  for (const entry of entries) {
+    processConfigDirectoryEntry(dir, entry, context);
+  }
+}
+
+function processConfigDirectoryEntry(dir: string, entry: string, context: DirectoryProcessingContext): void {
+  const fullPath = path.join(dir, entry);
+  if (context.scanner.fileExists(fullPath)) {
+    handleConfigFileOrDirectory(fullPath, entry, context);
+  }
+}
+
+function handleConfigFileOrDirectory(fullPath: string, entry: string, context: DirectoryProcessingContext): void {
+  const stat = require('fs').statSync(fullPath);
+  if (stat.isDirectory()) {
+    context.inputFiles.push(...findConfigFilesRecursively(fullPath, context.scanner));
+  } else if (entry === 'fixture.config.json') {
+    context.inputFiles.push(fullPath);
+  }
+}
+
+function createTestCasesFromConfigFiles(configFiles: string[]): TestCase[] {
+  const testCases: TestCase[] = [];
+  for (const configFile of configFiles) {
+    const multiFileTestCases = createMultiFileTestCases(configFile);
+    testCases.push(...multiFileTestCases);
+  }
+  return testCases;
+}
+
+function createMultiFileTestCases(configFile: string): TestCase[] {
+  const fs = require('fs');
+  const configDir = path.dirname(configFile);
+  const configContent = fs.readFileSync(configFile, 'utf8');
+  const testCaseConfigs = JSON.parse(configContent);
+  
+  const testCases: TestCase[] = [];
+  for (const config of testCaseConfigs) {
+    if (config.skipReason) {
+      continue;
+    }
+    
+    const inputDir = path.join(configDir, 'input');
+    const testCase = new FixtureTestCase(
+      `${path.basename(configDir)}/${config.id}`,
+      config.description,
+      [config.command],
+      inputDir,
+      path.join(configDir, `${config.id}.expected.ts`),
+      path.join(configDir, `${config.id}.received.ts`),
+      false,
+      inputDir,
+      path.join(configDir, `${config.id}.expected`),
+      config.id
+    );
+    
+    testCases.push(testCase);
+  }
+  
+  return testCases;
 }

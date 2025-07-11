@@ -1,5 +1,5 @@
+/* eslint-disable no-unused-vars */
 export class FixtureTestCase {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
   constructor(
     public name: string,
     public description: string,
