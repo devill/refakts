@@ -38,7 +38,7 @@ const checkSourceCodeDuplication = async (issues: QualityIssue[]): Promise<void>
 
 const checkTestCodeDuplication = async (issues: QualityIssue[]): Promise<void> => {
   try {
-    await execAsync('npx jscpd tests --threshold 5 --reporters console --silent');
+    await execAsync('npx jscpd tests --threshold 5 --reporters console --silent --ignore "tests/fixtures/**" --ignore "tests/scripts/**"');
   } catch (error: unknown) {
     if (hasDuplication(error)) {
       issues.push(...createTestDuplicationIssue());

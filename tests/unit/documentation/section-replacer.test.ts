@@ -8,6 +8,7 @@ import {
   NESTED_MARKERS
 } from '../../fixtures/unit/documentation/section-samples';
 import { SectionReplacer } from '../../../src/documentation/SectionReplacer';
+import { DocumentationTestHelper } from './test-helpers';
 import { SectionReplacementRequest } from '../../../src/core/section-replacement-request';
 
 const sectionReplacer = new SectionReplacer(true);
@@ -40,14 +41,7 @@ describe('Section Replacer', () => {
       newContent: 'New help content'
     });
     
-    const expectedPath = path.join(expectedDir, 'basic-section-replacement.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    DocumentationTestHelper.expectToMatchExpectedFile(result, expectedDir, 'basic-section-replacement.expected.txt');
   });
 
   test('handles missing start marker', () => {

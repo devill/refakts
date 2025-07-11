@@ -178,12 +178,6 @@
       "featureEnvy"
     ]
   },
-  "tests/utils/output-validators.ts": {
-    "lastCommitId": "89ea54e72e552715acec38f728fc0face807d2ad",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
   "tests/utils/refactoring-validator.ts": {
     "lastCommitId": "89ea54e72e552715acec38f728fc0face807d2ad",
     "violations": [
