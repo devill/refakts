@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { TestCase, FixtureTestCase } from './types/test-case-types';
+import { TestCase } from './types/test-case-types';
 import { FileSystemScanner } from './scanners/file-system-scanner';
 import { FixtureLocation } from './fixture-location';
 
@@ -22,7 +22,7 @@ interface DirectoryProcessingContext {
   inputFiles: string[];
 }
 
-export { TestCase, FixtureTestCase, TestMeta } from './types/test-case-types';
+export { TestCase, TestMeta } from './types/test-case-types';
 export { extractMetaFromFile } from './parsers/meta-parser';
 
 export function getTestCases(fixturesDir: string, expectedExtension: string): TestCase[] {

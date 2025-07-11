@@ -24,8 +24,6 @@ export class FixtureTestCase {
     return this.projectDirectory || process.cwd();
   }
 }
-
-// Keep interface for backward compatibility during transition
 export interface TestCase {
   name: string;
   description: string;
