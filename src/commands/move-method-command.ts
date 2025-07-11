@@ -3,7 +3,7 @@ import { RefactoringCommand, CommandOptions } from '../command';
 export class MoveMethodCommand implements RefactoringCommand {
   readonly name = 'move-method';
   readonly description = 'Move a method from one class to another';
-  readonly complete = true;
+  readonly complete = false;
   
   async execute(targetLocation: string, options: CommandOptions): Promise<void> {
     if (targetLocation.includes('formatter.ts')) {

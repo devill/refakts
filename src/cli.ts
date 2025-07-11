@@ -14,9 +14,16 @@ const commandRegistry = new CommandRegistry();
 program
   .name('refakts')
   .description('TypeScript refactoring tool based on ts-morph')
-  .version('1.0.0');
+  .version('1.0.0')
+  .option('--show-incomplete', 'Show incomplete commands in help');
+
+const showIncomplete = process.argv.includes('--show-incomplete');
 
 for (const command of commandRegistry.getAllCommands()) {
+  if (!command.complete && !showIncomplete) {
+    continue;
+  }
+  
   const warningText = !command.complete ? ' (warning: incomplete)' : '';
   
   const cmd = program

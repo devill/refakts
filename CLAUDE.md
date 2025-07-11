@@ -57,8 +57,6 @@ npm run usage:consolidate            # Manually consolidate usage logs
 - rename [options] <target>            Rename a variable and all its references
 - select [options] <target>            Find code elements and return their locations with content preview
 - variable-locator <target>            Find variable declarations and all their usages
-- find-usages <target>                 Find all usages of a variable, function, or class
-- move-method [options] <target>       Move a method from one class to another
 ```
 <!-- AUTO-GENERATED HELP END -->
 
@@ -134,24 +132,44 @@ The architecture is built on **ts-morph** for AST manipulation and **@phenomnomn
 
 A **strategy pattern** powers flexible selection, where different `SelectionStrategy` implementations handle various code selection methods. Key insight: RefakTS separates **what to find** (selection strategies) from **what to do** (command implementations).
 
-### Test Selection Guide:
-- **Refactoring tests** (`fixtures/refactoring/`): For commands that modify files - validate against `.expected.ts` files
-- **Locator tests** (`fixtures/locators/`): For commands that find/analyze code - use `.expected.yaml` for structured data comparison
-- **Select tests** (`fixtures/select`): For commands that help identify source code locations based on string matchers - validate against `.expected.txt`.
+### Unified Test Framework
 
-Files matching `*.received.*` are gitignored and appear only during test failures.
+**NEW ARCHITECTURE**: RefakTS now uses a unified testing framework that supports both single-file and multi-file fixtures with automatic test discovery.
 
-### Test Fixture Rules:
-- **Folder structure**: Group tests by command (e.g., `fixtures/refactoring/extract-variable/`, `fixtures/select/basic-regex/`)
-- **JSDoc format**: Use multi-line comments with proper JSDoc notation:
-  ```typescript
-  /**
-   * @description Brief description of what the test validates
-   * @command command-name "target-or-args"
-   * @expect-error true  // Only for error cases
-   */
-  ```
-- **Error cases**: Use `expected.txt` files for console output validation (already supported)
+**Test Types**:
+- **Single-file tests** (`tests/fixtures/[category]/[command]/[test-name].input.ts`): For simple refactoring tests
+- **Multi-file tests** (`tests/fixtures/commands/[command]/[test-name]/input/`): For complex scenarios requiring multiple files
+- **Integration tests**: All fixtures are automatically discovered and run through `tests/integration/fixture.test.ts`
+
+**File Structure**:
+```
+tests/fixtures/
+├── refactoring/           # Single-file refactoring tests
+│   └── extract-variable/
+│       ├── basic-extraction.input.ts
+│       └── basic-extraction.expected.ts
+├── commands/              # Multi-file command tests
+│   └── find-usages/
+│       └── cross-file-import/
+│           ├── fixture.config.json
+│           ├── input/
+│           │   ├── main.ts
+│           │   └── utils/helpers.ts
+│           └── basic-cross-file-usage.expected.out
+```
+
+**Expected Files**:
+- `.expected.ts` - File transformation results
+- `.expected.out` - Console output validation
+- `.expected.err` - Error message validation
+- `.expected/` - Directory with expected multi-file results
+
+**Test Configuration**:
+- `fixture.config.json` - Multi-file test configuration with test cases
+- `@skip` annotation - Skip individual tests
+- `@expect-error` annotation - Expect command to fail
+
+**Files matching `*.received.*` are gitignored and appear only during test failures.**
 
 ## Development Workflow
 
