@@ -18,7 +18,7 @@ interface TestCaseProcessingConfig {
   expectedExtension: string;
 }
 
-export { TestCase, FixtureTestCase, TestMeta } from './types/test-case-types';
+export { TestCase, FixtureTestCase, TestMeta, FixtureTestCaseConfig } from './types/test-case-types';
 export { extractMetaFromFile } from './parsers/meta-parser';
 
 export function getTestCases(fixturesDir: string, expectedExtension: string): TestCase[] {

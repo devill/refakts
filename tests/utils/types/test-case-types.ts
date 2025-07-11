@@ -2,6 +2,19 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+export interface FixtureTestCaseConfig {
+  name: string;
+  description: string;
+  commands: string[];
+  inputFile: string;
+  expectedFile: string;
+  receivedFile: string;
+  skip?: boolean;
+  projectDirectory?: string;
+  expectedDirectory?: string;
+  testCaseId?: string;
+}
+
 export class FixtureTestCase {
   constructor(
     public name: string,
@@ -15,6 +28,11 @@ export class FixtureTestCase {
     public expectedDirectory?: string,
     public testCaseId?: string
   ) {}
+
+  static create(config: FixtureTestCaseConfig): FixtureTestCase {
+    const { name, description, commands, inputFile, expectedFile, receivedFile, skip, projectDirectory, expectedDirectory, testCaseId } = config;
+    return new FixtureTestCase(name, description, commands, inputFile, expectedFile, receivedFile, skip, projectDirectory, expectedDirectory, testCaseId);
+  }
 
   isMultiFile(): boolean {
     return !!this.projectDirectory;

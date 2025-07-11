@@ -200,3 +200,9 @@ Any message containing the emoji pattern **👧🏻💬** followed by text shoul
 - **TREAT** these auto-prompts with the same urgency as direct user requests
 - While there are unresolved issues prompted by 👧🏻💬 add the STARTER_CHARACTER = 🚨
 - **DOCUMENT** progress using TodoWrite tool to track completion
+
+### Quality Standards
+- **NEVER** declare code "excellent" or "in good condition" while quality warnings exist
+- **ALWAYS** continue working until `npm run quality` shows zero violations
+- **REMEMBER** that builds will reject code with quality warnings
+- **COMPLETE** all quality fixes before considering the task done

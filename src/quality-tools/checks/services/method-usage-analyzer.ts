@@ -1,4 +1,4 @@
-import { MethodDeclaration, PropertyAccessExpression, CallExpression, SyntaxKind, Node, Symbol } from 'ts-morph';
+import { MethodDeclaration, PropertyAccessExpression, CallExpression, SyntaxKind, Node, Symbol, ClassDeclaration } from 'ts-morph';
 import { UsageAnalysisRequest } from '../../../core/usage-analysis-request';
 
 export interface UsageAnalysis {
@@ -22,18 +22,26 @@ export class MethodUsageAnalyzer {
     return this.buildUsageAnalysis(request);
   }
 
+  private static getMethodClassName(method: MethodDeclaration): string | undefined {
+    const classDeclaration = method.getParent();
+    if (classDeclaration && classDeclaration.getKind() === SyntaxKind.ClassDeclaration) {
+      return (classDeclaration as ClassDeclaration).getName();
+    }
+    return undefined;
+  }
+
   private static buildUsageAnalysis(request: UsageAnalysisRequest): UsageAnalysis {
     return request.buildUsageAnalysis();
   }
 
   private static analyzeNodeUsage(node: Node, request: UsageAnalysisRequest): void {
-    const usageResults = this.getNodeUsageResults(node, request.importedSymbols);
+    const usageResults = this.getNodeUsageResults(node, request.importedSymbols, request.method);
     this.processUsageResults(usageResults, request);
   }
 
-  private static getNodeUsageResults(node: Node, importedSymbols: Set<string>): UsageResult[] {
-    const propertyUsage = this.analyzePropertyAccess(node, importedSymbols);
-    const callUsage = this.analyzeCallExpression(node, importedSymbols);
+  private static getNodeUsageResults(node: Node, importedSymbols: Set<string>, method: MethodDeclaration): UsageResult[] {
+    const propertyUsage = this.analyzePropertyAccess(node, importedSymbols, method);
+    const callUsage = this.analyzeCallExpression(node, importedSymbols, method);
     return [propertyUsage, callUsage];
   }
 
@@ -41,7 +49,7 @@ export class MethodUsageAnalyzer {
     request.processUsageResults(usageResults);
   }
 
-  private static analyzePropertyAccess(node: Node, importedSymbols: Set<string>): UsageResult {
+  private static analyzePropertyAccess(node: Node, importedSymbols: Set<string>, method: MethodDeclaration): UsageResult {
     if (node.getKind() !== SyntaxKind.PropertyAccessExpression) {
       return { isOwnUsage: false };
     }
@@ -49,10 +57,10 @@ export class MethodUsageAnalyzer {
     const propAccess = node as PropertyAccessExpression;
     const expression = propAccess.getExpression();
     
-    return this.analyzeExpression(expression, importedSymbols);
+    return this.analyzeExpression(expression, importedSymbols, method);
   }
 
-  private static analyzeCallExpression(node: Node, importedSymbols: Set<string>): UsageResult {
+  private static analyzeCallExpression(node: Node, importedSymbols: Set<string>, method: MethodDeclaration): UsageResult {
     if (node.getKind() !== SyntaxKind.CallExpression) {
       return { isOwnUsage: false };
     }
@@ -60,18 +68,18 @@ export class MethodUsageAnalyzer {
     const callExpr = node as CallExpression;
     const expression = callExpr.getExpression();
     
-    return this.analyzeCallExpressionNode(expression, importedSymbols);
+    return this.analyzeCallExpressionNode(expression, importedSymbols, method);
   }
 
-  private static analyzeExpression(expression: Node, importedSymbols: Set<string>): UsageResult {
+  private static analyzeExpression(expression: Node, importedSymbols: Set<string>, method: MethodDeclaration): UsageResult {
     if (expression.getKind() === SyntaxKind.ThisKeyword) {
       return { isOwnUsage: true };
     }
     
-    return this.analyzeExternalClassReference(expression, importedSymbols);
+    return this.analyzeExternalClassReference(expression, importedSymbols, method);
   }
 
-  private static analyzeCallExpressionNode(expression: Node, importedSymbols: Set<string>): UsageResult {
+  private static analyzeCallExpressionNode(expression: Node, importedSymbols: Set<string>, method: MethodDeclaration): UsageResult {
     if (expression.getKind() !== SyntaxKind.PropertyAccessExpression) {
       return { isOwnUsage: false };
     }
@@ -79,10 +87,10 @@ export class MethodUsageAnalyzer {
     const propAccess = expression as PropertyAccessExpression;
     const objectExpr = propAccess.getExpression();
     
-    return this.analyzeExpression(objectExpr, importedSymbols);
+    return this.analyzeExpression(objectExpr, importedSymbols, method);
   }
 
-  private static analyzeExternalClassReference(expression: Node, importedSymbols: Set<string>): UsageResult {
+  private static analyzeExternalClassReference(expression: Node, importedSymbols: Set<string>, method: MethodDeclaration): UsageResult {
     const symbol = this.extractSymbolFromExpression(expression);
     if (!symbol) {
       return this.createNonOwnUsageResult();
@@ -90,7 +98,7 @@ export class MethodUsageAnalyzer {
     if (this.isSystemType(symbol)) {
       return this.createNonOwnUsageResult();
     }
-    return this.processSymbolName(symbol, importedSymbols);
+    return this.processSymbolName(symbol, importedSymbols, method);
   }
 
   private static createNonOwnUsageResult(): UsageResult {
@@ -106,11 +114,21 @@ export class MethodUsageAnalyzer {
     return this.isExternalLibraryType(symbol) || this.isBuiltInType(symbol);
   }
 
-  private static processSymbolName(symbol: Symbol, importedSymbols: Set<string>): UsageResult {
+  private static processSymbolName(symbol: Symbol, importedSymbols: Set<string>, method: MethodDeclaration): UsageResult {
     const symbolName = symbol.getName();
     if (importedSymbols.has(symbolName)) {
       return { isOwnUsage: false };
     }
+    
+    return this.checkForSameClassReference(symbolName, method);
+  }
+
+  private static checkForSameClassReference(symbolName: string, method: MethodDeclaration): UsageResult {
+    const methodClassName = this.getMethodClassName(method);
+    if (methodClassName && symbolName === methodClassName) {
+      return { isOwnUsage: true };
+    }
+    
     return { isOwnUsage: false, externalClass: symbolName };
   }
 

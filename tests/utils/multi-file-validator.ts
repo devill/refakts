@@ -3,15 +3,18 @@ import * as path from 'path';
 import { CommandExecutor } from './command-executor';
 import { FixtureTestCase } from './test-case-loader';
 import { FileOperations } from './file-operations';
+import { CommandRunner } from './command-runner';
 import { TestUtilities } from './test-utilities';
 
 export class MultiFileValidator {
   private commandExecutor: CommandExecutor;
   private fileOperations: FileOperations;
+  private commandRunner: CommandRunner;
   
   constructor(commandExecutor: CommandExecutor) {
     this.commandExecutor = commandExecutor;
     this.fileOperations = new FileOperations();
+    this.commandRunner = new CommandRunner(commandExecutor);
   }
 
   async validate(testCase: FixtureTestCase): Promise<void> {
@@ -113,11 +116,6 @@ export class MultiFileValidator {
   }
 
   private async runCommand(command: string, cwd: string = process.cwd()): Promise<{ stdout: string; stderr: string; success: boolean }> {
-    try {
-      const output = await this.commandExecutor.executeCommand(command, cwd);
-      return { stdout: typeof output === 'string' ? output : '', stderr: '', success: true };
-    } catch (error) {
-      return { stdout: '', stderr: (error as Error).message, success: false };
-    }
+    return this.commandRunner.runCommand(command, cwd);
   }
 }

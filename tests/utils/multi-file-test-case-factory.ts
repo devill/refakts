@@ -1,5 +1,19 @@
 import * as path from 'path';
-import { TestCase, FixtureTestCase } from './test-case-loader';
+import { TestCase, FixtureTestCase, FixtureTestCaseConfig } from './test-case-loader';
+
+interface FilePaths {
+  expectedFile: string;
+  receivedFile: string;
+  expectedDir: string;
+}
+
+interface FixtureConfigParams {
+  config: any;
+  baseName: string;
+  testCaseId: string;
+  inputDir: string;
+  filePaths: FilePaths;
+}
 
 export class MultiFileTestCaseFactory {
   createFromConfigFile(configFile: string): TestCase[] {
@@ -22,22 +36,27 @@ export class MultiFileTestCaseFactory {
   }
 
   private createTestCaseFromConfig(config: any, configDir: string): TestCase {
-    const inputDir = path.join(configDir, 'input');
     const testCaseId = config.id;
     const baseName = path.basename(configDir);
+    const inputDir = path.join(configDir, 'input');
+    const filePaths = this.getFilePaths(configDir, testCaseId);
     
-    return new FixtureTestCase(
-      `${baseName}/${testCaseId}`,
-      config.description,
-      [config.command],
-      inputDir,
-      this.getExpectedFilePath(configDir, testCaseId),
-      this.getReceivedFilePath(configDir, testCaseId),
-      false,
-      inputDir,
-      this.getExpectedDirPath(configDir, testCaseId),
-      testCaseId
-    );
+    const params: FixtureConfigParams = { config, baseName, testCaseId, inputDir, filePaths };
+    const fixtureConfig = this.buildFixtureConfig(params);
+    return FixtureTestCase.create(fixtureConfig);
+  }
+
+  private buildFixtureConfig(params: FixtureConfigParams): FixtureTestCaseConfig {
+    const { config, baseName, testCaseId, inputDir, filePaths } = params;
+    return { name: `${baseName}/${testCaseId}`, description: config.description, commands: [config.command], inputFile: inputDir, ...filePaths, skip: false, projectDirectory: inputDir, expectedDirectory: filePaths.expectedDir, testCaseId };
+  }
+
+  private getFilePaths(configDir: string, testCaseId: string): FilePaths {
+    return {
+      expectedFile: this.getExpectedFilePath(configDir, testCaseId),
+      receivedFile: this.getReceivedFilePath(configDir, testCaseId),
+      expectedDir: this.getExpectedDirPath(configDir, testCaseId)
+    };
   }
 
   private getExpectedFilePath(configDir: string, testCaseId: string): string {
