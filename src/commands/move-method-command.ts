@@ -27,15 +27,18 @@ export class MoveMethodCommand implements RefactoringCommand {
   }
 
   private executeMove(targetClass: string): void {
-    const moveActions = {
-      'User': () => this.logUserClassMove(),
-      'UserService': () => this.logUserServiceMove()
-    };
-    
+    const moveActions = this.createMoveActions();
     const action = moveActions[targetClass as keyof typeof moveActions];
     if (action) {
       action();
     }
+  }
+
+  private createMoveActions() {
+    return {
+      'User': () => this.logUserClassMove(),
+      'UserService': () => this.logUserServiceMove()
+    };
   }
 
   private throwNonExistentClassError(): never {

@@ -23,27 +23,32 @@ export class MultiFileTestCaseFactory {
 
   private createTestCaseFromConfig(config: any, configDir: string): TestCase {
     const inputDir = path.join(configDir, 'input');
-    const testCaseParams = this.buildTestCaseParams(config, configDir, inputDir);
-    return new FixtureTestCase(...testCaseParams);
-  }
-
-  private buildTestCaseParams(config: any, configDir: string, inputDir: string): [string, string, string[], string, string, string, boolean, string, string, string] {
+    const testCaseId = config.id;
     const baseName = path.basename(configDir);
-    const expectedTsFile = path.join(configDir, `${config.id}.expected.ts`);
-    const receivedTsFile = path.join(configDir, `${config.id}.received.ts`);
-    const expectedDir = path.join(configDir, `${config.id}.expected`);
     
-    return [
-      `${baseName}/${config.id}`,
+    return new FixtureTestCase(
+      `${baseName}/${testCaseId}`,
       config.description,
       [config.command],
       inputDir,
-      expectedTsFile,
-      receivedTsFile,
+      this.getExpectedFilePath(configDir, testCaseId),
+      this.getReceivedFilePath(configDir, testCaseId),
       false,
       inputDir,
-      expectedDir,
-      config.id
-    ];
+      this.getExpectedDirPath(configDir, testCaseId),
+      testCaseId
+    );
+  }
+
+  private getExpectedFilePath(configDir: string, testCaseId: string): string {
+    return path.join(configDir, `${testCaseId}.expected.ts`);
+  }
+
+  private getReceivedFilePath(configDir: string, testCaseId: string): string {
+    return path.join(configDir, `${testCaseId}.received.ts`);
+  }
+
+  private getExpectedDirPath(configDir: string, testCaseId: string): string {
+    return path.join(configDir, `${testCaseId}.expected`);
   }
 }
