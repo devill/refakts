@@ -115,7 +115,6 @@ RefakTS development demonstrates an approach for helping AI agents develop pract
 - **COMMENTS DETECTED** (Comments indicate code that is not self-documenting.)
 - **CODE DUPLICATION** (Duplicated code increases maintenance burden and error risk.)
 - **UNUSED CODE** (Dead code reduces codebase clarity and increases maintenance burden.)
-- **INCOMPLETE REFACTORINGS** (Incomplete refactorings should be finished or marked complete.)
 - **FEATURE ENVY** (Methods that use another class more than their own class.)
 - **LARGE CHANGES** (Large diffs are harder to review and more likely to introduce bugs.)
 - **OPEN-CLOSED PRINCIPLE VIOLATIONS** (Files changing frequently suggest design should be extensible without modification.)
