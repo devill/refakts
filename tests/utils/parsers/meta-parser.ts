@@ -28,20 +28,17 @@ function parseLine(trimmed: string, meta: TestMeta): void {
 function parseSkipValue(line: string): boolean | string {
   const skipContent = line.replace('* @skip', '').trim();
   
-  if (skipContent === '') {
-    return true; // Just @skip without reason
-  }
+  if (skipContent === '') return true;
   
-  // Handle quoted strings: @skip "reason text"
-  if (skipContent.startsWith('"') && skipContent.endsWith('"')) {
-    return skipContent.slice(1, -1);
-  }
-  
-  // Handle single-quoted strings: @skip 'reason text'
-  if (skipContent.startsWith("'") && skipContent.endsWith("'")) {
-    return skipContent.slice(1, -1);
-  }
-  
-  // Handle unquoted text: @skip reason text
-  return skipContent;
+  return extractQuotedContent(skipContent) || skipContent;
+}
+
+function extractQuotedContent(content: string): string | null {
+  return isQuotedWith(content, '"') || isQuotedWith(content, "'") || null;
+}
+
+function isQuotedWith(content: string, quote: string): string | null {
+  return content.startsWith(quote) && content.endsWith(quote) 
+    ? content.slice(1, -1) 
+    : null;
 }
