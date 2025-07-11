@@ -1,0 +1,5 @@
+Successfully moved method 'formatUserDisplayName' from Formatter to UserService class
+Updated 3 files:
+- input/services/user-service.ts: Added method
+- input/utils/formatter.ts: Removed method
+- input/main.ts: Updated method call

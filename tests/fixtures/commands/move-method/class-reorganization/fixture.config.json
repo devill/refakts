@@ -1,0 +1,16 @@
+[
+  {
+    "description": "Move method from utility class to the class that uses it most",
+    "command": "move-method '[src/utils/formatter.ts 8:3-12:4]' --to src/models/user.ts --target-class User",
+    "workingDirectory": "src",
+    "expectedDirectory": "expected-case-1",
+    "skipReason": null
+  },
+  {
+    "description": "Move method from utility class to a service class",
+    "command": "move-method '[src/utils/formatter.ts 8:3-12:4]' --to src/services/user-service.ts --target-class UserService",
+    "workingDirectory": "src", 
+    "expectedDirectory": "expected-case-2",
+    "skipReason": null
+  }
+]
