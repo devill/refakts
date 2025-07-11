@@ -36,7 +36,10 @@ export class CommandExecutionBuilder {
   }
 
   private isLocatorCommand(): boolean {
-    return this.commandName.includes('locator') || this.commandName === 'select';
+    return this.commandName.includes('locator') || 
+           this.commandName === 'select' ||
+           this.commandName === 'find-usages' ||
+           this.commandName === 'move-method';
   }
 
   private handleExecutionError(error: unknown): never {

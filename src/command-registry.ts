@@ -4,13 +4,17 @@ import { InlineVariableCommand } from './commands/inline-variable-command';
 import { RenameCommand } from './commands/rename-command';
 import { SelectCommand } from './commands/select-command';
 import { VariableLocatorCommand } from './commands/variable-locator-command';
+import { FindUsagesCommand } from './commands/find-usages-command';
+import { MoveMethodCommand } from './commands/move-method-command';
 
 const loadCommands = (): RefactoringCommand[] => [
   new ExtractVariableCommand(),
   new InlineVariableCommand(),
   new RenameCommand(),
   new SelectCommand(),
-  new VariableLocatorCommand()
+  new VariableLocatorCommand(),
+  new FindUsagesCommand(),
+  new MoveMethodCommand()
 ];
 
 export class CommandRegistry {

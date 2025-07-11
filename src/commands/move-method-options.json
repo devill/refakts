@@ -1,0 +1,14 @@
+[
+  {
+    "name": "to",
+    "type": "string",
+    "description": "Target file to move the method to",
+    "required": true
+  },
+  {
+    "name": "target-class",
+    "type": "string", 
+    "description": "Name of the class to move the method to",
+    "required": true
+  }
+]
