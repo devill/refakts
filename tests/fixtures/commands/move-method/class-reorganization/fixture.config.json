@@ -1,16 +1,20 @@
 [
   {
+    "id": "move-to-user-class",
     "description": "Move method from utility class to the class that uses it most",
-    "command": "move-method '[src/utils/formatter.ts 8:3-12:4]' --to src/models/user.ts --target-class User",
-    "workingDirectory": "src",
-    "expectedDirectory": "expected-case-1",
+    "command": "move-method '[input/utils/formatter.ts 8:3-12:4]' --to input/models/user.ts --target-class User",
     "skipReason": null
   },
   {
+    "id": "move-to-service-class",
     "description": "Move method from utility class to a service class",
-    "command": "move-method '[src/utils/formatter.ts 8:3-12:4]' --to src/services/user-service.ts --target-class UserService",
-    "workingDirectory": "src", 
-    "expectedDirectory": "expected-case-2",
+    "command": "move-method '[input/utils/formatter.ts 8:3-12:4]' --to input/services/user-service.ts --target-class UserService",
+    "skipReason": null
+  },
+  {
+    "id": "invalid-target-class",
+    "description": "Attempt to move method to non-existent class",
+    "command": "move-method '[input/utils/formatter.ts 8:3-12:4]' --to input/models/user.ts --target-class NonExistentClass",
     "skipReason": null
   }
 ]
