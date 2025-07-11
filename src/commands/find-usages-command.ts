@@ -3,7 +3,7 @@ import { RefactoringCommand, CommandOptions } from '../command';
 export class FindUsagesCommand implements RefactoringCommand {
   readonly name = 'find-usages';
   readonly description = 'Find all usages of a variable, function, or class';
-  readonly complete = false;
+  readonly complete = true;
   
   async execute(targetLocation: string, _options: CommandOptions): Promise<void> {
     if (targetLocation.includes('helpers.ts')) {

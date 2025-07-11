@@ -3,6 +3,7 @@ import * as path from 'path';
 import { CommandExecutor } from './command-executor';
 import { FixtureTestCase } from './test-case-loader';
 import { FileOperations } from './file-operations';
+import { TestUtilities } from './test-utilities';
 
 export class MultiFileValidator {
   private commandExecutor: CommandExecutor;
@@ -50,65 +51,27 @@ export class MultiFileValidator {
   }
 
   private compareWithExpectedMultiFile(testCase: FixtureTestCase, receivedFiles: any): void {
-    const expectedFiles = this.createExpectedFilePaths(testCase);
+    this.compareOutputFiles(testCase, receivedFiles);
+    this.compareProjectDirectory(testCase);
+  }
+
+  private compareOutputFiles(testCase: FixtureTestCase, receivedFiles: any): void {
+    const expectedFiles = testCase.createExpectedFilePaths();
+    const expectedOutFile = expectedFiles.outFile.replace('.received.', '.expected.');
+    const expectedErrFile = expectedFiles.errFile.replace('.received.', '.expected.');
     
-    this.compareIfExpected(expectedFiles.outFile, receivedFiles.outFile);
-    this.compareIfExpected(expectedFiles.errFile, receivedFiles.errFile);
-    
+    this.compareIfExpected(expectedOutFile, receivedFiles.outFile);
+    this.compareIfExpected(expectedErrFile, receivedFiles.errFile);
+  }
+
+  private compareProjectDirectory(testCase: FixtureTestCase): void {
     if (testCase.expectedDirectory && fs.existsSync(testCase.expectedDirectory)) {
       this.compareDirectories(testCase.expectedDirectory, this.getMultiFileReceivedPath(testCase.inputFile));
     }
   }
 
-  private createExpectedFilePaths(testCase: FixtureTestCase) {
-    return {
-      outFile: path.join(path.dirname(testCase.inputFile), `${testCase.testCaseId}.expected.out`),
-      errFile: path.join(path.dirname(testCase.inputFile), `${testCase.testCaseId}.expected.err`)
-    };
-  }
-
   private compareIfExpected(expectedFile: string, receivedFile: string): void {
-    if (fs.existsSync(expectedFile)) {
-      this.validateReceivedFileExists(expectedFile, receivedFile);
-      this.compareFileContents(expectedFile, receivedFile);
-    }
-  }
-
-  private validateReceivedFileExists(expectedFile: string, receivedFile: string): void {
-    if (!fs.existsSync(receivedFile)) {
-      throw new Error(`Expected file ${expectedFile} exists but received file ${receivedFile} was not generated`);
-    }
-  }
-
-  private compareFileContents(expectedFile: string, receivedFile: string): void {
-    const { normalizedExpected, normalizedReceived } = this.readAndNormalizeFiles(expectedFile, receivedFile);
-    
-    if (normalizedReceived !== normalizedExpected) {
-      throw this.createMismatchError(receivedFile, normalizedExpected, normalizedReceived);
-    }
-  }
-
-  private readAndNormalizeFiles(expectedFile: string, receivedFile: string) {
-    const expected = fs.readFileSync(expectedFile, 'utf8').trim();
-    const received = fs.readFileSync(receivedFile, 'utf8').trim();
-    
-    return {
-      normalizedExpected: this.normalizePaths(expected),
-      normalizedReceived: this.normalizePaths(received)
-    };
-  }
-
-  private createMismatchError(receivedFile: string, expected: string, received: string): Error {
-    return new Error(`Content mismatch in ${receivedFile}.
-Expected:
-${expected}
-Received:
-${received}`);
-  }
-
-  private normalizePaths(content: string): string {
-    const projectRoot = process.cwd();
-    return content.replace(new RegExp(projectRoot.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'), 'g'), '.');
+    TestUtilities.compareIfExpected(expectedFile, receivedFile);
   }
 
   private compareDirectories(expectedDir: string, receivedDir: string): void {
@@ -120,33 +83,23 @@ ${received}`);
   }
 
   private cleanupMultiFileReceivedFiles(testCase: FixtureTestCase, receivedFiles: any, testPassed: boolean): void {
+    this.cleanupReceivedDirectory(testCase, testPassed);
+    this.cleanupReceivedOutputFiles(receivedFiles, testPassed);
+  }
+
+  private cleanupReceivedDirectory(testCase: FixtureTestCase, testPassed: boolean): void {
     const receivedDir = this.getMultiFileReceivedPath(testCase.inputFile);
-    if (fs.existsSync(receivedDir)) {
-      if (testPassed) {
-        fs.rmSync(receivedDir, { recursive: true, force: true });
-      }
+    if (fs.existsSync(receivedDir) && testPassed) {
+      fs.rmSync(receivedDir, { recursive: true, force: true });
     }
-    
+  }
+
+  private cleanupReceivedOutputFiles(receivedFiles: any, testPassed: boolean): void {
     Object.values(receivedFiles).forEach((file: any) => {
       if (fs.existsSync(file)) {
-        this.cleanupSingleFile(file, testPassed);
+        TestUtilities.cleanupSingleFile(file, testPassed);
       }
     });
-  }
-
-  private cleanupSingleFile(file: string, testPassed: boolean): void {
-    if (testPassed) {
-      fs.unlinkSync(file);
-    } else {
-      this.cleanupFailedTestFile(file);
-    }
-  }
-
-  private cleanupFailedTestFile(file: string): void {
-    const expectedFile = file.replace('.received.', '.expected.');
-    if (!fs.existsSync(expectedFile)) {
-      fs.unlinkSync(file);
-    }
   }
 
   private getMultiFileReceivedPath(inputDir: string): string {

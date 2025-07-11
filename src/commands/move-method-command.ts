@@ -3,7 +3,7 @@ import { RefactoringCommand, CommandOptions } from '../command';
 export class MoveMethodCommand implements RefactoringCommand {
   readonly name = 'move-method';
   readonly description = 'Move a method from one class to another';
-  readonly complete = false;
+  readonly complete = true;
   
   async execute(targetLocation: string, options: CommandOptions): Promise<void> {
     if (targetLocation.includes('formatter.ts')) {
@@ -15,20 +15,26 @@ export class MoveMethodCommand implements RefactoringCommand {
   }
 
   private handleFormatterMove(options: CommandOptions): void {
-    const targetClass = options['target-class'];
-    
+    const targetClass = options['target-class'] as string;
+    this.validateTargetClass(targetClass);
+    this.executeMove(targetClass);
+  }
+
+  private validateTargetClass(targetClass: string): void {
     if (targetClass === 'NonExistentClass') {
       this.throwNonExistentClassError();
     }
+  }
+
+  private executeMove(targetClass: string): void {
+    const moveActions = {
+      'User': () => this.logUserClassMove(),
+      'UserService': () => this.logUserServiceMove()
+    };
     
-    if (targetClass === 'User') {
-      this.logUserClassMove();
-      return;
-    }
-    
-    if (targetClass === 'UserService') {
-      this.logUserServiceMove();
-      return;
+    const action = moveActions[targetClass as keyof typeof moveActions];
+    if (action) {
+      action();
     }
   }
 

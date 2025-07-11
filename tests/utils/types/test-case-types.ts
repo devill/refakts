@@ -29,15 +29,19 @@ export class FixtureTestCase {
   }
 
   writeReceivedFiles(outputs: any): { outFile: string; errFile: string } {
-    const receivedFiles = {
-      outFile: path.join(path.dirname(this.inputFile), `${this.testCaseId}.received.out`),
-      errFile: path.join(path.dirname(this.inputFile), `${this.testCaseId}.received.err`)
-    };
+    const receivedFiles = this.createExpectedFilePaths();
     
     fs.writeFileSync(receivedFiles.outFile, outputs.stdout || '');
     fs.writeFileSync(receivedFiles.errFile, outputs.stderr || '');
     
     return receivedFiles;
+  }
+
+  createExpectedFilePaths(): { outFile: string; errFile: string } {
+    return {
+      outFile: path.join(path.dirname(this.inputFile), `${this.testCaseId}.received.out`),
+      errFile: path.join(path.dirname(this.inputFile), `${this.testCaseId}.received.err`)
+    };
   }
 }
 export interface TestCase {

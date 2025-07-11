@@ -6,17 +6,13 @@ export class MultiFileTestCaseFactory {
     const testCaseConfigs = this.readConfigFile(configFile);
     const configDir = path.dirname(configFile);
     
-    const testCases: TestCase[] = [];
-    for (const config of testCaseConfigs) {
-      if (config.skipReason) {
-        continue;
-      }
-      
-      const testCase = this.createTestCaseFromConfig(config, configDir);
-      testCases.push(testCase);
-    }
-    
-    return testCases;
+    return this.createTestCases(testCaseConfigs, configDir);
+  }
+
+  private createTestCases(testCaseConfigs: any[], configDir: string): TestCase[] {
+    return testCaseConfigs
+      .filter(config => !config.skipReason)
+      .map(config => this.createTestCaseFromConfig(config, configDir));
   }
 
   private readConfigFile(configFile: string): any[] {
@@ -27,17 +23,27 @@ export class MultiFileTestCaseFactory {
 
   private createTestCaseFromConfig(config: any, configDir: string): TestCase {
     const inputDir = path.join(configDir, 'input');
-    return new FixtureTestCase(
-      `${path.basename(configDir)}/${config.id}`,
+    const testCaseParams = this.buildTestCaseParams(config, configDir, inputDir);
+    return new FixtureTestCase(...testCaseParams);
+  }
+
+  private buildTestCaseParams(config: any, configDir: string, inputDir: string): [string, string, string[], string, string, string, boolean, string, string, string] {
+    const baseName = path.basename(configDir);
+    const expectedTsFile = path.join(configDir, `${config.id}.expected.ts`);
+    const receivedTsFile = path.join(configDir, `${config.id}.received.ts`);
+    const expectedDir = path.join(configDir, `${config.id}.expected`);
+    
+    return [
+      `${baseName}/${config.id}`,
       config.description,
       [config.command],
       inputDir,
-      path.join(configDir, `${config.id}.expected.ts`),
-      path.join(configDir, `${config.id}.received.ts`),
+      expectedTsFile,
+      receivedTsFile,
       false,
       inputDir,
-      path.join(configDir, `${config.id}.expected`),
+      expectedDir,
       config.id
-    );
+    ];
   }
 }
