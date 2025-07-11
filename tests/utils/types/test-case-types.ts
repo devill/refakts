@@ -1,3 +1,31 @@
+export class FixtureTestCase {
+  constructor(
+    public name: string,
+    public description: string,
+    public commands: string[],
+    public inputFile: string,
+    public expectedFile: string,
+    public receivedFile: string,
+    public skip?: boolean,
+    public projectDirectory?: string,
+    public expectedDirectory?: string,
+    public testCaseId?: string
+  ) {}
+
+  isMultiFile(): boolean {
+    return !!this.projectDirectory;
+  }
+
+  isSingleFile(): boolean {
+    return !this.isMultiFile();
+  }
+
+  getWorkingDirectory(): string {
+    return this.projectDirectory || process.cwd();
+  }
+}
+
+// Keep interface for backward compatibility during transition
 export interface TestCase {
   name: string;
   description: string;
