@@ -34,15 +34,14 @@ export class MultiFileValidator {
   private async executeMultiFileCommand(testCase: FixtureTestCase, receivedDir: string): Promise<{
     stdout: string; stderr: string; success: boolean;
   }> {
-    const command = this.prepareMultiFileCommand(testCase.commands[0], receivedDir);
-    const workingDir = path.dirname(receivedDir);
+    const command = this.prepareMultiFileCommand(testCase.commands[0]);
+    const workingDir = receivedDir;
     return this.commandRunner.runCommand(command, workingDir);
   }
 
-  private prepareMultiFileCommand(command: string, receivedDir: string): string {
+  private prepareMultiFileCommand(command: string): string {
     const cleanCommand = this.removeRefaktsPrefix(command);
-    const receivedBaseName = path.basename(receivedDir);
-    return cleanCommand.replace(/input\//g, receivedBaseName + '/');
+    return cleanCommand.replace(/input\//g, '');
   }
 
   private validateAndCleanupMultiFile(testCase: FixtureTestCase, receivedFiles: any): void {

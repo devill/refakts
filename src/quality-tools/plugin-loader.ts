@@ -9,6 +9,7 @@ import { gitDiffCheck } from './checks/git-diff-check';
 import { changeFrequencyCheck } from './checks/change-frequency-check';
 import { linterCheck } from './checks/linter-check';
 import { featureEnvyCheck } from './checks/feature-envy-check';
+import { fixtureTestCheck } from './checks/fixture-test-check';
 
 export const loadQualityChecks = (): QualityCheck[] => [
   linterCheck,
@@ -20,6 +21,7 @@ export const loadQualityChecks = (): QualityCheck[] => [
   complexityCheck,
   featureEnvyCheck,
   gitDiffCheck,
-  changeFrequencyCheck
+  changeFrequencyCheck,
+  fixtureTestCheck
 ];
 

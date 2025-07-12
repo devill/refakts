@@ -121,6 +121,7 @@ RefakTS development demonstrates an approach for helping AI agents develop pract
 - **LARGE CHANGES** (Large diffs are harder to review and more likely to introduce bugs.)
 - **OPEN-CLOSED PRINCIPLE VIOLATIONS** (Files changing frequently suggest design should be extensible without modification.)
 - **ABSTRACTION LEAKAGE** (Files changing together suggest concerns not properly encapsulated.)
+- **FIXTURE TESTS WITHOUT EXPECTED FILES** (Fixture tests without expected files do not validate output and provide no value.)
 ````
 <!-- AUTO-GENERATED QUALITY-CHECKS END -->
 

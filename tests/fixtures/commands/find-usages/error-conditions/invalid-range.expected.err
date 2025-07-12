@@ -1,2 +1,2 @@
-Command execution failed: find-usages '[invalid-range.received/valid.ts 5:10-3:5]'
+Command execution failed: find-usages '[valid.ts 5:10-3:5]'
 Invalid range: start position (5:10) is after end position (3:5)

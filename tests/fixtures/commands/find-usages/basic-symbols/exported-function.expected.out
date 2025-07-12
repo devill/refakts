@@ -1,6 +1,6 @@
-[exported-function.received/utils/math.ts 3:17-3:20] add
-[exported-function.received/main.ts 1:10-1:13] add
-[exported-function.received/main.ts 8:13-8:16] add
-[exported-function.received/main.ts 41:22-41:25] add
-[exported-function.received/main.ts 42:22-42:25] add
-[exported-function.received/main.ts 43:22-43:25] add
+[utils/math.ts 3:17-3:20] add
+[main.ts 1:10-1:13] add
+[main.ts 8:13-8:16] add
+[main.ts 41:22-41:25] add
+[main.ts 42:22-42:25] add
+[main.ts 43:22-43:25] add

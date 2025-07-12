@@ -1,6 +1,6 @@
-[basic-cross-file-usage.received/utils/helpers.ts 3:17-3:27] formatName
-[basic-cross-file-usage.received/components/button.ts 1:10-1:20] formatName
-[basic-cross-file-usage.received/components/button.ts 15:17-15:27] formatName
-[basic-cross-file-usage.received/main.ts 1:10-1:20] formatName
-[basic-cross-file-usage.received/main.ts 11:20-11:30] formatName
-[basic-cross-file-usage.received/main.ts 16:29-16:39] formatName
+[utils/helpers.ts 3:17-3:27] formatName
+[components/button.ts 1:10-1:20] formatName
+[components/button.ts 15:17-15:27] formatName
+[main.ts 1:10-1:20] formatName
+[main.ts 11:20-11:30] formatName
+[main.ts 16:29-16:39] formatName
