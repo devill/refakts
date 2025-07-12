@@ -1,6 +1,4 @@
 import {CommandRegistry} from '../../src/command-registry';
-import * as fs from 'fs';
-import * as path from 'path';
 import {CommandLineParser} from './command-line-parser';
 import {ConsoleCapture} from './console-capture';
 import {CliExecutor} from './cli-executor';
@@ -67,22 +65,5 @@ export class CommandExecutor {
     }
     
     return command;
-  }
-
-  private handleExecutionError(commandString: string, error: unknown): never {
-    throw new Error(`Command execution failed: ${commandString}\n${(error as Error).message}`);
-  }
-
-
-
-
-  private loadCommandOptions(commandName: string): any[] {
-    const optionsPath = path.join(__dirname, '..', '..', 'src', 'commands', `${commandName}-options.json`);
-    try {
-      const optionsData = fs.readFileSync(optionsPath, 'utf8');
-      return JSON.parse(optionsData);
-    } catch {
-      return [];
-    }
   }
 }
