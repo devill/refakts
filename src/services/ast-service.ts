@@ -98,17 +98,6 @@ export class ASTService {
     return this.traverseToFindMatchingNode(node.getParent(), expectedRange, searchState);
   }
 
-  private traverseToFindMatchingNodeWithPosition(node: Node | undefined, expectedPositions: { start: number; end: number }, searchState: { bestMatch: Node | null; bestScore: number } = { bestMatch: null, bestScore: Infinity }): Node | null {
-    if (!node) return searchState.bestMatch;
-    if (this.isNodeRangeCloseToExpected(node, expectedPositions.start, expectedPositions.end)) {
-      const score = this.calculateNodeScore(node, expectedPositions.start, expectedPositions.end);
-      if (score < searchState.bestScore) {
-        return this.traverseToFindMatchingNodeWithPosition(node.getParent(), expectedPositions, { bestMatch: node, bestScore: score });
-      }
-    }
-    return this.traverseToFindMatchingNodeWithPosition(node.getParent(), expectedPositions, searchState);
-  }
-
   private isNodeRangeCloseToExpected(node: Node, expectedStart: number, expectedEnd: number): boolean {
     const startDiff = Math.abs(node.getStart() - expectedStart);
     const endDiff = Math.abs(node.getEnd() - expectedEnd);

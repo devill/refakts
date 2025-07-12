@@ -23,21 +23,14 @@ export class FindUsagesCommand implements RefactoringCommand {
     const location = options.location as LocationRange;
     
     let sourceFile;
-    try {
-      sourceFile = this.astService.loadSourceFile(location.file);
-      
-      // Check for syntax errors specifically for find-usages
-      const diagnostics = sourceFile.getPreEmitDiagnostics();
-      if (diagnostics.length > 0) {
-        throw new Error(`TypeScript compilation error in ${location.file}`);
-      }
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('TypeScript compilation error')) {
-        throw error;
-      }
-      throw error;
+
+    sourceFile = this.astService.loadSourceFile(location.file);
+
+    const diagnostics = sourceFile.getPreEmitDiagnostics();
+    if (diagnostics.length > 0) {
+      throw new Error(`TypeScript compilation error in ${location.file}`);
     }
-    
+
     this.validateLocationBounds(sourceFile, location);
     
     const project = this.astService.getProject();
@@ -61,10 +54,6 @@ export class FindUsagesCommand implements RefactoringCommand {
     }
   }
 
-  private getProjectDirectory(filePath: string): string {
-    const absolutePath = path.resolve(filePath);
-    return path.dirname(absolutePath);
-  }
 
   private outputResults(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange): void {
     for (const usage of this.sortUsages(usages, targetLocation)) {
