@@ -2,6 +2,7 @@ import {CommandOptions, RefactoringCommand} from '../command';
 import {LocationParser, LocationRange, UsageLocation} from '../core/location-range';
 import {ASTService} from '../services/ast-service';
 import {CrossFileReferenceFinder} from '../services/cross-file-reference-finder';
+import {SourceFile} from 'ts-morph';
 
 export class FindUsagesCommand implements RefactoringCommand {
   readonly name = 'find-usages';
@@ -19,21 +20,30 @@ export class FindUsagesCommand implements RefactoringCommand {
 
   private async executeFinUsagesOperation(options: CommandOptions): Promise<void> {
     const location = LocationRange.from(options.location as LocationRange);
+    const sourceFile = this.validateSourceFile(location);
+    const usages = await this.findReferences(location, sourceFile);
+    this.outputResults(usages, process.cwd(), location);
+  }
 
+  private validateSourceFile(location: LocationRange): SourceFile {
     const sourceFile = this.astService.loadSourceFile(location.file);
+    this.checkForCompilationErrors(sourceFile, location.file);
+    location.validateLocationBounds(sourceFile);
+    return sourceFile;
+  }
 
+  private checkForCompilationErrors(sourceFile: SourceFile, fileName: string): void {
     const diagnostics = sourceFile.getPreEmitDiagnostics();
     if (diagnostics.length > 0) {
-      throw new Error(`TypeScript compilation error in ${location.file}`);
+      throw new Error(`TypeScript compilation error in ${fileName}`);
     }
+  }
 
-    location.validateLocationBounds(sourceFile);
-    
+  private async findReferences(location: LocationRange, sourceFile: SourceFile) {
     const project = this.astService.getProject();
     const finder = new CrossFileReferenceFinder(project);
-    
     const result = await finder.findAllReferences(location, sourceFile);
-    this.outputResults(result.usages, process.cwd(), location);
+    return result.usages;
   }
   
 

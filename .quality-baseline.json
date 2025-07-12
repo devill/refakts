@@ -20,12 +20,6 @@
       "featureEnvy"
     ]
   },
-  "src/commands/variable-locator-command.ts": {
-    "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
   "src/documentation/HelpContentExtractor.ts": {
     "lastCommitId": "abbd9c5de2c05bc25858e02ba2fb767cfa9e5b00",
     "violations": [
@@ -46,12 +40,6 @@
   },
   "src/locators/variable-node-matcher.ts": {
     "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/locators/variable-result-builder.ts": {
-    "lastCommitId": "07c7e1e1ff7aef39679b295da21112b926163e3d",
     "violations": [
       "featureEnvy"
     ]

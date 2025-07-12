@@ -3,9 +3,7 @@ import { VariableLocator } from '../locators/variable-locator';
 import { Node } from 'ts-morph';
 import { LocationParser, LocationRange } from '../core/location-range';
 import { ASTService } from '../services/ast-service';
-import { VariableLocationResult } from '../locators/variable-result-builder';
 import { NodeAnalyzer } from '../locators/node-analyzer';
-import * as path from 'path';
 
 export class VariableLocatorCommand implements RefactoringCommand {
   readonly name = 'variable-locator';
@@ -48,9 +46,8 @@ export class VariableLocatorCommand implements RefactoringCommand {
   private async findAndFormatReferences(location: LocationRange, variableName: string): Promise<string[]> {
     const locator = new VariableLocator();
     const result = await locator.findVariableReferences(location.file, variableName);
-    const fileName = path.basename(location.file);
     
-    return this.formatAsLocations(result, fileName);
+    return result.formatAsLocationStrings();
   }
 
   private handleExecutionError(error: unknown): void {
@@ -78,29 +75,6 @@ export class VariableLocatorCommand implements RefactoringCommand {
     return { ...options, target };
   }
 
-  private formatAsLocations(result: VariableLocationResult, fileName: string): string[] {
-    const locations: string[] = [];
-    
-    this.addDeclarationLocation(result, fileName, locations);
-    this.addUsageLocations(result, fileName, locations);
-    
-    return locations;
-  }
-
-  private addDeclarationLocation(result: VariableLocationResult, fileName: string, locations: string[]): void {
-    if (result.declaration) {
-      const decl = result.declaration;
-      locations.push(`[${fileName} ${decl.line}:${decl.column}-${decl.line}:${decl.column + decl.text.length}] ${decl.text}`);
-    }
-  }
-
-  private addUsageLocations(result: VariableLocationResult, fileName: string, locations: string[]): void {
-    if (result.usages) {
-      for (const usage of result.usages) {
-        locations.push(`[${fileName} ${usage.line}:${usage.column}-${usage.line}:${usage.column + usage.text.length}] ${usage.text}`);
-      }
-    }
-  }
 
   private outputResults(results: string[]): void {
     // eslint-disable-next-line no-console

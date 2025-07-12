@@ -55,11 +55,17 @@ export class LocationRange {
 
   validateLocationBounds(sourceFile: SourceFile): void {
     const lines = sourceFile.getFullText().split('\n');
-    
+    this.validateLineExists(lines);
+    this.validateColumnExists(lines);
+  }
+
+  private validateLineExists(lines: string[]): void {
     if (this.start.line > lines.length) {
       throw new Error(`Location out of bounds: line ${this.start.line}, column ${this.start.column}`);
     }
-    
+  }
+
+  private validateColumnExists(lines: string[]): void {
     const targetLine = lines[this.start.line - 1];
     if (this.start.column > targetLine.length + 1) {
       throw new Error(`Location out of bounds: line ${this.start.line}, column ${this.start.column}`);
