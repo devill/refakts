@@ -28,8 +28,17 @@ export class ASTService {
 
   private addSourceFileAtPath(absolutePath: string, originalPath: string): SourceFile {
     try {
-      return this.project.addSourceFileAtPath(absolutePath);
-    } catch {
+      const sourceFile = this.project.addSourceFileAtPath(absolutePath);
+      // Check for syntax errors by trying to get diagnostics
+      const diagnostics = sourceFile.getPreEmitDiagnostics();
+      if (diagnostics.length > 0) {
+        throw new Error(`TypeScript compilation error in ${originalPath}`);
+      }
+      return sourceFile;
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('TypeScript compilation error')) {
+        throw error;
+      }
       throw new Error(`File not found: ${originalPath}`);
     }
   }

@@ -3,30 +3,30 @@
     "id": "missing-file",
     "description": "Target file does not exist",
     "command": "find-usages '[input/nonexistent.ts 1:1-1:5]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "skip": false
   },
   {
     "id": "invalid-location",
     "description": "Line/column coordinates are out of bounds",
     "command": "find-usages '[input/valid.ts 999:999-999:999]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "skip": false
   },
   {
     "id": "no-tsconfig",
     "description": "Project directory without tsconfig.json",
     "command": "find-usages '[input/orphan.ts 3:17-3:25]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "skip": false
   },
   {
     "id": "syntax-error",
     "description": "TypeScript file with syntax errors",
     "command": "find-usages '[input/broken.ts 3:17-3:25]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "skip": false
   },
   {
     "id": "invalid-range",
     "description": "Start location is after end location",
     "command": "find-usages '[input/valid.ts 5:10-3:5]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "skip": false
   }
 ]

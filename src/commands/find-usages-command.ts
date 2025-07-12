@@ -4,6 +4,7 @@ import { ASTService } from '../services/ast-service';
 import { CrossFileReferenceFinder } from '../services/cross-file-reference-finder';
 import { UsageLocation } from '../core/location-types';
 import * as path from 'path';
+import * as fs from 'fs';
 
 export class FindUsagesCommand implements RefactoringCommand {
   readonly name = 'find-usages';
@@ -16,22 +17,44 @@ export class FindUsagesCommand implements RefactoringCommand {
     const finalOptions = this.processTarget(targetLocation, options);
     this.validateOptions(finalOptions);
     
-    try {
-      await this.executeFinUsagesOperation(finalOptions);
-    } catch (error) {
-      this.handleExecutionError(error);
-    }
+    await this.executeFinUsagesOperation(finalOptions);
   }
 
   private async executeFinUsagesOperation(options: CommandOptions): Promise<void> {
     const location = options.location as LocationRange;
     
-    const sourceFile = this.astService.loadSourceFile(location.file);
+    let sourceFile;
+    try {
+      sourceFile = this.astService.loadSourceFile(location.file);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('TypeScript compilation error')) {
+        throw new Error(`TypeScript compilation error in ${location.file}`);
+      }
+      throw error;
+    }
+    
+    this.validateLocationBounds(sourceFile, location);
+    this.validateTsConfigExists(location.file);
+    
     const project = this.astService.getProject();
     const finder = new CrossFileReferenceFinder(project);
     
     const result = await finder.findAllReferences(location, sourceFile);
     this.outputResults(result.usages, process.cwd(), location);
+  }
+  
+  private validateLocationBounds(sourceFile: any, location: LocationRange): void {
+    const text = sourceFile.getFullText();
+    const lines = text.split('\n');
+    
+    if (location.startLine > lines.length) {
+      throw new Error(`Location out of bounds: line ${location.startLine}, column ${location.startColumn}`);
+    }
+    
+    const targetLine = lines[location.startLine - 1];
+    if (location.startColumn > targetLine.length + 1) {
+      throw new Error(`Location out of bounds: line ${location.startLine}, column ${location.startColumn}`);
+    }
   }
 
   private getProjectDirectory(filePath: string): string {
@@ -79,14 +102,6 @@ export class FindUsagesCommand implements RefactoringCommand {
     return usage.location.matchesTarget(targetLocation.file, targetLocation.startLine);
   }
 
-  private handleExecutionError(error: unknown): void {
-    if (error instanceof Error) {
-      process.stderr.write(`Error: ${error.message}\n`);
-    } else {
-      process.stderr.write(`Error: ${error}\n`);
-    }
-    process.exit(1);
-  }
 
   private processTarget(target: string, options: CommandOptions): CommandOptions {
     return LocationParser.processTarget(target, options) as CommandOptions;
@@ -95,6 +110,24 @@ export class FindUsagesCommand implements RefactoringCommand {
   validateOptions(options: CommandOptions): void {
     if (!options.location) {
       throw new Error('Location format must be specified');
+    }
+    
+    const location = options.location as LocationRange;
+    this.validateRange(location);
+  }
+  
+  private validateRange(location: LocationRange): void {
+    if (location.startLine > location.endLine || 
+        (location.startLine === location.endLine && location.startColumn > location.endColumn)) {
+      throw new Error(`Invalid range: start position (${location.startLine}:${location.startColumn}) is after end position (${location.endLine}:${location.endColumn})`);
+    }
+  }
+  
+  private validateTsConfigExists(filePath: string): void {
+    const projectDir = this.getProjectDirectory(filePath);
+    const tsConfigPath = path.join(projectDir, 'tsconfig.json');
+    if (!fs.existsSync(tsConfigPath)) {
+      throw new Error('No tsconfig.json found in project directory');
     }
   }
   
