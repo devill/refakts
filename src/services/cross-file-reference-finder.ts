@@ -132,16 +132,21 @@ export class CrossFileReferenceFinder {
   }
 
   private findProjectRoot(filePath: string): string {
-    let currentDir = path.dirname(filePath);
+    let currentDir = path.dirname(path.resolve(filePath));
+    let foundRoot = null;
     
-    while (currentDir !== path.dirname(currentDir)) {
+    // Look for tsconfig.json but don't go beyond the current working directory
+    const cwd = process.cwd();
+    
+    while (currentDir !== path.dirname(currentDir) && (currentDir === cwd || currentDir.startsWith(cwd))) {
       const tsConfigPath = path.join(currentDir, 'tsconfig.json');
       if (require('fs').existsSync(tsConfigPath)) {
-        return currentDir;
+        foundRoot = currentDir;
+        break;
       }
       currentDir = path.dirname(currentDir);
     }
     
-    return path.dirname(filePath);
+    return foundRoot || path.dirname(path.resolve(filePath));
   }
 }

@@ -40,31 +40,48 @@ export class FindUsagesCommand implements RefactoringCommand {
 
   private outputResults(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange): void {
     for (const usage of this.sortUsages(usages, targetLocation)) {
-      let relativePath = path.relative(baseDir, usage.filePath);
-      
-      if (relativePath.includes('input.received/')) {
-        relativePath = relativePath.replace(/.*input\.received\//, 'input/');
-      }
-      
-      const location = `[${relativePath} ${usage.line}:${usage.column}-${usage.endLine}:${usage.endColumn}]`;
+      const formattedLocation = this.formatUsageLocation(usage, baseDir);
       // eslint-disable-next-line no-console
-      console.log(`${location} ${usage.text}`);
+      console.log(`${formattedLocation} ${usage.text}`);
     }
   }
 
+  private formatUsageLocation(usage: UsageLocation, baseDir: string): string {
+    const relativePath = this.normalizeTestPath(path.relative(baseDir, usage.filePath));
+    return `[${relativePath} ${usage.line}:${usage.column}-${usage.endLine}:${usage.endColumn}]`;
+  }
+
+  private normalizeTestPath(relativePath: string): string {
+    return relativePath.includes('input.received/') 
+      ? relativePath.replace(/.*input\.received\//, 'input/')
+      : relativePath;
+  }
+
   private sortUsages(usages: UsageLocation[], targetLocation: LocationRange): UsageLocation[] {
-    return usages.sort((a, b) => {
-      const aIsDefinition = this.isTargetLocation(a, targetLocation);
-      const bIsDefinition = this.isTargetLocation(b, targetLocation);
-      
-      if (aIsDefinition && !bIsDefinition) return -1;
-      if (!aIsDefinition && bIsDefinition) return 1;
-      
-      if (a.filePath !== b.filePath) {
-        return a.filePath.localeCompare(b.filePath);
-      }
-      return a.line - b.line;
-    });
+    return usages.sort((a, b) => this.compareUsageLocations(a, b, targetLocation));
+  }
+
+  private compareUsageLocations(a: UsageLocation, b: UsageLocation, targetLocation: LocationRange): number {
+    const definitionComparison = this.compareByDefinitionPriority(a, b, targetLocation);
+    if (definitionComparison !== 0) return definitionComparison;
+    
+    return this.compareByLocation(a, b);
+  }
+
+  private compareByDefinitionPriority(a: UsageLocation, b: UsageLocation, targetLocation: LocationRange): number {
+    const aIsDefinition = this.isTargetLocation(a, targetLocation);
+    const bIsDefinition = this.isTargetLocation(b, targetLocation);
+    
+    if (aIsDefinition && !bIsDefinition) return -1;
+    if (!aIsDefinition && bIsDefinition) return 1;
+    return 0;
+  }
+
+  private compareByLocation(a: UsageLocation, b: UsageLocation): number {
+    if (a.filePath !== b.filePath) {
+      return a.filePath.localeCompare(b.filePath);
+    }
+    return a.line - b.line;
   }
 
   private isTargetLocation(usage: UsageLocation, targetLocation: LocationRange): boolean {
