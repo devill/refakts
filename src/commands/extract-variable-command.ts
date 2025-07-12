@@ -5,7 +5,7 @@ import { ExtractionScopeAnalyzer } from '../services/extraction-scope-analyzer';
 import { VariableNameValidator } from '../services/variable-name-validator';
 import { StatementInserter } from '../services/statement-inserter';
 import { ExpressionMatcher } from '../services/expression-matcher';
-import { LocationRange } from '../core/location-parser';
+import { LocationRange } from '../core/location-range';
 
 export class ExtractVariableCommand implements RefactoringCommand {
   readonly name = 'extract-variable';

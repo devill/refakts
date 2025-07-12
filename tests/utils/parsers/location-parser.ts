@@ -1,4 +1,4 @@
-import {SourceLocation} from "../../../src/core/location-types";
+import {SourceLocation} from "../../../src/core/location-range";
 
 export interface LocationInfo {
   file: string;

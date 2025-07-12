@@ -1,5 +1,5 @@
 import { PositionData } from '../../../src/core/position-data';
-import { LocationRange } from '../../../src/core/location-parser';
+import { LocationRange } from '../../../src/core/location-range';
 import { SelectMatch } from '../../../src/types/selection-types';
 
 describe('PositionData', () => {

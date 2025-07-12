@@ -1,5 +1,5 @@
 import { ASTService } from '../../../src/services/ast-service';
-import { LocationRange } from '../../../src/core/location-parser';
+import { LocationRange } from '../../../src/core/location-range';
 import { Project } from 'ts-morph';
 
 describe('ASTService', () => {
