@@ -1,3 +1,5 @@
+import {Node, SourceFile} from "ts-morph";
+
 export interface SourceLocation {
   line: number;
   column: number;
@@ -38,6 +40,14 @@ export class LocationInfo {
     const normalizedUsagePath = path.resolve(this.file);
     const normalizedTargetPath = path.resolve(targetFile);
     return normalizedUsagePath === normalizedTargetPath && this.start.line === targetLine;
+  }
+
+  static createLocationFromNode(sourceFile: SourceFile, node: Node): LocationInfo {
+    return new LocationInfo(
+        sourceFile.getFilePath(),
+        sourceFile.getLineAndColumnAtPos(node.getStart()),
+        sourceFile.getLineAndColumnAtPos(node.getEnd())
+    );
   }
 }
 
