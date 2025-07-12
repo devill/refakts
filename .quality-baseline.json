@@ -184,12 +184,6 @@
       "featureEnvy"
     ]
   },
-  "tests/utils/parsers/location-parser.ts": {
-    "lastCommitId": "6e7351aad8a86b49ebad94f350c701957cb4defa",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
   "tests/utils/scanners/file-system-scanner.ts": {
     "lastCommitId": "b2b028b1b4dd632ba721bdbf9dd0090363515bcc",
     "violations": [

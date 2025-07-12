@@ -1,9 +1,7 @@
 export interface LocationInfo {
   file: string;
-  startLine: number;
-  startColumn: number;
-  endLine: number;
-  endColumn: number;
+  start: { line: number; column: number };
+  end: { line: number; column: number };
 }
 
 export interface LocationParseResult {
@@ -51,10 +49,14 @@ export class LocationParser {
   private createLocationObject(match: RegExpMatchArray): LocationInfo {
     return {
       file: match[1],
-      startLine: parseInt(match[2], 10),
-      startColumn: parseInt(match[3], 10),
-      endLine: parseInt(match[4], 10),
-      endColumn: parseInt(match[5], 10)
+      start: { 
+        line: parseInt(match[2], 10), 
+        column: parseInt(match[3], 10) 
+      },
+      end: { 
+        line: parseInt(match[4], 10), 
+        column: parseInt(match[5], 10) 
+      }
     };
   }
 }

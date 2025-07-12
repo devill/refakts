@@ -59,7 +59,7 @@ export class ASTService {
     try {
       return sourceFile.compilerNode.getPositionOfLineAndCharacter(zeroBased.line, zeroBased.column);
     } catch {
-      throw new Error(`No node found at position ${location.startLine}:${location.startColumn}`);
+      throw new Error(`No node found at position ${location.start.line}:${location.start.column}`);
     }
   }
 
@@ -67,7 +67,7 @@ export class ASTService {
   private getNodeAtPosition(sourceFile: SourceFile, startPos: number, location: LocationRange): Node {
     const node = sourceFile.getDescendantAtPos(startPos);
     if (!node) {
-      throw new Error(`No node found at position ${location.startLine}:${location.startColumn}`);
+      throw new Error(`No node found at position ${location.start.line}:${location.start.column}`);
     }
     return node;
   }
@@ -84,7 +84,7 @@ export class ASTService {
   }
 
   private calculateExpectedEnd(sourceFile: SourceFile, location: LocationRange): number {
-    return sourceFile.compilerNode.getPositionOfLineAndCharacter(location.endLine - 1, location.endColumn - 1);
+    return sourceFile.compilerNode.getPositionOfLineAndCharacter(location.end.line - 1, location.end.column - 1);
   }
 
   private traverseToFindMatchingNode(node: Node | undefined, expectedRange: { start: number; end: number }, searchState: { bestMatch: Node | null; bestScore: number } = { bestMatch: null, bestScore: Infinity }): Node | null {

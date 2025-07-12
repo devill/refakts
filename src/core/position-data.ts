@@ -18,8 +18,8 @@ export class PositionData {
 
   static fromLocation(location: LocationRange): PositionData {
     return new PositionData(
-      location.startLine,
-      location.startColumn,
+      location.start.line,
+      location.start.column,
       undefined,
       undefined
     );
@@ -29,16 +29,16 @@ export class PositionData {
     const { startOffset, length } = this.calculateRangeOffsets(location);
     
     return new PositionData(
-      location.startLine,
-      location.startColumn,
+      location.start.line,
+      location.start.column,
       startOffset,
       length
     );
   }
 
   private static calculateRangeOffsets(location: LocationRange): { startOffset: number; length: number } {
-    const startOffset = this.calculateOffset(location.startLine, location.startColumn);
-    const endOffset = this.calculateOffset(location.endLine, location.endColumn);
+    const startOffset = this.calculateOffset(location.start.line, location.start.column);
+    const endOffset = this.calculateOffset(location.end.line, location.end.column);
     return { startOffset, length: endOffset - startOffset };
   }
 
@@ -73,29 +73,9 @@ export class PositionData {
   toLocationRange(file: string, endLine?: number, endColumn?: number): LocationRange {
     return new LocationRange(
       file,
-      this.line,
-      this.column,
-      endLine ?? this.line,
-      endColumn ?? this.column
+      { line: this.line, column: this.column },
+      { line: endLine ?? this.line, column: endColumn ?? this.column }
     );
-  }
-
-  toSelectMatch(text: string, fullLine: string): SelectMatch {
-    return {
-      line: this.line,
-      column: this.column,
-      endLine: this.line,
-      endColumn: this.column,
-      text,
-      fullLine
-    };
-  }
-
-  toVariablePosition(): { line: number; column: number } {
-    return {
-      line: this.line,
-      column: this.column
-    };
   }
 
   toOffset(sourceFile: SourceFile): number {

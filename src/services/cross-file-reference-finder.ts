@@ -49,7 +49,7 @@ export class CrossFileReferenceFinder {
   private extractSymbolFromLocation(sourceFile: SourceFile, location: LocationRange): string {
     const node = this.findNodeAtLocation(sourceFile, location);
     if (!node) {
-      throw new Error(`No symbol found at location ${location.startLine}:${location.startColumn}`);
+      throw new Error(`No symbol found at location ${location.start.line}:${location.start.column}`);
     }
     return this.getSymbolFromNode(node);
   }

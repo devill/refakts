@@ -5,8 +5,8 @@ import { UsageLocation, LocationInfo } from '../core/location-types';
 export class PositionConverter {
   static getStartPosition(sourceFile: SourceFile, location: LocationRange): number {
     return sourceFile.compilerNode.getPositionOfLineAndCharacter(
-      location.startLine - 1,
-      location.startColumn - 1
+      location.start.line - 1,
+      location.start.column - 1
     );
   }
 

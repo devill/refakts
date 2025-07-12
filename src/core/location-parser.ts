@@ -1,26 +1,44 @@
+import {LocationInfo, SourceLocation} from "./location-types";
+
 export class LocationRange {
   public readonly file: string;
-  public readonly startLine: number;
-  public readonly startColumn: number;
-  public readonly endLine: number;
-  public readonly endColumn: number;
+  public readonly start: SourceLocation;
+  public readonly end: SourceLocation;
 
-  constructor(
-    file: string,
-    startLine: number, startColumn: number,
-    endLine: number, endColumn: number
-  ) {
-    
-    this.endColumn = endColumn;
-    this.endLine = endLine;
-    this.startColumn = startColumn;
-    this.startLine = startLine;
+  constructor(file: string, start: SourceLocation, end: SourceLocation) {
     this.file = file;
+    this.start = start;
+    this.end = end;
   }
 
   toString(): string {
-    return `[${this.file} ${this.startLine}:${this.startColumn}-${this.endLine}:${this.endColumn}]`;
+    return `[${this.file} ${this.start.line}:${this.start.column}-${this.end.line}:${this.end.column}]`;
   }
+
+  validateRange(): void {
+    if (this.start.line > this.end.line ||
+        (this.start.line === this.end.line && this.start.column > this.end.column)) {
+      throw new Error(`Invalid range: start position (${this.start.line}:${this.start.column}) is after end position (${this.end.line}:${this.end.column})`);
+    }
+  }
+
+  static from(locationInfo: LocationInfo) {
+    return new LocationRange(locationInfo.file, locationInfo.start, locationInfo.end);
+  }
+
+  static fromFlat(locationData: any) {
+    return new LocationRange(
+        locationData.file,
+        { line: locationData.startLine, column: locationData.startColumn },
+        { line: locationData.endLine, column: locationData.endColumn }
+    );
+  }
+
+  // Legacy compatibility properties
+  get startLine(): number { return this.start.line; }
+  get startColumn(): number { return this.start.column; }
+  get endLine(): number { return this.end.line; }
+  get endColumn(): number { return this.end.column; }
 }
 
 export class LocationParser {
@@ -40,13 +58,16 @@ export class LocationParser {
   }
 
   private static buildLocationRange(groups: Record<string, string>): LocationRange {
-    return new LocationRange(
-      groups.file,
-      parseInt(groups.startLine, 10),
-      this.parseColumnOrDefault(groups.startColumn, 0),
-      this.parseLineOrDefault(groups.endLine, parseInt(groups.startLine, 10)),
-      this.parseColumnOrDefault(groups.endColumn, Number.MAX_SAFE_INTEGER)
-    );
+    const startLine = parseInt(groups.startLine, 10);
+    const start = {
+      line: startLine,
+      column: this.parseColumnOrDefault(groups.startColumn, 0)
+    };
+    const end = {
+      line: this.parseLineOrDefault(groups.endLine, startLine),
+      column: this.parseColumnOrDefault(groups.endColumn, Number.MAX_SAFE_INTEGER)
+    };
+    return new LocationRange(groups.file, start, end);
   }
   private static parseColumnOrDefault(value: string | undefined, defaultValue: number): number {
     return !value || value === '' ? defaultValue : parseInt(value, 10);
@@ -65,7 +86,7 @@ export class LocationParser {
   }
 
   static getZeroBasedStartPosition(location: LocationRange): { line: number; column: number } {
-    return { line: location.startLine - 1, column: location.startColumn - 1 };
+    return { line: location.start.line - 1, column: location.start.column - 1 };
   }
 
   static processTarget(target: string, options: Record<string, unknown>): Record<string, unknown> {

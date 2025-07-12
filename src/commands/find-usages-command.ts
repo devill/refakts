@@ -1,10 +1,9 @@
-import { RefactoringCommand, CommandOptions } from '../command';
-import { LocationParser, LocationRange } from '../core/location-parser';
-import { ASTService } from '../services/ast-service';
-import { CrossFileReferenceFinder } from '../services/cross-file-reference-finder';
-import { UsageLocation } from '../core/location-types';
+import {CommandOptions, RefactoringCommand} from '../command';
+import {LocationParser, LocationRange} from '../core/location-parser';
+import {ASTService} from '../services/ast-service';
+import {CrossFileReferenceFinder} from '../services/cross-file-reference-finder';
+import {UsageLocation} from '../core/location-types';
 import * as path from 'path';
-import * as fs from 'fs';
 
 export class FindUsagesCommand implements RefactoringCommand {
   readonly name = 'find-usages';
@@ -52,13 +51,13 @@ export class FindUsagesCommand implements RefactoringCommand {
     const text = sourceFile.getFullText();
     const lines = text.split('\n');
     
-    if (location.startLine > lines.length) {
-      throw new Error(`Location out of bounds: line ${location.startLine}, column ${location.startColumn}`);
+    if (location.start.line > lines.length) {
+      throw new Error(`Location out of bounds: line ${location.start.line}, column ${location.start.column}`);
     }
     
-    const targetLine = lines[location.startLine - 1];
-    if (location.startColumn > targetLine.length + 1) {
-      throw new Error(`Location out of bounds: line ${location.startLine}, column ${location.startColumn}`);
+    const targetLine = lines[location.start.line - 1];
+    if (location.start.column > targetLine.length + 1) {
+      throw new Error(`Location out of bounds: line ${location.start.line}, column ${location.start.column}`);
     }
   }
 
@@ -104,7 +103,7 @@ export class FindUsagesCommand implements RefactoringCommand {
   }
 
   private isTargetLocation(usage: UsageLocation, targetLocation: LocationRange): boolean {
-    return usage.location.matchesTarget(targetLocation.file, targetLocation.startLine);
+    return usage.location.matchesTarget(targetLocation.file, targetLocation.start.line);
   }
 
 
@@ -116,18 +115,9 @@ export class FindUsagesCommand implements RefactoringCommand {
     if (!options.location) {
       throw new Error('Location format must be specified');
     }
-    
-    const location = options.location as LocationRange;
-    this.validateRange(location);
-  }
-  
-  private validateRange(location: LocationRange): void {
-    if (location.startLine > location.endLine || 
-        (location.startLine === location.endLine && location.startColumn > location.endColumn)) {
-      throw new Error(`Invalid range: start position (${location.startLine}:${location.startColumn}) is after end position (${location.endLine}:${location.endColumn})`);
-    }
-  }
 
+    LocationRange.fromFlat(options.location as any).validateRange();
+  }
   getHelpText(): string {
     return '\nExamples:\n  refakts find-usages "[src/file.ts 10:5-10:10]"\n  refakts find-usages "[src/file.ts 3:15-3:20]"';
   }
