@@ -4,11 +4,15 @@ export interface SourceLocation {
 }
 
 export class LocationInfo {
-  constructor(
-    public readonly file: string,
-    public readonly start: SourceLocation,
-    public readonly end: SourceLocation
-  ) {}
+  public readonly file: string;
+  public readonly start: SourceLocation;
+  public readonly end: SourceLocation;
+
+  constructor(file: string, start: SourceLocation, end: SourceLocation) {
+    this.file = file;
+    this.start = start;
+    this.end = end;
+  }
 
   formatLocation(baseDir: string): string {
     const path = require('path');

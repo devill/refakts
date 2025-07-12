@@ -96,10 +96,11 @@ export class MethodUsageAnalyzer {
     }
     
     const symbol = this.extractSymbolFromExpression(expression);
-    if (!symbol) {
-      return this.createNonOwnUsageResult();
-    }
-    if (this.isSystemType(symbol)) {
+    return this.analyzeSymbolReference(symbol, importedSymbols, method);
+  }
+
+  private static analyzeSymbolReference(symbol: Symbol | undefined, importedSymbols: Set<string>, method: MethodDeclaration): UsageResult {
+    if (!symbol || this.isSystemType(symbol)) {
       return this.createNonOwnUsageResult();
     }
     return this.processSymbolName(symbol, importedSymbols, method);

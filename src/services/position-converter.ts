@@ -11,18 +11,23 @@ export class PositionConverter {
   }
 
   static createUsageLocation(sourceFile: SourceFile, node: Node): UsageLocation {
+    return {
+      location: this.createLocationFromNode(sourceFile, node),
+      text: node.getText()
+    };
+  }
+
+  private static createLocationFromNode(sourceFile: SourceFile, node: Node): LocationInfo {
+    const positions = this.getNodePositions(sourceFile, node);
+    return new LocationInfo(sourceFile.getFilePath(), positions.start, positions.end);
+  }
+
+  private static getNodePositions(sourceFile: SourceFile, node: Node) {
     const start = sourceFile.getLineAndColumnAtPos(node.getStart());
     const end = sourceFile.getLineAndColumnAtPos(node.getEnd());
-    
-    const locationInfo = new LocationInfo(
-      sourceFile.getFilePath(),
-      { line: start.line, column: start.column },
-      { line: end.line, column: end.column }
-    );
-    
     return {
-      location: locationInfo,
-      text: node.getText()
+      start: { line: start.line, column: start.column },
+      end: { line: end.line, column: end.column }
     };
   }
 }
