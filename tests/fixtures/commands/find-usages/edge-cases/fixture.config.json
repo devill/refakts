@@ -2,31 +2,26 @@
   {
     "id": "private-member",
     "description": "Find usages of private class member",
-    "command": "find-usages '[input/private-class.ts 4:10-4:18]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "command": "find-usages '[input/private-class.ts 4:10-4:18]'"
   },
   {
     "id": "computed-property",
     "description": "Find usages of computed property access",
-    "command": "find-usages '[input/computed.ts 7:7-7:10]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "command": "find-usages '[input/computed.ts 7:7-7:10]'"
   },
   {
     "id": "destructured-import",
     "description": "Find usages of destructured and renamed import",
-    "command": "find-usages '[input/destructured.ts 3:17-3:25]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "command": "find-usages '[input/destructured.ts 3:17-3:25]'"
   },
   {
     "id": "ambiguous-symbols",
     "description": "Find usages with multiple symbols at same location",
-    "command": "find-usages '[input/ambiguous.ts 8:3-8:7]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "command": "find-usages '[input/ambiguous.ts 8:3-8:7]'"
   },
   {
     "id": "symbol-not-found",
     "description": "Target location contains no referenceable symbol",
-    "command": "find-usages '[input/empty-space.ts 5:1-5:1]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "command": "find-usages '[input/empty-space.ts 5:1-5:1]'"
   }
 ]

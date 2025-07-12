@@ -2,31 +2,26 @@
   {
     "id": "generic-type-parameter",
     "description": "Find usages of generic type parameter across methods",
-    "command": "find-usages '[input/generics/container.ts 3:20-3:21]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "command": "find-usages '[input/generics/container.ts 3:20-3:21]'"
   },
   {
     "id": "interface-method",
     "description": "Find usages of interface method signature",
-    "command": "find-usages '[input/interfaces/repository.ts 4:3-4:7]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "command": "find-usages '[input/interfaces/repository.ts 4:3-4:7]'"
   },
   {
     "id": "class-property",
     "description": "Find usages of class property access",
-    "command": "find-usages '[input/generics/container.ts 8:10-8:15]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "command": "find-usages '[input/generics/container.ts 8:10-8:15]'"
   },
   {
     "id": "constructor-parameter",
     "description": "Find usages of constructor parameter property",
-    "command": "find-usages '[input/generics/service.ts 4:12-4:16]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "command": "find-usages '[input/generics/service.ts 4:12-4:16]'"
   },
   {
     "id": "method-override",
     "description": "Find usages of overridden method",
-    "command": "find-usages '[input/interfaces/repository.ts 10:3-10:7]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "command": "find-usages '[input/interfaces/repository.ts 10:3-10:7]'"
   }
 ]
