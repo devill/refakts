@@ -1,10 +1,18 @@
 import {QualityGroup, QualityIssue} from './quality-check-interface';
 import {loadQualityChecks} from './plugin-loader';
+import * as path from 'path';
 
-export const formatIssue = (issue: QualityIssue): string => 
-  issue.file && issue.line 
-    ? `${issue.file}:${issue.line} - ${issue.message}`
-    : issue.message;
+export const formatIssue = (issue: QualityIssue): string => {
+  if (issue.file && issue.line) {
+    const absolutePath = path.isAbsolute(issue.file) ? issue.file : path.resolve(process.cwd(), issue.file);
+    return `${absolutePath}:${issue.line} - ${issue.message}`;
+  }
+  if (issue.file) {
+    const absolutePath = path.isAbsolute(issue.file) ? issue.file : path.resolve(process.cwd(), issue.file);
+    return `${absolutePath} - ${issue.message}`;
+  }
+  return issue.message;
+};
 
 export const groupByType = (issues: QualityIssue[]): Map<string, QualityIssue[]> =>
   issues.reduce((groups, issue) => {

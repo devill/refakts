@@ -48,8 +48,9 @@ const createFunctionSizeIssue = (filePath: string, func: FunctionDeclaration | M
   return severity ? {
     type: 'functionSize',
     severity,
-    message: `Function '${functionName}' in ${filePath} has ${lineCount} lines`,
-    file: filePath
+    message: `Function '${functionName}' has ${lineCount} lines`,
+    file: filePath,
+    line: func.getStartLineNumber()
   } : null;
 };
 
