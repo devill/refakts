@@ -9,7 +9,7 @@
     "id": "class-definition",
     "description": "Find usages of class definition and instantiations",
     "command": "find-usages '[input/models/user.ts 3:14-3:18]'",
-    "skip": "Implementation pending - find-usages command not yet implemented"
+    "skip": "Debug project instance reuse issue"
   },
   {
     "id": "interface-usage",

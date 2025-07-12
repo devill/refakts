@@ -22,7 +22,7 @@ export class CrossFileReferenceFinder {
 
   async findAllReferences(location: LocationRange, sourceFile?: SourceFile): Promise<FindUsagesResult> {
     const projectDir = this.findProjectRoot(location.file);
-    this.loadAllFilesInDirectory(projectDir);
+    this.loadProjectFiles(projectDir);
     
     if (!sourceFile) {
       sourceFile = this._project.getSourceFile(location.file);
@@ -50,6 +50,11 @@ export class CrossFileReferenceFinder {
     };
   }
 
+  private loadProjectFiles(projectDir: string): void {
+    // For now, just use manual loading to avoid project instance conflicts
+    this.loadAllFilesInDirectory(projectDir);
+  }
+
   private loadAllFilesInDirectory(dir: string): void {
     const fs = require('fs');
     const path = require('path');
@@ -64,7 +69,7 @@ export class CrossFileReferenceFinder {
       const fullPath = path.join(dir, entry);
       const stat = fs.statSync(fullPath);
       
-      if (stat.isDirectory()) {
+      if (stat.isDirectory() && entry !== 'node_modules' && entry !== 'dist') {
         this.loadAllFilesInDirectory(fullPath);
       } else if (entry.endsWith('.ts') && !entry.endsWith('.d.ts')) {
         try {
