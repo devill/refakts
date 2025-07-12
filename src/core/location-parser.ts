@@ -67,4 +67,13 @@ export class LocationParser {
   static getZeroBasedStartPosition(location: LocationRange): { line: number; column: number } {
     return { line: location.startLine - 1, column: location.startColumn - 1 };
   }
+
+  static processTarget(target: string, options: Record<string, unknown>): Record<string, unknown> {
+    if (this.isLocationFormat(target)) {
+      const location = this.parseLocation(target);
+      return { ...options, location };
+    }
+    
+    return { ...options, target };
+  }
 }

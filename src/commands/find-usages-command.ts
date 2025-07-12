@@ -48,14 +48,7 @@ export class FindUsagesCommand implements RefactoringCommand {
   }
 
   private formatUsageLocation(usage: UsageLocation, baseDir: string): string {
-    const relativePath = this.normalizeTestPath(path.relative(baseDir, usage.location.file));
-    return `[${relativePath} ${usage.location.startLine}:${usage.location.startColumn}-${usage.location.endLine}:${usage.location.endColumn}]`;
-  }
-
-  private normalizeTestPath(relativePath: string): string {
-    return relativePath.includes('input.received/') 
-      ? relativePath.replace(/.*input\.received\//, 'input/')
-      : relativePath;
+    return usage.location.formatLocation(baseDir);
   }
 
   private sortUsages(usages: UsageLocation[], targetLocation: LocationRange): UsageLocation[] {
@@ -79,16 +72,11 @@ export class FindUsagesCommand implements RefactoringCommand {
   }
 
   private compareByLocation(a: UsageLocation, b: UsageLocation): number {
-    if (a.location.file !== b.location.file) {
-      return a.location.file.localeCompare(b.location.file);
-    }
-    return a.location.startLine - b.location.startLine;
+    return a.location.compareToLocation(b.location);
   }
 
   private isTargetLocation(usage: UsageLocation, targetLocation: LocationRange): boolean {
-    const normalizedUsagePath = path.resolve(usage.location.file);
-    const normalizedTargetPath = path.resolve(targetLocation.file);
-    return normalizedUsagePath === normalizedTargetPath && usage.location.startLine === targetLocation.startLine;
+    return usage.location.matchesTarget(targetLocation.file, targetLocation.startLine);
   }
 
   private handleExecutionError(error: unknown): void {
@@ -101,12 +89,7 @@ export class FindUsagesCommand implements RefactoringCommand {
   }
 
   private processTarget(target: string, options: CommandOptions): CommandOptions {
-    if (LocationParser.isLocationFormat(target)) {
-      const location = LocationParser.parseLocation(target);
-      return { ...options, location };
-    }
-    
-    return { ...options, target };
+    return LocationParser.processTarget(target, options) as CommandOptions;
   }
   
   validateOptions(options: CommandOptions): void {

@@ -91,6 +91,10 @@ export class MethodUsageAnalyzer {
   }
 
   private static analyzeExternalClassReference(expression: Node, importedSymbols: Set<string>, method: MethodDeclaration): UsageResult {
+    if (this.isNodeGlobal(expression)) {
+      return this.createNonOwnUsageResult();
+    }
+    
     const symbol = this.extractSymbolFromExpression(expression);
     if (!symbol) {
       return this.createNonOwnUsageResult();
@@ -176,5 +180,11 @@ export class MethodUsageAnalyzer {
   private static isTypeScriptLibFile(filePath: string): boolean {
     const libFilePattern = /lib\.(es\d+|dom|node|esnext)/;
     return libFilePattern.test(filePath);
+  }
+
+  private static isNodeGlobal(expression: Node): boolean {
+    const nodeGlobals = ['process', 'console', 'require', 'module', 'exports', '__dirname', '__filename', 'Buffer', 'global'];
+    const text = expression.getText();
+    return nodeGlobals.includes(text);
   }
 }
