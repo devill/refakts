@@ -32,7 +32,7 @@ export class FeatureEnvyDetector {
   }
 
   private static isFeatureEnvyViolation(externalCount: number, ownUsage: number): boolean {
-    return externalCount >= 3 && externalCount > ownUsage * 1.5;
+    return externalCount >= 5 && externalCount > ownUsage * 1.5;
   }
 
   private static createFeatureEnvyResult(className: string, count: number, ownUsage: number): FeatureEnvyResult {

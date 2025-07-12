@@ -4,7 +4,7 @@ import { ASTService } from '../services/ast-service';
 import { VariableDeclarationFinder } from '../services/variable-declaration-finder';
 import { ExpressionAnalyzer } from '../services/expression-analyzer';
 import { VariableReplacer } from '../services/variable-replacer';
-import { LocationRange } from '../core/location-parser';
+import { LocationRange } from '../core/location-range';
 import { NodeAnalyzer } from '../locators/node-analyzer';
 
 export class InlineVariableCommand implements RefactoringCommand {

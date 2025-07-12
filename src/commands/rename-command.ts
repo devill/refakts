@@ -3,7 +3,7 @@ import { Node, SourceFile } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
 import { VariableLocator, VariableNodeResult } from '../locators/variable-locator';
 import { RenameVariableTransformation } from '../transformations/rename-variable-transformation';
-import { LocationRange } from '../core/location-parser';
+import { LocationRange } from '../core/location-range';
 import { NodeAnalyzer } from '../locators/node-analyzer';
 
 export class RenameCommand implements RefactoringCommand {

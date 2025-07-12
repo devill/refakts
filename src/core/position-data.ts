@@ -1,5 +1,5 @@
 import { SourceFile } from 'ts-morph';
-import { LocationRange } from './location-parser';
+import { LocationRange } from './location-range';
 import { SelectMatch } from '../types/selection-types';
 
 

@@ -1,8 +1,7 @@
 import {Node, Project, SourceFile, SyntaxKind} from 'ts-morph';
-import {LocationRange} from '../core/location-parser';
+import {LocationRange, UsageLocation} from '../core/location-range';
 import {FileSystemHelper} from './file-system-helper';
 import {PositionConverter} from './position-converter';
-import {UsageLocation} from '../core/location-types';
 
 
 export interface FindUsagesResult {

@@ -2,7 +2,7 @@ import {CommandRegistry} from '../../src/command-registry';
 import {CommandLineParser} from './command-line-parser';
 import {ConsoleCapture} from './console-capture';
 import {CliExecutor} from './cli-executor';
-import {CommandExecutionBuilder} from './builders/command-execution-builder';
+import {ExecutionContext} from './execution-context';
 import {DirectoryUtils} from '../../src/utils/directory-utils';
 
 export interface CommandExecutorOptions {
@@ -42,8 +42,7 @@ export class CommandExecutor {
 
   private async executeDirect(commandString: string, cwd: string): Promise<string | void> {
     return DirectoryUtils.withRootDirectory(cwd, async () => {
-      return CommandExecutionBuilder.create()
-          .with(this.executionContextFor(commandString))
+      return new ExecutionContext(this.executionContextFor(commandString))
           .execute(this.consoleCapture);
     });
   }

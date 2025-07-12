@@ -1,9 +1,7 @@
 import {CommandOptions, RefactoringCommand} from '../command';
-import {LocationParser, LocationRange} from '../core/location-parser';
+import {LocationParser, LocationRange, UsageLocation} from '../core/location-range';
 import {ASTService} from '../services/ast-service';
 import {CrossFileReferenceFinder} from '../services/cross-file-reference-finder';
-import {UsageLocation} from '../core/location-types';
-import {SourceFile} from "ts-morph";
 
 export class FindUsagesCommand implements RefactoringCommand {
   readonly name = 'find-usages';
@@ -20,7 +18,7 @@ export class FindUsagesCommand implements RefactoringCommand {
   }
 
   private async executeFinUsagesOperation(options: CommandOptions): Promise<void> {
-    const location = options.location as LocationRange;
+    const location = LocationRange.from(options.location as LocationRange);
 
     const sourceFile = this.astService.loadSourceFile(location.file);
 
@@ -29,7 +27,7 @@ export class FindUsagesCommand implements RefactoringCommand {
       throw new Error(`TypeScript compilation error in ${location.file}`);
     }
 
-    this.validateLocationBounds(sourceFile, location);
+    location.validateLocationBounds(sourceFile);
     
     const project = this.astService.getProject();
     const finder = new CrossFileReferenceFinder(project);
@@ -38,18 +36,6 @@ export class FindUsagesCommand implements RefactoringCommand {
     this.outputResults(result.usages, process.cwd(), location);
   }
   
-  private validateLocationBounds(sourceFile: SourceFile, location: LocationRange): void {
-    const lines = sourceFile.getFullText().split('\n');
-    
-    if (location.start.line > lines.length) {
-      throw new Error(`Location out of bounds: line ${location.start.line}, column ${location.start.column}`);
-    }
-    
-    const targetLine = lines[location.start.line - 1];
-    if (location.start.column > targetLine.length + 1) {
-      throw new Error(`Location out of bounds: line ${location.start.line}, column ${location.start.column}`);
-    }
-  }
 
 
   private outputResults(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange): void {
@@ -102,7 +88,7 @@ export class FindUsagesCommand implements RefactoringCommand {
       throw new Error('Location format must be specified');
     }
 
-    LocationRange.from(options.location as any).validateRange();
+    LocationRange.from(options.location as LocationRange).validateRange();
   }
   getHelpText(): string {
     return '\nExamples:\n  refakts find-usages "[src/file.ts 10:5-10:10]"\n  refakts find-usages "[src/file.ts 3:15-3:20]"';
