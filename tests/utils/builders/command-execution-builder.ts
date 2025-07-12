@@ -8,7 +8,7 @@ export class CommandExecutionBuilder {
   private commandName = '';
   private commandString = '';
 
-  withContext(context: CommandExecutionContext) {
+  with(context: CommandExecutionContext) {
     this.command = context.command;
     this.commandString = context.commandString;
     this.commandName = context.commandName;

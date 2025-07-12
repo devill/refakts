@@ -44,14 +44,18 @@ export class CommandExecutor {
 
   private async executeDirect(commandString: string, cwd: string): Promise<string | void> {
     return DirectoryUtils.withRootDirectory(cwd, async () => {
-      const parsedCommand = this.parser.parseCommand(commandString);
       return CommandExecutionBuilder.create()
-          .withContext({
-            command: this.findCommand(parsedCommand.commandName),
-            ...parsedCommand
-          })
+          .with(this.executionContextFor(commandString))
           .execute(this.consoleCapture);
     });
+  }
+
+  private executionContextFor(commandString: string) {
+    const parsedCommand = this.parser.parseCommand(commandString);
+    return {
+      command: this.findCommand(parsedCommand.commandName),
+      ...parsedCommand
+    };
   }
 
   private findCommand(commandName: string) {
