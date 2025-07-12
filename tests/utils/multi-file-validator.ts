@@ -18,8 +18,8 @@ export class MultiFileValidator {
   }
 
   async validate(testCase: FixtureTestCase): Promise<void> {
-    const receivedDir = this.getMultiFileReceivedPath(testCase.inputFile);
-    this.setupMultiFileProject(testCase.inputFile, receivedDir);
+    const receivedDir = this.getMultiFileReceivedPath(testCase.inputFile, testCase.testCaseId);
+    await this.setupMultiFileProject(testCase.inputFile, receivedDir);
     
     const outputs = await this.executeMultiFileCommand(testCase, receivedDir);
     const receivedFiles = testCase.writeReceivedFiles(outputs);
@@ -27,8 +27,8 @@ export class MultiFileValidator {
     this.validateAndCleanupMultiFile(testCase, receivedFiles);
   }
 
-  private setupMultiFileProject(inputDir: string, receivedDir: string): void {
-    this.fileOperations.copyDirectory(inputDir, receivedDir);
+  private async setupMultiFileProject(inputDir: string, receivedDir: string): Promise<void> {
+    await this.fileOperations.copyDirectory(inputDir, receivedDir);
   }
 
   private async executeMultiFileCommand(testCase: FixtureTestCase, receivedDir: string): Promise<{
@@ -41,7 +41,8 @@ export class MultiFileValidator {
 
   private prepareMultiFileCommand(command: string, receivedDir: string): string {
     const cleanCommand = this.removeRefaktsPrefix(command);
-    return cleanCommand.replace(/input\//g, path.basename(receivedDir) + '/');
+    const receivedBaseName = path.basename(receivedDir);
+    return cleanCommand.replace(/input\//g, receivedBaseName + '/');
   }
 
   private validateAndCleanupMultiFile(testCase: FixtureTestCase, receivedFiles: any): void {
@@ -70,7 +71,7 @@ export class MultiFileValidator {
 
   private compareProjectDirectory(testCase: FixtureTestCase): void {
     if (testCase.expectedDirectory && fs.existsSync(testCase.expectedDirectory)) {
-      this.compareDirectories(testCase.expectedDirectory, this.getMultiFileReceivedPath(testCase.inputFile));
+      this.compareDirectories(testCase.expectedDirectory, this.getMultiFileReceivedPath(testCase.inputFile, testCase.testCaseId));
     }
   }
 
@@ -92,7 +93,7 @@ export class MultiFileValidator {
   }
 
   private cleanupReceivedDirectory(testCase: FixtureTestCase, testPassed: boolean): void {
-    const receivedDir = this.getMultiFileReceivedPath(testCase.inputFile);
+    const receivedDir = this.getMultiFileReceivedPath(testCase.inputFile, testCase.testCaseId);
     if (fs.existsSync(receivedDir) && testPassed) {
       fs.rmSync(receivedDir, { recursive: true, force: true });
     }
@@ -106,10 +107,10 @@ export class MultiFileValidator {
     });
   }
 
-  private getMultiFileReceivedPath(inputDir: string): string {
+  private getMultiFileReceivedPath(inputDir: string, testCaseId?: string): string {
     const parentDir = path.dirname(inputDir);
-    const baseName = path.basename(inputDir);
-    return path.join(parentDir, `${baseName}.received`);
+    const prefix = testCaseId ? `${testCaseId}.` : '';
+    return path.join(parentDir, `${prefix}received`);
   }
 
   private removeRefaktsPrefix(command: string): string {
