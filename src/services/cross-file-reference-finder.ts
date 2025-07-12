@@ -81,16 +81,16 @@ export class CrossFileReferenceFinder {
 
   private getFilteredSourceFiles(scopeDirectory?: string): SourceFile[] {
     const allFiles = this._project.getSourceFiles();
-    
-    if (!scopeDirectory) {
-      return allFiles;
-    }
-    
+    return scopeDirectory ? this.filterFilesByScope(allFiles, scopeDirectory) : allFiles;
+  }
+
+  private filterFilesByScope(files: SourceFile[], scopeDirectory: string): SourceFile[] {
     const normalizedScope = require('path').resolve(scopeDirectory);
-    return allFiles.filter(sourceFile => {
-      const filePath = sourceFile.getFilePath();
-      return filePath.startsWith(normalizedScope);
-    });
+    return files.filter(file => this.isFileInScope(file, normalizedScope));
+  }
+
+  private isFileInScope(sourceFile: SourceFile, normalizedScope: string): boolean {
+    return sourceFile.getFilePath().startsWith(normalizedScope);
   }
 
   private findUsagesInFile(sourceFile: SourceFile, symbolName: string): UsageLocation[] {

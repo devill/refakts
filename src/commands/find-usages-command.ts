@@ -48,12 +48,10 @@ export class FindUsagesCommand implements RefactoringCommand {
   }
 
   private determineScopeDirectory(filePath: string): string | undefined {
-    // For test fixtures, limit scope to the test input directory
     if (this.isTestFixture(filePath)) {
       return this.getTestFixtureScope(filePath);
     }
     
-    // For regular usage, search all files (no scope limit)
     return undefined;
   }
 
@@ -63,7 +61,6 @@ export class FindUsagesCommand implements RefactoringCommand {
 
   private getTestFixtureScope(filePath: string): string {
     const path = require('path');
-    // Find the input directory for this test fixture
     const inputIndex = filePath.lastIndexOf('/input/');
     const inputDir = filePath.substring(0, inputIndex + '/input'.length);
     return path.resolve(inputDir);
