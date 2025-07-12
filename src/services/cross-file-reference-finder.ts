@@ -17,10 +17,10 @@ export class CrossFileReferenceFinder {
     this.fileSystemHelper = new FileSystemHelper(_project);
   }
 
-  async findAllReferences(location: LocationRange, sourceFile?: SourceFile): Promise<FindUsagesResult> {
+  async findAllReferences(location: LocationRange, sourceFile?: SourceFile, scopeDirectory?: string): Promise<FindUsagesResult> {
     this.fileSystemHelper.loadProjectFiles(location.file);
     const symbol = this.extractSymbolFromLocation(this.resolveSourceFile(location.file, sourceFile), location);
-    const usages = this.findUsagesInProject(symbol);
+    const usages = this.findUsagesInProject(symbol, scopeDirectory);
     const definition = usages.length > 0 ? usages[0] : null;
     return { symbol, definition, usages };
   }
@@ -68,15 +68,29 @@ export class CrossFileReferenceFinder {
     return firstIdentifier ? firstIdentifier.getText() : node.getText();
   }
 
-  private findUsagesInProject(symbolName: string): UsageLocation[] {
+  private findUsagesInProject(symbolName: string, scopeDirectory?: string): UsageLocation[] {
     const usages: UsageLocation[] = [];
     
-    for (const sourceFile of this._project.getSourceFiles()) {
+    for (const sourceFile of this.getFilteredSourceFiles(scopeDirectory)) {
       const fileUsages = this.findUsagesInFile(sourceFile, symbolName);
       usages.push(...fileUsages);
     }
     
     return usages;
+  }
+
+  private getFilteredSourceFiles(scopeDirectory?: string): SourceFile[] {
+    const allFiles = this._project.getSourceFiles();
+    
+    if (!scopeDirectory) {
+      return allFiles;
+    }
+    
+    const normalizedScope = require('path').resolve(scopeDirectory);
+    return allFiles.filter(sourceFile => {
+      const filePath = sourceFile.getFilePath();
+      return filePath.startsWith(normalizedScope);
+    });
   }
 
   private findUsagesInFile(sourceFile: SourceFile, symbolName: string): UsageLocation[] {

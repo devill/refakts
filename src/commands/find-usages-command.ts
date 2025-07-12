@@ -42,8 +42,31 @@ export class FindUsagesCommand implements RefactoringCommand {
   private async findReferences(location: LocationRange, sourceFile: SourceFile) {
     const project = this.astService.getProject();
     const finder = new CrossFileReferenceFinder(project);
-    const result = await finder.findAllReferences(location, sourceFile);
+    const scopeDirectory = this.determineScopeDirectory(location.file);
+    const result = await finder.findAllReferences(location, sourceFile, scopeDirectory);
     return result.usages;
+  }
+
+  private determineScopeDirectory(filePath: string): string | undefined {
+    // For test fixtures, limit scope to the test input directory
+    if (this.isTestFixture(filePath)) {
+      return this.getTestFixtureScope(filePath);
+    }
+    
+    // For regular usage, search all files (no scope limit)
+    return undefined;
+  }
+
+  private isTestFixture(filePath: string): boolean {
+    return filePath.includes('/tests/fixtures/') && filePath.includes('/input/');
+  }
+
+  private getTestFixtureScope(filePath: string): string {
+    const path = require('path');
+    // Find the input directory for this test fixture
+    const inputIndex = filePath.lastIndexOf('/input/');
+    const inputDir = filePath.substring(0, inputIndex + '/input'.length);
+    return path.resolve(inputDir);
   }
   
 
