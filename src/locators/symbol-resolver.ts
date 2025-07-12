@@ -1,4 +1,5 @@
-import { Node, SyntaxKind } from 'ts-morph';
+import {Node, SyntaxKind} from 'ts-morph';
+import {SYNTAX_KIND_TO_DECLARATION_TYPE} from "./type-maps";
 
 export class SymbolResolver {
   static getSymbolName(node: Node): string {
@@ -15,19 +16,7 @@ export class SymbolResolver {
   }
 
   private static mapKindToType(kind: SyntaxKind, node: Node): string {
-    const typeMap = new Map([
-      [SyntaxKind.FunctionDeclaration, 'function'],
-      [SyntaxKind.ClassDeclaration, 'class'],
-      [SyntaxKind.InterfaceDeclaration, 'interface'],
-      [SyntaxKind.TypeAliasDeclaration, 'type'],
-      [SyntaxKind.EnumDeclaration, 'enum'],
-      [SyntaxKind.VariableDeclaration, 'variable'],
-      [SyntaxKind.MethodDeclaration, 'method'],
-      [SyntaxKind.PropertyDeclaration, 'property'],
-      [SyntaxKind.Parameter, 'parameter']
-    ]);
-
-    return typeMap.get(kind) || 
+    return SYNTAX_KIND_TO_DECLARATION_TYPE.get(kind) ||
            (kind === SyntaxKind.Identifier ? this.getIdentifierType(node) : 'unknown');
   }
 

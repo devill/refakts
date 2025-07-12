@@ -1,5 +1,5 @@
-import { Project, Node, SyntaxKind, SourceFile } from 'ts-morph';
-import { LocationRange } from '../core/location-parser';
+import {Node, Project, SourceFile, SyntaxKind} from 'ts-morph';
+import {LocationRange} from '../core/location-parser';
 import * as path from 'path';
 
 export interface UsageLocation {
@@ -22,7 +22,7 @@ export class CrossFileReferenceFinder {
 
   async findAllReferences(location: LocationRange, sourceFile?: SourceFile): Promise<FindUsagesResult> {
     const projectDir = this.findProjectRoot(location.file);
-    this.loadProjectFiles(projectDir);
+    this.loadAllFilesInDirectory(projectDir);
     
     if (!sourceFile) {
       sourceFile = this._project.getSourceFile(location.file);
@@ -48,11 +48,6 @@ export class CrossFileReferenceFinder {
       definition: usages.length > 0 ? usages[0] : null,
       usages
     };
-  }
-
-  private loadProjectFiles(projectDir: string): void {
-    // For now, just use manual loading to avoid project instance conflicts
-    this.loadAllFilesInDirectory(projectDir);
   }
 
   private loadAllFilesInDirectory(dir: string): void {
@@ -139,8 +134,7 @@ export class CrossFileReferenceFinder {
   private findProjectRoot(filePath: string): string {
     let currentDir = path.dirname(path.resolve(filePath));
     let foundRoot = null;
-    
-    // Look for tsconfig.json but don't go beyond the current working directory
+
     const cwd = process.cwd();
     
     while (currentDir !== path.dirname(currentDir) && (currentDir === cwd || currentDir.startsWith(cwd))) {

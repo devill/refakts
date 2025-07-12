@@ -1,7 +1,6 @@
 import { Project, Node, SourceFile } from 'ts-morph';
 import { LocationRange, LocationParser } from '../core/location-parser';
 import * as path from 'path';
-import * as fs from 'fs';
 
 export class ASTService {
   private readonly project: Project;
@@ -42,35 +41,6 @@ export class ASTService {
 
   getProject(): Project {
     return this.project;
-  }
-
-  loadProjectFromDirectory(directoryPath: string): Project {
-    const tsConfigPath = this.findTsConfigPath(directoryPath);
-    if (!tsConfigPath) {
-      throw new Error('No tsconfig.json found in project directory');
-    }
-    
-    const projectOptions = {
-      tsConfigFilePath: tsConfigPath,
-      skipAddingFilesFromTsConfig: false,
-      skipFileDependencyResolution: true
-    };
-    
-    return new Project(projectOptions);
-  }
-
-  private findTsConfigPath(directoryPath: string): string | null {
-    const tsConfigPath = path.join(directoryPath, 'tsconfig.json');
-    if (fs.existsSync(tsConfigPath)) {
-      return tsConfigPath;
-    }
-    
-    const parentDir = path.dirname(directoryPath);
-    if (parentDir === directoryPath) {
-      return null;
-    }
-    
-    return this.findTsConfigPath(parentDir);
   }
 
   findNodeByLocation(location: LocationRange): Node {
@@ -144,7 +114,7 @@ export class ASTService {
     const endDiff = Math.abs(node.getEnd() - expectedEnd);
     return startDiff <= 3 && endDiff <= 3;
   }
-  
+
   private calculateNodeScore(node: Node, expectedStart: number, expectedEnd: number): number {
     const startDiff = Math.abs(node.getStart() - expectedStart);
     const endDiff = Math.abs(node.getEnd() - expectedEnd);
