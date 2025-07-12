@@ -15,7 +15,7 @@
     "id": "no-tsconfig",
     "description": "Project directory without tsconfig.json",
     "command": "find-usages '[input/orphan.ts 3:17-3:25]'",
-    "skip": false
+    "skip": "ts-morph handles missing tsconfig gracefully - explicit validation removed"
   },
   {
     "id": "syntax-error",

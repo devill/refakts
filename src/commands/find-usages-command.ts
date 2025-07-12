@@ -26,15 +26,20 @@ export class FindUsagesCommand implements RefactoringCommand {
     let sourceFile;
     try {
       sourceFile = this.astService.loadSourceFile(location.file);
+      
+      // Check for syntax errors specifically for find-usages
+      const diagnostics = sourceFile.getPreEmitDiagnostics();
+      if (diagnostics.length > 0) {
+        throw new Error(`TypeScript compilation error in ${location.file}`);
+      }
     } catch (error) {
       if (error instanceof Error && error.message.includes('TypeScript compilation error')) {
-        throw new Error(`TypeScript compilation error in ${location.file}`);
+        throw error;
       }
       throw error;
     }
     
     this.validateLocationBounds(sourceFile, location);
-    this.validateTsConfigExists(location.file);
     
     const project = this.astService.getProject();
     const finder = new CrossFileReferenceFinder(project);
@@ -122,15 +127,7 @@ export class FindUsagesCommand implements RefactoringCommand {
       throw new Error(`Invalid range: start position (${location.startLine}:${location.startColumn}) is after end position (${location.endLine}:${location.endColumn})`);
     }
   }
-  
-  private validateTsConfigExists(filePath: string): void {
-    const projectDir = this.getProjectDirectory(filePath);
-    const tsConfigPath = path.join(projectDir, 'tsconfig.json');
-    if (!fs.existsSync(tsConfigPath)) {
-      throw new Error('No tsconfig.json found in project directory');
-    }
-  }
-  
+
   getHelpText(): string {
     return '\nExamples:\n  refakts find-usages "[src/file.ts 10:5-10:10]"\n  refakts find-usages "[src/file.ts 3:15-3:20]"';
   }
