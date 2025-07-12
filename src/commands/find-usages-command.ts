@@ -30,7 +30,7 @@ export class FindUsagesCommand implements RefactoringCommand {
     const finder = new CrossFileReferenceFinder(project);
     
     const result = await finder.findAllReferences(location, sourceFile);
-    this.outputResults(result.usages, process.cwd());
+    this.outputResults(result.usages, process.cwd(), location);
   }
 
   private getProjectDirectory(filePath: string): string {
@@ -38,10 +38,8 @@ export class FindUsagesCommand implements RefactoringCommand {
     return path.dirname(absolutePath);
   }
 
-  private outputResults(usages: UsageLocation[], baseDir: string): void {
-    const sortedUsages = this.sortUsages(usages);
-    
-    for (const usage of sortedUsages) {
+  private outputResults(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange): void {
+    for (const usage of this.sortUsages(usages, targetLocation)) {
       let relativePath = path.relative(baseDir, usage.filePath);
       
       if (relativePath.includes('input.received/')) {
@@ -54,10 +52,10 @@ export class FindUsagesCommand implements RefactoringCommand {
     }
   }
 
-  private sortUsages(usages: UsageLocation[]): UsageLocation[] {
+  private sortUsages(usages: UsageLocation[], targetLocation: LocationRange): UsageLocation[] {
     return usages.sort((a, b) => {
-      const aIsDefinition = a.filePath.includes('utils/math.ts') && a.line === 3;
-      const bIsDefinition = b.filePath.includes('utils/math.ts') && b.line === 3;
+      const aIsDefinition = this.isTargetLocation(a, targetLocation);
+      const bIsDefinition = this.isTargetLocation(b, targetLocation);
       
       if (aIsDefinition && !bIsDefinition) return -1;
       if (!aIsDefinition && bIsDefinition) return 1;
@@ -67,6 +65,12 @@ export class FindUsagesCommand implements RefactoringCommand {
       }
       return a.line - b.line;
     });
+  }
+
+  private isTargetLocation(usage: UsageLocation, targetLocation: LocationRange): boolean {
+    const normalizedUsagePath = path.resolve(usage.filePath);
+    const normalizedTargetPath = path.resolve(targetLocation.file);
+    return normalizedUsagePath === normalizedTargetPath && usage.line === targetLocation.startLine;
   }
 
   private handleExecutionError(error: unknown): void {

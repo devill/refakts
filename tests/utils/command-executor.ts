@@ -5,6 +5,7 @@ import {CommandLineParser} from './command-line-parser';
 import {ConsoleCapture} from './console-capture';
 import {CliExecutor} from './cli-executor';
 import {CommandExecutionBuilder} from './builders/command-execution-builder';
+import {DirectoryUtils} from '../../src/utils/directory-utils';
 
 export interface CommandExecutorOptions {
   useCli?: boolean; // If true, uses CLI subprocess. If false, calls commands directly
@@ -42,9 +43,7 @@ export class CommandExecutor {
   }
 
   private async executeDirect(commandString: string, cwd: string): Promise<string | void> {
-    const originalCwd = process.cwd();
-    try {
-      process.chdir(cwd);
+    return DirectoryUtils.withRootDirectory(cwd, async () => {
       const parsedCommand = this.parser.parseCommand(commandString);
       return CommandExecutionBuilder.create()
           .withContext({
@@ -52,9 +51,7 @@ export class CommandExecutor {
             ...parsedCommand
           })
           .execute(this.consoleCapture);
-    } finally {
-      process.chdir(originalCwd);
-    }
+    });
   }
 
   private findCommand(commandName: string) {
