@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { CommandExecutor } from './command-executor';
-import { FixtureTestCase } from './test-case-loader';
-import { FileOperations } from './file-operations';
-import { CommandRunner } from './command-runner';
-import { TestUtilities } from './test-utilities';
+import {CommandExecutor} from './command-executor';
+import {FixtureTestCase} from './test-case-loader';
+import {FileOperations} from './file-operations';
+import {CommandRunner} from './command-runner';
+import {TestUtilities} from './test-utilities';
 
 export class MultiFileValidator {
   private commandExecutor: CommandExecutor;
@@ -14,7 +14,7 @@ export class MultiFileValidator {
   constructor(commandExecutor: CommandExecutor) {
     this.commandExecutor = commandExecutor;
     this.fileOperations = new FileOperations();
-    this.commandRunner = new CommandRunner(commandExecutor);
+    this.commandRunner = new CommandRunner(this.commandExecutor);
   }
 
   async validate(testCase: FixtureTestCase): Promise<void> {
@@ -35,7 +35,8 @@ export class MultiFileValidator {
     stdout: string; stderr: string; success: boolean;
   }> {
     const command = this.prepareMultiFileCommand(testCase.commands[0], receivedDir);
-    return this.runCommand(command, receivedDir);
+    const workingDir = path.dirname(receivedDir);
+    return this.commandRunner.runCommand(command, workingDir);
   }
 
   private prepareMultiFileCommand(command: string, receivedDir: string): string {
@@ -113,9 +114,5 @@ export class MultiFileValidator {
 
   private removeRefaktsPrefix(command: string): string {
     return command.replace(/^refakts\s+/, '').trim();
-  }
-
-  private async runCommand(command: string, cwd: string = process.cwd()): Promise<{ stdout: string; stderr: string; success: boolean }> {
-    return this.commandRunner.runCommand(command, cwd);
   }
 }

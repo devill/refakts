@@ -20,16 +20,18 @@ export interface FindUsagesResult {
 export class CrossFileReferenceFinder {
   constructor(private _project: Project) {}
 
-  async findAllReferences(location: LocationRange): Promise<FindUsagesResult> {
-    const projectDir = path.dirname(location.file);
+  async findAllReferences(location: LocationRange, sourceFile?: SourceFile): Promise<FindUsagesResult> {
+    const projectDir = this.findProjectRoot(location.file);
     this.loadAllFilesInDirectory(projectDir);
     
-    let sourceFile = this._project.getSourceFile(location.file);
     if (!sourceFile) {
-      try {
-        sourceFile = this._project.addSourceFileAtPath(location.file);
-      } catch {
-        throw new Error(`File not found: ${location.file}`);
+      sourceFile = this._project.getSourceFile(location.file);
+      if (!sourceFile) {
+        try {
+          sourceFile = this._project.addSourceFileAtPath(location.file);
+        } catch {
+          throw new Error(`File not found: ${location.file}`);
+        }
       }
     }
 
@@ -80,7 +82,7 @@ export class CrossFileReferenceFinder {
       location.startColumn - 1
     );
     
-    return sourceFile.getDescendantAtPos(startPos);
+    return sourceFile.getDescendantAtPos(startPos) || null;
   }
 
   private getSymbolFromNode(node: Node): string {
@@ -127,5 +129,19 @@ export class CrossFileReferenceFinder {
     });
     
     return usages;
+  }
+
+  private findProjectRoot(filePath: string): string {
+    let currentDir = path.dirname(filePath);
+    
+    while (currentDir !== path.dirname(currentDir)) {
+      const tsConfigPath = path.join(currentDir, 'tsconfig.json');
+      if (require('fs').existsSync(tsConfigPath)) {
+        return currentDir;
+      }
+      currentDir = path.dirname(currentDir);
+    }
+    
+    return path.dirname(filePath);
   }
 }

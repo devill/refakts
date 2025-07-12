@@ -37,19 +37,24 @@ export class CommandExecutor {
     if (this.useCli) {
       return this.cliExecutor.executeCommand(commandString, cwd);
     } else {
-      return this.executeDirect(commandString);
+      return this.executeDirect(commandString, cwd);
     }
   }
 
-
-  private async executeDirect(commandString: string): Promise<string | void> {
-    const parsedCommand = this.parser.parseCommand(commandString);
-    return CommandExecutionBuilder.create()
-        .withContext({
-          command: this.findCommand(parsedCommand.commandName),
-          ...parsedCommand
-        })
-        .execute(this.consoleCapture);
+  private async executeDirect(commandString: string, cwd: string): Promise<string | void> {
+    const originalCwd = process.cwd();
+    try {
+      process.chdir(cwd);
+      const parsedCommand = this.parser.parseCommand(commandString);
+      return CommandExecutionBuilder.create()
+          .withContext({
+            command: this.findCommand(parsedCommand.commandName),
+            ...parsedCommand
+          })
+          .execute(this.consoleCapture);
+    } finally {
+      process.chdir(originalCwd);
+    }
   }
 
   private findCommand(commandName: string) {

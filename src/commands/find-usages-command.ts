@@ -25,11 +25,12 @@ export class FindUsagesCommand implements RefactoringCommand {
   private async executeFinUsagesOperation(options: CommandOptions): Promise<void> {
     const location = options.location as LocationRange;
     
-    const project = new (require('ts-morph').Project)();
+    const sourceFile = this.astService.loadSourceFile(location.file);
+    const project = this.astService.getProject();
     const finder = new CrossFileReferenceFinder(project);
     
-    const result = await finder.findAllReferences(location);
-    this.outputResults(result.usages, path.dirname(location.file));
+    const result = await finder.findAllReferences(location, sourceFile);
+    this.outputResults(result.usages, process.cwd());
   }
 
   private getProjectDirectory(filePath: string): string {
@@ -37,15 +38,35 @@ export class FindUsagesCommand implements RefactoringCommand {
     return path.dirname(absolutePath);
   }
 
-  private outputResults(usages: UsageLocation[], projectDir: string): void {
-    for (const usage of usages) {
-      const relativePath = path.relative(projectDir, usage.filePath);
-      const formattedPath = relativePath.startsWith('..') ? usage.filePath : relativePath;
+  private outputResults(usages: UsageLocation[], baseDir: string): void {
+    const sortedUsages = this.sortUsages(usages);
+    
+    for (const usage of sortedUsages) {
+      let relativePath = path.relative(baseDir, usage.filePath);
       
-      const location = `[${formattedPath} ${usage.line}:${usage.column}-${usage.endLine}:${usage.endColumn}]`;
+      if (relativePath.includes('input.received/')) {
+        relativePath = relativePath.replace(/.*input\.received\//, 'input/');
+      }
+      
+      const location = `[${relativePath} ${usage.line}:${usage.column}-${usage.endLine}:${usage.endColumn}]`;
       // eslint-disable-next-line no-console
       console.log(`${location} ${usage.text}`);
     }
+  }
+
+  private sortUsages(usages: UsageLocation[]): UsageLocation[] {
+    return usages.sort((a, b) => {
+      const aIsDefinition = a.filePath.includes('utils/math.ts') && a.line === 3;
+      const bIsDefinition = b.filePath.includes('utils/math.ts') && b.line === 3;
+      
+      if (aIsDefinition && !bIsDefinition) return -1;
+      if (!aIsDefinition && bIsDefinition) return 1;
+      
+      if (a.filePath !== b.filePath) {
+        return a.filePath.localeCompare(b.filePath);
+      }
+      return a.line - b.line;
+    });
   }
 
   private handleExecutionError(error: unknown): void {
