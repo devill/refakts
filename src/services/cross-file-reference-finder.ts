@@ -1,16 +1,9 @@
 import {Node, Project, SourceFile, SyntaxKind} from 'ts-morph';
 import {LocationRange} from '../core/location-parser';
-import { FileSystemHelper } from './file-system-helper';
-import { PositionConverter } from './position-converter';
+import {FileSystemHelper} from './file-system-helper';
+import {PositionConverter} from './position-converter';
+import {UsageLocation} from '../core/location-types';
 
-export interface UsageLocation {
-  filePath: string;
-  line: number;
-  column: number;
-  endLine: number;
-  endColumn: number;
-  text: string;
-}
 
 export interface FindUsagesResult {
   symbol: string;
@@ -27,15 +20,10 @@ export class CrossFileReferenceFinder {
 
   async findAllReferences(location: LocationRange, sourceFile?: SourceFile): Promise<FindUsagesResult> {
     this.fileSystemHelper.loadProjectFiles(location.file);
-    const resolvedSourceFile = this.resolveSourceFile(location.file, sourceFile);
-    const symbol = this.extractSymbolFromLocation(resolvedSourceFile, location);
+    const symbol = this.extractSymbolFromLocation(this.resolveSourceFile(location.file, sourceFile), location);
     const usages = this.findUsagesInProject(symbol);
-    
-    return {
-      symbol,
-      definition: usages.length > 0 ? usages[0] : null,
-      usages
-    };
+    const definition = usages.length > 0 ? usages[0] : null;
+    return { symbol, definition, usages };
   }
 
   private resolveSourceFile(filePath: string, sourceFile?: SourceFile): SourceFile {

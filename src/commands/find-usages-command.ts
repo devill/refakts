@@ -1,7 +1,8 @@
 import { RefactoringCommand, CommandOptions } from '../command';
 import { LocationParser, LocationRange } from '../core/location-parser';
 import { ASTService } from '../services/ast-service';
-import { CrossFileReferenceFinder, UsageLocation } from '../services/cross-file-reference-finder';
+import { CrossFileReferenceFinder } from '../services/cross-file-reference-finder';
+import { UsageLocation } from '../core/location-types';
 import * as path from 'path';
 
 export class FindUsagesCommand implements RefactoringCommand {
@@ -47,8 +48,8 @@ export class FindUsagesCommand implements RefactoringCommand {
   }
 
   private formatUsageLocation(usage: UsageLocation, baseDir: string): string {
-    const relativePath = this.normalizeTestPath(path.relative(baseDir, usage.filePath));
-    return `[${relativePath} ${usage.line}:${usage.column}-${usage.endLine}:${usage.endColumn}]`;
+    const relativePath = this.normalizeTestPath(path.relative(baseDir, usage.location.file));
+    return `[${relativePath} ${usage.location.startLine}:${usage.location.startColumn}-${usage.location.endLine}:${usage.location.endColumn}]`;
   }
 
   private normalizeTestPath(relativePath: string): string {
@@ -78,16 +79,16 @@ export class FindUsagesCommand implements RefactoringCommand {
   }
 
   private compareByLocation(a: UsageLocation, b: UsageLocation): number {
-    if (a.filePath !== b.filePath) {
-      return a.filePath.localeCompare(b.filePath);
+    if (a.location.file !== b.location.file) {
+      return a.location.file.localeCompare(b.location.file);
     }
-    return a.line - b.line;
+    return a.location.startLine - b.location.startLine;
   }
 
   private isTargetLocation(usage: UsageLocation, targetLocation: LocationRange): boolean {
-    const normalizedUsagePath = path.resolve(usage.filePath);
+    const normalizedUsagePath = path.resolve(usage.location.file);
     const normalizedTargetPath = path.resolve(targetLocation.file);
-    return normalizedUsagePath === normalizedTargetPath && usage.line === targetLocation.startLine;
+    return normalizedUsagePath === normalizedTargetPath && usage.location.startLine === targetLocation.startLine;
   }
 
   private handleExecutionError(error: unknown): void {

@@ -1,6 +1,6 @@
 import { Node, SourceFile } from 'ts-morph';
 import { LocationRange } from '../core/location-parser';
-import { UsageLocation } from './cross-file-reference-finder';
+import { UsageLocation } from '../core/location-types';
 
 export class PositionConverter {
   static getStartPosition(sourceFile: SourceFile, location: LocationRange): number {
@@ -11,16 +11,23 @@ export class PositionConverter {
   }
 
   static createUsageLocation(sourceFile: SourceFile, node: Node): UsageLocation {
+    const locationInfo = this.createLocationInfo(sourceFile, node);
+    return {
+      location: locationInfo,
+      text: node.getText()
+    };
+  }
+
+  private static createLocationInfo(sourceFile: SourceFile, node: Node) {
     const start = sourceFile.getLineAndColumnAtPos(node.getStart());
     const end = sourceFile.getLineAndColumnAtPos(node.getEnd());
     
     return {
-      filePath: sourceFile.getFilePath(),
-      line: start.line,
-      column: start.column,
+      file: sourceFile.getFilePath(),
+      startLine: start.line,
+      startColumn: start.column,
       endLine: end.line,
-      endColumn: end.column,
-      text: node.getText()
+      endColumn: end.column
     };
   }
 }

@@ -7,9 +7,9 @@
   },
   "scripts": {
     "build": "tsc && cp src/commands/*.json dist/commands/",
-    "test": "jest && touch /tmp/refakts-last-test",
+    "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage && touch /tmp/refakts-last-test",
+    "test:coverage": "jest --coverage",
     "dev": "ts-node src/cli.ts",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src tests/integration tests/utils tests/unit --ext .ts --fix",
