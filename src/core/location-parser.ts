@@ -25,20 +25,6 @@ export class LocationRange {
   static from(locationInfo: LocationInfo) {
     return new LocationRange(locationInfo.file, locationInfo.start, locationInfo.end);
   }
-
-  static fromFlat(locationData: any) {
-    return new LocationRange(
-        locationData.file,
-        { line: locationData.startLine, column: locationData.startColumn },
-        { line: locationData.endLine, column: locationData.endColumn }
-    );
-  }
-
-  // Legacy compatibility properties
-  get startLine(): number { return this.start.line; }
-  get startColumn(): number { return this.start.column; }
-  get endLine(): number { return this.end.line; }
-  get endColumn(): number { return this.end.column; }
 }
 
 export class LocationParser {
@@ -59,15 +45,13 @@ export class LocationParser {
 
   private static buildLocationRange(groups: Record<string, string>): LocationRange {
     const startLine = parseInt(groups.startLine, 10);
-    const start = {
+    return new LocationRange(groups.file, {
       line: startLine,
       column: this.parseColumnOrDefault(groups.startColumn, 0)
-    };
-    const end = {
+    }, {
       line: this.parseLineOrDefault(groups.endLine, startLine),
       column: this.parseColumnOrDefault(groups.endColumn, Number.MAX_SAFE_INTEGER)
-    };
-    return new LocationRange(groups.file, start, end);
+    });
   }
   private static parseColumnOrDefault(value: string | undefined, defaultValue: number): number {
     return !value || value === '' ? defaultValue : parseInt(value, 10);
