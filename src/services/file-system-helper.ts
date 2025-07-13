@@ -1,11 +1,17 @@
 import * as path from 'path';
-import { Project } from 'ts-morph';
+import { Project, getCompilerOptionsFromTsConfig } from 'ts-morph';
+import { minimatch } from 'minimatch';
 
 export class FileSystemHelper {
+  private _projectRoot: string | null = null;
+  private _excludePatterns: string[] = [];
+
   constructor(private _project: Project) {}
 
   loadProjectFiles(filePath: string): void {
     const projectDir = this.findProjectRoot(filePath);
+    this._projectRoot = projectDir;
+    this.loadTsConfigExcludePatterns(projectDir);
     this.loadAllFilesInDirectory(projectDir);
   }
 
@@ -37,6 +43,65 @@ export class FileSystemHelper {
   private hasTsConfig(dir: string): boolean {
     const tsConfigPath = path.join(dir, 'tsconfig.json');
     return require('fs').existsSync(tsConfigPath);
+  }
+
+  private loadTsConfigExcludePatterns(projectDir: string): void {
+    const tsConfigPath = path.join(projectDir, 'tsconfig.json');
+    if (!this.tsConfigExists(tsConfigPath)) {
+      this.setDefaultExcludePatterns();
+      return;
+    }
+
+    const excludePatterns = this.extractExcludePatternsFromTsConfig(tsConfigPath);
+    if (excludePatterns === null) {
+      this.setDefaultExcludePatterns();
+      return;
+    }
+
+    // If tsconfig.json has explicit exclude patterns, use them as-is
+    // TypeScript's default behavior (excluding node_modules) will be handled
+    // by ensuring node_modules is included if not explicitly listed
+    this._excludePatterns = this.applyTypeScriptDefaults(excludePatterns);
+  }
+
+  private tsConfigExists(tsConfigPath: string): boolean {
+    return require('fs').existsSync(tsConfigPath);
+  }
+
+  private extractExcludePatternsFromTsConfig(tsConfigPath: string): string[] | null {
+    try {
+      const result = getCompilerOptionsFromTsConfig(tsConfigPath);
+      if (result.errors && result.errors.length > 0) {
+        return null;
+      }
+
+      const rawConfig = JSON.parse(require('fs').readFileSync(tsConfigPath, 'utf8'));
+      return rawConfig.exclude || [];
+    } catch {
+      return null;
+    }
+  }
+
+  private applyTypeScriptDefaults(explicitExcludes: string[]): string[] {
+    // TypeScript automatically excludes node_modules by default
+    // If not explicitly mentioned in tsconfig, we should respect that default
+    const hasNodeModulesExplicit = explicitExcludes.some(pattern => 
+      pattern === 'node_modules' || pattern.includes('node_modules')
+    );
+    
+    if (hasNodeModulesExplicit) {
+      // Use explicit patterns as-is since node_modules is explicitly configured
+      return explicitExcludes;
+    } else {
+      // Apply TypeScript's default by adding node_modules
+      return ['node_modules', ...explicitExcludes];
+    }
+  }
+
+  private setDefaultExcludePatterns(): void {
+    // When no tsconfig.json exists, provide sensible defaults
+    // that include TypeScript's implicit defaults plus common build artifacts
+    this._excludePatterns = ['node_modules', 'dist', 'build', 'coverage'];
   }
 
   loadAllFilesInDirectory(dir: string): void {
@@ -74,20 +139,32 @@ export class FileSystemHelper {
   }
 
   private isDirectoryIncluded(entry: string): boolean {
-    // Standard exclusions for TypeScript projects
-    const standardExclusions = ['node_modules', 'dist', 'build', 'coverage'];
-    if (standardExclusions.includes(entry)) {
-      return false;
-    }
-    
-    // Exclude test artifacts (directories ending with .received)
-    if (entry.endsWith('.received')) {
-      return false;
-    }
-    
-    // TODO: In the future, read exclusions from tsconfig.json
-    // For now, use these sensible defaults
-    return true;
+    return !this.isExcludedByPattern(entry);
+  }
+
+  private isExcludedByPattern(entry: string): boolean {
+    return this._excludePatterns.some(pattern => 
+      this.matchesExcludePattern(entry, pattern)
+    );
+  }
+
+  private matchesExcludePattern(directoryName: string, pattern: string): boolean {
+    return this.isExactMatch(directoryName, pattern) ||
+           this.isGlobMatch(directoryName, pattern) ||
+           this.isBaseNameMatch(directoryName, pattern);
+  }
+
+  private isExactMatch(directoryName: string, pattern: string): boolean {
+    return pattern === directoryName;
+  }
+
+  private isGlobMatch(directoryName: string, pattern: string): boolean {
+    return (pattern.includes('*') || pattern.includes('?')) &&
+           minimatch(directoryName, pattern);
+  }
+
+  private isBaseNameMatch(directoryName: string, pattern: string): boolean {
+    return directoryName === path.basename(pattern);
   }
 
   private shouldLoadFile(entry: string): boolean {
