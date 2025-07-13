@@ -1,14 +1,18 @@
 export class ConsoleCapture {
   async captureOutput(executeFn: () => Promise<void>): Promise<string> {
-    const { originalLog, originalWrite, output } = this.setupCapture();
+    const captureState = this.setupCapture();
     
     try {
       await executeFn();
-      return this.getFormattedOutput(output.value);
+      return this.getFormattedOutput(captureState.output.value);
     } finally {
-      console.log = originalLog;
-      process.stdout.write = originalWrite;
+      this.restoreOriginals(captureState);
     }
+  }
+
+  private restoreOriginals(captureState: any): void {
+    console.log = captureState.originalLog;
+    process.stdout.write = captureState.originalWrite;
   }
 
   private setupCapture() {

@@ -107,6 +107,10 @@ export class FindUsagesCommand implements RefactoringCommand {
       return;
     }
     
+    this.outputUsagesByType(otherUsages, baseDir);
+  }
+
+  private outputUsagesByType(otherUsages: UsageLocation[], baseDir: string): void {
     const { writeUsages, readUsages } = this.separateUsagesByType(otherUsages);
     
     if (writeUsages.length > 0) {

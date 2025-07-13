@@ -2,7 +2,9 @@ import { Node, SyntaxKind } from 'ts-morph';
 import { UsageType } from '../core/location-range';
 
 interface UsageHandler {
+  // eslint-disable-next-line no-unused-vars
   canHandle(parent: Node): boolean;
+  // eslint-disable-next-line no-unused-vars
   handle(node: Node, parent: Node): UsageType;
 }
 
@@ -41,15 +43,9 @@ class UnaryExpressionHandler implements UsageHandler {
     const postfixUnary = parent.asKind(SyntaxKind.PostfixUnaryExpression);
     const prefixUnary = parent.asKind(SyntaxKind.PrefixUnaryExpression);
     
-    if (postfixUnary && this.isIncrementDecrementOperator(postfixUnary.getOperatorToken())) {
-      return 'write';
-    }
+    const operatorToken = postfixUnary?.getOperatorToken() || prefixUnary?.getOperatorToken();
     
-    if (prefixUnary && this.isIncrementDecrementOperator(prefixUnary.getOperatorToken())) {
-      return 'write';
-    }
-    
-    return 'read';
+    return operatorToken && this.isIncrementDecrementOperator(operatorToken) ? 'write' : 'read';
   }
 
   private isIncrementDecrementOperator(operator: SyntaxKind): boolean {
@@ -96,12 +92,10 @@ export class UsageTypeAnalyzer {
       return 'read';
     }
 
-    for (const handler of this.handlers) {
-      if (handler.canHandle(parent)) {
-        return handler.handle(node, parent);
-      }
-    }
+    return this.findHandler(parent)?.handle(node, parent) ?? 'read';
+  }
 
-    return 'read';
+  private static findHandler(parent: Node): UsageHandler | undefined {
+    return this.handlers.find(handler => handler.canHandle(parent));
   }
 }
