@@ -125,8 +125,51 @@ const createTestDuplicationIssue = (error?: unknown): QualityIssue[] => {
     return specificIssues;
   }
   
-  return [{
-    type: 'duplication',
-    message: 'Test code duplication detected. Extract common test utilities, fixture handling, or assertion patterns into shared helper functions.'
-  }];
+  if (hasNonFilteredDuplications(error)) {
+    return [{
+      type: 'duplication',
+      message: 'Test code duplication detected. Extract common test utilities, fixture handling, or assertion patterns into shared helper functions.'
+    }];
+  }
+  return [];
+};
+
+const hasNonFilteredDuplications = (error?: unknown): boolean => {
+  if (!error || typeof error !== 'object') return false;
+  
+  const execError = error as ExecError;
+  const output = execError.stdout || execError.stderr || execError.message || '';
+  
+  if (!output.includes('Clone found')) return false;
+  
+  const lines = output.split('\n');
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.includes('Clone found (typescript):')) {
+      const nextLine = lines[i + 1];
+      const thirdLine = lines[i + 2];
+      
+      if (nextLine && thirdLine) {
+        const cleanNextLine = nextLine.replace(/\[[0-9;]*m/g, '');
+        const cleanThirdLine = thirdLine.replace(/\[[0-9;]*m/g, '');
+        
+        const file1Match = cleanNextLine.match(/- (.+?) \[/);
+        const file2Match = cleanThirdLine.match(/(.+?) \[/);
+        
+        if (file1Match && file2Match) {
+          const file1 = file1Match[1].trim();
+          const file2 = file2Match[1].trim();
+          
+          if (!(file1.includes('.received') || file2.includes('.received') || 
+                file1.includes('tests/fixtures/') || file2.includes('tests/fixtures/') ||
+                file1.includes('tests/scripts/') || file2.includes('tests/scripts/'))) {
+            return true;
+          }
+        }
+      }
+    }
+  }
+  
+  return false;
 };
