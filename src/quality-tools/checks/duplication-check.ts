@@ -104,25 +104,11 @@ const extractSpecificDuplications = (error?: unknown): QualityIssue[] => {
               continue;
             }
             
-            const shortFile1 = file1.split('/').pop() || file1;
-            const shortFile2 = file2.split('/').pop() || file2;
-            
-            if (file1.includes('tests/unit/documentation') && file2.includes('tests/unit/documentation')) {
-              issues.push({
-                type: 'duplication',
-                message: `Documentation test utilities duplicated: ${shortFile1} and ${shortFile2}. Extract common test setup patterns into shared helpers.`
-              });
-            } else if (file1.includes('tests/utils') && file2.includes('tests/utils')) {
-              issues.push({
-                type: 'duplication',
-                message: `Test utility duplication: ${shortFile1} and ${shortFile2}. Consolidate shared validation logic.`
-              });
-            } else {
-              issues.push({
-                type: 'duplication',
-                message: `Code duplication: ${shortFile1} ↔ ${shortFile2}. Extract common functionality.`
-              });
-            }
+            const cloneSection = [line, nextLine, thirdLine].join('\n');
+            issues.push({
+              type: 'duplication',
+              message: cloneSection
+            });
           }
         }
       }
