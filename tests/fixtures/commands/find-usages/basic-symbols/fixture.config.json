@@ -30,8 +30,18 @@
     "command": "find-usages '[constants/config.ts 3:14-3:25]'"
   },
   {
+    "id": "const-variable-by-usage",
+    "description": "Find const variable by selecting usage in import statement",
+    "command": "find-usages '[main.ts 5:10-5:22]'"
+  },
+  {
     "id": "let-variable",
     "description": "Find usages of mutable let variable",
     "command": "find-usages '[main.ts 32:5-32:12]'"
+  },
+  {
+    "id": "let-variable-by-usage",
+    "description": "Find usages by selecting a usage instead of declaration",
+    "command": "find-usages '[main.ts 49:1-49:8]'"
   }
 ]
