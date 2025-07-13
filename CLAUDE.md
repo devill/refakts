@@ -62,7 +62,6 @@ npm run test:fixture:review <fixture_path>              # Review received files 
 - inline-variable <target>             Replace variable usage with its value
 - rename [options] <target>            Rename a variable and all its references
 - select [options] <target>            Find code elements and return their locations with content preview
-- variable-locator <target>            Find variable declarations and all their usages
 - find-usages <target>                 Find all usages of a symbol across files
 ```
 <!-- AUTO-GENERATED HELP END -->

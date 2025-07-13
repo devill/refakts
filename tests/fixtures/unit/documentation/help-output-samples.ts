@@ -13,7 +13,6 @@ Commands:
   inline-variable <target>             Replace variable usage with its value
   rename [options] <target>            Rename a variable and all its references
   select [options] <target>            Find code elements and return their locations with content preview
-  variable-locator <target>            Find variable declarations and all their usages
   help [command]                       display help for command
 `;
 

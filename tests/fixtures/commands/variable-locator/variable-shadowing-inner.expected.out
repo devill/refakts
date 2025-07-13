@@ -1,3 +1,0 @@
-[variable-shadowing-inner.received.ts 7:7-7:17] value = 10
-[variable-shadowing-inner.received.ts 8:15-8:20] value
-[variable-shadowing-inner.received.ts 16:15-16:20] value

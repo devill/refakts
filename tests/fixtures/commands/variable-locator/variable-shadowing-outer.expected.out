@@ -1,3 +1,0 @@
-[variable-shadowing-outer.received.ts 7:7-7:17] value = 10
-[variable-shadowing-outer.received.ts 8:15-8:20] value
-[variable-shadowing-outer.received.ts 15:15-15:20] value
