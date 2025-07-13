@@ -46,22 +46,30 @@ export class FileSystemHelper {
   }
 
   private loadTsConfigExcludePatterns(projectDir: string): void {
-    const tsConfigPath = path.join(projectDir, 'tsconfig.json');
+    const tsConfigPath = this.buildTsConfigPath(projectDir);
+    this.processExcludePatterns(tsConfigPath);
+  }
+
+  private buildTsConfigPath(projectDir: string): string {
+    return path.join(projectDir, 'tsconfig.json');
+  }
+
+  private processExcludePatterns(tsConfigPath: string): void {
+    const patterns = this.getExcludePatternsFromTsConfig(tsConfigPath);
+    this._excludePatterns = patterns || this.getDefaultExcludePatterns();
+  }
+
+  private getExcludePatternsFromTsConfig(tsConfigPath: string): string[] | null {
     if (!this.tsConfigExists(tsConfigPath)) {
-      this.setDefaultExcludePatterns();
-      return;
+      return null;
     }
 
     const excludePatterns = this.extractExcludePatternsFromTsConfig(tsConfigPath);
-    if (excludePatterns === null) {
-      this.setDefaultExcludePatterns();
-      return;
-    }
+    return excludePatterns ? this.applyTypeScriptDefaults(excludePatterns) : null;
+  }
 
-    // If tsconfig.json has explicit exclude patterns, use them as-is
-    // TypeScript's default behavior (excluding node_modules) will be handled
-    // by ensuring node_modules is included if not explicitly listed
-    this._excludePatterns = this.applyTypeScriptDefaults(excludePatterns);
+  private getDefaultExcludePatterns(): string[] {
+    return ['node_modules', 'dist', 'build', 'coverage'];
   }
 
   private tsConfigExists(tsConfigPath: string): boolean {
@@ -69,12 +77,24 @@ export class FileSystemHelper {
   }
 
   private extractExcludePatternsFromTsConfig(tsConfigPath: string): string[] | null {
+    if (!this.isTsConfigValid(tsConfigPath)) {
+      return null;
+    }
+
+    return this.readExcludePatternsFromFile(tsConfigPath);
+  }
+
+  private isTsConfigValid(tsConfigPath: string): boolean {
     try {
       const result = getCompilerOptionsFromTsConfig(tsConfigPath);
-      if (result.errors && result.errors.length > 0) {
-        return null;
-      }
+      return !(result.errors && result.errors.length > 0);
+    } catch {
+      return false;
+    }
+  }
 
+  private readExcludePatternsFromFile(tsConfigPath: string): string[] | null {
+    try {
       const rawConfig = JSON.parse(require('fs').readFileSync(tsConfigPath, 'utf8'));
       return rawConfig.exclude || [];
     } catch {
@@ -83,25 +103,20 @@ export class FileSystemHelper {
   }
 
   private applyTypeScriptDefaults(explicitExcludes: string[]): string[] {
-    // TypeScript automatically excludes node_modules by default
-    // If not explicitly mentioned in tsconfig, we should respect that default
-    const hasNodeModulesExplicit = explicitExcludes.some(pattern => 
+    if (this.hasNodeModulesPattern(explicitExcludes)) {
+      return explicitExcludes;
+    }
+    return ['node_modules', ...explicitExcludes];
+  }
+
+  private hasNodeModulesPattern(patterns: string[]): boolean {
+    return patterns.some(pattern => 
       pattern === 'node_modules' || pattern.includes('node_modules')
     );
-    
-    if (hasNodeModulesExplicit) {
-      // Use explicit patterns as-is since node_modules is explicitly configured
-      return explicitExcludes;
-    } else {
-      // Apply TypeScript's default by adding node_modules
-      return ['node_modules', ...explicitExcludes];
-    }
   }
 
   private setDefaultExcludePatterns(): void {
-    // When no tsconfig.json exists, provide sensible defaults
-    // that include TypeScript's implicit defaults plus common build artifacts
-    this._excludePatterns = ['node_modules', 'dist', 'build', 'coverage'];
+    this._excludePatterns = this.getDefaultExcludePatterns();
   }
 
   loadAllFilesInDirectory(dir: string): void {
