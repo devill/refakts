@@ -1,5 +1,6 @@
 import { RenameVariableTransformation } from '../../../src/transformations/rename-variable-transformation';
 import { Project, SyntaxKind } from 'ts-morph';
+import { RenameTransformationTestHelper } from '../../utils/rename-transformation-test-helper';
 
 describe('RenameVariableTransformation', () => {
   let project: Project;
@@ -10,16 +11,16 @@ describe('RenameVariableTransformation', () => {
 
   describe('transform', () => {
     it('should successfully transform when rename succeeds', async () => {
-      const sourceFile = project.createSourceFile('test.ts', `
+      const helper = RenameTransformationTestHelper.create(project);
+      const { sourceFile, transformation } = helper.createTransformationScenario({
+        fileName: 'test.ts',
+        sourceCode: `
         const oldName = 42;
         console.log(oldName);
-      `);
-
-      const declaration = sourceFile.getVariableDeclarations()[0];
-      const usages = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
-        .filter(id => id.getText() === 'oldName' && id !== declaration.getNameNode());
-
-      const transformation = new RenameVariableTransformation(declaration, usages, 'newName');
+      `,
+        oldName: 'oldName',
+        newName: 'newName'
+      });
 
       await expect(transformation.transform(sourceFile)).resolves.not.toThrow();
       expect(sourceFile.getText()).toContain('newName');
@@ -68,16 +69,16 @@ describe('RenameVariableTransformation', () => {
 
   describe('transformWithResult', () => {
     it('should return success result when rename works', async () => {
-      const sourceFile = project.createSourceFile('test.ts', `
+      const helper = RenameTransformationTestHelper.create(project);
+      const { transformation } = helper.createTransformationScenario({
+        fileName: 'test.ts',
+        sourceCode: `
         const oldName = 42;
         console.log(oldName);
-      `);
-
-      const declaration = sourceFile.getVariableDeclarations()[0];
-      const usages = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
-        .filter(id => id.getText() === 'oldName' && id !== declaration.getNameNode());
-
-      const transformation = new RenameVariableTransformation(declaration, usages, 'newName');
+      `,
+        oldName: 'oldName',
+        newName: 'newName'
+      });
 
       const result = await transformation.transformWithResult();
 
@@ -104,10 +105,9 @@ describe('RenameVariableTransformation', () => {
 
     it('should handle unknown error types', async () => {
       const mockDeclaration = {
-        getText: () => { throw 'String error'; }, // Non-Error object
-        getKind: () => SyntaxKind.VariableDeclaration,
-        getFirstDescendantByKind: () => undefined
-      } as any;
+        ...RenameTransformationTestHelper.createMockDeclaration(),
+        getText: () => { throw 'String error'; } // Non-Error object
+      };
 
       const transformation = new RenameVariableTransformation(mockDeclaration, [], 'newName');
 

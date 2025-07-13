@@ -1,37 +1,20 @@
-import { ConsoleCapture } from '../console-capture';
 import {CommandExecutionContext} from "../command-executor";
+import { CommandExecutionBase } from '../command-execution-base';
 
-export class CommandExecutionBuilder {
-  private command: any;
-  private file = '';
-  private options: any = {};
+export class CommandExecutionBuilder extends CommandExecutionBase {
   private commandName = '';
-  private commandString = '';
+
+  constructor() {
+    super(null as any, '', {}, '');
+  }
 
   with(context: CommandExecutionContext) {
     this.command = context.command;
-    this.commandString = context.commandString;
-    this.commandName = context.commandName;
     this.file = context.file;
     this.options = context.options;
+    this.commandString = context.commandString;
+    this.commandName = context.commandName;
     return this;
-  }
-
-  async execute(consoleCapture: ConsoleCapture): Promise<string | void> {
-    try {
-      this.command.validateOptions(this.options);
-      return this.runValidatedCommand(consoleCapture);
-    } catch (error) {
-      this.handleExecutionError(error);
-    }
-  }
-
-  private async runValidatedCommand(consoleCapture: ConsoleCapture): Promise<string | void> {
-    return consoleCapture.captureOutput(() => this.command.execute(this.file, this.options));
-  }
-
-  private handleExecutionError(error: unknown): never {
-    throw new Error(`Command execution failed: ${this.commandString}\n${(error as Error).message}`);
   }
 
   static create(): CommandExecutionBuilder {

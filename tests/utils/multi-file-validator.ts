@@ -6,6 +6,7 @@ import {FileOperations} from './file-operations';
 import {CommandRunner} from './command-runner';
 import {TestUtilities} from './test-utilities';
 import {TestValidator} from './test-validator';
+import { FileCleanupMixin } from './file-cleanup-mixin';
 
 export class MultiFileValidator implements TestValidator {
   private commandExecutor: CommandExecutor;
@@ -121,11 +122,7 @@ export class MultiFileValidator implements TestValidator {
   }
 
   private cleanupReceivedOutputFiles(receivedFiles: any, testPassed: boolean): void {
-    Object.values(receivedFiles).forEach((file: any) => {
-      if (fs.existsSync(file)) {
-        TestUtilities.cleanupSingleFile(file, testPassed);
-      }
-    });
+    FileCleanupMixin.cleanupReceivedFiles(receivedFiles, testPassed);
   }
 
   private getMultiFileReceivedPath(inputDir: string, testCaseId?: string): string {

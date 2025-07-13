@@ -8,6 +8,7 @@ import {
   NESTED_MARKERS
 } from '../../fixtures/unit/documentation/section-samples';
 import { SectionReplacer } from '../../../src/documentation/SectionReplacer';
+import { GoldenFileTestUtility } from '../../utils/golden-file-test-utility';
 import { DocumentationTestHelper } from './test-helpers';
 import { SectionReplacementRequest } from '../../../src/core/section-replacement-request';
 
@@ -52,14 +53,11 @@ describe('Section Replacer', () => {
       newContent: 'New help content'
     });
     
-    const expectedPath = path.join(expectedDir, 'missing-start-marker.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    GoldenFileTestUtility.expectToMatchGoldenFile(
+      result,
+      expectedDir,
+      'missing-start-marker.expected.txt'
+    );
   });
 
   test('handles missing end marker', () => {
@@ -70,14 +68,11 @@ describe('Section Replacer', () => {
       newContent: 'New help content'
     });
     
-    const expectedPath = path.join(expectedDir, 'missing-end-marker.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    GoldenFileTestUtility.expectToMatchGoldenFile(
+      result,
+      expectedDir,
+      'missing-end-marker.expected.txt'
+    );
   });
 
   test('handles content with no markers', () => {
@@ -88,14 +83,11 @@ describe('Section Replacer', () => {
       newContent: 'New help content'
     });
     
-    const expectedPath = path.join(expectedDir, 'no-markers.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    GoldenFileTestUtility.expectToMatchGoldenFile(
+      result,
+      expectedDir,
+      'no-markers.expected.txt'
+    );
   });
 
   test('handles nested markers correctly', () => {
@@ -106,14 +98,11 @@ describe('Section Replacer', () => {
       newContent: 'New help content'
     });
     
-    const expectedPath = path.join(expectedDir, 'nested-markers.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    GoldenFileTestUtility.expectToMatchGoldenFile(
+      result,
+      expectedDir,
+      'nested-markers.expected.txt'
+    );
   });
 
   test('replaces quality checks section', () => {

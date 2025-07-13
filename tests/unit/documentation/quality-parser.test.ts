@@ -6,6 +6,7 @@ import {
   BROKEN_QUALITY_CHECK,
   NO_GROUP_DEFINITIONS
 } from '../../fixtures/unit/documentation/quality-check-samples';
+import { GoldenFileTestUtility } from '../../utils/golden-file-test-utility';
 
 // Copy the quality checks parsing logic for testing
 // We'll need to extract these to a testable module in the refactor
@@ -65,14 +66,11 @@ describe('Quality Parser', () => {
 
   test('extracts descriptions from quality checks', () => {
     const result = getQualityChecksContent(MOCK_QUALITY_CHECKS);
-    const expectedPath = path.join(expectedDir, 'mock-quality-checks.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    GoldenFileTestUtility.expectToMatchGoldenFile(
+      result,
+      expectedDir,
+      'mock-quality-checks.expected.txt'
+    );
   });
 
   test('handles empty quality checks array', () => {

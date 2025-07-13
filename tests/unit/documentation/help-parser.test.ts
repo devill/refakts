@@ -7,6 +7,7 @@ import {
   MALFORMED_HELP,
   MULTILINE_DESCRIPTION_HELP 
 } from '../../fixtures/unit/documentation/help-output-samples';
+import { GoldenFileTestUtility } from '../../utils/golden-file-test-utility';
 
 // Import the private functions from update-readme.ts
 // We'll need to extract these to a testable module, but for now we'll copy the logic
@@ -68,14 +69,11 @@ describe('Help Parser', () => {
 
   test('extracts commands from full CLI help', () => {
     const result = extractCommands(FULL_CLI_HELP);
-    const expectedPath = path.join(expectedDir, 'full-cli-help.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    GoldenFileTestUtility.expectToMatchGoldenFile(
+      result,
+      expectedDir,
+      'full-cli-help.expected.txt'
+    );
   });
 
   test('extracts commands from minimal CLI help', () => {

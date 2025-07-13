@@ -1,6 +1,7 @@
 import { Project, Node, SyntaxKind } from 'ts-morph';
 import { ExtractionScopeAnalyzer } from '../../../src/services/extraction-scope-analyzer';
 import * as fixtures from '../../fixtures/unit/services/scope-scenarios';
+import { ASTNodeFinder } from '../../utils/ast-node-finder';
 
 describe('ExtractionScopeAnalyzer', () => {
   let analyzer: ExtractionScopeAnalyzer;
@@ -14,8 +15,9 @@ describe('ExtractionScopeAnalyzer', () => {
   describe('findExtractionScope', () => {
     it('should find block scope for expression in function', () => {
       const sourceFile = project.createSourceFile('test.ts', fixtures.simpleFunction);
-      const sumIdentifier = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
-        .find(node => node.getText() === 'sum' && node.getParent()?.getKind() === SyntaxKind.VariableDeclaration);
+      const sumIdentifier = ASTNodeFinder.findIdentifierByNameAndParentKind(
+        sourceFile, 'sum', SyntaxKind.VariableDeclaration
+      );
       
       expect(sumIdentifier).toBeDefined();
       const scope = analyzer.findExtractionScope(sumIdentifier!);
@@ -47,8 +49,9 @@ describe('ExtractionScopeAnalyzer', () => {
   describe('findContainingStatement', () => {
     it('should find variable declaration statement', () => {
       const sourceFile = project.createSourceFile('test.ts', fixtures.simpleFunction);
-      const sumIdentifier = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
-        .find(node => node.getText() === 'sum' && node.getParent()?.getKind() === SyntaxKind.VariableDeclaration);
+      const sumIdentifier = ASTNodeFinder.findIdentifierByNameAndParentKind(
+        sourceFile, 'sum', SyntaxKind.VariableDeclaration
+      );
       
       expect(sumIdentifier).toBeDefined();
       const statement = analyzer.findContainingStatement(sumIdentifier!);
@@ -126,8 +129,9 @@ describe('ExtractionScopeAnalyzer', () => {
 
     it('should find method scope name', () => {
       const sourceFile = project.createSourceFile('test.ts', fixtures.classWithMethods);
-      const resultIdentifier = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
-        .find(node => node.getText() === 'result' && node.getParent()?.getKind() === SyntaxKind.VariableDeclaration);
+      const resultIdentifier = ASTNodeFinder.findIdentifierByNameAndParentKind(
+        sourceFile, 'result', SyntaxKind.VariableDeclaration
+      );
       
       expect(resultIdentifier).toBeDefined();
       const scopeName = analyzer.findScopeName(resultIdentifier!);
@@ -149,8 +153,9 @@ describe('ExtractionScopeAnalyzer', () => {
 
     it('should find arrow function scope name', () => {
       const sourceFile = project.createSourceFile('test.ts', fixtures.arrowFunctions);
-      const resultIdentifier = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
-        .find(node => node.getText() === 'result' && node.getParent()?.getKind() === SyntaxKind.VariableDeclaration);
+      const resultIdentifier = ASTNodeFinder.findIdentifierByNameAndParentKind(
+        sourceFile, 'result', SyntaxKind.VariableDeclaration
+      );
       
       expect(resultIdentifier).toBeDefined();
       const scopeName = analyzer.findScopeName(resultIdentifier!);
