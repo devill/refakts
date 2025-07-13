@@ -22,7 +22,6 @@
   {
     "id": "method-override",
     "description": "Find usages of overridden method",
-    "command": "find-usages '[interfaces/repository.ts 10:3-10:7]'",
-    "@skip": "Needs review"
+    "command": "find-usages '[interfaces/repository.ts 11:8-11:12]'"
   }
 ]
