@@ -74,14 +74,18 @@ export class MultiFileValidator {
     if (testCase.skip) {
       return;
     }
-    
-    const hasOutputFile = fs.existsSync(expectedOutFile);
-    const hasErrorFile = fs.existsSync(expectedErrFile);
-    const hasExpectedDirectory = testCase.expectedDirectory && fs.existsSync(testCase.expectedDirectory);
-    
-    if (!hasOutputFile && !hasErrorFile && !hasExpectedDirectory) {
+
+    if (MultiFileValidator.hasExpectation(expectedOutFile, expectedErrFile, testCase)) {
       throw new Error(`Test ${testCase.testCaseId} has no expected files (.expected.out, .expected.err, or .expected/ directory)`);
     }
+  }
+
+  private static hasExpectation(expectedOutFile: string, expectedErrFile: string, testCase: FixtureTestCase) {
+    return !fs.existsSync(expectedOutFile) && !fs.existsSync(expectedErrFile) && !MultiFileValidator.hasExpectedDirectory(testCase);
+  }
+
+  private static hasExpectedDirectory(testCase: FixtureTestCase) {
+    return testCase.expectedDirectory && fs.existsSync(testCase.expectedDirectory);
   }
 
   private compareProjectDirectory(testCase: FixtureTestCase): void {

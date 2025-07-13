@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { CommandExecutor } from './command-executor';
-import { TestCase } from './test-case-loader';
-import { TestUtilities } from './test-utilities';
-import { CommandRunner } from './command-runner';
+import {CommandExecutor} from './command-executor';
+import {TestCase} from './test-case-loader';
+import {TestUtilities} from './test-utilities';
+import {CommandRunner} from './command-runner';
 
 export class SingleFileValidator {
   private commandExecutor: CommandExecutor;
@@ -75,14 +75,16 @@ export class SingleFileValidator {
     if (testCase.skip) {
       return;
     }
-    
-    const hasAnyExpectedFile = Object.values(expectedFiles).some((file: any) => 
-      fs.existsSync(file)
-    );
-    
-    if (!hasAnyExpectedFile) {
+
+    if (!SingleFileValidator.hasAnyExpectedFile(expectedFiles)) {
       throw new Error(`Test ${path.basename(testCase.inputFile)} has no expected files (.expected.ts, .expected.out, or .expected.err)`);
     }
+  }
+
+  private static hasAnyExpectedFile(expectedFiles: any) {
+    return Object.values(expectedFiles).some((file: any) =>
+        fs.existsSync(file)
+    );
   }
 
   private createExpectedFilePaths(inputFile: string) {

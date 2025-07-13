@@ -48,16 +48,24 @@ export class MultiFileTestCaseFactory {
   private buildFixtureConfig(params: FixtureConfigParams): FixtureTestCaseConfig {
     const { config, baseName, testCaseId, inputDir, filePaths } = params;
     const skipValue = this.determineSkipValue(config);
-    return { name: `${baseName}/${testCaseId}`, description: config.description, commands: [config.command], inputFile: inputDir, ...filePaths, skip: skipValue, projectDirectory: inputDir, expectedDirectory: filePaths.expectedDir, testCaseId };
+    return {
+      name: `${baseName}/${testCaseId}`,
+      description: config.description,
+      commands: [config.command],
+      inputFile: inputDir,
+      expectedFile: filePaths.expectedFile,
+      receivedFile: filePaths.receivedFile,
+      skip: skipValue,
+      projectDirectory: inputDir,
+      expectedDirectory: filePaths.expectedDir,
+      testCaseId
+    };
   }
 
   private determineSkipValue(config: any): boolean | string {
     const skipValue = config.skip || config['@skip'];
     
-    if (skipValue === true || skipValue === false) {
-      return skipValue;
-    }
-    if (typeof skipValue === 'string') {
+    if (skipValue === true || skipValue === false || typeof skipValue === 'string') {
       return skipValue;
     }
     return false;
