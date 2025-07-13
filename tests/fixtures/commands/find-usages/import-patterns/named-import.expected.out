@@ -1,4 +1,7 @@
+Declaration:
 [lib/utils.ts 3:17-3:23] format
+
+Usages:
 [main.ts 4:10-4:16] format
 [main.ts 17:23-17:29] format
 [main.ts 42:15-42:21] format

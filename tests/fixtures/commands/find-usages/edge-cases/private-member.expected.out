@@ -1,4 +1,7 @@
+Declaration:
 [private-class.ts 4:11-4:17] secret
+
+Usages:
 [private-class.ts 8:22-8:28] secret
 [private-class.ts 12:17-12:23] secret
 [private-class.ts 17:33-17:39] secret

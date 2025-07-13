@@ -1,4 +1,7 @@
+Declaration:
 [computed.ts 7:7-7:10] key
+
+Usages:
 [computed.ts 4:4-4:7] key
 [computed.ts 10:4-10:7] key
 [computed.ts 16:27-16:30] key

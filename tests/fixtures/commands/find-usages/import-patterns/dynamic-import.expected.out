@@ -1,3 +1,6 @@
+Declaration:
 [modules/lazy.ts 3:17-3:26] heavyTask
+
+Usages:
 [main.ts 35:11-35:20] heavyTask
 [main.ts 36:24-36:33] heavyTask

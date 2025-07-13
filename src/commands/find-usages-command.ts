@@ -83,11 +83,44 @@ export class FindUsagesCommand implements RefactoringCommand {
   }
 
   private outputUsageResults(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange): void {
-    for (const usage of this.sortUsages(usages, targetLocation)) {
-      const formattedLocation = this.formatUsageLocation(usage, baseDir);
+    const sortedUsages = this.sortUsages(usages, targetLocation);
+    const { declaration, otherUsages } = this.separateDeclarationFromUsages(sortedUsages, targetLocation);
+    
+    this.outputDeclaration(declaration, baseDir);
+    this.outputUsagesSection(otherUsages, baseDir, declaration);
+  }
+
+  private separateDeclarationFromUsages(sortedUsages: UsageLocation[], targetLocation: LocationRange) {
+    const declaration = sortedUsages.find(usage => this.isTargetLocation(usage, targetLocation));
+    const otherUsages = sortedUsages.filter(usage => !this.isTargetLocation(usage, targetLocation));
+    return { declaration, otherUsages };
+  }
+
+  private outputDeclaration(declaration: UsageLocation | undefined, baseDir: string): void {
+    if (declaration) {
       // eslint-disable-next-line no-console
-      console.log(`${formattedLocation} ${usage.text}`);
+      console.log('Declaration:');
+      this.outputSingleUsage(declaration, baseDir);
     }
+  }
+
+  private outputUsagesSection(otherUsages: UsageLocation[], baseDir: string, declaration: UsageLocation | undefined): void {
+    if (otherUsages.length > 0 && declaration) {
+      // eslint-disable-next-line no-console
+      console.log('');
+      // eslint-disable-next-line no-console
+      console.log('Usages:');
+    }
+    
+    for (const usage of otherUsages) {
+      this.outputSingleUsage(usage, baseDir);
+    }
+  }
+
+  private outputSingleUsage(usage: UsageLocation, baseDir: string): void {
+    const formattedLocation = this.formatUsageLocation(usage, baseDir);
+    // eslint-disable-next-line no-console
+    console.log(`${formattedLocation} ${usage.text}`);
   }
 
   private formatUsageLocation(usage: UsageLocation, baseDir: string): string {

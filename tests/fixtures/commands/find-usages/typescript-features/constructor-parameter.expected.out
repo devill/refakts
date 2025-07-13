@@ -1,4 +1,7 @@
+Declaration:
 [generics/service.ts 5:13-5:17] name
+
+Usages:
 [generics/service.ts 19:17-19:21] name
 [generics/service.ts 23:10-23:14] name
 [interfaces/repository.ts 34:3-34:7] name

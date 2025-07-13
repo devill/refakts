@@ -1,3 +1,6 @@
+Declaration:
 [constants/config.ts 3:14-3:26] API_BASE_URL
+
+Usages:
 [main.ts 5:10-5:22] API_BASE_URL
 [main.ts 28:17-28:29] API_BASE_URL

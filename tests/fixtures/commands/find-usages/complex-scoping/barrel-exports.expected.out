@@ -1,4 +1,7 @@
+Declaration:
 [barrel/utils.ts 3:17-3:26] transform
+
+Usages:
 [main.ts 11:29-11:38] transform
 [main.ts 26:21-26:30] transform
 [main.ts 39:22-39:31] transform

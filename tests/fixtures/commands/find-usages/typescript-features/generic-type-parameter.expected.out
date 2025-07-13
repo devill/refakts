@@ -1,4 +1,7 @@
+Declaration:
 [generics/container.ts 3:14-3:23] Container
+
+Usages:
 [generics/container.ts 30:23-30:32] Container
 [generics/container.ts 31:16-31:25] Container
 [main.ts 1:10-1:19] Container

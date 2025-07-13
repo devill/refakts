@@ -1,4 +1,7 @@
+Declaration:
 [utils/helpers.ts 3:17-3:27] formatName
+
+Usages:
 [components/button.ts 1:10-1:20] formatName
 [components/button.ts 15:17-15:27] formatName
 [main.ts 1:10-1:20] formatName
