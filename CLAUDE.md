@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-RefakTS is a TypeScript refactoring tool built for AI coding agents to perform precise refactoring operations via command line instead of requiring complete code regeneration. The tool uses ts-morph for AST manipulation and @phenomnomnominal/tsquery for node selection.
+RefakTS is a TypeScript refactoring tool built for AI coding agents to perform precise refactoring operations via command line instead of requiring complete code regeneration. The tool uses ts-morph for AST manipulation and TypeScript analysis.
 
 ## Development Environment
 
@@ -112,11 +112,11 @@ npm run roadmap:add --feature "name" --description "desc" --why "reason"
 
 ## Architecture
 
-RefakTS follows a **command-based architecture** with clear separation of concerns. Commands implement `RefactoringCommand` interface and are registered through `CommandRegistry`. Each command encapsulates a specific refactoring operation and leverages shared services for AST manipulation.
+RefakTS follows a **command-based architecture** with clear separation of concerns. Commands implement `RefactoringCommand` interface and are registered through `CommandRegistry`. Each command encapsulates a specific refactoring operation.
 
-The architecture is built on **ts-morph** for AST manipulation and **@phenomnomnominal/tsquery** for node selection. `ASTService` provides unified interface for loading TypeScript files, while `TSQueryHandler` bridges between tsquery results and ts-morph nodes. Supporting services like `VariableNameValidator`, `StatementInserter`, and scope analyzers provide reusable functionality.
+The architecture is built on **ts-morph** for AST manipulation and TypeScript analysis. `ASTService` provides unified interface for loading TypeScript files. A **strategy pattern** powers flexible selection, where different `SelectionStrategy` implementations handle various code selection methods.
 
-A **strategy pattern** powers flexible selection, where different `SelectionStrategy` implementations handle various code selection methods. Key insight: RefakTS separates **what to find** (selection strategies) from **what to do** (command implementations).
+**Key insight**: RefakTS separates **what to find** (selection strategies) from **what to do** (command implementations).
 
 ### Unified Test Framework
 
