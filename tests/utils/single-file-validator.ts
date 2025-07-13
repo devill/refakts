@@ -15,6 +15,10 @@ export class SingleFileValidator {
   }
 
   async validate(testCase: TestCase): Promise<void> {
+    if (testCase.skip) {
+      return;
+    }
+    
     const receivedTsFile = this.getReceivedPath(testCase.inputFile, '.ts');
     this.setupTestFile(testCase.inputFile, receivedTsFile);
     

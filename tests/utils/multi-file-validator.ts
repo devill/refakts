@@ -18,6 +18,10 @@ export class MultiFileValidator {
   }
 
   async validate(testCase: FixtureTestCase): Promise<void> {
+    if (testCase.skip) {
+      return;
+    }
+    
     const receivedDir = this.getMultiFileReceivedPath(testCase.inputFile, testCase.testCaseId);
     await this.setupMultiFileProject(testCase.inputFile, receivedDir);
     
