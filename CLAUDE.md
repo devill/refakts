@@ -73,33 +73,11 @@ npm run usage:consolidate            # Manually consolidate usage logs
 
 **CORE APPROACH: "Minimal, surgical, trust the existing systems"** - This is the fundamental approach for all code changes. Avoid over-engineering, unnecessary abstractions, and complex error handling that masks real issues. Let errors bubble up naturally and change only what's broken.
 
-**Avoid Mindless Extract Method** - Don't mechanically apply "extract method" refactoring without considering the bigger design picture. This often leads to:
-- Procedural code with high number of function parameters
-- Repeated function calls that should be consolidated
-- Loss of semantic meaning in favor of artificial line count reduction
-
 **Prefer Meaningful Refactoring:**
-- **Consolidate repeated calls** - If calling the same function multiple times, store the result once and reuse it
 - **Use destructuring** - Modern JavaScript/TypeScript features like spread operator (`...`) and destructuring can eliminate redundancy elegantly
 - **Consider data structures** - Sometimes the real solution is introducing a proper class or data structure rather than more functions
 - **Address root causes** - Look for code smells like repeated calls, excessive parameters, or unclear responsibilities
-
-**Example of good refactoring:**
-```typescript
-// Bad: Repeated calls
-return {
-  name: getName(),
-  email: getEmail(), 
-  phone: getPhone()
-};
-
-// Good: Destructuring
-const { name, email, phone } = getUserData();
-return { name, email, phone };
-
-// Better: Spread operator
-return { ...getUserData() };
-```
+- **Prefer classes over interfaces** A frequent cause of feature envy is an over reliance on interfaces when a class would be a better choice
 
 ## Feature Roadmap 
 

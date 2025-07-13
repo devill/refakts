@@ -2,26 +2,26 @@
   {
     "id": "named-import",
     "description": "Find usages of named import across files",
-    "command": "find-usages '[input/lib/utils.ts 3:17-3:23]'"
+    "command": "find-usages '[lib/utils.ts 3:17-3:23]'"
   },
   {
     "id": "default-import",
     "description": "Find usages of default exported class",
-    "command": "find-usages '[input/lib/logger.ts 3:21-3:27]'"
+    "command": "find-usages '[lib/logger.ts 3:21-3:27]'"
   },
   {
     "id": "namespace-import",
     "description": "Find usages when imported as namespace",
-    "command": "find-usages '[input/modules/api.ts 3:17-3:20]'"
+    "command": "find-usages '[modules/api.ts 3:17-3:20]'"
   },
   {
     "id": "re-export",
     "description": "Find usages of re-exported symbol",
-    "command": "find-usages '[input/lib/utils.ts 7:17-7:23]'"
+    "command": "find-usages '[lib/utils.ts 7:17-7:23]'"
   },
   {
     "id": "dynamic-import",
     "description": "Find usages accessed via dynamic import",
-    "command": "find-usages '[input/modules/lazy.ts 3:17-3:27]'"
+    "command": "find-usages '[modules/lazy.ts 3:17-3:27]'"
   }
 ]

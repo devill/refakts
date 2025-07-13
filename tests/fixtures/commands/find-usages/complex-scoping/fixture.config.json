@@ -2,21 +2,21 @@
   {
     "id": "nested-modules",
     "description": "Find usages in deeply nested module structure",
-    "command": "find-usages '[input/deep/nested/modules/utils.ts 3:17-3:25]'"
+    "command": "find-usages '[deep/nested/modules/utils.ts 3:17-3:25]'"
   },
   {
     "id": "circular-imports",
     "description": "Find usages with circular import dependencies",
-    "command": "find-usages '[input/circular-a/module-a.ts 3:17-3:25]'"
+    "command": "find-usages '[circular-a/module-a.ts 3:17-3:25]'"
   },
   {
     "id": "variable-shadowing",
     "description": "Find usages with variable shadowing across files",
-    "command": "find-usages '[input/barrel/core.ts 7:7-7:12]'"
+    "command": "find-usages '[barrel/core.ts 7:7-7:12]'"
   },
   {
     "id": "barrel-exports",
     "description": "Find usages through barrel export pattern",
-    "command": "find-usages '[input/barrel/utils.ts 3:17-3:25]'"
+    "command": "find-usages '[barrel/utils.ts 3:17-3:25]'"
   }
 ]
