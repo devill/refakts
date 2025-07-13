@@ -28,6 +28,9 @@ const taskPriority = Priority.HIGH;
 const baseUrl = API_BASE_URL;
 const timeout = DEFAULT_TIMEOUT;
 
+// Using mutable variables
+let counter = 0;
+
 // Complex usage in functions
 function processUserData(userData: ApiUser): UserResponse {
   const user = User.fromApiFormat(userData);
@@ -41,3 +44,8 @@ function processUserData(userData: ApiUser): UserResponse {
 const calculation1 = add(10, 20);
 const calculation2 = add(sum, product);
 const calculation3 = add(userId, 100);
+
+// Using counter variable
+counter++; // write usage
+console.log(`Current counter: ${counter}`); // read usage
+counter = counter + 5; // write usage

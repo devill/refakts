@@ -28,5 +28,10 @@
     "id": "const-variable",
     "description": "Find usages of exported const variable",
     "command": "find-usages '[constants/config.ts 3:14-3:25]'"
+  },
+  {
+    "id": "let-variable",
+    "description": "Find usages of mutable let variable",
+    "command": "find-usages '[main.ts 32:5-32:12]'"
   }
 ]
