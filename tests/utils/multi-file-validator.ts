@@ -1,12 +1,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import {CommandExecutor} from './command-executor';
-import {FixtureTestCase} from './test-case-loader';
+import {FixtureTestCase, TestCase} from './test-case-loader';
 import {FileOperations} from './file-operations';
 import {CommandRunner} from './command-runner';
 import {TestUtilities} from './test-utilities';
+import {TestValidator} from './test-validator';
 
-export class MultiFileValidator {
+export class MultiFileValidator implements TestValidator {
   private commandExecutor: CommandExecutor;
   private fileOperations: FileOperations;
   private commandRunner: CommandRunner;
@@ -17,18 +18,15 @@ export class MultiFileValidator {
     this.commandRunner = new CommandRunner(this.commandExecutor);
   }
 
-  async validate(testCase: FixtureTestCase): Promise<void> {
-    if (testCase.skip) {
-      return;
-    }
+  async validate(testCase: TestCase): Promise<void> {
+    const fixtureTestCase = testCase as FixtureTestCase;
+    const receivedDir = this.getMultiFileReceivedPath(fixtureTestCase.inputFile, fixtureTestCase.testCaseId);
+    await this.setupMultiFileProject(fixtureTestCase.inputFile, receivedDir);
     
-    const receivedDir = this.getMultiFileReceivedPath(testCase.inputFile, testCase.testCaseId);
-    await this.setupMultiFileProject(testCase.inputFile, receivedDir);
+    const outputs = await this.executeMultiFileCommand(fixtureTestCase, receivedDir);
+    const receivedFiles = fixtureTestCase.writeReceivedFiles(outputs);
     
-    const outputs = await this.executeMultiFileCommand(testCase, receivedDir);
-    const receivedFiles = testCase.writeReceivedFiles(outputs);
-    
-    this.validateAndCleanupMultiFile(testCase, receivedFiles);
+    this.validateAndCleanupMultiFile(fixtureTestCase, receivedFiles);
   }
 
   private async setupMultiFileProject(inputDir: string, receivedDir: string): Promise<void> {

@@ -4,8 +4,9 @@ import {CommandExecutor} from './command-executor';
 import {TestCase} from './test-case-loader';
 import {TestUtilities} from './test-utilities';
 import {CommandRunner} from './command-runner';
+import {TestValidator} from './test-validator';
 
-export class SingleFileValidator {
+export class SingleFileValidator implements TestValidator {
   private commandExecutor: CommandExecutor;
   private commandRunner: CommandRunner;
   
@@ -15,10 +16,6 @@ export class SingleFileValidator {
   }
 
   async validate(testCase: TestCase): Promise<void> {
-    if (testCase.skip) {
-      return;
-    }
-    
     const receivedTsFile = this.getReceivedPath(testCase.inputFile, '.ts');
     this.setupTestFile(testCase.inputFile, receivedTsFile);
     
