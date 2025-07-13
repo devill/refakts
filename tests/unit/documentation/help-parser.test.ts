@@ -1,5 +1,4 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import { verify } from 'approvals';
 import { 
   FULL_CLI_HELP, 
   MINIMAL_CLI_HELP, 
@@ -7,7 +6,6 @@ import {
   MALFORMED_HELP,
   MULTILINE_DESCRIPTION_HELP 
 } from '../../fixtures/unit/documentation/help-output-samples';
-import { GoldenFileTestUtility } from '../../utils/golden-file-test-utility';
 
 // Import the private functions from update-readme.ts
 // We'll need to extract these to a testable module, but for now we'll copy the logic
@@ -65,62 +63,29 @@ function formatCommands(commands: string[]): string {
 }
 
 describe('Help Parser', () => {
-  const expectedDir = path.join(__dirname, '../../fixtures/unit/documentation');
 
   test('extracts commands from full CLI help', () => {
     const result = extractCommands(FULL_CLI_HELP);
-    GoldenFileTestUtility.expectToMatchGoldenFile(
-      result,
-      expectedDir,
-      'full-cli-help.expected.txt'
-    );
+    verify(__dirname, 'help-parser.extracts commands from full CLI help', result, { reporters: ['donothing'] });
   });
 
   test('extracts commands from minimal CLI help', () => {
     const result = extractCommands(MINIMAL_CLI_HELP);
-    const expectedPath = path.join(expectedDir, 'minimal-cli-help.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    verify(__dirname, 'help-parser.extracts commands from minimal CLI help', result, { reporters: ['donothing'] });
   });
 
   test('handles empty commands help', () => {
     const result = extractCommands(EMPTY_COMMANDS_HELP);
-    const expectedPath = path.join(expectedDir, 'empty-commands-help.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    verify(__dirname, 'help-parser.handles empty commands help', result, { reporters: ['donothing'] });
   });
 
   test('handles malformed help output', () => {
     const result = extractCommands(MALFORMED_HELP);
-    const expectedPath = path.join(expectedDir, 'malformed-help.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    verify(__dirname, 'help-parser.handles malformed help output', result, { reporters: ['donothing'] });
   });
 
   test('handles multiline description help', () => {
     const result = extractCommands(MULTILINE_DESCRIPTION_HELP);
-    const expectedPath = path.join(expectedDir, 'multiline-description-help.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    verify(__dirname, 'help-parser.handles multiline description help', result, { reporters: ['donothing'] });
   });
 });

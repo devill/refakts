@@ -3,13 +3,16 @@
 Some introductory text.
 
 <!-- AUTO-GENERATED HELP START -->
-New help content
+Old help content here
 <!-- AUTO-GENERATED HELP END -->
 
 More content below.
 
 <!-- AUTO-GENERATED QUALITY-CHECKS START -->
-Old quality checks here
+**Quality Checks Include:**
+````
+- **COMMENTS DETECTED** (Comments indicate code that is not self-documenting.)
+````
 <!-- AUTO-GENERATED QUALITY-CHECKS END -->
 
 Final content.

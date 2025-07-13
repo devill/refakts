@@ -157,6 +157,34 @@ tests/fixtures/
 
 **Files matching `*.received.*` are gitignored and appear only during test failures.**
 
+### Unit Test Guidelines
+
+**For unit tests, always use the `approvals` framework when testing against expected text output.** This ensures consistency and follows established patterns.
+
+**Approvals Framework Usage**:
+```typescript
+import { verify } from 'approvals';
+
+// In your test
+verify(__dirname, 'test-name', result, { reporters: ['donothing'] });
+```
+
+**Key Benefits**:
+- **Automatic file management**: Approved files are stored next to the test file
+- **Clear diff visualization**: When tests fail, you can see exactly what changed
+- **Simple approval workflow**: Copy received files to approved files when output is correct
+- **CI-friendly**: Use `{ reporters: ['donothing'] }` to avoid GUI diff tools in tests
+
+**File Organization**:
+- **Fixture tests**: Use the `tests/fixtures/` directory for end-to-end command testing
+- **Unit tests**: Use approvals for text output validation, stored next to the test file
+- **Behavioral tests**: Use standard Jest expectations for behavior validation
+
+**When to Use Each Approach**:
+- **Approvals**: When testing text output, formatted strings, generated code, or any string-based results
+- **Jest expectations**: When testing behavior, return values, object properties, or method calls
+- **Fixtures**: When testing complete command workflows end-to-end
+
 ## Development Workflow
 
 Use the STARTER_CHARACTER at the start of the line to indicate your workflow state
