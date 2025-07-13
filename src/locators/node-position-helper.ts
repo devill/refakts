@@ -1,6 +1,6 @@
 import { SourceFile } from 'ts-morph';
-import { NodeContext } from './NodeContext';
-import { PositionRequest, PositionService } from './PositionService';
+import { NodeContext } from './node-context';
+import { PositionRequest, PositionService } from './position-service';
 
 export class NodePositionHelper {
   
