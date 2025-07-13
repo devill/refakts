@@ -4,6 +4,7 @@ import * as path from 'path';
 import { getTestCases } from '../utils/test-case-loader';
 import { FixtureValidator } from '../utils/fixture-validator';
 import { CommandExecutor } from '../utils/command-executor';
+import { normalizeFixturePath, validateFixtureExists } from './shared-utilities';
 
 const fixturePath = parseFixturePathFromArgs();
 
@@ -22,18 +23,6 @@ validateFixtureExists(normalizedPath);
 
 const fs = require('fs');
 
-function normalizeFixturePath(fixturePath: string): string {
-  return fixturePath.endsWith('.input.ts') 
-    ? fixturePath 
-    : `${fixturePath}.input.ts`;
-}
-
-function validateFixtureExists(normalizedPath: string): void {
-  if (!fs.existsSync(normalizedPath)) {
-    console.error(`Fixture not found: ${normalizedPath}`);
-    process.exit(1);
-  }
-}
 
 async function runFixtureTest() {
   const validator = createValidator();

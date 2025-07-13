@@ -1,0 +1,5 @@
+{
+  "success": true,
+  "changesCount": 1,
+  "message": "Renamed 1 occurrences of '{ oldName } = { oldName: 42 }' to 'newName'"
+}

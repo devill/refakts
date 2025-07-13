@@ -1,6 +1,7 @@
 import { RenameVariableTransformation } from '../../../src/transformations/rename-variable-transformation';
 import { Project, SyntaxKind } from 'ts-morph';
 import { RenameTransformationTestHelper } from '../../utils/rename-transformation-test-helper';
+import { verify } from 'approvals';
 
 describe('RenameVariableTransformation', () => {
   let project: Project;
@@ -68,6 +69,14 @@ describe('RenameVariableTransformation', () => {
   });
 
   describe('transformWithResult', () => {
+    const createErrorMockTransformation = (errorToThrow: any) => {
+      const mockDeclaration = {
+        ...RenameTransformationTestHelper.createMockDeclaration(),
+        getText: () => { throw errorToThrow; }
+      };
+      return new RenameVariableTransformation(mockDeclaration, [], 'newName');
+    };
+
     it('should return success result when rename works', async () => {
       const helper = RenameTransformationTestHelper.create(project);
       const { transformation } = helper.createTransformationScenario({
@@ -88,34 +97,17 @@ describe('RenameVariableTransformation', () => {
     });
 
     it('should return error result when exception occurs', async () => {
-      const mockDeclaration = {
-        getText: () => { throw new Error('Test error'); },
-        getKind: () => SyntaxKind.VariableDeclaration,
-        getFirstDescendantByKind: () => undefined
-      } as any;
-
-      const transformation = new RenameVariableTransformation(mockDeclaration, [], 'newName');
-
+      const transformation = createErrorMockTransformation(new Error('Test error'));
       const result = await transformation.transformWithResult();
 
-      expect(result.success).toBe(false);
-      expect(result.changesCount).toBe(0);
-      expect(result.message).toBe('Test error');
+      verify(__dirname, 'error-exception', JSON.stringify(result, null, 2), { reporters: ['donothing'] });
     });
 
     it('should handle unknown error types', async () => {
-      const mockDeclaration = {
-        ...RenameTransformationTestHelper.createMockDeclaration(),
-        getText: () => { throw 'String error'; } // Non-Error object
-      };
-
-      const transformation = new RenameVariableTransformation(mockDeclaration, [], 'newName');
-
+      const transformation = createErrorMockTransformation('String error'); // Non-Error object
       const result = await transformation.transformWithResult();
 
-      expect(result.success).toBe(false);
-      expect(result.changesCount).toBe(0);
-      expect(result.message).toBe('Unknown error during rename');
+      verify(__dirname, 'error-unknown-type', JSON.stringify(result, null, 2), { reporters: ['donothing'] });
     });
   });
 
@@ -223,33 +215,30 @@ describe('RenameVariableTransformation', () => {
   });
 
   describe('edge cases', () => {
+    const createTestTransformation = (sourceCode: string) => {
+      const sourceFile = project.createSourceFile('test.ts', sourceCode);
+      const declaration = sourceFile.getVariableDeclarations()[0];
+      return new RenameVariableTransformation(declaration, [], 'newName');
+    };
+
     it('should handle empty usages array', async () => {
-      const sourceFile = project.createSourceFile('test.ts', `
+      const transformation = createTestTransformation(`
         const oldName = 42;
       `);
 
-      const declaration = sourceFile.getVariableDeclarations()[0];
-      const transformation = new RenameVariableTransformation(declaration, [], 'newName');
-
       const result = await transformation.transformWithResult();
 
-      expect(result.success).toBe(true);
-      expect(result.changesCount).toBe(1); // Only declaration renamed
-      expect(result.message).toContain("Renamed 1 occurrences");
+      verify(__dirname, 'edge-case-empty-usages', JSON.stringify(result, null, 2), { reporters: ['donothing'] });
     });
 
     it('should handle complex declaration nodes', async () => {
-      const sourceFile = project.createSourceFile('test.ts', `
+      const transformation = createTestTransformation(`
         const { oldName } = { oldName: 42 };
       `);
 
-      const declaration = sourceFile.getVariableDeclarations()[0];
-      const transformation = new RenameVariableTransformation(declaration, [], 'newName');
-
       const result = await transformation.transformWithResult();
 
-      expect(result.success).toBe(true);
-      expect(result.changesCount).toBeGreaterThanOrEqual(0);
+      verify(__dirname, 'edge-case-complex-declaration', JSON.stringify(result, null, 2), { reporters: ['donothing'] });
     });
   });
 });

@@ -1,0 +1,5 @@
+{
+  "success": false,
+  "changesCount": 0,
+  "message": "Unknown error during rename"
+}

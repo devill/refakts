@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { getTestCases } from '../utils/test-case-loader';
+import { normalizeFixturePath, validateFixtureExists } from './shared-utilities';
 
 const isApproveAll = process.argv.includes('--all');
 const fixturePath = parseFixturePathFromArgs();
@@ -82,17 +83,5 @@ function processAllTestCases(testCases: any[]): number {
   return totalApproved;
 }
 
-function normalizeFixturePath(fixturePath: string): string {
-  return fixturePath.endsWith('.input.ts') 
-    ? fixturePath 
-    : `${fixturePath}.input.ts`;
-}
-
-function validateFixtureExists(normalizedPath: string): void {
-  if (!fs.existsSync(normalizedPath)) {
-    console.error(`Fixture not found: ${normalizedPath}`);
-    process.exit(1);
-  }
-}
 
 main();
