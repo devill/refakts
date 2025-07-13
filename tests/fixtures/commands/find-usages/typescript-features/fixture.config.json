@@ -12,8 +12,7 @@
   {
     "id": "class-property",
     "description": "Find usages of class property access",
-    "command": "find-usages '[generics/container.ts 8:10-8:15]'",
-    "@skip": "Needs review"
+    "command": "find-usages '[generics/container.ts 7:10-7:15]'"
   },
   {
     "id": "constructor-parameter",
