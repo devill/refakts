@@ -105,16 +105,41 @@ export class FindUsagesCommand implements RefactoringCommand {
   }
 
   private outputUsagesSection(otherUsages: UsageLocation[], baseDir: string, declaration: UsageLocation | undefined): void {
-    if (otherUsages.length > 0 && declaration) {
+    if (otherUsages.length === 0 || !declaration) {
+      return;
+    }
+    
+    const { writeUsages, readUsages } = this.separateUsagesByType(otherUsages);
+    
+    // Only separate read/write if there are write usages
+    if (writeUsages.length > 0) {
+      // eslint-disable-next-line no-console
+      console.log('');
+      // eslint-disable-next-line no-console
+      console.log('Write Usages:');
+      writeUsages.forEach(usage => this.outputSingleUsage(usage, baseDir));
+      
+      if (readUsages.length > 0) {
+        // eslint-disable-next-line no-console
+        console.log('');
+        // eslint-disable-next-line no-console
+        console.log('Read Usages:');
+        readUsages.forEach(usage => this.outputSingleUsage(usage, baseDir));
+      }
+    } else {
+      // If no write usages, use simple "Usages:" format
       // eslint-disable-next-line no-console
       console.log('');
       // eslint-disable-next-line no-console
       console.log('Usages:');
+      otherUsages.forEach(usage => this.outputSingleUsage(usage, baseDir));
     }
-    
-    for (const usage of otherUsages) {
-      this.outputSingleUsage(usage, baseDir);
-    }
+  }
+
+  private separateUsagesByType(usages: UsageLocation[]): { writeUsages: UsageLocation[], readUsages: UsageLocation[] } {
+    const writeUsages = usages.filter(usage => usage.usageType === 'write');
+    const readUsages = usages.filter(usage => usage.usageType === 'read');
+    return { writeUsages, readUsages };
   }
 
   private outputSingleUsage(usage: UsageLocation, baseDir: string): void {

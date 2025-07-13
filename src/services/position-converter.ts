@@ -1,5 +1,6 @@
 import { Node, SourceFile } from 'ts-morph';
 import { LocationRange, UsageLocation } from '../core/location-range';
+import { UsageTypeAnalyzer } from './usage-type-analyzer';
 
 export class PositionConverter {
   static getStartPosition(sourceFile: SourceFile, location: LocationRange): number {
@@ -12,7 +13,8 @@ export class PositionConverter {
   static createUsageLocation(sourceFile: SourceFile, node: Node): UsageLocation {
     return {
       location: LocationRange.createLocationFromNode(sourceFile, node),
-      text: node.getText()
+      text: node.getText(),
+      usageType: UsageTypeAnalyzer.determineUsageType(node)
     };
   }
 }

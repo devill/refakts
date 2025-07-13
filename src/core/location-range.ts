@@ -85,9 +85,12 @@ export class LocationRange {
   }
 }
 
+export type UsageType = 'read' | 'write';
+
 export interface UsageLocation {
   location: LocationRange;
   text: string;
+  usageType: UsageType;
 }
 
 export class LocationParser {

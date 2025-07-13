@@ -1,8 +1,10 @@
 Declaration:
 [main.ts 32:5-32:12] counter
 
-Usages:
+Write Usages:
 [main.ts 49:1-49:8] counter
-[main.ts 50:33-50:40] counter
 [main.ts 51:1-51:8] counter
+
+Read Usages:
+[main.ts 50:33-50:40] counter
 [main.ts 51:11-51:18] counter
