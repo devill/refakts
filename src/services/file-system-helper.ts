@@ -70,7 +70,24 @@ export class FileSystemHelper {
   }
 
   private shouldProcessDirectory(stat: { isDirectory: () => boolean }, entry: string): boolean {
-    return stat.isDirectory() && entry !== 'node_modules' && entry !== 'dist';
+    return stat.isDirectory() && this.isDirectoryIncluded(entry);
+  }
+
+  private isDirectoryIncluded(entry: string): boolean {
+    // Standard exclusions for TypeScript projects
+    const standardExclusions = ['node_modules', 'dist', 'build', 'coverage'];
+    if (standardExclusions.includes(entry)) {
+      return false;
+    }
+    
+    // Exclude test artifacts (directories ending with .received)
+    if (entry.endsWith('.received')) {
+      return false;
+    }
+    
+    // TODO: In the future, read exclusions from tsconfig.json
+    // For now, use these sensible defaults
+    return true;
   }
 
   private shouldLoadFile(entry: string): boolean {

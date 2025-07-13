@@ -2,6 +2,7 @@ import {CommandOptions, RefactoringCommand} from '../command';
 import {LocationParser, LocationRange, UsageLocation} from '../core/location-range';
 import {ASTService} from '../services/ast-service';
 import {CrossFileReferenceFinder} from '../services/cross-file-reference-finder';
+import {ProjectScopeService} from '../services/project-scope-service';
 import {SourceFile} from 'ts-morph';
 
 export class FindUsagesCommand implements RefactoringCommand {
@@ -10,6 +11,7 @@ export class FindUsagesCommand implements RefactoringCommand {
   readonly complete = false;
   
   private astService = new ASTService();
+  private projectScopeService = new ProjectScopeService(this.astService.getProject());
   
   async execute(targetLocation: string, options: CommandOptions): Promise<void> {
     const finalOptions = this.processTarget(targetLocation, options);
@@ -42,29 +44,11 @@ export class FindUsagesCommand implements RefactoringCommand {
   private async findReferences(location: LocationRange, sourceFile: SourceFile) {
     const project = this.astService.getProject();
     const finder = new CrossFileReferenceFinder(project);
-    const scopeDirectory = this.determineScopeDirectory(location.file);
+    const scopeDirectory = this.projectScopeService.determineScopeDirectory(location.file);
     const result = await finder.findAllReferences(location, sourceFile, scopeDirectory);
     return result.usages;
   }
 
-  private determineScopeDirectory(filePath: string): string | undefined {
-    if (this.isTestFixture(filePath)) {
-      return this.getTestFixtureScope(filePath);
-    }
-    
-    return undefined;
-  }
-
-  private isTestFixture(filePath: string): boolean {
-    return filePath.includes('/tests/fixtures/') && filePath.includes('/input/');
-  }
-
-  private getTestFixtureScope(filePath: string): string {
-    const path = require('path');
-    const inputIndex = filePath.lastIndexOf('/input/');
-    const inputDir = filePath.substring(0, inputIndex + '/input'.length);
-    return path.resolve(inputDir);
-  }
   
 
 

@@ -1,0 +1,9 @@
+[types/api.ts 3:18-3:25] ApiUser
+[main.ts 3:10-3:17] ApiUser
+[main.ts 20:16-20:23] ApiUser
+[main.ts 32:36-32:43] ApiUser
+[models/user.ts 1:10-1:17] ApiUser
+[models/user.ts 10:18-10:25] ApiUser
+[models/user.ts 18:33-18:40] ApiUser
+[types/api.ts 17:40-17:47] ApiUser
+[types/api.ts 18:44-18:51] ApiUser

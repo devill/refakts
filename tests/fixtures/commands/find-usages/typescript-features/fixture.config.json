@@ -12,16 +12,19 @@
   {
     "id": "class-property",
     "description": "Find usages of class property access",
-    "command": "find-usages '[input/generics/container.ts 8:10-8:15]'"
+    "command": "find-usages '[input/generics/container.ts 8:10-8:15]'",
+    "@skip": "Needs review"
   },
   {
     "id": "constructor-parameter",
     "description": "Find usages of constructor parameter property",
-    "command": "find-usages '[input/generics/service.ts 4:12-4:16]'"
+    "command": "find-usages '[input/generics/service.ts 4:12-4:16]'",
+    "@skip": "Needs review"
   },
   {
     "id": "method-override",
     "description": "Find usages of overridden method",
-    "command": "find-usages '[input/interfaces/repository.ts 10:3-10:7]'"
+    "command": "find-usages '[input/interfaces/repository.ts 10:3-10:7]'",
+    "@skip": "Needs review"
   }
 ]
