@@ -42,18 +42,27 @@ export class FindUsagesCommand implements RefactoringCommand {
   }
 
   private async findReferences(location: LocationRange, sourceFile: SourceFile) {
+    const finder = this.createReferenceFinder(location);
+    try {
+      const result = await finder.findAllReferences(location, sourceFile);
+      return result.usages;
+    } catch (error) {
+      return this.handleFindReferencesError(error);
+    }
+  }
+
+  private createReferenceFinder(location: LocationRange) {
     const project = this.astService.getProject();
     const finder = new CrossFileReferenceFinder(project);
     const scopeDirectory = this.projectScopeService.determineScopeDirectory(location.file);
-    try {
-      const result = await finder.findAllReferences(location, sourceFile, scopeDirectory);
-      return result.usages;
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('No symbol found at location')) {
-        return [];
-      }
-      throw error;
+    return { findAllReferences: (loc: LocationRange, sf: SourceFile) => finder.findAllReferences(loc, sf, scopeDirectory) };
+  }
+
+  private handleFindReferencesError(error: unknown): UsageLocation[] {
+    if (error instanceof Error && error.message.includes('No symbol found at location')) {
+      return [];
     }
+    throw error;
   }
 
   
@@ -61,11 +70,19 @@ export class FindUsagesCommand implements RefactoringCommand {
 
   private outputResults(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange): void {
     if (usages.length === 0) {
-      // eslint-disable-next-line no-console
-      console.log('Symbol not found at specified location');
+      this.outputNoSymbolMessage();
       return;
     }
     
+    this.outputUsageResults(usages, baseDir, targetLocation);
+  }
+
+  private outputNoSymbolMessage(): void {
+    // eslint-disable-next-line no-console
+    console.log('Symbol not found at specified location');
+  }
+
+  private outputUsageResults(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange): void {
     for (const usage of this.sortUsages(usages, targetLocation)) {
       const formattedLocation = this.formatUsageLocation(usage, baseDir);
       // eslint-disable-next-line no-console
