@@ -1,0 +1,4 @@
+[a, b] = array: a
+{prop1, prop2} = obj: prop1
+{nested: {deep}} = obj: nested
+[first, ...rest] = array: first

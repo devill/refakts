@@ -1,0 +1,4 @@
+VariableDeclaration: validName = 5
+FunctionDeclaration: testFn
+BinaryExpression: invalidName123$
+VariableDeclaration: arr = [1,2,3]

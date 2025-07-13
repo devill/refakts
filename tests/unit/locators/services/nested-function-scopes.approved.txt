@@ -1,0 +1,4 @@
+Block scope parent: other
+Inner function parent: function
+Inner function name: not-inner
+Outer function name: not-outer

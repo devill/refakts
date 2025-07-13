@@ -1,0 +1,6 @@
+arrow in middle: true
+arrow in block: true
+arrow in outer: true
+middle in block: true
+middle in outer: true
+block in outer: true
