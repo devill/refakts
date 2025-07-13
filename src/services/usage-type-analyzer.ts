@@ -8,6 +8,10 @@ export class UsageTypeAnalyzer {
       return 'read';
     }
 
+    return this.analyzeParentContext(node, parent);
+  }
+
+  private static analyzeParentContext(node: Node, parent: Node): UsageType {
     switch (parent.getKind()) {
       case SyntaxKind.BinaryExpression:
         return this.analyzeBinaryExpression(node, parent);
@@ -17,12 +21,12 @@ export class UsageTypeAnalyzer {
         return this.analyzeUnaryExpression(parent);
       
       case SyntaxKind.VariableDeclaration:
-        return 'write'; // This is the declaration itself
+        return 'write';
       
       case SyntaxKind.CallExpression:
       case SyntaxKind.PropertyAccessExpression:
       case SyntaxKind.ElementAccessExpression:
-        return 'read'; // Reading for function calls or property access
+        return 'read';
       
       default:
         return 'read';
@@ -31,45 +35,39 @@ export class UsageTypeAnalyzer {
 
   private static analyzeBinaryExpression(node: Node, parent: Node): UsageType {
     const binaryExpression = parent.asKindOrThrow(SyntaxKind.BinaryExpression);
-    const operatorToken = binaryExpression.getOperatorToken();
     
-    // If this identifier is on the left side of an assignment
     if (binaryExpression.getLeft() === node) {
-      switch (operatorToken.getKind()) {
-        case SyntaxKind.EqualsToken:
-        case SyntaxKind.PlusEqualsToken:
-        case SyntaxKind.MinusEqualsToken:
-        case SyntaxKind.AsteriskEqualsToken:
-        case SyntaxKind.SlashEqualsToken:
-        case SyntaxKind.PercentEqualsToken:
-          return 'write';
-        default:
-          return 'read';
-      }
+      return this.isAssignmentOperator(binaryExpression) ? 'write' : 'read';
     }
     
-    // If on the right side, it's always a read
     return 'read';
+  }
+
+  private static isAssignmentOperator(binaryExpression: Node): boolean {
+    const operatorToken = binaryExpression.asKindOrThrow(SyntaxKind.BinaryExpression).getOperatorToken();
+    const assignmentOperators = [
+      SyntaxKind.EqualsToken, SyntaxKind.PlusEqualsToken, SyntaxKind.MinusEqualsToken,
+      SyntaxKind.AsteriskEqualsToken, SyntaxKind.SlashEqualsToken, SyntaxKind.PercentEqualsToken
+    ];
+    return assignmentOperators.includes(operatorToken.getKind());
   }
 
   private static analyzeUnaryExpression(parent: Node): UsageType {
     const postfixUnary = parent.asKind(SyntaxKind.PostfixUnaryExpression);
     const prefixUnary = parent.asKind(SyntaxKind.PrefixUnaryExpression);
     
-    if (postfixUnary) {
-      const operator = postfixUnary.getOperatorToken();
-      if (operator === SyntaxKind.PlusPlusToken || operator === SyntaxKind.MinusMinusToken) {
-        return 'write';
-      }
+    if (postfixUnary && this.isIncrementDecrementOperator(postfixUnary.getOperatorToken())) {
+      return 'write';
     }
     
-    if (prefixUnary) {
-      const operator = prefixUnary.getOperatorToken();
-      if (operator === SyntaxKind.PlusPlusToken || operator === SyntaxKind.MinusMinusToken) {
-        return 'write';
-      }
+    if (prefixUnary && this.isIncrementDecrementOperator(prefixUnary.getOperatorToken())) {
+      return 'write';
     }
     
     return 'read';
+  }
+
+  private static isIncrementDecrementOperator(operator: SyntaxKind): boolean {
+    return operator === SyntaxKind.PlusPlusToken || operator === SyntaxKind.MinusMinusToken;
   }
 }

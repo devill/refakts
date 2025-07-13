@@ -78,8 +78,7 @@ export class FindUsagesCommand implements RefactoringCommand {
   }
 
   private outputNoSymbolMessage(): void {
-    // eslint-disable-next-line no-console
-    console.log('Symbol not found at specified location');
+    process.stdout.write('Symbol not found at specified location\n');
   }
 
   private outputUsageResults(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange): void {
@@ -98,8 +97,7 @@ export class FindUsagesCommand implements RefactoringCommand {
 
   private outputDeclaration(declaration: UsageLocation | undefined, baseDir: string): void {
     if (declaration) {
-      // eslint-disable-next-line no-console
-      console.log('Declaration:');
+      process.stdout.write('Declaration:\n');
       this.outputSingleUsage(declaration, baseDir);
     }
   }
@@ -111,29 +109,27 @@ export class FindUsagesCommand implements RefactoringCommand {
     
     const { writeUsages, readUsages } = this.separateUsagesByType(otherUsages);
     
-    // Only separate read/write if there are write usages
     if (writeUsages.length > 0) {
-      // eslint-disable-next-line no-console
-      console.log('');
-      // eslint-disable-next-line no-console
-      console.log('Write Usages:');
-      writeUsages.forEach(usage => this.outputSingleUsage(usage, baseDir));
-      
-      if (readUsages.length > 0) {
-        // eslint-disable-next-line no-console
-        console.log('');
-        // eslint-disable-next-line no-console
-        console.log('Read Usages:');
-        readUsages.forEach(usage => this.outputSingleUsage(usage, baseDir));
-      }
+      this.outputReadWriteSeparatedUsages(writeUsages, readUsages, baseDir);
     } else {
-      // If no write usages, use simple "Usages:" format
-      // eslint-disable-next-line no-console
-      console.log('');
-      // eslint-disable-next-line no-console
-      console.log('Usages:');
-      otherUsages.forEach(usage => this.outputSingleUsage(usage, baseDir));
+      this.outputSimpleUsages(otherUsages, baseDir);
     }
+  }
+
+  private outputReadWriteSeparatedUsages(writeUsages: UsageLocation[], readUsages: UsageLocation[], baseDir: string): void {
+    process.stdout.write('\nWrite Usages:\n');
+    writeUsages.forEach(usage => this.outputSingleUsage(usage, baseDir));
+    
+    if (readUsages.length > 0) {
+      process.stdout.write('\nRead Usages:\n');
+      readUsages.forEach(usage => this.outputSingleUsage(usage, baseDir));
+    }
+  }
+
+  private outputSimpleUsages(usages: UsageLocation[], baseDir: string): void {
+    process.stdout.write('\n');
+    process.stdout.write('Usages:\n');
+    usages.forEach(usage => this.outputSingleUsage(usage, baseDir));
   }
 
   private separateUsagesByType(usages: UsageLocation[]): { writeUsages: UsageLocation[], readUsages: UsageLocation[] } {
@@ -144,8 +140,7 @@ export class FindUsagesCommand implements RefactoringCommand {
 
   private outputSingleUsage(usage: UsageLocation, baseDir: string): void {
     const formattedLocation = this.formatUsageLocation(usage, baseDir);
-    // eslint-disable-next-line no-console
-    console.log(`${formattedLocation} ${usage.text}`);
+    process.stdout.write(`${formattedLocation} ${usage.text}\n`);
   }
 
   private formatUsageLocation(usage: UsageLocation, baseDir: string): string {
