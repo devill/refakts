@@ -4,12 +4,13 @@ import {ASTService} from '../services/ast-service';
 import {CrossFileReferenceFinder} from '../services/cross-file-reference-finder';
 import {ProjectScopeService} from '../services/project-scope-service';
 import {SourceFile} from 'ts-morph';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export class FindUsagesCommand implements RefactoringCommand {
   readonly name = 'find-usages';
   readonly description = 'Find all usages of a symbol across files';
-  readonly complete = false;
-  
+  readonly complete = true;
   private astService = new ASTService();
   private projectScopeService = new ProjectScopeService(this.astService.getProject());
   
@@ -64,9 +65,6 @@ export class FindUsagesCommand implements RefactoringCommand {
     }
     throw error;
   }
-
-  
-
 
   private outputResults(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange): void {
     if (usages.length === 0) {
@@ -179,7 +177,6 @@ export class FindUsagesCommand implements RefactoringCommand {
     return usage.location.matchesTarget(targetLocation.file, targetLocation.start.line);
   }
 
-
   private processTarget(target: string, options: CommandOptions): CommandOptions {
     return LocationParser.processTarget(target, options) as CommandOptions;
   }
@@ -191,7 +188,13 @@ export class FindUsagesCommand implements RefactoringCommand {
 
     LocationRange.from(options.location as LocationRange).validateRange();
   }
+
   getHelpText(): string {
-    return '\nExamples:\n  refakts find-usages "[src/file.ts 10:5-10:10]"\n  refakts find-usages "[src/file.ts 3:15-3:20]"';
+    try {
+      const helpFilePath = path.join(__dirname, 'find-usages.help.txt');
+      return '\n' + fs.readFileSync(helpFilePath, 'utf8');
+    } catch {
+      return '\nHelp file not found';
+    }
   }
 }

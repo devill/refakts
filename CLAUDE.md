@@ -63,8 +63,7 @@ npm run test:fixture:review <fixture_path>              # Review received files 
 - rename [options] <target>            Rename a variable and all its references
 - select [options] <target>            Find code elements and return their locations with content preview
 - variable-locator <target>            Find variable declarations and all their usages
-- find-usages <target>                 Find all usages of a symbol across files (warning: incomplete)
-- move-method [options] <target>       Move a method from one class to another (warning: incomplete)
+- find-usages <target>                 Find all usages of a symbol across files
 ```
 <!-- AUTO-GENERATED HELP END -->
 
