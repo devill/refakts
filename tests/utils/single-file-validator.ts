@@ -64,9 +64,21 @@ export class SingleFileValidator {
   private compareWithExpected(inputFile: string, receivedFiles: any): void {
     const expectedFiles = this.createExpectedFilePaths(inputFile);
     
+    this.validateHasExpectedFiles(expectedFiles, inputFile);
+    
     this.compareIfExpected(expectedFiles.tsFile, receivedFiles.tsFile);
     this.compareIfExpected(expectedFiles.outFile, receivedFiles.outFile);
     this.compareIfExpected(expectedFiles.errFile, receivedFiles.errFile);
+  }
+
+  private validateHasExpectedFiles(expectedFiles: any, inputFile: string): void {
+    const hasAnyExpectedFile = Object.values(expectedFiles).some((file: any) => 
+      fs.existsSync(file)
+    );
+    
+    if (!hasAnyExpectedFile) {
+      throw new Error(`Test ${path.basename(inputFile)} has no expected files (.expected.ts, .expected.out, or .expected.err)`);
+    }
   }
 
   private createExpectedFilePaths(inputFile: string) {

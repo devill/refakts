@@ -64,8 +64,20 @@ export class MultiFileValidator {
     const expectedOutFile = expectedFiles.outFile.replace('.received.', '.expected.');
     const expectedErrFile = expectedFiles.errFile.replace('.received.', '.expected.');
     
+    this.validateHasExpectedFiles(testCase, expectedOutFile, expectedErrFile);
+    
     this.compareIfExpected(expectedOutFile, receivedFiles.outFile);
     this.compareIfExpected(expectedErrFile, receivedFiles.errFile);
+  }
+
+  private validateHasExpectedFiles(testCase: FixtureTestCase, expectedOutFile: string, expectedErrFile: string): void {
+    const hasOutputFile = fs.existsSync(expectedOutFile);
+    const hasErrorFile = fs.existsSync(expectedErrFile);
+    const hasExpectedDirectory = testCase.expectedDirectory && fs.existsSync(testCase.expectedDirectory);
+    
+    if (!hasOutputFile && !hasErrorFile && !hasExpectedDirectory) {
+      throw new Error(`Test ${testCase.testCaseId} has no expected files (.expected.out, .expected.err, or .expected/ directory)`);
+    }
   }
 
   private compareProjectDirectory(testCase: FixtureTestCase): void {

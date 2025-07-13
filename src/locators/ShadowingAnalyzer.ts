@@ -1,7 +1,7 @@
 import { Node } from 'ts-morph';
 import { ScopeAnalyzer } from './ScopeAnalyzer';
 import { VariableNameOperations } from './VariableNameOperations';
-import { DeclarationFinder } from './DeclarationFinder';
+import { DeclarationFinder } from './declaration-finder';
 
 export interface ShadowingContext {
   node: Node;

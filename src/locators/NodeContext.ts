@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import { Node, SourceFile } from 'ts-morph';
 import { ScopeAnalyzer } from './ScopeAnalyzer';
-import { DeclarationFinder } from './DeclarationFinder';
+import { DeclarationFinder } from './declaration-finder';
 import { VariableNameOperations } from './VariableNameOperations';
 import { isShadowingDeclaration } from './ShadowingAnalyzer';
 
