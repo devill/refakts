@@ -71,6 +71,10 @@ export class MultiFileValidator {
   }
 
   private validateHasExpectedFiles(testCase: FixtureTestCase, expectedOutFile: string, expectedErrFile: string): void {
+    if (testCase.skip) {
+      return;
+    }
+    
     const hasOutputFile = fs.existsSync(expectedOutFile);
     const hasErrorFile = fs.existsSync(expectedErrFile);
     const hasExpectedDirectory = testCase.expectedDirectory && fs.existsSync(testCase.expectedDirectory);

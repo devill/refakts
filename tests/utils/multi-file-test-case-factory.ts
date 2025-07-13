@@ -52,11 +52,13 @@ export class MultiFileTestCaseFactory {
   }
 
   private determineSkipValue(config: any): boolean | string {
-    if (config.skip === true || config.skip === false) {
-      return config.skip;
+    const skipValue = config.skip || config['@skip'];
+    
+    if (skipValue === true || skipValue === false) {
+      return skipValue;
     }
-    if (typeof config.skip === 'string') {
-      return config.skip;
+    if (typeof skipValue === 'string') {
+      return skipValue;
     }
     return false;
   }

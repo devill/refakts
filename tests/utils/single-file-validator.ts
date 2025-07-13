@@ -21,12 +21,12 @@ export class SingleFileValidator {
     const outputs = await this.executeCommand(testCase, receivedTsFile);
     const receivedFiles = this.writeReceivedFiles(testCase.inputFile, outputs);
     
-    this.validateAndCleanup(testCase.inputFile, receivedFiles);
+    this.validateAndCleanup(testCase, receivedFiles);
   }
 
-  private validateAndCleanup(inputFile: string, receivedFiles: any): void {
+  private validateAndCleanup(testCase: TestCase, receivedFiles: any): void {
     try {
-      this.compareWithExpected(inputFile, receivedFiles);
+      this.compareWithExpected(testCase, receivedFiles);
       this.cleanupReceivedFiles(receivedFiles, true);
     } catch (error) {
       this.cleanupReceivedFiles(receivedFiles, false);
@@ -61,23 +61,27 @@ export class SingleFileValidator {
     return receivedFiles;
   }
 
-  private compareWithExpected(inputFile: string, receivedFiles: any): void {
-    const expectedFiles = this.createExpectedFilePaths(inputFile);
+  private compareWithExpected(testCase: TestCase, receivedFiles: any): void {
+    const expectedFiles = this.createExpectedFilePaths(testCase.inputFile);
     
-    this.validateHasExpectedFiles(expectedFiles, inputFile);
+    this.validateHasExpectedFiles(testCase, expectedFiles);
     
     this.compareIfExpected(expectedFiles.tsFile, receivedFiles.tsFile);
     this.compareIfExpected(expectedFiles.outFile, receivedFiles.outFile);
     this.compareIfExpected(expectedFiles.errFile, receivedFiles.errFile);
   }
 
-  private validateHasExpectedFiles(expectedFiles: any, inputFile: string): void {
+  private validateHasExpectedFiles(testCase: TestCase, expectedFiles: any): void {
+    if (testCase.skip) {
+      return;
+    }
+    
     const hasAnyExpectedFile = Object.values(expectedFiles).some((file: any) => 
       fs.existsSync(file)
     );
     
     if (!hasAnyExpectedFile) {
-      throw new Error(`Test ${path.basename(inputFile)} has no expected files (.expected.ts, .expected.out, or .expected.err)`);
+      throw new Error(`Test ${path.basename(testCase.inputFile)} has no expected files (.expected.ts, .expected.out, or .expected.err)`);
     }
   }
 
