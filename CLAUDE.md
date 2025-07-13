@@ -45,6 +45,12 @@ npm run roadmap:remove <feature-name>  # Remove completed or obsolete features
 # Usage tracking (automatic via git hooks)
 npm run usage:report                 # View command usage statistics
 npm run usage:consolidate            # Manually consolidate usage logs
+
+# Fixture testing workflow
+npm run test:fixture                                    # Run all fixture tests
+npm run test:fixture:approve <fixture_path>             # Approve received files as expected for specific test (single-file fixtures only)
+npm run test:fixture:approve:all                       # Auto-approve all received files as expected (single-file fixtures only)
+npm run test:fixture:review <fixture_path>              # Review received files for a specific test (single-file fixtures only)
 ```
 
 
