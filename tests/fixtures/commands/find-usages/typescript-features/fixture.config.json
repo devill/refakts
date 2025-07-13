@@ -17,8 +17,7 @@
   {
     "id": "constructor-parameter",
     "description": "Find usages of constructor parameter property",
-    "command": "find-usages '[generics/service.ts 4:12-4:16]'",
-    "@skip": "Needs review"
+    "command": "find-usages '[generics/service.ts 5:12-5:16]'"
   },
   {
     "id": "method-override",
