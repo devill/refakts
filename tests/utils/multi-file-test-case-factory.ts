@@ -1,19 +1,5 @@
 import * as path from 'path';
-import { TestCase, FixtureTestCase, FixtureTestCaseConfig } from './test-case-loader';
-
-interface FilePaths {
-  expectedFile: string;
-  receivedFile: string;
-  expectedDir: string;
-}
-
-interface FixtureConfigParams {
-  config: any;
-  baseName: string;
-  testCaseId: string;
-  inputDir: string;
-  filePaths: FilePaths;
-}
+import {FixtureTestCase, TestCase} from './test-case-loader';
 
 export class MultiFileTestCaseFactory {
   createFromConfigFile(configFile: string): TestCase[] {
@@ -35,59 +21,6 @@ export class MultiFileTestCaseFactory {
   }
 
   private createTestCaseFromConfig(config: any, configDir: string): TestCase {
-    const testCaseId = config.id;
-    const baseName = path.basename(configDir);
-    const inputDir = path.join(configDir, 'input');
-    const filePaths = this.getFilePaths(configDir, testCaseId);
-    
-    const params: FixtureConfigParams = { config, baseName, testCaseId, inputDir, filePaths };
-    const fixtureConfig = this.buildFixtureConfig(params);
-    return FixtureTestCase.create(fixtureConfig);
-  }
-
-  private buildFixtureConfig(params: FixtureConfigParams): FixtureTestCaseConfig {
-    const { config, baseName, testCaseId, inputDir, filePaths } = params;
-    const skipValue = this.determineSkipValue(config);
-    return {
-      name: `${baseName}/${testCaseId}`,
-      description: config.description,
-      commands: [config.command],
-      inputFile: inputDir,
-      expectedFile: filePaths.expectedFile,
-      receivedFile: filePaths.receivedFile,
-      skip: skipValue,
-      projectDirectory: inputDir,
-      expectedDirectory: filePaths.expectedDir,
-      testCaseId
-    };
-  }
-
-  private determineSkipValue(config: any): boolean | string {
-    const skipValue = config.skip || config['@skip'];
-    
-    if (skipValue === true || skipValue === false || typeof skipValue === 'string') {
-      return skipValue;
-    }
-    return false;
-  }
-
-  private getFilePaths(configDir: string, testCaseId: string): FilePaths {
-    return {
-      expectedFile: this.getExpectedFilePath(configDir, testCaseId),
-      receivedFile: this.getReceivedFilePath(configDir, testCaseId),
-      expectedDir: this.getExpectedDirPath(configDir, testCaseId)
-    };
-  }
-
-  private getExpectedFilePath(configDir: string, testCaseId: string): string {
-    return path.join(configDir, `${testCaseId}.expected.ts`);
-  }
-
-  private getReceivedFilePath(configDir: string, testCaseId: string): string {
-    return path.join(configDir, `${testCaseId}.received.ts`);
-  }
-
-  private getExpectedDirPath(configDir: string, testCaseId: string): string {
-    return path.join(configDir, `${testCaseId}.expected`);
+    return FixtureTestCase.create(config, configDir);
   }
 }

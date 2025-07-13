@@ -2,48 +2,70 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-export interface FixtureTestCaseConfig {
-  name: string;
+export interface FixtureConfig {
+  id: string;
   description: string;
-  commands: string[];
-  inputFile: string;
-  expectedFile: string;
-  receivedFile: string;
+  command: string;
   skip?: boolean | string;
-  projectDirectory?: string;
-  expectedDirectory?: string;
-  testCaseId?: string;
+  '@skip'?: boolean | string;
 }
 
-export class FixtureTestCase {
+export class FixtureTestCase implements TestCase {
   constructor(
-    public name: string,
-    public description: string,
-    public commands: string[],
-    public inputFile: string,
-    public expectedFile: string,
-    public receivedFile: string,
-    public skip?: boolean | string,
-    public projectDirectory?: string,
-    public expectedDirectory?: string,
-    public testCaseId?: string
+    private config: FixtureConfig,
+    private configDir: string
   ) {}
 
-  static create(config: FixtureTestCaseConfig): FixtureTestCase {
-    const { name, description, commands, inputFile, expectedFile, receivedFile, skip, projectDirectory, expectedDirectory, testCaseId } = config;
-    return new FixtureTestCase(name, description, commands, inputFile, expectedFile, receivedFile, skip, projectDirectory, expectedDirectory, testCaseId);
+  static create(config: FixtureConfig, configDir: string): FixtureTestCase {
+    return new FixtureTestCase(config, configDir);
+  }
+
+  get name(): string {
+    return `${path.basename(this.configDir)}/${this.config.id}`;
+  }
+
+  get description(): string {
+    return this.config.description;
+  }
+
+  get commands(): string[] {
+    return [this.config.command];
+  }
+
+  get inputFile(): string {
+    return path.join(this.configDir, 'input');
+  }
+
+  get expectedFile(): string {
+    return path.join(this.configDir, `${this.config.id}.expected.out`);
+  }
+
+  get receivedFile(): string {
+    return path.join(this.configDir, `${this.config.id}.received.out`);
+  }
+
+  get skip(): boolean | string {
+    const skipValue = this.config.skip || this.config['@skip'];
+    if (typeof skipValue === 'string') {
+      return skipValue.trim();
+    }
+    return !!skipValue;
+  }
+
+  get projectDirectory(): string {
+    return this.inputFile;
+  }
+
+  get expectedDirectory(): string {
+    return path.join(this.configDir, `${this.config.id}.expected`);
+  }
+
+  get testCaseId(): string {
+    return this.config.id;
   }
 
   isMultiFile(): boolean {
     return !!this.projectDirectory;
-  }
-
-  isSingleFile(): boolean {
-    return !this.isMultiFile();
-  }
-
-  getWorkingDirectory(): string {
-    return this.projectDirectory || process.cwd();
   }
 
   writeReceivedFiles(outputs: any): { outFile: string; errFile: string } {
