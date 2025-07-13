@@ -1,39 +1,17 @@
 import { Node, SyntaxKind } from 'ts-morph';
 import { UsageType } from '../core/location-range';
 
-export class UsageTypeAnalyzer {
-  static determineUsageType(node: Node): UsageType {
-    const parent = node.getParent();
-    if (!parent) {
-      return 'read';
-    }
+interface UsageHandler {
+  canHandle(parent: Node): boolean;
+  handle(node: Node, parent: Node): UsageType;
+}
 
-    return this.analyzeParentContext(node, parent);
+class BinaryExpressionHandler implements UsageHandler {
+  canHandle(parent: Node): boolean {
+    return parent.getKind() === SyntaxKind.BinaryExpression;
   }
 
-  private static analyzeParentContext(node: Node, parent: Node): UsageType {
-    switch (parent.getKind()) {
-      case SyntaxKind.BinaryExpression:
-        return this.analyzeBinaryExpression(node, parent);
-      
-      case SyntaxKind.PostfixUnaryExpression:
-      case SyntaxKind.PrefixUnaryExpression:
-        return this.analyzeUnaryExpression(parent);
-      
-      case SyntaxKind.VariableDeclaration:
-        return 'write';
-      
-      case SyntaxKind.CallExpression:
-      case SyntaxKind.PropertyAccessExpression:
-      case SyntaxKind.ElementAccessExpression:
-        return 'read';
-      
-      default:
-        return 'read';
-    }
-  }
-
-  private static analyzeBinaryExpression(node: Node, parent: Node): UsageType {
+  handle(node: Node, parent: Node): UsageType {
     const binaryExpression = parent.asKindOrThrow(SyntaxKind.BinaryExpression);
     
     if (binaryExpression.getLeft() === node) {
@@ -43,7 +21,7 @@ export class UsageTypeAnalyzer {
     return 'read';
   }
 
-  private static isAssignmentOperator(binaryExpression: Node): boolean {
+  private isAssignmentOperator(binaryExpression: Node): boolean {
     const operatorToken = binaryExpression.asKindOrThrow(SyntaxKind.BinaryExpression).getOperatorToken();
     const assignmentOperators = [
       SyntaxKind.EqualsToken, SyntaxKind.PlusEqualsToken, SyntaxKind.MinusEqualsToken,
@@ -51,8 +29,15 @@ export class UsageTypeAnalyzer {
     ];
     return assignmentOperators.includes(operatorToken.getKind());
   }
+}
 
-  private static analyzeUnaryExpression(parent: Node): UsageType {
+class UnaryExpressionHandler implements UsageHandler {
+  canHandle(parent: Node): boolean {
+    return parent.getKind() === SyntaxKind.PostfixUnaryExpression || 
+           parent.getKind() === SyntaxKind.PrefixUnaryExpression;
+  }
+
+  handle(node: Node, parent: Node): UsageType {
     const postfixUnary = parent.asKind(SyntaxKind.PostfixUnaryExpression);
     const prefixUnary = parent.asKind(SyntaxKind.PrefixUnaryExpression);
     
@@ -67,7 +52,56 @@ export class UsageTypeAnalyzer {
     return 'read';
   }
 
-  private static isIncrementDecrementOperator(operator: SyntaxKind): boolean {
+  private isIncrementDecrementOperator(operator: SyntaxKind): boolean {
     return operator === SyntaxKind.PlusPlusToken || operator === SyntaxKind.MinusMinusToken;
+  }
+}
+
+class VariableDeclarationHandler implements UsageHandler {
+  canHandle(parent: Node): boolean {
+    return parent.getKind() === SyntaxKind.VariableDeclaration;
+  }
+
+  handle(_node: Node, _parent: Node): UsageType {
+    return 'write';
+  }
+}
+
+class ReadOnlyHandler implements UsageHandler {
+  canHandle(parent: Node): boolean {
+    const readOnlyKinds = [
+      SyntaxKind.CallExpression,
+      SyntaxKind.PropertyAccessExpression,
+      SyntaxKind.ElementAccessExpression
+    ];
+    return readOnlyKinds.includes(parent.getKind());
+  }
+
+  handle(_node: Node, _parent: Node): UsageType {
+    return 'read';
+  }
+}
+
+export class UsageTypeAnalyzer {
+  private static handlers: UsageHandler[] = [
+    new BinaryExpressionHandler(),
+    new UnaryExpressionHandler(),
+    new VariableDeclarationHandler(),
+    new ReadOnlyHandler()
+  ];
+
+  static determineUsageType(node: Node): UsageType {
+    const parent = node.getParent();
+    if (!parent) {
+      return 'read';
+    }
+
+    for (const handler of this.handlers) {
+      if (handler.canHandle(parent)) {
+        return handler.handle(node, parent);
+      }
+    }
+
+    return 'read';
   }
 }
