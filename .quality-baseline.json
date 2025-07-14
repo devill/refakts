@@ -47,18 +47,6 @@
       "functionSize"
     ]
   },
-  "src/quality-tools/checks/file-size-check.ts": {
-    "lastCommitId": "19044c32a45e48f850d2885176ae55ac8cf6ed3e",
-    "violations": [
-      "functionSize"
-    ]
-  },
-  "src/quality-tools/checks/function-size-check.ts": {
-    "lastCommitId": "19044c32a45e48f850d2885176ae55ac8cf6ed3e",
-    "violations": [
-      "functionSize"
-    ]
-  },
   "src/quality-tools/checks/git-diff-check.ts": {
     "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
     "violations": [

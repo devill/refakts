@@ -1,5 +1,13 @@
-import { QualityCheck, QualityIssue } from '../quality-check-interface';
-import { Project, SourceFile, FunctionDeclaration, MethodDeclaration, ClassDeclaration, ArrowFunction, Expression } from 'ts-morph';
+import {QualityCheck, QualityIssue} from '../quality-check-interface';
+import {
+  ArrowFunction,
+  ClassDeclaration,
+  Expression,
+  FunctionDeclaration,
+  MethodDeclaration,
+  Project,
+  SourceFile
+} from 'ts-morph';
 import * as path from 'path';
 import * as ts from 'typescript';
 
@@ -33,11 +41,9 @@ const extractFunctionElements = (sourceFile: SourceFile): { functions: FunctionD
 
 const createFunctionSizeIssues = (sourceFile: SourceFile): QualityIssue[] => {
   const filePath = path.relative(process.cwd(), sourceFile.getFilePath());
-  
   if (shouldSkipFile(filePath)) return [];
   
   const { functions, methods, arrowFunctions } = extractFunctionElements(sourceFile);
-  
   return [
     ...functions.map(func => createFunctionSizeIssue(filePath, func)),
     ...methods.map(func => createFunctionSizeIssue(filePath, func)),
@@ -45,15 +51,24 @@ const createFunctionSizeIssues = (sourceFile: SourceFile): QualityIssue[] => {
   ].filter(Boolean) as QualityIssue[];
 };
 
+function getLineCount(func: FunctionDeclaration | MethodDeclaration | ArrowFunction) {
+  return func.getEndLineNumber() - func.getStartLineNumber() + 1;
+}
+
+function getFunctionName(func: FunctionDeclaration | MethodDeclaration) {
+  return func.getName() || 'anonymous';
+}
+
+function getSeverity(func: FunctionDeclaration | MethodDeclaration) {
+  return getLineCount(func) > 12 ? 'critical' : null;
+}
+
 const createFunctionSizeIssue = (filePath: string, func: FunctionDeclaration | MethodDeclaration): QualityIssue | null => {
-  const lineCount = func.getEndLineNumber() - func.getStartLineNumber() + 1;
-  const functionName = func.getName() || 'anonymous';
-  const severity = lineCount > 12 ? 'critical' : null;
-  
+  const severity = getSeverity(func);
   return severity ? {
     type: 'functionSize',
-    severity,
-    message: `Function '${functionName}' has ${lineCount} lines`,
+    severity: severity,
+    message: `Function '${(getFunctionName(func))}' has ${(getLineCount(func))} lines`,
     file: filePath,
     line: func.getStartLineNumber()
   } : null;
@@ -61,14 +76,12 @@ const createFunctionSizeIssue = (filePath: string, func: FunctionDeclaration | M
 
 const createArrowFunctionSizeIssue = (filePath: string, func: ArrowFunction): QualityIssue | null => {
   if (isJestDescribeBlock(func)) return null;
-  
-  const lineCount = func.getEndLineNumber() - func.getStartLineNumber() + 1;
-  const severity = lineCount > 12 ? 'critical' : null;
-  
+
+  const severity = getLineCount(func) > 12 ? 'critical' : null;
   return severity ? {
     type: 'functionSize',
     severity,
-    message: `Anonymous arrow function has ${lineCount} lines`,
+    message: `Anonymous arrow function has ${(getLineCount(func))} lines`,
     file: filePath,
     line: func.getStartLineNumber()
   } : null;

@@ -83,6 +83,13 @@ npm run test:fixture:review <fixture_path>              # Review received files 
 - **Address root causes** - Look for code smells like repeated calls, excessive parameters, or unclear responsibilities
 - **Prefer classes over interfaces** A frequent cause of feature envy is an over reliance on interfaces when a class would be a better choice
 
+**Function Refactoring Philosophy:**
+- **Explaining methods > explaining variables** - Hide irrelevant complexity behind intention-revealing method names rather than cramming logic inline
+- **True single responsibility** - Each function should have ONE clear job. Mix responsibilities (e.g., issue creation + line counting) violates this principle
+- **Separate "what" from "how"** - Coordinate operations in one place, delegate implementation details to focused helper methods
+- **Optimize for readability first** - Write code that reveals intent clearly; optimize for performance later if needed
+- **Example pattern**: Instead of `const lineCount = func.getEndLineNumber() - func.getStartLineNumber() + 1`, use `getLineCount(func)` to hide the complexity
+
 ## Feature Roadmap 
 
 **This tool is for you - make it what you wished it already was.** RefakTS development is driven by AI agents who actually use the tool.
