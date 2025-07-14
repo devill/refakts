@@ -1,5 +1,5 @@
 import { QualityCheck, QualityIssue } from '../quality-check-interface';
-import { Project, SourceFile, FunctionDeclaration, MethodDeclaration, ClassDeclaration, ArrowFunction } from 'ts-morph';
+import { Project, SourceFile, FunctionDeclaration, MethodDeclaration, ClassDeclaration, ArrowFunction, Expression } from 'ts-morph';
 import * as path from 'path';
 import * as ts from 'typescript';
 
@@ -23,14 +23,20 @@ export const functionSizeCheck: QualityCheck = {
   }
 };
 
+const extractFunctionElements = (sourceFile: SourceFile): { functions: FunctionDeclaration[], methods: MethodDeclaration[], arrowFunctions: ArrowFunction[] } => {
+  const functions = sourceFile.getFunctions();
+  const methods = sourceFile.getClasses().flatMap((c: ClassDeclaration) => c.getMethods());
+  const arrowFunctions = sourceFile.getDescendantsOfKind(ts.SyntaxKind.ArrowFunction);
+  
+  return { functions, methods, arrowFunctions };
+};
+
 const createFunctionSizeIssues = (sourceFile: SourceFile): QualityIssue[] => {
   const filePath = path.relative(process.cwd(), sourceFile.getFilePath());
   
   if (shouldSkipFile(filePath)) return [];
   
-  const functions = sourceFile.getFunctions();
-  const methods = sourceFile.getClasses().flatMap((c: ClassDeclaration) => c.getMethods());
-  const arrowFunctions = sourceFile.getDescendantsOfKind(ts.SyntaxKind.ArrowFunction);
+  const { functions, methods, arrowFunctions } = extractFunctionElements(sourceFile);
   
   return [
     ...functions.map(func => createFunctionSizeIssue(filePath, func)),
@@ -68,20 +74,27 @@ const createArrowFunctionSizeIssue = (filePath: string, func: ArrowFunction): Qu
   } : null;
 };
 
+const isJestFunction = (identifier: string): boolean => {
+  return identifier === 'describe' || identifier === 'it' || identifier === 'test';
+};
+
+const getIdentifierFromExpression = (expression: Expression): string | null => {
+  if (expression.getKind() === ts.SyntaxKind.Identifier) {
+    const identifier = expression.asKindOrThrow(ts.SyntaxKind.Identifier);
+    return identifier.getText();
+  }
+  return null;
+};
+
 const isJestDescribeBlock = (func: ArrowFunction): boolean => {
   const parent = func.getParent();
   if (!parent || parent.getKind() !== ts.SyntaxKind.CallExpression) return false;
   
   const callExpr = parent.asKindOrThrow(ts.SyntaxKind.CallExpression);
   const expression = callExpr.getExpression();
+  const identifierText = getIdentifierFromExpression(expression);
   
-  if (expression.getKind() === ts.SyntaxKind.Identifier) {
-    const identifier = expression.asKindOrThrow(ts.SyntaxKind.Identifier);
-    const text = identifier.getText();
-    return text === 'describe' || text === 'it' || text === 'test';
-  }
-  
-  return false;
+  return identifierText ? isJestFunction(identifierText) : false;
 };
 
 const shouldSkipFile = (filePath: string): boolean =>
