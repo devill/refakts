@@ -33,7 +33,7 @@ const createFileSizeIssue = (sourceFile: SourceFile): QualityIssue | null => {
   if (shouldSkipFile(filePath)) return null;
   
   const lineCount = sourceFile.getEndLineNumber();
-  const severity = lineCount > 300 ? 'critical' : lineCount > 200 ? 'warn' : null;
+  const severity = lineCount > 200 ? 'critical' : null;
   
   return severity ? {
     type: 'fileSize',
@@ -44,4 +44,4 @@ const createFileSizeIssue = (sourceFile: SourceFile): QualityIssue | null => {
 };
 
 const shouldSkipFile = (filePath: string): boolean =>
-  filePath.includes('.test.') || filePath.includes('.spec.') || filePath.endsWith('.d.ts');
+   filePath.endsWith('.d.ts');

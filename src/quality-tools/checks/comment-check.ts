@@ -67,4 +67,4 @@ const truncateText = (text: string): string =>
   text.length > 50 ? text.substring(0, 50) + '...' : text;
 
 const shouldSkipFile = (filePath: string): boolean =>
-  filePath.includes('.test.') || filePath.includes('.spec.') || filePath.endsWith('.d.ts') || filePath.includes('/fixtures/');
+    filePath.endsWith('.d.ts') || filePath.includes('/fixtures/');

@@ -43,7 +43,7 @@ const createFunctionSizeIssues = (sourceFile: SourceFile): QualityIssue[] => {
 const createFunctionSizeIssue = (filePath: string, func: FunctionDeclaration | MethodDeclaration): QualityIssue | null => {
   const lineCount = func.getEndLineNumber() - func.getStartLineNumber() + 1;
   const functionName = func.getName() || 'anonymous';
-  const severity = lineCount > 12 ? 'critical' : lineCount > 10 ? 'warn' : null;
+  const severity = lineCount > 12 ? 'critical' : null;
   
   return severity ? {
     type: 'functionSize',
