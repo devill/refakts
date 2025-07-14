@@ -1,0 +1,1 @@
+Error: Moving src/modules/a.ts to src/modules/b/a.ts would create circular dependency with src/modules/b/b.ts

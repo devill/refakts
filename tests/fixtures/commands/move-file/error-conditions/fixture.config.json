@@ -1,0 +1,26 @@
+[
+  {
+    "id": "source-file-not-found",
+    "description": "Attempt to move non-existent file",
+    "command": "move-file src/non-existent.ts src/moved.ts",
+    "skip": "Command not implemented"
+  },
+  {
+    "id": "invalid-destination-path",
+    "description": "Move file to malformed destination path",
+    "command": "move-file src/utils/helper.ts ./../../invalid/path.ts",
+    "skip": "Command not implemented"
+  },
+  {
+    "id": "syntax-error-in-source",
+    "description": "Move file with TypeScript syntax errors",
+    "command": "move-file src/broken.ts src/fixed/broken.ts",
+    "skip": "Command not implemented"
+  },
+  {
+    "id": "circular-move-conflict",
+    "description": "Move that would create circular dependency",
+    "command": "move-file src/modules/a.ts src/modules/b/a.ts",
+    "skip": "Command not implemented"
+  }
+]

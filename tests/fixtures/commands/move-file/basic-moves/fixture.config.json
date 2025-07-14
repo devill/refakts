@@ -1,0 +1,26 @@
+[
+  {
+    "id": "simple-file-move",
+    "description": "Move a single utility file from utils/ to helpers/",
+    "command": "move-file utils/math.ts helpers/math.ts",
+    "skip": "Command not implemented"
+  },
+  {
+    "id": "multiple-exports-move",
+    "description": "Move a file containing multiple exported functions",
+    "command": "move-file utils/string-utils.ts lib/string-utils.ts",
+    "skip": "Command not implemented"
+  },
+  {
+    "id": "default-export-move",
+    "description": "Move a file with default export pattern",
+    "command": "move-file components/button.ts ui/button.ts",
+    "skip": "Command not implemented"
+  },
+  {
+    "id": "mixed-exports-move",
+    "description": "Move a file with both named and default exports",
+    "command": "move-file services/api.ts core/api.ts",
+    "skip": "Command not implemented"
+  }
+]
