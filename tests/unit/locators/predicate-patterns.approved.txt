@@ -1,0 +1,3 @@
+Explicit boolean: FOUND
+Direct comparison: FOUND
+Complex condition: FOUND

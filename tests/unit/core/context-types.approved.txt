@@ -1,0 +1,5 @@
+x at position 0: read
+x at position 2: read
+x at position 3: write
+x at position 4: update
+x at position 7: read

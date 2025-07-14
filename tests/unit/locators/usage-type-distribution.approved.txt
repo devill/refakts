@@ -1,0 +1,5 @@
+{
+  "read": 4,
+  "write": 1,
+  "update": 2
+}

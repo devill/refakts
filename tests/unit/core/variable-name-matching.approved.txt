@@ -1,0 +1,4 @@
+let simpleVar = 5; - simpleVar: FAIL
+let simpleVar = 5; - wrongName: IDENTIFIER_NOT_FOUND
+function myFunction() {} - myFunction: FAIL
+const [a, b] = array; - a: FAIL
