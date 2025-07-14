@@ -131,7 +131,6 @@ describe('NodeAssignmentAnalyzer', () => {
       testCases.forEach((code, index) => {
         const sourceFile = project.createSourceFile(`test-usage-${index}.ts`, code);
         const identifiers = sourceFile.getDescendantsOfKind(ts.SyntaxKind.Identifier);
-        // Get the identifier that's being used (not declared)
         const usageIdentifier = identifiers[identifiers.length - 1];
         
         const usageType = NodeAssignmentAnalyzer.determineUsageType(usageIdentifier);
@@ -159,7 +158,6 @@ describe('NodeAssignmentAnalyzer', () => {
 
   describe('edge cases', () => {
     it('handles malformed assignments gracefully', () => {
-      // Test with incomplete assignment expressions
       const sourceFile = project.createSourceFile('test.ts', 'let x; x');
       const identifier = sourceFile.getDescendantsOfKind(ts.SyntaxKind.Identifier)[1];
       

@@ -1,4 +1,4 @@
-let x; x++;: true
-let x; ++x;: true
-let x; x += 5;: true
-let x; x -= 3;: true
+x++: true
+++x: true
+x += 5: false
+x -= 3: false

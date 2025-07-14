@@ -108,14 +108,6 @@
       "comment"
     ]
   },
-  "tests/unit/core/node-context.test.ts": {
-    "lastCommitId": "24c031325fd7d3c99a07f28b8c788ed3052ff6e4",
-    "violations": [
-      "comment",
-      "fileSize",
-      "functionSize"
-    ]
-  },
   "tests/unit/documentation/help-parser.test.ts": {
     "lastCommitId": "86bb345942fe8286dfd2451aeeb4688d858dc625",
     "violations": [
@@ -126,20 +118,6 @@
     "lastCommitId": "86bb345942fe8286dfd2451aeeb4688d858dc625",
     "violations": [
       "comment"
-    ]
-  },
-  "tests/unit/locators/source-file-helper.test.ts": {
-    "lastCommitId": "24c031325fd7d3c99a07f28b8c788ed3052ff6e4",
-    "violations": [
-      "comment",
-      "fileSize"
-    ]
-  },
-  "tests/unit/locators/variable-result-builder.test.ts": {
-    "lastCommitId": "24c031325fd7d3c99a07f28b8c788ed3052ff6e4",
-    "violations": [
-      "comment",
-      "fileSize"
     ]
   },
   "tests/unit/services/statement-inserter.test.ts": {
@@ -161,12 +139,6 @@
     "violations": [
       "comment",
       "fileSize"
-    ]
-  },
-  "tests/unit/locators/services/node-assignment-analyzer.test.ts": {
-    "lastCommitId": "9b4e45f84db60197ee70fedccf738b8fe3ae4449",
-    "violations": [
-      "comment"
     ]
   },
   "tests/unit/locators/services/node-scope-analyzer.test.ts": {
