@@ -53,12 +53,6 @@
       "functionSize"
     ]
   },
-  "src/quality-tools/checks/linter-check.ts": {
-    "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
-    "violations": [
-      "functionSize"
-    ]
-  },
   "src/roadmap/roadmap-service.ts": {
     "lastCommitId": "1f7beb997ee03de710aa7746a607c94e16e834b2",
     "violations": [

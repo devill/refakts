@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-import { setupProject, setupBuilder, loadFixtureAndExtractVariable } from './variable-result-builder-setup';
+import { setupProject, setupBuilder, loadFixture, extractVariableFromSourceFile } from './variable-result-builder-setup';
 
 describe('VariableResultBuilder - Formatting', () => {
   let project: ReturnType<typeof setupProject>;
@@ -12,13 +12,13 @@ describe('VariableResultBuilder - Formatting', () => {
 
   describe('formatAsLocationStrings', () => {
     it('formats declaration and usages as location strings', () => {
-      const { declaration, usages } = loadFixtureAndExtractVariable(project, 'simple-variable.fixture.ts', 'test8.ts', 'myVar');
+      const { declaration, usages } = extractVariableFromSourceFile(loadFixture(project, 'simple-variable.fixture.ts'), 'myVar');
       
       const result = builder.buildLocationResult('myVar', declaration, usages);
       const formatted = result.formatAsLocationStrings();
       
       expect(formatted).toHaveLength(3);
-      expect(formatted.every(str => str.includes('test8.ts'))).toBe(true);
+      expect(formatted.every(str => str.includes('simple-variable.fixture.ts'))).toBe(true);
       expect(formatted.some(str => str.includes('myVar'))).toBe(true);
     });
 

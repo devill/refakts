@@ -1,6 +1,6 @@
-import { QualityCheck, QualityIssue, QualityGroup } from '../quality-check-interface';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import {QualityCheck, QualityGroup, QualityIssue} from '../quality-check-interface';
+import {exec} from 'child_process';
+import {promisify} from 'util';
 
 const execAsync = promisify(exec);
 
@@ -142,11 +142,9 @@ async function checkLinterFiles(files: string[]): Promise<QualityIssue[]> {
   if (shouldSkipLinting(files)) {
     return [];
   }
-  
-  const filteredFiles = filterNonFixtureFiles(files);
-  
+
   try {
-    return await runEslintForFiles(filteredFiles);
+    return await runEslintForFiles(filterNonFixtureFiles(files));
   } catch (error) {
     return await handleLinterError(error as Error);
   }

@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-import { setupProject, setupBuilder, loadFixtureAndExtractVariable, expectUsageTypes } from './variable-result-builder-setup';
+import { setupProject, setupBuilder, expectUsageTypes, loadFixture, extractVariableFromSourceFile } from './variable-result-builder-setup';
 
 describe('VariableResultBuilder - Basic Operations', () => {
   let project: ReturnType<typeof setupProject>;
@@ -12,7 +12,7 @@ describe('VariableResultBuilder - Basic Operations', () => {
 
   describe('buildLocationResult', () => {
     it('builds result with declaration and usages', () => {
-      const { declaration, usages } = loadFixtureAndExtractVariable(project, 'simple-variable.fixture.ts', 'test.ts', 'myVar');
+      const { declaration, usages } = extractVariableFromSourceFile(loadFixture(project, 'simple-variable.fixture.ts'), 'myVar');
       
       const result = builder.buildLocationResult('myVar', declaration, usages);
       
@@ -35,7 +35,7 @@ describe('VariableResultBuilder - Basic Operations', () => {
     });
 
     it('correctly assigns usage types', () => {
-      const { declaration, usages } = loadFixtureAndExtractVariable(project, 'variable-usage-mixed.fixture.ts', 'test2.ts', 'x');
+      const { declaration, usages } = extractVariableFromSourceFile(loadFixture(project, 'variable-usage-mixed.fixture.ts'), 'x');
       
       const result = builder.buildLocationResult('x', declaration, usages);
       
