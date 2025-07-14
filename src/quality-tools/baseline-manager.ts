@@ -48,7 +48,7 @@ export const saveBaseline = (baseline: QualityBaseline): void => {
 export const generateBaseline = (issues: QualityIssue[]): QualityBaseline => {
   const baseline: QualityBaseline = {};
   
-  const blacklistedTypes = ['manyParameters', 'featureEnvy'];
+  const blacklistedTypes = ['manyParameters', 'featureEnvy', 'fileSize', 'functionSize', 'comment'];
   const relevantIssues = issues.filter(issue => blacklistedTypes.includes(issue.type));
   
   const fileViolations = new Map<string, Set<string>>();
@@ -100,7 +100,7 @@ export const shouldFilterViolation = (issue: QualityIssue, baseline: QualityBase
 
 export const cleanupResolvedFiles = (allIssues: QualityIssue[]): void => {
   const baseline = loadBaseline();
-  const blacklistedTypes = ['manyParameters', 'featureEnvy'];
+  const blacklistedTypes = ['manyParameters', 'featureEnvy', 'fileSize', 'functionSize', 'comment'];
   
   const currentViolations = new Map<string, Set<string>>();
   

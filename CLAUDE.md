@@ -183,6 +183,45 @@ verify(__dirname, 'test-name', result, { reporters: ['donothing'] });
 - **Jest expectations**: When testing behavior, return values, object properties, or method calls
 - **Fixtures**: When testing complete command workflows end-to-end
 
+### Test Quality Guidelines
+
+**Keep test functions focused and under 12 lines.** Use these strategies to manage test complexity:
+
+**Custom Expectations**:
+```typescript
+// Instead of verbose inline expectations
+expect(() => command.validateOptions(finalOptions)).not.toThrow();
+
+// Create custom expectations
+expectProvidedLocationToBeAccepted(finalOptions);
+```
+
+**Object Testing with Approvals**:
+```typescript
+// Instead of multiple field expectations
+expect(result.field1).toBe('value1');
+expect(result.field2).toBe('value2');
+expect(result.field3).toBe('value3');
+
+// Use approvals for complete object validation
+verify(__dirname, 'result-validation', result, { reporters: ['donothing'] });
+```
+
+**External Test Data Files**:
+- **Commit well-named input files** next to test files instead of creating temporary files in tests
+- **Use meaningful names** that describe the test scenario
+- **Load files in setup** when needed across multiple test cases
+
+**Test Organization**:
+- **Use setup functions** to create objects needed in multiple test cases
+- **Use data providers** when multiple test cases have similar structures
+- **Split large test files** into multiple focused files when even refactoring can't reduce complexity
+- **Group tests meaningfully** by the functionality being tested
+
+**Quality Management**:
+- **Use `npm run quality:baseline:generate`** to snooze existing violations when there are too many to fix immediately
+- **Address quality issues** when files are modified rather than in bulk cleanup sessions
+
 ## Development Workflow
 
 Use the STARTER_CHARACTER at the start of the line to indicate your workflow state

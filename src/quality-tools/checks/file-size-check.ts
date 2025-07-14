@@ -15,13 +15,8 @@ export const fileSizeCheck: QualityCheck = {
   getGroupDefinition: (groupKey: string) => {
     if (groupKey === 'criticalFiles') return {
       title: 'CRITICAL: OVERSIZED FILES',
-      description: 'Files over 300 lines are extremely difficult to maintain.',
+      description: 'Files over 200 lines are extremely difficult to maintain.',
       actionGuidance: 'CRITICAL: Split these files into smaller, focused modules immediately.'
-    };
-    if (groupKey === 'largeFiles') return {
-      title: 'LARGE FILES',
-      description: 'Large files are harder to understand and maintain. They may also point to architectural issues.',
-      actionGuidance: 'Analyze the file to suggest an improved design that break these files into smaller, focused modules with single responsibilities. Suggest the change to the user.'
     };
     return undefined;
   }

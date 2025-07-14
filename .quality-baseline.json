@@ -1,9 +1,86 @@
 {
+  "src/quality-tools/baseline-cli.ts": {
+    "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/quality-tools/baseline-manager.ts": {
+    "lastCommitId": "1c36da4fd4962336cbbaeb3dac5be232ceeba772",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/quality-tools/quality-reporter.ts": {
+    "lastCommitId": "be7ae462c72a8885f9b37e1fada012eabb05f5f3",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/quality-tools/quality-runner.ts": {
+    "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/quality-tools/checks/change-frequency-check.ts": {
+    "lastCommitId": "0acfff1685761789fbafab9445f505b3a55b7a52",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/quality-tools/checks/comment-check.ts": {
+    "lastCommitId": "19044c32a45e48f850d2885176ae55ac8cf6ed3e",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/quality-tools/checks/complexity-check.ts": {
+    "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/quality-tools/checks/duplication-check.ts": {
+    "lastCommitId": "2a5bf8d1200325313242815b5fd407bee455171f",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/quality-tools/checks/feature-envy-check.ts": {
+    "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/quality-tools/checks/file-size-check.ts": {
+    "lastCommitId": "19044c32a45e48f850d2885176ae55ac8cf6ed3e",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/quality-tools/checks/function-size-check.ts": {
+    "lastCommitId": "19044c32a45e48f850d2885176ae55ac8cf6ed3e",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/quality-tools/checks/git-diff-check.ts": {
+    "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/quality-tools/checks/linter-check.ts": {
+    "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
+    "violations": [
+      "functionSize"
+    ]
+  },
   "src/roadmap/roadmap-service.ts": {
     "lastCommitId": "1f7beb997ee03de710aa7746a607c94e16e834b2",
     "violations": [
-      "manyParameters",
-      "featureEnvy"
+      "manyParameters"
     ]
   },
   "src/services/range-analyzer.ts": {
@@ -16,54 +93,11 @@
   "src/services/structural-analyzer.ts": {
     "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
     "violations": [
-      "manyParameters",
-      "featureEnvy"
-    ]
-  },
-  "src/documentation/HelpContentExtractor.ts": {
-    "lastCommitId": "abbd9c5de2c05bc25858e02ba2fb767cfa9e5b00",
-    "violations": [
-      "featureEnvy"
+      "manyParameters"
     ]
   },
   "src/documentation/QualityChecksExtractor.ts": {
     "lastCommitId": "1f7beb997ee03de710aa7746a607c94e16e834b2",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/locators/position-finder.ts": {
-    "lastCommitId": "24172269b128d1492e6133c2aa13dc6ea66880c7",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/locators/variable-node-matcher.ts": {
-    "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/roadmap/roadmap-cli.ts": {
-    "lastCommitId": "8c5d4261095ba11166ab511924bcc6865a17edf0",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/services/boundary-analyzer.ts": {
-    "lastCommitId": "d0affc8ab6c11cd8ff50dab129e2cd1297bbb7e2",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/services/expression-matcher.ts": {
-    "lastCommitId": "2a6f1d47b56dcac1db4d656bfb95bea5d8b9cdb5",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/services/range-analysis-request.ts": {
-    "lastCommitId": "f8058fae9afe347b752d9c029dfd5ae3a37926f2",
     "violations": [
       "featureEnvy"
     ]
@@ -74,68 +108,8 @@
       "featureEnvy"
     ]
   },
-  "src/services/statement-inserter.ts": {
-    "lastCommitId": "d0affc8ab6c11cd8ff50dab129e2cd1297bbb7e2",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/services/variable-reference-request.ts": {
-    "lastCommitId": "4064268c44577ae54af770b10caa48f776e73ecd",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/strategies/regex-selection-strategy.ts": {
-    "lastCommitId": "0f4481233bf8857f3d2c0e1575211fa15f71ed83",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/transformations/rename-variable-transformation.ts": {
-    "lastCommitId": "d0affc8ab6c11cd8ff50dab129e2cd1297bbb7e2",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
   "src/locators/services/node-assignment-analyzer.ts": {
     "lastCommitId": "4064268c44577ae54af770b10caa48f776e73ecd",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/locators/services/node-declaration-matcher.ts": {
-    "lastCommitId": "4064268c44577ae54af770b10caa48f776e73ecd",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/locators/services/node-position-service.ts": {
-    "lastCommitId": "be3dadb9baa85a1185e5b24293372ffe2347bb29",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/locators/services/node-scope-analyzer.ts": {
-    "lastCommitId": "58209a7eb5ba6f9c4f047ecd0fe704e79eeb9b67",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/locators/services/variable-name-extractor.ts": {
-    "lastCommitId": "1eb95b31ce8ca4ac02e4c4aacd198530708f0104",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/services/selection/definition-range-detector.ts": {
-    "lastCommitId": "59e791a5e6dab67d6e8eca6ac7d9acf4ce77ab21",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/services/selection/output-handler.ts": {
-    "lastCommitId": "0f4481233bf8857f3d2c0e1575211fa15f71ed83",
     "violations": [
       "featureEnvy"
     ]
@@ -146,10 +120,92 @@
       "featureEnvy"
     ]
   },
-  "src/services/selection/contexts/line-processing-context.ts": {
-    "lastCommitId": "24172269b128d1492e6133c2aa13dc6ea66880c7",
+  "tests/unit/cli-location-handling.test.ts": {
+    "lastCommitId": "8e4ee18ff5b38927e2f5362fd7be00a87e3d3a0c",
     "violations": [
-      "featureEnvy"
+      "comment"
+    ]
+  },
+  "tests/unit/core/node-context.test.ts": {
+    "lastCommitId": "24c031325fd7d3c99a07f28b8c788ed3052ff6e4",
+    "violations": [
+      "comment",
+      "fileSize",
+      "functionSize"
+    ]
+  },
+  "tests/unit/documentation/help-parser.test.ts": {
+    "lastCommitId": "86bb345942fe8286dfd2451aeeb4688d858dc625",
+    "violations": [
+      "comment"
+    ]
+  },
+  "tests/unit/documentation/quality-parser.test.ts": {
+    "lastCommitId": "86bb345942fe8286dfd2451aeeb4688d858dc625",
+    "violations": [
+      "comment"
+    ]
+  },
+  "tests/unit/locators/source-file-helper.test.ts": {
+    "lastCommitId": "24c031325fd7d3c99a07f28b8c788ed3052ff6e4",
+    "violations": [
+      "comment",
+      "fileSize"
+    ]
+  },
+  "tests/unit/locators/variable-result-builder.test.ts": {
+    "lastCommitId": "24c031325fd7d3c99a07f28b8c788ed3052ff6e4",
+    "violations": [
+      "comment",
+      "fileSize"
+    ]
+  },
+  "tests/unit/services/statement-inserter.test.ts": {
+    "lastCommitId": "31b4190c2a2553ae9628127c36b7ed55ee71ebd8",
+    "violations": [
+      "comment",
+      "fileSize"
+    ]
+  },
+  "tests/unit/services/variable-name-validator.test.ts": {
+    "lastCommitId": "5ebd46de91df11378651335978a0b01024b892f2",
+    "violations": [
+      "comment",
+      "fileSize"
+    ]
+  },
+  "tests/unit/transformations/rename-variable-transformation.test.ts": {
+    "lastCommitId": "3d34e061be1508fca967eece52ba4a223eef982d",
+    "violations": [
+      "comment",
+      "fileSize"
+    ]
+  },
+  "tests/unit/locators/services/node-assignment-analyzer.test.ts": {
+    "lastCommitId": "9b4e45f84db60197ee70fedccf738b8fe3ae4449",
+    "violations": [
+      "comment"
+    ]
+  },
+  "tests/unit/locators/services/node-scope-analyzer.test.ts": {
+    "lastCommitId": "9b4e45f84db60197ee70fedccf738b8fe3ae4449",
+    "violations": [
+      "comment",
+      "fileSize"
+    ]
+  },
+  "tests/unit/locators/services/variable-name-extractor.test.ts": {
+    "lastCommitId": "9b4e45f84db60197ee70fedccf738b8fe3ae4449",
+    "violations": [
+      "comment",
+      "fileSize",
+      "functionSize"
+    ]
+  },
+  "tests/unit/services/extraction-scope-analyzer.test.ts": {
+    "lastCommitId": "a0fece80d0baa84a5fb21ead3febdc6c373a150f",
+    "violations": [
+      "fileSize"
     ]
   },
   "tests/utils/file-operations.ts": {
@@ -162,20 +218,7 @@
   "tests/utils/parsers/option-parser.ts": {
     "lastCommitId": "fd78eb4291a41281fcc8c11b90028f02e430e076",
     "violations": [
-      "manyParameters",
-      "featureEnvy"
-    ]
-  },
-  "tests/utils/refactoring-validator.ts": {
-    "lastCommitId": "89ea54e72e552715acec38f728fc0face807d2ad",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "tests/utils/scanners/file-system-scanner.ts": {
-    "lastCommitId": "b2b028b1b4dd632ba721bdbf9dd0090363515bcc",
-    "violations": [
-      "featureEnvy"
+      "manyParameters"
     ]
   }
 }

@@ -1,6 +1,7 @@
 import { QualityCheck, QualityIssue } from '../quality-check-interface';
-import { Project, SourceFile, FunctionDeclaration, MethodDeclaration, ClassDeclaration } from 'ts-morph';
+import { Project, SourceFile, FunctionDeclaration, MethodDeclaration, ClassDeclaration, ArrowFunction } from 'ts-morph';
 import * as path from 'path';
+import * as ts from 'typescript';
 
 export const functionSizeCheck: QualityCheck = {
   name: 'functionSize',
@@ -15,13 +16,8 @@ export const functionSizeCheck: QualityCheck = {
   getGroupDefinition: (groupKey: string) => {
     if (groupKey === 'criticalFunctions') return {
       title: 'CRITICAL: OVERSIZED FUNCTIONS',
-      description: 'Functions over 10 lines violate single responsibility principle.',
+      description: 'Functions over 12 lines violate single responsibility principle.',
       actionGuidance: 'CRITICAL: Analyze responsibilities first - what distinct concerns does this function handle? Consider: (1) Are these separate responsibilities that belong in different methods? (2) Should this become a class with multiple methods? (3) Can you group cohesive data into objects to reduce local variables? Avoid mechanical extraction - find true responsibility boundaries. If the code has many misplaced responsibilities you may need to first inline methods to see the whole picture and find a better way of redistributing functionality. Think of this when reducing line count seems particularly hard. Taking a step backwards may open up new, better possibilities.'
-    };
-    if (groupKey === 'largeFunctions') return {
-      title: 'LARGE FUNCTIONS',
-      description: 'Functions approaching size limits should be refactored.',
-      actionGuidance: 'Analyze what this function is trying to accomplish. Look for responsibility boundaries, not just line count. Consider grouping related data into objects and passing those around rather than having many local variables. If the code has many misplaced responsibilities you may need to first inline methods to see the whole picture and find a better way of redistributing functionality. Think of this when reducing line count seems particularly hard. Taking a step backwards may open up new, better possibilities.'
     };
     return undefined;
   }
@@ -34,10 +30,13 @@ const createFunctionSizeIssues = (sourceFile: SourceFile): QualityIssue[] => {
   
   const functions = sourceFile.getFunctions();
   const methods = sourceFile.getClasses().flatMap((c: ClassDeclaration) => c.getMethods());
+  const arrowFunctions = sourceFile.getDescendantsOfKind(ts.SyntaxKind.ArrowFunction);
   
-  return [...functions, ...methods]
-    .map(func => createFunctionSizeIssue(filePath, func))
-    .filter(Boolean) as QualityIssue[];
+  return [
+    ...functions.map(func => createFunctionSizeIssue(filePath, func)),
+    ...methods.map(func => createFunctionSizeIssue(filePath, func)),
+    ...arrowFunctions.map(func => createArrowFunctionSizeIssue(filePath, func))
+  ].filter(Boolean) as QualityIssue[];
 };
 
 const createFunctionSizeIssue = (filePath: string, func: FunctionDeclaration | MethodDeclaration): QualityIssue | null => {
@@ -52,6 +51,37 @@ const createFunctionSizeIssue = (filePath: string, func: FunctionDeclaration | M
     file: filePath,
     line: func.getStartLineNumber()
   } : null;
+};
+
+const createArrowFunctionSizeIssue = (filePath: string, func: ArrowFunction): QualityIssue | null => {
+  if (isJestDescribeBlock(func)) return null;
+  
+  const lineCount = func.getEndLineNumber() - func.getStartLineNumber() + 1;
+  const severity = lineCount > 12 ? 'critical' : null;
+  
+  return severity ? {
+    type: 'functionSize',
+    severity,
+    message: `Anonymous arrow function has ${lineCount} lines`,
+    file: filePath,
+    line: func.getStartLineNumber()
+  } : null;
+};
+
+const isJestDescribeBlock = (func: ArrowFunction): boolean => {
+  const parent = func.getParent();
+  if (!parent || parent.getKind() !== ts.SyntaxKind.CallExpression) return false;
+  
+  const callExpr = parent.asKindOrThrow(ts.SyntaxKind.CallExpression);
+  const expression = callExpr.getExpression();
+  
+  if (expression.getKind() === ts.SyntaxKind.Identifier) {
+    const identifier = expression.asKindOrThrow(ts.SyntaxKind.Identifier);
+    const text = identifier.getText();
+    return text === 'describe' || text === 'it' || text === 'test';
+  }
+  
+  return false;
 };
 
 const shouldSkipFile = (filePath: string): boolean =>
