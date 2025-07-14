@@ -7,6 +7,6 @@ export const resolveGlobPatterns = async (patterns: string[]): Promise<string[]>
   );
   const uniqueFiles = [...new Set(allFiles.flat())];
   return uniqueFiles.filter(file => 
-    fs.existsSync(file) && file.endsWith('.ts')
+    fs.existsSync(file) && file.endsWith('.ts') && !file.endsWith('.fixture.ts')
   );
 };

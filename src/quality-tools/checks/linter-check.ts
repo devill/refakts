@@ -75,7 +75,11 @@ export const linterCheck: QualityCheck = {
     }
     
     try {
-      const fileArgs = files.map(f => `'${f}'`).join(' ');
+      const filteredFiles = files.filter(file => !file.endsWith('.fixture.ts'));
+      if (filteredFiles.length === 0) {
+        return [];
+      }
+      const fileArgs = filteredFiles.map(f => `'${f}'`).join(' ');
       const { stdout, stderr } = await execAsync(`npx eslint ${fileArgs} --format json --no-warn-ignored`);
       
       if (stderr && !stderr.includes('warning')) {
@@ -90,7 +94,7 @@ export const linterCheck: QualityCheck = {
     } catch (error) {
       if (error instanceof Error && error.message.includes('Command failed')) {
         try {
-          const { stdout } = await execAsync('npx eslint src tests/integration tests/utils tests/unit --ext .ts --format json').catch(err => ({ stdout: err.stdout }));
+          const { stdout } = await execAsync('npx eslint src tests/integration tests/utils tests/unit --ext .ts --ignore-pattern "**/*.fixture.ts" --format json').catch(err => ({ stdout: err.stdout }));
           
           if (stdout) {
             return parseEslintResults(stdout);

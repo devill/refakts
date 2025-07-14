@@ -10,6 +10,35 @@ describe('NodeAssignmentAnalyzer', () => {
     project = new Project();
   });
 
+  function testCompoundAssignmentOperators(operators: string[]) {
+    const results: string[] = [];
+    
+    operators.forEach(op => {
+      try {
+        const sourceFile = project.createSourceFile(`test-${op}.ts`, `let x; x ${op} 5;`);
+        const assignment = sourceFile.getDescendantsOfKind(ts.SyntaxKind.BinaryExpression)[0];
+        const identifier = assignment.getLeft();
+        
+        const result = NodeAssignmentAnalyzer.isUpdateContext(assignment, identifier);
+        results.push(`${op}: ${result}`);
+      } catch (error) {
+        results.push(`${op}: error - ${error instanceof Error ? error.message : 'unknown'}`);
+      }
+    });
+    
+    return results;
+  }
+
+  function testUndefinedParent(analyzerMethod: (_parent: any, _node: any) => boolean) {
+    const sourceFile = project.createSourceFile('test.ts', 'let x;');
+    const identifier = sourceFile.getDescendantsOfKind(ts.SyntaxKind.Identifier)[0];
+    
+    const result = analyzerMethod(undefined, identifier);
+    
+    expect(result).toBe(false);
+  }
+
+
   describe('isAssignmentContext', () => {
     it('detects binary assignment context', () => {
       const sourceFile = project.createSourceFile('test.ts', 'let x; x = 5;');
@@ -32,12 +61,7 @@ describe('NodeAssignmentAnalyzer', () => {
     });
 
     it('returns false when parent is undefined', () => {
-      const sourceFile = project.createSourceFile('test.ts', 'let x;');
-      const identifier = sourceFile.getDescendantsOfKind(ts.SyntaxKind.Identifier)[0];
-      
-      const result = NodeAssignmentAnalyzer.isAssignmentContext(undefined, identifier);
-      
-      expect(result).toBe(false);
+      testUndefinedParent(NodeAssignmentAnalyzer.isAssignmentContext);
     });
 
     it('returns false when node is not left side of assignment', () => {
@@ -73,18 +97,7 @@ describe('NodeAssignmentAnalyzer', () => {
     });
 
     it('detects compound assignment operators', () => {
-      const testCases = ['+=', '-=', '*=', '/='];
-      const results: string[] = [];
-      
-      testCases.forEach(op => {
-        const sourceFile = project.createSourceFile(`test-${op}.ts`, `let x; x ${op} 5;`);
-        const assignment = sourceFile.getDescendantsOfKind(ts.SyntaxKind.BinaryExpression)[0];
-        const identifier = assignment.getLeft();
-        
-        const result = NodeAssignmentAnalyzer.isUpdateContext(assignment, identifier);
-        results.push(`${op}: ${result}`);
-      });
-      
+      const results = testCompoundAssignmentOperators(['+=', '-=', '*=', '/=']);
       verify(__dirname, 'compound-assignment-detection', results.join('\n'), { reporters: ['donothing'] });
     });
 
@@ -99,12 +112,7 @@ describe('NodeAssignmentAnalyzer', () => {
     });
 
     it('returns false when parent is undefined', () => {
-      const sourceFile = project.createSourceFile('test.ts', 'let x;');
-      const identifier = sourceFile.getDescendantsOfKind(ts.SyntaxKind.Identifier)[0];
-      
-      const result = NodeAssignmentAnalyzer.isUpdateContext(undefined, identifier);
-      
-      expect(result).toBe(false);
+      testUndefinedParent(NodeAssignmentAnalyzer.isUpdateContext);
     });
   });
 
@@ -161,22 +169,7 @@ describe('NodeAssignmentAnalyzer', () => {
     });
 
     it('handles various compound assignment operators', () => {
-      const operators = ['%=', '**=', '&=', '|=', '^=', '<<=', '>>=', '>>>='];
-      const results: string[] = [];
-      
-      operators.forEach(op => {
-        try {
-          const sourceFile = project.createSourceFile(`test-${op}.ts`, `let x; x ${op} 5;`);
-          const assignment = sourceFile.getDescendantsOfKind(ts.SyntaxKind.BinaryExpression)[0];
-          const identifier = assignment.getLeft();
-          
-          const result = NodeAssignmentAnalyzer.isUpdateContext(assignment, identifier);
-          results.push(`${op}: ${result}`);
-        } catch (error) {
-          results.push(`${op}: error - ${error instanceof Error ? error.message : 'unknown'}`);
-        }
-      });
-      
+      const results = testCompoundAssignmentOperators(['%=', '**=', '&=', '|=', '^=', '<<=', '>>=', '>>>=']);
       verify(__dirname, 'extended-compound-operators', results.join('\n'), { reporters: ['donothing'] });
     });
   });

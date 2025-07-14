@@ -2,6 +2,8 @@ import { VariableResultBuilder } from '../../../src/locators/variable-result-bui
 import { Project } from 'ts-morph';
 import * as ts from 'typescript';
 import { verify } from 'approvals';
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('VariableResultBuilder', () => {
   let project: Project;
@@ -12,17 +14,26 @@ describe('VariableResultBuilder', () => {
     builder = new VariableResultBuilder();
   });
 
+  function loadFixtureAndExtractVariable(fixtureFile: string, fileName: string, varName: string) {
+    const fixtureContent = fs.readFileSync(path.join(__dirname, 'test-data', fixtureFile), 'utf8');
+    const sourceFile = project.createSourceFile(fileName, fixtureContent);
+    const declaration = sourceFile.getDescendantsOfKind(ts.SyntaxKind.VariableDeclaration)[0];
+    const identifiers = sourceFile.getDescendantsOfKind(ts.SyntaxKind.Identifier);
+    const usages = identifiers.filter(id => id.getText() === varName).slice(1);
+    return { declaration, usages };
+  }
+
+
+  function expectUsageTypes(result: any) {
+    const usageTypes = result.usages.map((usage: any) => usage.usageType);
+    expect(usageTypes).toContain('read');
+    expect(usageTypes).toContain('write');
+    expect(usageTypes).toContain('update');
+  }
+
   describe('buildLocationResult', () => {
     it('builds result with declaration and usages', () => {
-      const sourceFile = project.createSourceFile('test.ts', `
-        let myVar = 5;
-        console.log(myVar);
-        myVar = 10;
-      `);
-      
-      const declaration = sourceFile.getDescendantsOfKind(ts.SyntaxKind.VariableDeclaration)[0];
-      const identifiers = sourceFile.getDescendantsOfKind(ts.SyntaxKind.Identifier);
-      const usages = identifiers.filter(id => id.getText() === 'myVar').slice(1); // Only myVar identifiers, skip declaration
+      const { declaration, usages } = loadFixtureAndExtractVariable('simple-variable.fixture.ts', 'test.ts', 'myVar');
       
       const result = builder.buildLocationResult('myVar', declaration, usages);
       
@@ -45,24 +56,11 @@ describe('VariableResultBuilder', () => {
     });
 
     it('correctly assigns usage types', () => {
-      const sourceFile = project.createSourceFile('test3.ts', `
-        let x = 5;
-        let y = x;    // read
-        x = 10;       // write
-        x += 2;       // update
-        x++;          // update
-      `);
-      
-      const declaration = sourceFile.getDescendantsOfKind(ts.SyntaxKind.VariableDeclaration)[0];
-      const identifiers = sourceFile.getDescendantsOfKind(ts.SyntaxKind.Identifier);
-      const usages = identifiers.filter(id => id.getText() === 'x').slice(1); // Skip declaration
+      const { declaration, usages } = loadFixtureAndExtractVariable('variable-usage-mixed.fixture.ts', 'test2.ts', 'x');
       
       const result = builder.buildLocationResult('x', declaration, usages);
       
-      const usageTypes = result.usages.map(usage => usage.usageType);
-      expect(usageTypes).toContain('read');
-      expect(usageTypes).toContain('write');
-      expect(usageTypes).toContain('update');
+      expectUsageTypes(result);
     });
 
     it('includes proper location information', () => {
@@ -86,15 +84,7 @@ describe('VariableResultBuilder', () => {
 
   describe('buildNodeResult', () => {
     it('builds result with nodes and usage types', () => {
-      const sourceFile = project.createSourceFile('test5.ts', `
-        let myVar = 5;
-        console.log(myVar);
-        myVar++;
-      `);
-      
-      const declaration = sourceFile.getDescendantsOfKind(ts.SyntaxKind.VariableDeclaration)[0];
-      const identifiers = sourceFile.getDescendantsOfKind(ts.SyntaxKind.Identifier);
-      const usages = identifiers.filter(id => id.getText() === 'myVar').slice(1); // Only myVar identifiers, skip declaration
+      const { declaration, usages } = loadFixtureAndExtractVariable('simple-variable.fixture.ts', 'test5.ts', 'myVar');
       
       const result = builder.buildNodeResult('myVar', declaration, usages);
       
@@ -106,23 +96,11 @@ describe('VariableResultBuilder', () => {
     });
 
     it('determines correct usage types', () => {
-      const sourceFile = project.createSourceFile('test6.ts', `
-        let x = 5;
-        let y = x;    // read
-        x = 10;       // write
-        x += 2;       // update
-      `);
-      
-      const declaration = sourceFile.getDescendantsOfKind(ts.SyntaxKind.VariableDeclaration)[0];
-      const identifiers = sourceFile.getDescendantsOfKind(ts.SyntaxKind.Identifier);
-      const usages = identifiers.filter(id => id.getText() === 'x').slice(1);
+      const { declaration, usages } = loadFixtureAndExtractVariable('variable-usage-mixed.fixture.ts', 'test6.ts', 'x');
       
       const result = builder.buildNodeResult('x', declaration, usages);
       
-      const usageTypes = result.usages.map(usage => usage.usageType);
-      expect(usageTypes).toContain('read');
-      expect(usageTypes).toContain('write');
-      expect(usageTypes).toContain('update');
+      expectUsageTypes(result);
     });
 
     it('preserves original nodes', () => {
@@ -144,15 +122,7 @@ describe('VariableResultBuilder', () => {
 
   describe('formatAsLocationStrings', () => {
     it('formats declaration and usages as location strings', () => {
-      const sourceFile = project.createSourceFile('test8.ts', `
-        let myVar = 5;
-        console.log(myVar);
-        myVar = 10;
-      `);
-      
-      const declaration = sourceFile.getDescendantsOfKind(ts.SyntaxKind.VariableDeclaration)[0];
-      const identifiers = sourceFile.getDescendantsOfKind(ts.SyntaxKind.Identifier);
-      const usages = identifiers.filter(id => id.getText() === 'myVar').slice(1);
+      const { declaration, usages } = loadFixtureAndExtractVariable('simple-variable.fixture.ts', 'test8.ts', 'myVar');
       
       const result = builder.buildLocationResult('myVar', declaration, usages);
       const formatted = result.formatAsLocationStrings();

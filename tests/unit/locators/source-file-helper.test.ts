@@ -2,6 +2,8 @@ import { SourceFileHelper } from '../../../src/locators/source-file-helper';
 import { Project } from 'ts-morph';
 import * as ts from 'typescript';
 import { verify } from 'approvals';
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('SourceFileHelper', () => {
   let project: Project;
@@ -9,6 +11,21 @@ describe('SourceFileHelper', () => {
   beforeEach(() => {
     project = new Project();
   });
+
+  function findTargetVariableInFixture(fixtureFile: string, fileName: string) {
+    const fixtureContent = fs.readFileSync(path.join(__dirname, 'test-data', fixtureFile), 'utf8');
+    const sourceFile = project.createSourceFile(fileName, fixtureContent);
+    
+    const result = SourceFileHelper.findDescendant(sourceFile, (node) => 
+      node.getKind() === ts.SyntaxKind.VariableDeclaration &&
+      node.getText().includes('target')
+    );
+    
+    expect(result).toBeDefined();
+    expect(result?.getText()).toContain('target');
+    return result;
+  }
+
 
   describe('findDescendant', () => {
     it('finds first matching descendant', () => {
@@ -73,50 +90,20 @@ describe('SourceFileHelper', () => {
     });
 
     it('handles various node types and patterns', () => {
-      const sourceFile = project.createSourceFile('test5.ts', `
-        class MyClass {
-          private field = 5;
-          
-          method() {
-            const arrow = () => {
-              let local = 'test';
-              return local;
-            };
-          }
-        }
-        
-        function globalFn() {
-          return 42;
-        }
-      `);
+      const fixtureContent = fs.readFileSync(path.join(__dirname, 'test-data/class-with-method.fixture.ts'), 'utf8');
+      const sourceFile = project.createSourceFile('test5.ts', fixtureContent);
       
       const testCases = [
-        { 
-          description: 'ClassDeclaration', 
-          predicate: (node: any) => node.getKind() === ts.SyntaxKind.ClassDeclaration,
-          expectedText: 'MyClass'
-        },
-        {
-          description: 'PropertyDeclaration',
-          predicate: (node: any) => node.getKind() === ts.SyntaxKind.PropertyDeclaration,
-          expectedText: 'field'
-        },
-        {
-          description: 'ArrowFunction',
-          predicate: (node: any) => node.getKind() === ts.SyntaxKind.ArrowFunction,
-          expectedText: '=>'
-        },
-        {
-          description: 'StringLiteral',
-          predicate: (node: any) => node.getKind() === ts.SyntaxKind.StringLiteral,
-          expectedText: 'test'
-        }
+        { description: 'ClassDeclaration', syntaxKind: ts.SyntaxKind.ClassDeclaration, expectedText: 'MyClass' },
+        { description: 'PropertyDeclaration', syntaxKind: ts.SyntaxKind.PropertyDeclaration, expectedText: 'field' },
+        { description: 'ArrowFunction', syntaxKind: ts.SyntaxKind.ArrowFunction, expectedText: '=>' },
+        { description: 'StringLiteral', syntaxKind: ts.SyntaxKind.StringLiteral, expectedText: 'test' }
       ];
 
       const results: string[] = [];
       
       testCases.forEach(testCase => {
-        const result = SourceFileHelper.findDescendant(sourceFile, testCase.predicate);
+        const result = SourceFileHelper.findDescendant(sourceFile, (node: any) => node.getKind() === testCase.syntaxKind);
         const found = result ? 'FOUND' : 'NOT_FOUND';
         const hasExpectedText = result?.getText().includes(testCase.expectedText) ? 'CORRECT' : 'INCORRECT';
         results.push(`${testCase.description}: ${found} - ${hasExpectedText}`);
@@ -126,23 +113,7 @@ describe('SourceFileHelper', () => {
     });
 
     it('handles nested structures correctly', () => {
-      const sourceFile = project.createSourceFile('test6.ts', `
-        function outer() {
-          function inner() {
-            function deepest() {
-              let target = 'found';
-            }
-          }
-        }
-      `);
-      
-      const result = SourceFileHelper.findDescendant(sourceFile, (node) => 
-        node.getKind() === ts.SyntaxKind.VariableDeclaration &&
-        node.getText().includes('target')
-      );
-      
-      expect(result).toBeDefined();
-      expect(result?.getText()).toContain('target');
+      findTargetVariableInFixture('nested-functions.fixture.ts', 'test6.ts');
     });
 
     it('handles empty source files', () => {
@@ -277,20 +248,7 @@ describe('SourceFileHelper', () => {
     });
 
     it('handles Unicode and special characters', () => {
-      const sourceFile = project.createSourceFile('unicode.ts', `
-        let αβγ = 'greek';
-        let 中文 = 'chinese';
-        let emoji = '🚀';
-        let target = 'found';
-      `);
-      
-      const result = SourceFileHelper.findDescendant(sourceFile, (node) => 
-        node.getKind() === ts.SyntaxKind.VariableDeclaration &&
-        node.getText().includes('target')
-      );
-      
-      expect(result).toBeDefined();
-      expect(result?.getText()).toContain('target');
+      findTargetVariableInFixture('unicode-variables.fixture.ts', 'unicode.ts');
     });
   });
 });

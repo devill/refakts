@@ -3,6 +3,8 @@ import { PositionData } from '../../../src/core/position-data';
 import { Project } from 'ts-morph';
 import * as ts from 'typescript';
 import { verify } from 'approvals';
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('NodeContext', () => {
   let project: Project;
@@ -10,6 +12,18 @@ describe('NodeContext', () => {
   beforeEach(() => {
     project = new Project();
   });
+
+  function expectContainingDeclarationIsVariable(fileName: string, code: string) {
+    const sourceFile = project.createSourceFile(fileName, code);
+    const variable = sourceFile.getDescendantsOfKind(ts.SyntaxKind.VariableDeclaration)[0];
+    const context = NodeContext.create(variable, sourceFile);
+    
+    const containingDeclaration = context.getContainingDeclaration();
+    
+    // The actual behavior returns the variable declaration itself
+    expect(containingDeclaration?.getKind()).toBe(ts.SyntaxKind.VariableDeclaration);
+  }
+
 
   describe('constructor and basic properties', () => {
     it('creates context with node, source file, and position', () => {
@@ -115,31 +129,17 @@ describe('NodeContext', () => {
     });
 
     it('finds containing class declaration', () => {
-      const sourceFile = project.createSourceFile('test5.ts', `
+      expectContainingDeclarationIsVariable('test5.ts', `
         class MyClass {
           method() {
             let variable = 5;
           }
         }
       `);
-      const variable = sourceFile.getDescendantsOfKind(ts.SyntaxKind.VariableDeclaration)[0];
-      const context = NodeContext.create(variable, sourceFile);
-      
-      const containingDeclaration = context.getContainingDeclaration();
-      
-      // The actual behavior returns the variable declaration itself
-      expect(containingDeclaration?.getKind()).toBe(ts.SyntaxKind.VariableDeclaration);
     });
 
     it('returns the declaration itself for top-level variables', () => {
-      const sourceFile = project.createSourceFile('test6.ts', 'let topLevel = 5;');
-      const variable = sourceFile.getDescendantsOfKind(ts.SyntaxKind.VariableDeclaration)[0];
-      const context = NodeContext.create(variable, sourceFile);
-      
-      const containingDeclaration = context.getContainingDeclaration();
-      
-      // The actual behavior returns the variable declaration itself
-      expect(containingDeclaration?.getKind()).toBe(ts.SyntaxKind.VariableDeclaration);
+      expectContainingDeclarationIsVariable('test6.ts', 'let topLevel = 5;');
     });
   });
 
@@ -166,7 +166,7 @@ describe('NodeContext', () => {
         { code: 'if (true) { let x = 5; }', expectedScope: 'Block' },
         { code: 'const arrow = () => { let x = 5; };', expectedScope: 'Block' }
       ];
-
+      
       const results: string[] = [];
       
       testCases.forEach((testCase, index) => {
@@ -215,7 +215,7 @@ describe('NodeContext', () => {
         { code: 'function myFunction() {}', varName: 'myFunction', expected: true },
         { code: 'const [a, b] = array;', varName: 'a', expected: true }
       ];
-
+      
       const results: string[] = [];
       
       testCases.forEach((testCase, index) => {
@@ -261,7 +261,7 @@ describe('NodeContext', () => {
         { code: 'function fn(param: string) {}', nodeType: 'Parameter', varName: 'param' },
         { code: 'function namedFn() {}', nodeType: 'FunctionDeclaration', varName: 'namedFn' }
       ];
-
+      
       const results: string[] = [];
       
       testCases.forEach((testCase, index) => {
@@ -304,7 +304,7 @@ describe('NodeContext', () => {
         'let x; x += 5;',
         'let x; x -= 3;'
       ];
-
+      
       const results: string[] = [];
       
       testCases.forEach((code, index) => {
@@ -321,13 +321,8 @@ describe('NodeContext', () => {
     });
 
     it('distinguishes between read and write contexts', () => {
-      const sourceFile = project.createSourceFile('test13.ts', `
-        let x = 5;
-        let y = x;    // read
-        x = 10;       // write
-        x += 2;       // update
-        console.log(x); // read
-      `);
+      const fixtureContent = fs.readFileSync(path.join(__dirname, '../locators/test-data/variable-usage-mixed.fixture.ts'), 'utf8');
+      const sourceFile = project.createSourceFile('test13.ts', fixtureContent);
       
       const identifiers = sourceFile.getDescendantsOfKind(ts.SyntaxKind.Identifier);
       const results: string[] = [];
