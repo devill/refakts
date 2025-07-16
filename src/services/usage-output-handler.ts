@@ -9,17 +9,24 @@ interface OutputContext {
   options: CommandOptionsWrapper;
 }
 
+interface UsageOutputParams {
+  usages: UsageLocation[];
+  baseDir: string;
+  targetLocation: LocationRange;
+  options?: CommandOptions;
+}
+
 export class UsageOutputHandler {
   private selectOutputHandler = new SelectOutputHandler();
 
-  outputUsages(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange, options?: CommandOptions): void {
-    const collection = new UsageCollection(usages, targetLocation);
+  outputUsages(params: UsageOutputParams): void {
+    const collection = new UsageCollection(params.usages, params.targetLocation);
     if (collection.isEmpty) {
       this.outputNoSymbolMessage();
       return;
     }
     
-    const context = this.createOutputContext(baseDir, options);
+    const context = this.createOutputContext(params.baseDir, params.options);
     this.outputUsageResults(collection, context);
   }
 
@@ -35,12 +42,8 @@ export class UsageOutputHandler {
   }
 
   private outputUsageResults(collection: UsageCollection, context: OutputContext): void {
-    const sortedUsages = collection.sorted;
-    const declaration = sortedUsages.find(usage => usage.location.matchesTarget(collection.target.file, collection.target.start.line));
-    const otherUsages = sortedUsages.filter(usage => !usage.location.matchesTarget(collection.target.file, collection.target.start.line));
-    
-    this.outputDeclaration(declaration, context);
-    this.outputUsagesSection(otherUsages, declaration, context);
+    this.outputDeclaration(collection.declaration, context);
+    this.outputUsagesSection(collection.otherUsages, collection.declaration, context);
   }
 
   private outputDeclaration(declaration: UsageLocation | undefined, context: OutputContext): void {

@@ -27,7 +27,12 @@ export class FindUsagesCommand implements RefactoringCommand {
     const location = LocationRange.from(options.location as LocationRange);
     const sourceFile = this.validateSourceFile(location);
     const usages = await this.findReferences(location, sourceFile);
-    this.outputHandler.outputUsages(usages, process.cwd(), location, options);
+    this.outputHandler.outputUsages({ 
+      usages, 
+      baseDir: process.cwd(), 
+      targetLocation: location, 
+      options 
+    });
   }
 
   private validateSourceFile(location: LocationRange): SourceFile {

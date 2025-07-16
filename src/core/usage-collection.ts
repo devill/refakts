@@ -23,7 +23,7 @@ export class UsageCollection {
   }
 
   get otherUsages(): UsageLocation[] {
-    return this._usages.filter(usage => !this.isTargetLocation(usage));
+    return this.sorted.filter(usage => !this.isTargetLocation(usage));
   }
 
   get writeUsages(): UsageLocation[] {
