@@ -8,4 +8,6 @@ module.exports = {
     '!src/**/*.d.ts',
   ],
   maxWorkers: '50%', // Reduce parallelism to avoid file conflicts
+  globalSetup: './tests/jest-global-setup.js',
+  setupFilesAfterEnv: ['./tests/jest-setup-after-env.js'],
 };
