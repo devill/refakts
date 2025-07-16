@@ -3,6 +3,7 @@ import {LocationParser, LocationRange, UsageLocation} from '../core/location-ran
 import {ASTService} from '../services/ast-service';
 import {CrossFileReferenceFinder} from '../services/cross-file-reference-finder';
 import {ProjectScopeService} from '../services/project-scope-service';
+import {UsageOutputHandler} from '../services/usage-output-handler';
 import {SourceFile} from 'ts-morph';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -13,6 +14,7 @@ export class FindUsagesCommand implements RefactoringCommand {
   readonly complete = true;
   private astService = new ASTService();
   private projectScopeService = new ProjectScopeService(this.astService.getProject());
+  private outputHandler = new UsageOutputHandler();
   
   async execute(targetLocation: string, options: CommandOptions): Promise<void> {
     const finalOptions = this.processTarget(targetLocation, options);
@@ -25,7 +27,7 @@ export class FindUsagesCommand implements RefactoringCommand {
     const location = LocationRange.from(options.location as LocationRange);
     const sourceFile = this.validateSourceFile(location);
     const usages = await this.findReferences(location, sourceFile);
-    this.outputResults(usages, process.cwd(), location);
+    this.outputHandler.outputUsages(usages, process.cwd(), location);
   }
 
   private validateSourceFile(location: LocationRange): SourceFile {
@@ -66,116 +68,6 @@ export class FindUsagesCommand implements RefactoringCommand {
     throw error;
   }
 
-  private outputResults(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange): void {
-    if (usages.length === 0) {
-      this.outputNoSymbolMessage();
-      return;
-    }
-    
-    this.outputUsageResults(usages, baseDir, targetLocation);
-  }
-
-  private outputNoSymbolMessage(): void {
-    process.stdout.write('Symbol not found at specified location\n');
-  }
-
-  private outputUsageResults(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange): void {
-    const sortedUsages = this.sortUsages(usages, targetLocation);
-    const { declaration, otherUsages } = this.separateDeclarationFromUsages(sortedUsages, targetLocation);
-    
-    this.outputDeclaration(declaration, baseDir);
-    this.outputUsagesSection(otherUsages, baseDir, declaration);
-  }
-
-  private separateDeclarationFromUsages(sortedUsages: UsageLocation[], targetLocation: LocationRange) {
-    const declaration = sortedUsages.find(usage => this.isTargetLocation(usage, targetLocation));
-    const otherUsages = sortedUsages.filter(usage => !this.isTargetLocation(usage, targetLocation));
-    return { declaration, otherUsages };
-  }
-
-  private outputDeclaration(declaration: UsageLocation | undefined, baseDir: string): void {
-    if (declaration) {
-      process.stdout.write('Declaration:\n');
-      this.outputSingleUsage(declaration, baseDir);
-    }
-  }
-
-  private outputUsagesSection(otherUsages: UsageLocation[], baseDir: string, declaration: UsageLocation | undefined): void {
-    if (otherUsages.length === 0 || !declaration) {
-      return;
-    }
-    
-    this.outputUsagesByType(otherUsages, baseDir);
-  }
-
-  private outputUsagesByType(otherUsages: UsageLocation[], baseDir: string): void {
-    const { writeUsages, readUsages } = this.separateUsagesByType(otherUsages);
-    
-    if (writeUsages.length > 0) {
-      this.outputReadWriteSeparatedUsages(writeUsages, readUsages, baseDir);
-    } else {
-      this.outputSimpleUsages(otherUsages, baseDir);
-    }
-  }
-
-  private outputReadWriteSeparatedUsages(writeUsages: UsageLocation[], readUsages: UsageLocation[], baseDir: string): void {
-    process.stdout.write('\nWrite Usages:\n');
-    writeUsages.forEach(usage => this.outputSingleUsage(usage, baseDir));
-    
-    if (readUsages.length > 0) {
-      process.stdout.write('\nRead Usages:\n');
-      readUsages.forEach(usage => this.outputSingleUsage(usage, baseDir));
-    }
-  }
-
-  private outputSimpleUsages(usages: UsageLocation[], baseDir: string): void {
-    process.stdout.write('\n');
-    process.stdout.write('Usages:\n');
-    usages.forEach(usage => this.outputSingleUsage(usage, baseDir));
-  }
-
-  private separateUsagesByType(usages: UsageLocation[]): { writeUsages: UsageLocation[], readUsages: UsageLocation[] } {
-    const writeUsages = usages.filter(usage => usage.usageType === 'write');
-    const readUsages = usages.filter(usage => usage.usageType === 'read');
-    return { writeUsages, readUsages };
-  }
-
-  private outputSingleUsage(usage: UsageLocation, baseDir: string): void {
-    const formattedLocation = this.formatUsageLocation(usage, baseDir);
-    process.stdout.write(`${formattedLocation} ${usage.text}\n`);
-  }
-
-  private formatUsageLocation(usage: UsageLocation, baseDir: string): string {
-    return usage.location.formatLocation(baseDir);
-  }
-
-  private sortUsages(usages: UsageLocation[], targetLocation: LocationRange): UsageLocation[] {
-    return usages.sort((a, b) => this.compareUsageLocations(a, b, targetLocation));
-  }
-
-  private compareUsageLocations(a: UsageLocation, b: UsageLocation, targetLocation: LocationRange): number {
-    const definitionComparison = this.compareByDefinitionPriority(a, b, targetLocation);
-    if (definitionComparison !== 0) return definitionComparison;
-    
-    return this.compareByLocation(a, b);
-  }
-
-  private compareByDefinitionPriority(a: UsageLocation, b: UsageLocation, targetLocation: LocationRange): number {
-    const aIsDefinition = this.isTargetLocation(a, targetLocation);
-    const bIsDefinition = this.isTargetLocation(b, targetLocation);
-    
-    if (aIsDefinition && !bIsDefinition) return -1;
-    if (!aIsDefinition && bIsDefinition) return 1;
-    return 0;
-  }
-
-  private compareByLocation(a: UsageLocation, b: UsageLocation): number {
-    return a.location.compareToLocation(b.location);
-  }
-
-  private isTargetLocation(usage: UsageLocation, targetLocation: LocationRange): boolean {
-    return usage.location.matchesTarget(targetLocation.file, targetLocation.start.line);
-  }
 
   private processTarget(target: string, options: CommandOptions): CommandOptions {
     return LocationParser.processTarget(target, options) as CommandOptions;
