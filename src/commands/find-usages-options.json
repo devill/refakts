@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "flags": "--include-line",
+    "description": "Include full line containing the match"
+  },
+  {
+    "flags": "--preview-line",
+    "description": "Show line context as preview without including in selection"
+  }
+]
