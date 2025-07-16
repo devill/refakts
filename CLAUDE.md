@@ -90,6 +90,51 @@ npm run test:fixture:review <fixture_path>              # Review received files 
 - **Optimize for readability first** - Write code that reveals intent clearly; optimize for performance later if needed
 - **Example pattern**: Instead of `const lineCount = func.getEndLineNumber() - func.getStartLineNumber() + 1`, use `getLineCount(func)` to hide the complexity
 
+## Command Output Architecture
+
+**CRITICAL: Use Output Handlers for Consistent Formatting**
+
+RefakTS now follows a unified output architecture to eliminate code duplication and ensure consistent formatting across commands.
+
+**Output Handler Pattern:**
+- **`SelectOutputHandler`** - Handles all formatted output for code selections
+- **`UsageOutputHandler`** - Bridges usage data to SelectOutputHandler for consistent formatting
+- **Shared formatting options** - `--include-line`, `--preview-line` work across commands
+
+**For New Commands:**
+1. **Don't duplicate output logic** - Use existing output handlers
+2. **Convert your data to `SelectResult[]`** - This enables automatic formatting support
+3. **Use parameter objects** - Avoid functions with many parameters (quality violation)
+4. **Encapsulate data in classes** - Create collection classes like `UsageCollection` for complex data
+
+**Example Implementation:**
+```typescript
+// ❌ BAD: Duplicating output formatting
+class MyCommand {
+  execute() {
+    const results = this.findData();
+    // 50+ lines of output formatting logic...
+  }
+}
+
+// ✅ GOOD: Using output handlers
+class MyCommand {
+  private outputHandler = new SelectOutputHandler();
+  
+  execute() {
+    const results = this.findData();
+    const selectResults = results.map(r => this.convertToSelectResult(r));
+    this.outputHandler.outputResults(selectResults);
+  }
+}
+```
+
+**Architecture Benefits:**
+- **Eliminates duplication** - find-usages went from 200 to 92 lines (54% reduction)
+- **Consistent UX** - All commands support same formatting options
+- **Easier maintenance** - Output improvements benefit all commands
+- **Quality compliance** - Avoids parameter count and feature envy violations
+
 ## Feature Roadmap 
 
 **This tool is for you - make it what you wished it already was.** RefakTS development is driven by AI agents who actually use the tool.
