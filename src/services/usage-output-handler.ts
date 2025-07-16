@@ -1,49 +1,52 @@
 import { UsageLocation, LocationRange } from '../core/location-range';
 import { SelectResult } from '../types/selection-types';
 import { SelectOutputHandler } from './selection/output-handler';
-import { CommandOptions } from '../command';
+import { CommandOptions, CommandOptionsWrapper } from '../command';
+import { UsageCollection } from '../core/usage-collection';
 
 interface OutputContext {
   baseDir: string;
-  targetLocation: LocationRange;
-  options?: CommandOptions;
+  options: CommandOptionsWrapper;
 }
 
 export class UsageOutputHandler {
   private selectOutputHandler = new SelectOutputHandler();
 
   outputUsages(usages: UsageLocation[], baseDir: string, targetLocation: LocationRange, options?: CommandOptions): void {
-    if (usages.length === 0) {
+    const collection = new UsageCollection(usages, targetLocation);
+    if (collection.isEmpty) {
       this.outputNoSymbolMessage();
       return;
     }
     
-    const context: OutputContext = { baseDir, targetLocation, options };
-    this.outputUsageResults(usages, context);
+    const context = this.createOutputContext(baseDir, options);
+    this.outputUsageResults(collection, context);
+  }
+
+  private createOutputContext(baseDir: string, options?: CommandOptions): OutputContext {
+    return { 
+      baseDir, 
+      options: new CommandOptionsWrapper(options || {}) 
+    };
   }
 
   private outputNoSymbolMessage(): void {
     process.stdout.write('Symbol not found at specified location\n');
   }
 
-  private outputUsageResults(usages: UsageLocation[], context: OutputContext): void {
-    const sortedUsages = this.sortUsages(usages, context.targetLocation);
-    const { declaration, otherUsages } = this.separateDeclarationFromUsages(sortedUsages, context.targetLocation);
+  private outputUsageResults(collection: UsageCollection, context: OutputContext): void {
+    const sortedUsages = collection.sorted;
+    const declaration = sortedUsages.find(usage => usage.location.matchesTarget(collection.target.file, collection.target.start.line));
+    const otherUsages = sortedUsages.filter(usage => !usage.location.matchesTarget(collection.target.file, collection.target.start.line));
     
     this.outputDeclaration(declaration, context);
     this.outputUsagesSection(otherUsages, declaration, context);
   }
 
-  private separateDeclarationFromUsages(sortedUsages: UsageLocation[], targetLocation: LocationRange) {
-    const declaration = sortedUsages.find(usage => this.isTargetLocation(usage, targetLocation));
-    const otherUsages = sortedUsages.filter(usage => !this.isTargetLocation(usage, targetLocation));
-    return { declaration, otherUsages };
-  }
-
   private outputDeclaration(declaration: UsageLocation | undefined, context: OutputContext): void {
     if (declaration) {
       process.stdout.write('Declaration:\n');
-      const declarationResults = [this.convertToSelectResult(declaration, context.baseDir, context.options)];
+      const declarationResults = [this.convertToSelectResult(declaration, context)];
       this.selectOutputHandler.outputResults(declarationResults);
     }
   }
@@ -57,7 +60,8 @@ export class UsageOutputHandler {
   }
 
   private outputUsagesByType(otherUsages: UsageLocation[], context: OutputContext): void {
-    const { writeUsages, readUsages } = this.separateUsagesByType(otherUsages);
+    const writeUsages = otherUsages.filter(usage => usage.usageType === 'write');
+    const readUsages = otherUsages.filter(usage => usage.usageType === 'read');
     
     if (writeUsages.length > 0) {
       this.outputReadWriteSeparatedUsages(writeUsages, readUsages, context);
@@ -68,12 +72,12 @@ export class UsageOutputHandler {
 
   private outputReadWriteSeparatedUsages(writeUsages: UsageLocation[], readUsages: UsageLocation[], context: OutputContext): void {
     process.stdout.write('\nWrite Usages:\n');
-    const writeResults = writeUsages.map(usage => this.convertToSelectResult(usage, context.baseDir, context.options));
+    const writeResults = writeUsages.map(usage => this.convertToSelectResult(usage, context));
     this.selectOutputHandler.outputResults(writeResults);
     
     if (readUsages.length > 0) {
       process.stdout.write('\nRead Usages:\n');
-      const readResults = readUsages.map(usage => this.convertToSelectResult(usage, context.baseDir, context.options));
+      const readResults = readUsages.map(usage => this.convertToSelectResult(usage, context));
       this.selectOutputHandler.outputResults(readResults);
     }
   }
@@ -81,36 +85,28 @@ export class UsageOutputHandler {
   private outputSimpleUsages(usages: UsageLocation[], context: OutputContext): void {
     process.stdout.write('\n');
     process.stdout.write('Usages:\n');
-    const usageResults = usages.map(usage => this.convertToSelectResult(usage, context.baseDir, context.options));
+    const usageResults = usages.map(usage => this.convertToSelectResult(usage, context));
     this.selectOutputHandler.outputResults(usageResults);
   }
 
-  private separateUsagesByType(usages: UsageLocation[]): { writeUsages: UsageLocation[], readUsages: UsageLocation[] } {
-    const writeUsages = usages.filter(usage => usage.usageType === 'write');
-    const readUsages = usages.filter(usage => usage.usageType === 'read');
-    return { writeUsages, readUsages };
-  }
-
-  private convertToSelectResult(usage: UsageLocation, baseDir: string, options?: CommandOptions): SelectResult {
-    const result: SelectResult = {
-      location: usage.location.formatLocation(baseDir),
-      content: usage.text
-    };
-    
-    this.applyFormattingOptions(result, usage, baseDir, options);
+  private convertToSelectResult(usage: UsageLocation, context: OutputContext): SelectResult {
+    const result = this.createBasicSelectResult(usage, context);
+    this.applyFormattingToResult(result, usage, context);
     return result;
   }
 
-  private applyFormattingOptions(result: SelectResult, usage: UsageLocation, baseDir: string, options?: CommandOptions): void {
-    const context = { result, usage, baseDir, options };
-    this.applyFormattingFromContext(context);
+  private createBasicSelectResult(usage: UsageLocation, context: OutputContext): SelectResult {
+    return {
+      location: usage.location.formatLocation(context.baseDir),
+      content: usage.text
+    };
   }
 
-  private applyFormattingFromContext(context: { result: SelectResult; usage: UsageLocation; baseDir: string; options?: CommandOptions }): void {
-    if (context.options?.['include-line'] || context.options?.includeLine) {
-      this.applyIncludeLineFormatting(context.result, context.usage, context.baseDir);
-    } else if (context.options?.['preview-line'] || context.options?.previewLine) {
-      context.result.context = this.extractContextFromLocation(context.usage);
+  private applyFormattingToResult(result: SelectResult, usage: UsageLocation, context: OutputContext): void {
+    if (context.options.shouldIncludeLine()) {
+      this.applyIncludeLineFormatting(result, usage, context.baseDir);
+    } else if (context.options.shouldPreviewLine()) {
+      result.context = this.extractContextFromLocation(usage);
     }
   }
 
@@ -138,31 +134,4 @@ export class UsageOutputHandler {
     return `[${relativePath} ${location.start.line}:-${location.start.line}:]`;
   }
 
-  private sortUsages(usages: UsageLocation[], targetLocation: LocationRange): UsageLocation[] {
-    return usages.sort((a, b) => this.compareUsageLocations(a, b, targetLocation));
-  }
-
-  private compareUsageLocations(a: UsageLocation, b: UsageLocation, targetLocation: LocationRange): number {
-    const definitionComparison = this.compareByDefinitionPriority(a, b, targetLocation);
-    if (definitionComparison !== 0) return definitionComparison;
-    
-    return this.compareByLocation(a, b);
-  }
-
-  private compareByDefinitionPriority(a: UsageLocation, b: UsageLocation, targetLocation: LocationRange): number {
-    const aIsDefinition = this.isTargetLocation(a, targetLocation);
-    const bIsDefinition = this.isTargetLocation(b, targetLocation);
-    
-    if (aIsDefinition && !bIsDefinition) return -1;
-    if (!aIsDefinition && bIsDefinition) return 1;
-    return 0;
-  }
-
-  private compareByLocation(a: UsageLocation, b: UsageLocation): number {
-    return a.location.compareToLocation(b.location);
-  }
-
-  private isTargetLocation(usage: UsageLocation, targetLocation: LocationRange): boolean {
-    return usage.location.matchesTarget(targetLocation.file, targetLocation.start.line);
-  }
 }
