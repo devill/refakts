@@ -1,4 +1,5 @@
 import { RefactoringCommand, CommandOptions } from '../command';
+import { ConsoleOutput } from '../interfaces/ConsoleOutput';
 import { Node, Expression } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
 import { ExtractionScopeAnalyzer } from '../services/extraction-scope-analyzer';
@@ -12,6 +13,7 @@ export class ExtractVariableCommand implements RefactoringCommand {
   readonly description = 'Extract expression into a variable';
   readonly complete = true;
 
+  private consoleOutput!: ConsoleOutput;
   private astService = new ASTService();
   private scopeAnalyzer = new ExtractionScopeAnalyzer();
   private nameValidator = new VariableNameValidator();
@@ -90,5 +92,9 @@ export class ExtractVariableCommand implements RefactoringCommand {
         expression.replaceWithText(uniqueName);
       }
     }
+  }
+
+  setConsoleOutput(consoleOutput: ConsoleOutput): void {
+    this.consoleOutput = consoleOutput;
   }
 }

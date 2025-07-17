@@ -6,6 +6,7 @@ import { SelectCommand } from './commands/select-command';
 import { FindUsagesCommand } from './commands/find-usages-command';
 import { MoveMethodCommand } from './commands/move-method-command';
 import { MoveFileCommand } from './commands/move-file-command';
+import { ConsoleOutput } from './interfaces/ConsoleOutput';
 
 const loadCommands = (): RefactoringCommand[] => [
   new ExtractVariableCommand(),
@@ -20,13 +21,14 @@ const loadCommands = (): RefactoringCommand[] => [
 export class CommandRegistry {
   private commands = new Map<string, RefactoringCommand>();
 
-  constructor() {
+  constructor(private consoleOutput: ConsoleOutput) {
     this.registerCommands();
   }
 
   private registerCommands(): void {
     const commands = loadCommands();
     for (const command of commands) {
+      command.setConsoleOutput(this.consoleOutput);
       this.commands.set(command.name, command);
     }
   }

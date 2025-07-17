@@ -4,6 +4,7 @@ import {ConsoleCapture} from './console-capture';
 import {CliExecutor} from './cli-executor';
 import {ExecutionContext} from './execution-context';
 import {DirectoryUtils} from '../../src/utils/directory-utils';
+import {ConsoleOutput} from '../../src/interfaces/ConsoleOutput';
 
 export interface CommandExecutorOptions {
   useCli?: boolean; // If true, uses CLI subprocess. If false, calls commands directly
@@ -18,7 +19,7 @@ export interface CommandExecutionContext {
 }
 
 export class CommandExecutor {
-  private commandRegistry = new CommandRegistry();
+  private commandRegistry: CommandRegistry;
   private useCli: boolean;
   private parser = new CommandLineParser();
   private consoleCapture = new ConsoleCapture();
@@ -26,6 +27,7 @@ export class CommandExecutor {
 
   constructor(options: CommandExecutorOptions = {}) {
     this.useCli = options.useCli ?? process.env.REFAKTS_TEST_CLI === 'true';
+    this.commandRegistry = new CommandRegistry(this.consoleCapture);
   }
 
   isUsingCli(): boolean {

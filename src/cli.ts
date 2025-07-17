@@ -5,11 +5,12 @@ import { CommandRegistry } from './command-registry';
 import { CommandOption, CommandOptions, RefactoringCommand } from './command';
 import { UsageTracker } from './usage-tracker';
 import { LocationParser } from './core/location-range';
+import { StandardConsole } from './interfaces/StandardConsole';
 import * as fs from 'fs';
 import * as path from 'path';
 
 const program = new Command();
-const commandRegistry = new CommandRegistry();
+const commandRegistry = new CommandRegistry(new StandardConsole());
 
 program
   .name('refakts')

@@ -1,4 +1,6 @@
-export class ConsoleCapture {
+import {ConsoleOutput} from '../../src/interfaces/ConsoleOutput';
+
+export class ConsoleCapture implements ConsoleOutput {
   async captureOutput(executeFn: () => Promise<void>): Promise<string> {
     const captureState = this.setupCapture();
     
@@ -28,5 +30,18 @@ export class ConsoleCapture {
 
   private getFormattedOutput(output: string): string {
     return output.trim();
+  }
+
+  // ConsoleOutput interface implementation
+  log(message: string): void {
+    console.log(message);
+  }
+
+  error(message: string): void {
+    console.error(message);
+  }
+
+  write(data: string): void {
+    process.stdout.write(data);
   }
 }

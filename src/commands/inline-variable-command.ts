@@ -1,4 +1,5 @@
 import { RefactoringCommand, CommandOptions } from '../command';
+import { ConsoleOutput } from '../interfaces/ConsoleOutput';
 import { Node, VariableDeclaration } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
 import { VariableDeclarationFinder } from '../services/variable-declaration-finder';
@@ -12,6 +13,7 @@ export class InlineVariableCommand implements RefactoringCommand {
   readonly description = 'Replace variable usage with its value';
   readonly complete = true;
 
+  private consoleOutput!: ConsoleOutput;
   private astService = new ASTService();
   private declarationFinder = new VariableDeclarationFinder();
   private expressionAnalyzer = new ExpressionAnalyzer();
@@ -76,5 +78,9 @@ export class InlineVariableCommand implements RefactoringCommand {
     }
     
     return this.expressionAnalyzer.formatWithParentheses(initializer, context);
+  }
+
+  setConsoleOutput(consoleOutput: ConsoleOutput): void {
+    this.consoleOutput = consoleOutput;
   }
 }

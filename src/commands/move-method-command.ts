@@ -1,9 +1,12 @@
 import { RefactoringCommand, CommandOptions } from '../command';
+import { ConsoleOutput } from '../interfaces/ConsoleOutput';
 
 export class MoveMethodCommand implements RefactoringCommand {
   readonly name = 'move-method';
   readonly description = 'Move a method from one class to another';
   readonly complete = false;
+  
+  private consoleOutput!: ConsoleOutput;
   
   async execute(targetLocation: string, options: CommandOptions): Promise<void> {
     if (targetLocation.includes('formatter.ts')) {
@@ -50,8 +53,7 @@ Please specify a valid target class name.`);
   }
 
   private logUserClassMove(): void {
-    // eslint-disable-next-line no-console
-    console.log(`Successfully moved method 'formatUserDisplayName' from Formatter to User class as 'formatDisplayName'
+    this.consoleOutput.log(`Successfully moved method 'formatUserDisplayName' from Formatter to User class as 'formatDisplayName'
 Updated 3 files:
 - input/models/user.ts: Added method
 - input/utils/formatter.ts: Removed method
@@ -60,8 +62,7 @@ Updated 3 files:
   }
 
   private logUserServiceMove(): void {
-    // eslint-disable-next-line no-console
-    console.log(`Successfully moved method 'formatUserDisplayName' from Formatter to UserService class
+    this.consoleOutput.log(`Successfully moved method 'formatUserDisplayName' from Formatter to UserService class
 Updated 3 files:
 - input/services/user-service.ts: Added method
 - input/utils/formatter.ts: Removed method
@@ -79,5 +80,9 @@ Updated 3 files:
   
   getHelpText(): string {
     return 'Move a method from one class to another';
+  }
+
+  setConsoleOutput(consoleOutput: ConsoleOutput): void {
+    this.consoleOutput = consoleOutput;
   }
 }

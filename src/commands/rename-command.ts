@@ -1,4 +1,5 @@
 import { RefactoringCommand, CommandOptions } from '../command';
+import { ConsoleOutput } from '../interfaces/ConsoleOutput';
 import { Node, SourceFile } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
 import { VariableLocator, VariableNodeResult } from '../locators/variable-locator';
@@ -11,6 +12,7 @@ export class RenameCommand implements RefactoringCommand {
   readonly description = 'Rename a variable and all its references';
   readonly complete = true;
 
+  private consoleOutput!: ConsoleOutput;
   private astService = new ASTService();
   private variableLocator: VariableLocator;
 
@@ -66,5 +68,9 @@ export class RenameCommand implements RefactoringCommand {
       nodeResult.usages.map((u: { node: Node }) => u.node),
       newName
     );
+  }
+
+  setConsoleOutput(consoleOutput: ConsoleOutput): void {
+    this.consoleOutput = consoleOutput;
   }
 }

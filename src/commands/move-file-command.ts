@@ -1,4 +1,5 @@
 import { CommandOptions, RefactoringCommand } from '../command';
+import { ConsoleOutput } from '../interfaces/ConsoleOutput';
 import { UsageFinderService } from '../services/usage-finder-service';
 import { ASTService } from '../services/ast-service';
 import { ImportReferenceService } from '../services/import-reference-service';
@@ -13,6 +14,7 @@ export class MoveFileCommand implements RefactoringCommand {
   private usageFinderService = new UsageFinderService();
   private astService = new ASTService();
   private importReferenceService = new ImportReferenceService();
+  private consoleOutput!: ConsoleOutput;
 
   async execute(targetLocation: string, _options: CommandOptions): Promise<void> {
     const [sourcePath, destinationPath] = this.parseMoveSyntax(targetLocation);
@@ -25,7 +27,7 @@ export class MoveFileCommand implements RefactoringCommand {
     this.validateSourceFile(resolvedSourcePath);
     
     if (this.isSameLocation(resolvedSourcePath, resolvedDestinationPath)) {
-      process.stdout.write(`File is already at the target location: ${sourcePath}\n`);
+      this.consoleOutput.write(`File is already at the target location: ${sourcePath}\n`);
       return;
     }
     
@@ -233,15 +235,15 @@ export class MoveFileCommand implements RefactoringCommand {
 
 
   private outputSummary(sourcePath: string, destinationPath: string, referencingFiles: string[]): void {
-    process.stdout.write(`File moved: ${sourcePath} → ${destinationPath}\n`);
+    this.consoleOutput.write(`File moved: ${sourcePath} → ${destinationPath}\n`);
     if (referencingFiles.length > 0) {
-      process.stdout.write('Updated imports in:\n');
+      this.consoleOutput.write('Updated imports in:\n');
       referencingFiles.forEach(file => {
         const relativePath = this.getRelativePath(file);
-        process.stdout.write(`  - ${relativePath}\n`);
+        this.consoleOutput.write(`  - ${relativePath}\n`);
       });
     } else {
-      process.stdout.write('No import references found to update\n');
+      this.consoleOutput.write('No import references found to update\n');
     }
   }
 
@@ -261,5 +263,9 @@ export class MoveFileCommand implements RefactoringCommand {
     } catch {
       return '\nHelp file not found';
     }
+  }
+
+  setConsoleOutput(consoleOutput: ConsoleOutput): void {
+    this.consoleOutput = consoleOutput;
   }
 }

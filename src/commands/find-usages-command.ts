@@ -1,4 +1,5 @@
 import {CommandOptions, RefactoringCommand} from '../command';
+import { ConsoleOutput } from '../interfaces/ConsoleOutput';
 import {LocationParser, LocationRange} from '../core/location-range';
 import {UsageFinderService} from '../services/usage-finder-service';
 import {UsageOutputHandler} from '../services/usage-output-handler';
@@ -9,6 +10,7 @@ export class FindUsagesCommand implements RefactoringCommand {
   readonly name = 'find-usages';
   readonly description = 'Find all usages of a symbol across files';
   readonly complete = true;
+  private consoleOutput!: ConsoleOutput;
   private usageFinderService = new UsageFinderService();
   private outputHandler = new UsageOutputHandler();
   
@@ -51,5 +53,9 @@ export class FindUsagesCommand implements RefactoringCommand {
     } catch {
       return '\nHelp file not found';
     }
+  }
+
+  setConsoleOutput(consoleOutput: ConsoleOutput): void {
+    this.consoleOutput = consoleOutput;
   }
 }

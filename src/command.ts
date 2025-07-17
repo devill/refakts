@@ -30,6 +30,8 @@ export class CommandOptionsWrapper {
   }
 }
 
+import { ConsoleOutput } from './interfaces/ConsoleOutput';
+
 export interface RefactoringCommand {
   readonly name: string;
   readonly description: string;
@@ -38,4 +40,5 @@ export interface RefactoringCommand {
   execute(_file: string, _options: CommandOptions): Promise<void>;
   validateOptions(_options: CommandOptions): void;
   getHelpText(): string;
+  setConsoleOutput(consoleOutput: ConsoleOutput): void;
 }
