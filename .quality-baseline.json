@@ -78,12 +78,6 @@
       "featureEnvy"
     ]
   },
-  "src/services/regex-pattern-matcher.ts": {
-    "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
   "src/locators/services/node-assignment-analyzer.ts": {
     "lastCommitId": "4064268c44577ae54af770b10caa48f776e73ecd",
     "violations": [
