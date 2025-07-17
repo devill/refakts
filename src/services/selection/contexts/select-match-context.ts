@@ -25,36 +25,44 @@ export class SelectMatchContext {
       return this._line;
     }
 
+    const matchBounds = this.calculateMatchBounds();
     const hasCapture = this._fullMatch.length > 1 && this._fullMatch[1] !== undefined;
-    const fullMatchStart = this._fullMatch.index!;
-    const fullMatchEnd = fullMatchStart + this._fullMatch[0].length;
     
-    let result = this._line;
+    return hasCapture ? 
+      this.wrapWithCaptureGroupSymbols(matchBounds.start, matchBounds.end) :
+      this.wrapWithSelectionSymbols(matchBounds.start, matchBounds.end);
+  }
+
+  private calculateMatchBounds(): { start: number; end: number } {
+    const start = this._fullMatch?.index ?? 0;
+    const end = start + (this._fullMatch?.[0].length ?? 0);
+    return { start, end };
+  }
+
+  private wrapWithCaptureGroupSymbols(fullMatchStart: number, fullMatchEnd: number): string {
+    const before = this._line.substring(0, fullMatchStart);
+    const fullMatchText = this._line.substring(fullMatchStart, fullMatchEnd);
+    const after = this._line.substring(fullMatchEnd);
     
-    if (hasCapture) {
-      // For capture groups: wrap full match with ◆◇ and capture group with ≫≪
-      const before = result.substring(0, fullMatchStart);
-      const fullMatchText = result.substring(fullMatchStart, fullMatchEnd);
-      const after = result.substring(fullMatchEnd);
-      
-      // Add symbols around the capture group within the full match
-      const captureStart = this._startIndex - fullMatchStart;
-      const captureEnd = captureStart + this._textToUse.length;
-      const beforeCapture = fullMatchText.substring(0, captureStart);
-      const captureText = fullMatchText.substring(captureStart, captureEnd);
-      const afterCapture = fullMatchText.substring(captureEnd);
-      
-      const wrappedFullMatch = `◆${beforeCapture}≫${captureText}≪${afterCapture}◇`;
-      result = `${before}${wrappedFullMatch}${after}`;
-    } else {
-      // For full matches: wrap with ≫≪ symbols
-      const before = result.substring(0, fullMatchStart);
-      const matchText = result.substring(fullMatchStart, fullMatchEnd);
-      const after = result.substring(fullMatchEnd);
-      
-      result = `${before}≫${matchText}≪${after}`;
-    }
+    const wrappedFullMatch = this.addCaptureGroupMarkers(fullMatchText, fullMatchStart);
+    return `${before}${wrappedFullMatch}${after}`;
+  }
+
+  private addCaptureGroupMarkers(fullMatchText: string, fullMatchStart: number): string {
+    const captureStart = this._startIndex - fullMatchStart;
+    const captureEnd = captureStart + this._textToUse.length;
+    const beforeCapture = fullMatchText.substring(0, captureStart);
+    const captureText = fullMatchText.substring(captureStart, captureEnd);
+    const afterCapture = fullMatchText.substring(captureEnd);
     
-    return result;
+    return `◆${beforeCapture}≫${captureText}≪${afterCapture}◇`;
+  }
+
+  private wrapWithSelectionSymbols(fullMatchStart: number, fullMatchEnd: number): string {
+    const before = this._line.substring(0, fullMatchStart);
+    const matchText = this._line.substring(fullMatchStart, fullMatchEnd);
+    const after = this._line.substring(fullMatchEnd);
+    
+    return `${before}≫${matchText}≪${after}`;
   }
 }

@@ -121,19 +121,18 @@ export class UsageOutputHandler {
 
   private extractContextFromLocation(usage: UsageLocation): string {
     try {
-      const fs = require('fs');
-      const sourceContent = fs.readFileSync(usage.location.file, 'utf8');
-      const lines = sourceContent.split('\n');
-      const targetLine = lines[usage.location.start.line - 1];
-      
-      if (!targetLine) {
-        return '';
-      }
-      
-      return this.addSymbolsToContext(targetLine, usage);
+      const targetLine = this.readTargetLine(usage);
+      return targetLine ? this.addSymbolsToContext(targetLine, usage) : '';
     } catch {
       return '';
     }
+  }
+
+  private readTargetLine(usage: UsageLocation): string | undefined {
+    const fs = require('fs');
+    const sourceContent = fs.readFileSync(usage.location.file, 'utf8');
+    const lines = sourceContent.split('\n');
+    return lines[usage.location.start.line - 1];
   }
 
   private addSymbolsToContext(line: string, usage: UsageLocation): string {
