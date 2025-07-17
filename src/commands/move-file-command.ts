@@ -1,6 +1,7 @@
 import { CommandOptions, RefactoringCommand } from '../command';
 import { UsageFinderService } from '../services/usage-finder-service';
 import { ASTService } from '../services/ast-service';
+import { ImportReferenceService } from '../services/import-reference-service';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -11,6 +12,7 @@ export class MoveFileCommand implements RefactoringCommand {
   
   private usageFinderService = new UsageFinderService();
   private astService = new ASTService();
+  private importReferenceService = new ImportReferenceService();
 
   async execute(targetLocation: string, _options: CommandOptions): Promise<void> {
     const [sourcePath, destinationPath] = this.parseArguments(targetLocation);
@@ -53,9 +55,10 @@ export class MoveFileCommand implements RefactoringCommand {
     }
   }
 
-  private async findReferencingFiles(_sourcePath: string): Promise<string[]> {
-    return [];
+  private async findReferencingFiles(sourcePath: string): Promise<string[]> {
+    return await this.importReferenceService.findReferencingFiles(sourcePath);
   }
+
 
   private async moveFile(sourcePath: string, destinationPath: string): Promise<void> {
     this.ensureDestinationDirectoryExists(destinationPath);
@@ -124,8 +127,10 @@ export class MoveFileCommand implements RefactoringCommand {
     }
   }
 
-  private async updateImportReferences(_sourcePath: string, _destinationPath: string, _referencingFiles: string[]): Promise<void> {
+  private async updateImportReferences(sourcePath: string, destinationPath: string, referencingFiles: string[]): Promise<void> {
+    await this.importReferenceService.updateImportReferences(sourcePath, destinationPath, referencingFiles);
   }
+
 
   private outputSummary(sourcePath: string, destinationPath: string, referencingFiles: string[]): void {
     // eslint-disable-next-line no-console
@@ -142,36 +147,11 @@ export class MoveFileCommand implements RefactoringCommand {
   }
 
   getHelpText(): string {
-    return this.buildHelpText();
-  }
-
-  private buildHelpText(): string {
-    return [
-      ...this.getHelpDescription(),
-      ...this.getHelpUsage(),
-      ...this.getHelpArguments(),
-      ...this.getHelpExamples()
-    ].join('\n');
-  }
-
-  private getHelpDescription(): string[] {
-    return ['Move a file and update all import references', ''];
-  }
-
-  private getHelpUsage(): string[] {
-    return ['Usage:', '  refakts move-file "source destination"', ''];
-  }
-
-  private getHelpArguments(): string[] {
-    return ['Arguments:', '  source destination    Source and destination paths separated by space', ''];
-  }
-
-  private getHelpExamples(): string[] {
-    return [
-      'Examples:',
-      '  refakts move-file "src/utils/math.ts src/helpers/math.ts"',
-      '  refakts move-file "components/Button.tsx ui/Button.tsx"',
-      ''
-    ];
+    try {
+      const helpFilePath = path.join(__dirname, 'move-file.help.txt');
+      return '\n' + fs.readFileSync(helpFilePath, 'utf8');
+    } catch {
+      return '\nHelp file not found';
+    }
   }
 }
