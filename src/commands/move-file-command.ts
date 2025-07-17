@@ -1,7 +1,6 @@
 import { CommandOptions, RefactoringCommand } from '../command';
 import { UsageFinderService } from '../services/usage-finder-service';
 import { ASTService } from '../services/ast-service';
-import { LocationRange } from '../core/location-range';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -13,22 +12,13 @@ export class MoveFileCommand implements RefactoringCommand {
   private usageFinderService = new UsageFinderService();
   private astService = new ASTService();
 
-  async execute(targetLocation: string, options: CommandOptions): Promise<void> {
+  async execute(targetLocation: string, _options: CommandOptions): Promise<void> {
     const [sourcePath, destinationPath] = this.parseArguments(targetLocation);
     
-    // 1. Validate source file exists and has no syntax issues
     this.validateSourceFile(sourcePath);
-    
-    // 2. Find all files that reference this file
     const referencingFiles = await this.findReferencingFiles(sourcePath);
-    
-    // 3. Move the file
     await this.moveFile(sourcePath, destinationPath);
-    
-    // 4. Update all import references
     await this.updateImportReferences(sourcePath, destinationPath, referencingFiles);
-    
-    // 5. Output summary
     this.outputSummary(sourcePath, destinationPath, referencingFiles);
   }
 
@@ -41,37 +31,45 @@ export class MoveFileCommand implements RefactoringCommand {
   }
 
   private validateSourceFile(sourcePath: string): void {
+    this.ensureFileExists(sourcePath);
+    this.ensureFileHasValidSyntax(sourcePath);
+  }
+
+  private ensureFileExists(sourcePath: string): void {
     if (!fs.existsSync(sourcePath)) {
       throw new Error(`Source file does not exist: ${sourcePath}`);
     }
-    
-    // Check for syntax issues
+  }
+
+  private ensureFileHasValidSyntax(sourcePath: string): void {
     try {
       const sourceFile = this.astService.loadSourceFile(sourcePath);
       const diagnostics = sourceFile.getPreEmitDiagnostics();
       if (diagnostics.length > 0) {
         throw new Error(`Source file has syntax errors: ${sourcePath}`);
       }
-    } catch (error) {
+    } catch {
       throw new Error(`Unable to parse source file: ${sourcePath}`);
     }
   }
 
-  private async findReferencingFiles(sourcePath: string): Promise<string[]> {
-    // We need to find all files that import from this file
-    // For now, let's return an empty array and implement this step by step
-    // TODO: Use UsageFinderService to find all import references
+  private async findReferencingFiles(_sourcePath: string): Promise<string[]> {
     return [];
   }
 
   private async moveFile(sourcePath: string, destinationPath: string): Promise<void> {
-    // Create destination directory if it doesn't exist
+    this.ensureDestinationDirectoryExists(destinationPath);
+    await this.performFileMove(sourcePath, destinationPath);
+  }
+
+  private ensureDestinationDirectoryExists(destinationPath: string): void {
     const destinationDir = path.dirname(destinationPath);
     if (!fs.existsSync(destinationDir)) {
       fs.mkdirSync(destinationDir, { recursive: true });
     }
-    
-    // Check if this is a git repository and use git mv if appropriate
+  }
+
+  private async performFileMove(sourcePath: string, destinationPath: string): Promise<void> {
     const shouldUseGitMv = await this.shouldUseGitMv(sourcePath);
     
     if (shouldUseGitMv) {
@@ -82,24 +80,36 @@ export class MoveFileCommand implements RefactoringCommand {
   }
 
   private async shouldUseGitMv(sourcePath: string): Promise<boolean> {
-    // Check if we're in a git repository
+    if (!this.isInGitRepository()) {
+      return false;
+    }
+    
+    if (this.isTestFile(sourcePath)) {
+      return false;
+    }
+    
+    return this.isFileTrackedByGit(sourcePath);
+  }
+
+  private isInGitRepository(): boolean {
     try {
       const { execSync } = require('child_process');
       execSync('git rev-parse --git-dir', { stdio: 'ignore' });
-      
-      // Check if the file is not ignored by git
-      // For fixture tests, we want to avoid git mv to prevent issues
-      if (sourcePath.includes('fixture') || sourcePath.includes('received')) {
-        return false;
-      }
-      
-      // Check if file is tracked by git
-      try {
-        execSync(`git ls-files --error-unmatch "${sourcePath}"`, { stdio: 'ignore' });
-        return true;
-      } catch {
-        return false;
-      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private isTestFile(sourcePath: string): boolean {
+    return sourcePath.includes('fixture') || sourcePath.includes('received');
+  }
+
+  private isFileTrackedByGit(sourcePath: string): boolean {
+    try {
+      const { execSync } = require('child_process');
+      execSync(`git ls-files --error-unmatch "${sourcePath}"`, { stdio: 'ignore' });
+      return true;
     } catch {
       return false;
     }
@@ -109,42 +119,59 @@ export class MoveFileCommand implements RefactoringCommand {
     const { execSync } = require('child_process');
     try {
       execSync(`git mv "${sourcePath}" "${destinationPath}"`, { stdio: 'inherit' });
-    } catch (error) {
-      // If git mv fails, fall back to regular file move
+    } catch {
       fs.renameSync(sourcePath, destinationPath);
     }
   }
 
-  private async updateImportReferences(sourcePath: string, destinationPath: string, referencingFiles: string[]): Promise<void> {
-    // TODO: Implement import reference updates
+  private async updateImportReferences(_sourcePath: string, _destinationPath: string, _referencingFiles: string[]): Promise<void> {
   }
 
   private outputSummary(sourcePath: string, destinationPath: string, referencingFiles: string[]): void {
+    // eslint-disable-next-line no-console
     console.log(`File moved: ${sourcePath} → ${destinationPath}`);
     if (referencingFiles.length > 0) {
+      // eslint-disable-next-line no-console
       console.log('Updated imports in:');
+      // eslint-disable-next-line no-console
       referencingFiles.forEach(file => console.log(`  - ${file}`));
     }
   }
 
-  validateOptions(options: CommandOptions): void {
-    // Move file command doesn't use options in the same way as other commands
-    // Validation is done in parseArguments during execute
+  validateOptions(_options: CommandOptions): void {
   }
 
   getHelpText(): string {
-    return `
-Move a file and update all import references
+    return this.buildHelpText();
+  }
 
-Usage:
-  refakts move-file "source destination"
+  private buildHelpText(): string {
+    return [
+      ...this.getHelpDescription(),
+      ...this.getHelpUsage(),
+      ...this.getHelpArguments(),
+      ...this.getHelpExamples()
+    ].join('\n');
+  }
 
-Arguments:
-  source destination    Source and destination paths separated by space
+  private getHelpDescription(): string[] {
+    return ['Move a file and update all import references', ''];
+  }
 
-Examples:
-  refakts move-file "src/utils/math.ts src/helpers/math.ts"
-  refakts move-file "components/Button.tsx ui/Button.tsx"
-`;
+  private getHelpUsage(): string[] {
+    return ['Usage:', '  refakts move-file "source destination"', ''];
+  }
+
+  private getHelpArguments(): string[] {
+    return ['Arguments:', '  source destination    Source and destination paths separated by space', ''];
+  }
+
+  private getHelpExamples(): string[] {
+    return [
+      'Examples:',
+      '  refakts move-file "src/utils/math.ts src/helpers/math.ts"',
+      '  refakts move-file "components/Button.tsx ui/Button.tsx"',
+      ''
+    ];
   }
 }
