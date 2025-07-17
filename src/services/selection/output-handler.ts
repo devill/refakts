@@ -75,8 +75,7 @@ export class SelectOutputHandler {
   }
 
   private outputPreviewResult(result: SelectResult): void {
-    console.log(`${result.location} ${result.content}`);
-    console.log(`Context: ${result.context}`);
+    console.log(`${result.location} ${result.context}`);
   }
 
   private isMultiLineResult(result: SelectResult): boolean {

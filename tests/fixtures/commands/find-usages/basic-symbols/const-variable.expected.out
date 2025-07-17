@@ -1,11 +1,8 @@
 Declaration:
-[constants/config.ts 3:14-3:26] API_BASE_URL
-Context: export const ≫API_BASE_URL≪ = 'https://api.example.com';
+[constants/config.ts 3:14-3:26] export const ≫API_BASE_URL≪ = 'https://api.example.com';
 
 Write Usages:
-[main.ts 28:17-28:29] API_BASE_URL
-Context: const baseUrl = ≫API_BASE_URL≪;
+[main.ts 28:17-28:29] const baseUrl = ≫API_BASE_URL≪;
 
 Read Usages:
-[main.ts 5:10-5:22] API_BASE_URL
-Context: import { ≫API_BASE_URL≪, DEFAULT_TIMEOUT } from './constants/config';
+[main.ts 5:10-5:22] import { ≫API_BASE_URL≪, DEFAULT_TIMEOUT } from './constants/config';

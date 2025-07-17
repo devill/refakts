@@ -1,9 +1,6 @@
 Declaration:
-[lib/logger.ts 3:22-3:28] Logger
-Context: export default class ≫Logger≪ {
+[lib/logger.ts 3:22-3:28] export default class ≫Logger≪ {
 
 Usages:
-[main.ts 8:8-8:14] Logger
-Context: import ≫Logger≪ from './lib/logger';
-[main.ts 25:20-25:26] Logger
-Context: const logger = new ≫Logger≪('APP');
+[main.ts 8:8-8:14] import ≫Logger≪ from './lib/logger';
+[main.ts 25:20-25:26] const logger = new ≫Logger≪('APP');

@@ -1,15 +1,9 @@
 Declaration:
-[generics/service.ts 5:13-5:17] name
-Context:     private ≫name≪: string,
+[generics/service.ts 5:13-5:17]     private ≫name≪: string,
 
 Usages:
-[generics/service.ts 19:17-19:21] name
-Context:     return this.≫name≪;
-[generics/service.ts 23:10-23:14] name
-Context:     this.≫name≪ = newName;
-[interfaces/repository.ts 34:3-34:7] name
-Context:   ≫name≪: string;
-[main.ts 30:26-30:30] name
-Context: userRepo.save({ id: '1', ≫name≪: 'John', email: 'john@example.com' });
-[main.ts 37:31-37:35] name
-Context: dbService.saveUser({ id: '2', ≫name≪: 'Jane', email: 'jane@example.com' });
+[generics/service.ts 19:17-19:21]     return this.≫name≪;
+[generics/service.ts 23:10-23:14]     this.≫name≪ = newName;
+[interfaces/repository.ts 34:3-34:7]   ≫name≪: string;
+[main.ts 30:26-30:30] userRepo.save({ id: '1', ≫name≪: 'John', email: 'john@example.com' });
+[main.ts 37:31-37:35] dbService.saveUser({ id: '2', ≫name≪: 'Jane', email: 'jane@example.com' });

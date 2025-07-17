@@ -1,9 +1,6 @@
 Declaration:
-[modules/api.ts 3:17-3:20] get
-Context: export function ≫get≪(url: string): Promise<any> {
+[modules/api.ts 3:17-3:20] export function ≫get≪(url: string): Promise<any> {
 
 Usages:
-[main.ts 30:19-30:22] get
-Context: const users = API.≫get≪('/users');
-[main.ts 49:5-49:8] get
-Context: API.≫get≪('/posts').then(posts => {
+[main.ts 30:19-30:22] const users = API.≫get≪('/users');
+[main.ts 49:5-49:8] API.≫get≪('/posts').then(posts => {
