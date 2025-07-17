@@ -15,7 +15,7 @@ export class MoveFileCommand implements RefactoringCommand {
   private importReferenceService = new ImportReferenceService();
 
   async execute(targetLocation: string, _options: CommandOptions): Promise<void> {
-    const [sourcePath, destinationPath] = this.parseArguments(targetLocation);
+    const [sourcePath, destinationPath] = this.parseMoveSyntax(targetLocation);
     
     const resolvedSourcePath = this.resolveSourcePath(sourcePath);
     const resolvedDestinationPath = this.resolveDestinationPath(destinationPath);
@@ -48,10 +48,10 @@ export class MoveFileCommand implements RefactoringCommand {
     return path.join('src', destinationPath);
   }
 
-  private parseArguments(targetLocation: string): [string, string] {
+  private parseMoveSyntax(targetLocation: string): [string, string] {
     const parts = targetLocation.trim().split(/\s+/);
     if (parts.length !== 2) {
-      throw new Error('move-file requires exactly two arguments: source and destination paths');
+      throw new Error(`move-file requires exactly two arguments: source and destination paths, got: ${targetLocation}`);
     }
     return [parts[0], parts[1]];
   }
@@ -161,14 +161,20 @@ export class MoveFileCommand implements RefactoringCommand {
 
 
   private outputSummary(sourcePath: string, destinationPath: string, referencingFiles: string[]): void {
-    // eslint-disable-next-line no-console
-    console.log(`File moved: ${sourcePath} → ${destinationPath}`);
+    process.stdout.write(`File moved: ${sourcePath} → ${destinationPath}\n`);
     if (referencingFiles.length > 0) {
-      // eslint-disable-next-line no-console
-      console.log('Updated imports in:');
-      // eslint-disable-next-line no-console
-      referencingFiles.forEach(file => console.log(`  - ${file}`));
+      process.stdout.write('Updated imports in:\n');
+      referencingFiles.forEach(file => {
+        const relativePath = this.getRelativePath(file);
+        process.stdout.write(`  - ${relativePath}\n`);
+      });
     }
+  }
+
+  private getRelativePath(filePath: string): string {
+    const cwd = process.cwd();
+    const relativePath = path.relative(cwd, filePath);
+    return relativePath;
   }
 
   validateOptions(_options: CommandOptions): void {

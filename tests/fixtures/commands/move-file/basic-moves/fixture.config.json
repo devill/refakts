@@ -2,8 +2,7 @@
   {
     "id": "simple-file-move",
     "description": "Move a single utility file from utils/ to helpers/",
-    "command": "move-file utils/math.ts helpers/math.ts",
-    "skip": "Command not implemented"
+    "command": "move-file 'utils/math.ts helpers/math.ts'"
   },
   {
     "id": "multiple-exports-move",

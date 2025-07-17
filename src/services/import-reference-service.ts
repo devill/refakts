@@ -1,4 +1,4 @@
-import { SourceFile, ImportDeclaration } from 'ts-morph';
+import { SourceFile, ImportDeclaration, Project } from 'ts-morph';
 import { ASTService } from './ast-service';
 import * as path from 'path';
 
@@ -6,7 +6,17 @@ export class ImportReferenceService {
   private astService = new ASTService();
 
   async findReferencingFiles(sourcePath: string): Promise<string[]> {
+    const project = this.loadAllProjectFiles();
+    return this.collectReferencingFiles(project, sourcePath);
+  }
+
+  private loadAllProjectFiles() {
     const project = this.astService.getProject();
+    project.addSourceFilesAtPaths("**/*.ts");
+    return project;
+  }
+
+  private collectReferencingFiles(project: Project, sourcePath: string): string[] {
     const referencingFiles: string[] = [];
     
     for (const sourceFile of project.getSourceFiles()) {
@@ -32,13 +42,26 @@ export class ImportReferenceService {
 
   private fileImportsFrom(sourceFile: SourceFile, targetPath: string): boolean {
     const imports = sourceFile.getImportDeclarations();
-    const targetPathWithoutExtension = targetPath.replace(/\.ts$/, '');
+    const targetPaths = this.createTargetPathVariants(targetPath);
     
     return imports.some(importDeclaration => {
       const moduleSpecifier = importDeclaration.getModuleSpecifierValue();
       const resolvedPath = this.resolveImportPath(sourceFile.getFilePath(), moduleSpecifier);
-      return resolvedPath === targetPathWithoutExtension || resolvedPath === targetPath;
+      return targetPaths.includes(resolvedPath);
     });
+  }
+
+  private createTargetPathVariants(targetPath: string): string[] {
+    const targetPathWithoutExtension = targetPath.replace(/\.ts$/, '');
+    const absoluteTargetPath = path.resolve(targetPath);
+    const absoluteTargetPathWithoutExtension = absoluteTargetPath.replace(/\.ts$/, '');
+    
+    return [
+      targetPathWithoutExtension,
+      targetPath,
+      absoluteTargetPath,
+      absoluteTargetPathWithoutExtension
+    ];
   }
 
   private updateImportsInFile(sourceFile: SourceFile, sourcePath: string, destinationPath: string): void {
