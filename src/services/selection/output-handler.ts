@@ -2,7 +2,11 @@ import { SelectResult } from '../../types/selection-types';
 import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 
 export class SelectOutputHandler {
-  constructor(private consoleOutput: ConsoleOutput) {}
+  private consoleOutput: ConsoleOutput;
+  
+  constructor(consoleOutput: ConsoleOutput) {
+    this.consoleOutput = consoleOutput;
+  }
 
   outputResults(results: SelectResult[]): void {
     if (this.hasNoResults(results)) {

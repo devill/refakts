@@ -1,7 +1,6 @@
 import { CommandRegistry } from './command-registry';
 import { ConsoleOutput } from './interfaces/ConsoleOutput';
 
-// Simple ConsoleOutput implementation for CLI generator
 class SimpleConsoleOutput implements ConsoleOutput {
   log(message: string): void {
     console.log(message);

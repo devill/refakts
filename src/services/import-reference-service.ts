@@ -5,6 +5,15 @@ import * as path from 'path';
 export class ImportReferenceService {
   private astService = new ASTService();
 
+  checkFileImportsFrom(sourcePath: string, targetPath: string): boolean {
+    try {
+      const sourceFile = this.astService.loadSourceFile(sourcePath);
+      return this.fileImportsFrom(sourceFile, targetPath);
+    } catch {
+      return false;
+    }
+  }
+
   async findReferencingFiles(sourcePath: string): Promise<string[]> {
     try {
       const project = this.loadAllProjectFiles();

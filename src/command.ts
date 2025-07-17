@@ -40,5 +40,5 @@ export interface RefactoringCommand {
   execute(_file: string, _options: CommandOptions): Promise<void>;
   validateOptions(_options: CommandOptions): void;
   getHelpText(): string;
-  setConsoleOutput(consoleOutput: ConsoleOutput): void;
+  setConsoleOutput(_consoleOutput: ConsoleOutput): void;
 }

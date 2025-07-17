@@ -12,13 +12,11 @@
   {
     "id": "syntax-error-in-source",
     "description": "Move file with TypeScript syntax errors",
-    "command": "move-file 'src/broken.ts src/fixed/broken.ts'",
-    "skip": "Console output leakage fixes pending"
+    "command": "move-file 'src/broken.ts src/fixed/broken.ts'"
   },
   {
     "id": "circular-move-conflict",
     "description": "Move that would create circular dependency",
-    "command": "move-file 'src/modules/a.ts src/modules/b/a.ts'",
-    "skip": "Console output leakage fixes pending"
+    "command": "move-file 'src/modules/a.ts src/modules/b/a.ts'"
   }
 ]

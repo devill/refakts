@@ -1,5 +1,5 @@
 export interface ConsoleOutput {
-  log(message: string): void;
-  error(message: string): void;
-  write(data: string): void;
+  log(_message: string): void;
+  error(_message: string): void;
+  write(_data: string): void;
 }

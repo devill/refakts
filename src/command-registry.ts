@@ -20,8 +20,12 @@ const loadCommands = (): RefactoringCommand[] => [
 
 export class CommandRegistry {
   private commands = new Map<string, RefactoringCommand>();
+  private consoleOutput: ConsoleOutput;
+  private showIncomplete: boolean;
 
-  constructor(private consoleOutput: ConsoleOutput, private showIncomplete: boolean = false) {
+  constructor(consoleOutput: ConsoleOutput, showIncomplete = false) {
+    this.consoleOutput = consoleOutput;
+    this.showIncomplete = showIncomplete;
     this.registerCommands();
   }
 

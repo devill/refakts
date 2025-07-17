@@ -4,7 +4,6 @@ import {ConsoleCapture} from './console-capture';
 import {CliExecutor} from './cli-executor';
 import {ExecutionContext} from './execution-context';
 import {DirectoryUtils} from '../../src/utils/directory-utils';
-import {ConsoleOutput} from '../../src/interfaces/ConsoleOutput';
 
 export interface CommandExecutorOptions {
   useCli?: boolean; // If true, uses CLI subprocess. If false, calls commands directly
