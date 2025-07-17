@@ -13,7 +13,7 @@ export class SelectCommand implements RefactoringCommand {
   private consoleOutput!: ConsoleOutput;
   private astService = new ASTService();
   private strategyFactory = new SelectionStrategyFactory();
-  private outputHandler = new SelectOutputHandler();
+  private outputHandler!: SelectOutputHandler;
 
   async execute(file: string, options: CommandOptions): Promise<void> {
     const strategy = this.strategyFactory.getStrategy(options);
@@ -38,5 +38,6 @@ export class SelectCommand implements RefactoringCommand {
 
   setConsoleOutput(consoleOutput: ConsoleOutput): void {
     this.consoleOutput = consoleOutput;
+    this.outputHandler = new SelectOutputHandler(consoleOutput);
   }
 }

@@ -3,6 +3,7 @@ import { SelectResult } from '../types/selection-types';
 import { SelectOutputHandler } from './selection/output-handler';
 import { CommandOptions, CommandOptionsWrapper } from '../command';
 import { UsageCollection } from '../core/usage-collection';
+import { ConsoleOutput } from '../interfaces/ConsoleOutput';
 
 interface OutputContext {
   baseDir: string;
@@ -17,7 +18,11 @@ interface UsageOutputParams {
 }
 
 export class UsageOutputHandler {
-  private selectOutputHandler = new SelectOutputHandler();
+  private selectOutputHandler: SelectOutputHandler;
+
+  constructor(private consoleOutput: ConsoleOutput) {
+    this.selectOutputHandler = new SelectOutputHandler(consoleOutput);
+  }
 
   outputUsages(params: UsageOutputParams): void {
     const collection = new UsageCollection(params.usages, params.targetLocation);
@@ -38,7 +43,7 @@ export class UsageOutputHandler {
   }
 
   private outputNoSymbolMessage(): void {
-    process.stdout.write('Symbol not found at specified location\n');
+    this.consoleOutput.write('Symbol not found at specified location\n');
   }
 
   private outputUsageResults(collection: UsageCollection, context: OutputContext): void {
@@ -48,7 +53,7 @@ export class UsageOutputHandler {
 
   private outputDeclaration(declaration: UsageLocation | undefined, context: OutputContext): void {
     if (declaration) {
-      process.stdout.write('Declaration:\n');
+      this.consoleOutput.write('Declaration:\n');
       const declarationResults = [this.convertToSelectResult(declaration, context)];
       this.selectOutputHandler.outputResults(declarationResults);
     }
@@ -74,20 +79,20 @@ export class UsageOutputHandler {
   }
 
   private outputReadWriteSeparatedUsages(writeUsages: UsageLocation[], readUsages: UsageLocation[], context: OutputContext): void {
-    process.stdout.write('\nWrite Usages:\n');
+    this.consoleOutput.write('\nWrite Usages:\n');
     const writeResults = writeUsages.map(usage => this.convertToSelectResult(usage, context));
     this.selectOutputHandler.outputResults(writeResults);
     
     if (readUsages.length > 0) {
-      process.stdout.write('\nRead Usages:\n');
+      this.consoleOutput.write('\nRead Usages:\n');
       const readResults = readUsages.map(usage => this.convertToSelectResult(usage, context));
       this.selectOutputHandler.outputResults(readResults);
     }
   }
 
   private outputSimpleUsages(usages: UsageLocation[], context: OutputContext): void {
-    process.stdout.write('\n');
-    process.stdout.write('Usages:\n');
+    this.consoleOutput.write('\n');
+    this.consoleOutput.write('Usages:\n');
     const usageResults = usages.map(usage => this.convertToSelectResult(usage, context));
     this.selectOutputHandler.outputResults(usageResults);
   }

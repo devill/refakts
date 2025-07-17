@@ -1,10 +1,12 @@
-/* eslint-disable no-console */
 import { SelectResult } from '../../types/selection-types';
+import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 
 export class SelectOutputHandler {
+  constructor(private consoleOutput: ConsoleOutput) {}
+
   outputResults(results: SelectResult[]): void {
     if (this.hasNoResults(results)) {
-      console.log('No Matches');
+      this.consoleOutput.log('No Matches');
       return;
     }
     
@@ -28,7 +30,7 @@ export class SelectOutputHandler {
       const currentResult = results[index];
       const nextResult = results[index + 1];
       if (this.needsSpacing(currentResult, nextResult)) {
-        console.log('');
+        this.consoleOutput.log('');
       }
     }
   }
@@ -69,13 +71,13 @@ export class SelectOutputHandler {
     return {
       preview: () => this.outputPreviewResult(result),
       multiline: () => this.outputMultiLineResult(result),
-      withContent: () => console.log(`${result.location} ${result.content}`),
-      locationOnly: () => console.log(result.location)
+      withContent: () => this.consoleOutput.log(`${result.location} ${result.content}`),
+      locationOnly: () => this.consoleOutput.log(result.location)
     };
   }
 
   private outputPreviewResult(result: SelectResult): void {
-    console.log(`${result.location} ${result.context}`);
+    this.consoleOutput.log(`${result.location} ${result.context}`);
   }
 
   private isMultiLineResult(result: SelectResult): boolean {
@@ -87,8 +89,8 @@ export class SelectOutputHandler {
   }
 
   private outputMultiLineResult(result: SelectResult): void {
-    console.log(result.location);
-    console.log(result.content);
-    console.log(result.location);
+    this.consoleOutput.log(result.location);
+    this.consoleOutput.log(result.content || '');
+    this.consoleOutput.log(result.location);
   }
 }

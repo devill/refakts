@@ -12,7 +12,7 @@ export class FindUsagesCommand implements RefactoringCommand {
   readonly complete = true;
   private consoleOutput!: ConsoleOutput;
   private usageFinderService = new UsageFinderService();
-  private outputHandler = new UsageOutputHandler();
+  private outputHandler!: UsageOutputHandler;
   
   async execute(targetLocation: string, options: CommandOptions): Promise<void> {
     const finalOptions = this.processTarget(targetLocation, options);
@@ -57,5 +57,6 @@ export class FindUsagesCommand implements RefactoringCommand {
 
   setConsoleOutput(consoleOutput: ConsoleOutput): void {
     this.consoleOutput = consoleOutput;
+    this.outputHandler = new UsageOutputHandler(consoleOutput);
   }
 }
