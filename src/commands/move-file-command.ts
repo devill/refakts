@@ -79,7 +79,6 @@ export class MoveFileCommand implements RefactoringCommand {
   }
 
   private validateDestinationPathFormat(destinationPath: string): void {
-    // Check for problematic path patterns
     if (destinationPath.includes('../..') || destinationPath.startsWith('./../../')) {
       throw new Error(`Invalid destination path: ${destinationPath}`);
     }
@@ -106,8 +105,7 @@ export class MoveFileCommand implements RefactoringCommand {
       if (diagnostics.length > 0) {
         process.stdout.write(`Warning: Syntax errors detected in ${sourcePath}\n`);
       }
-    } catch (error) {
-      // Don't prevent the move operation due to syntax errors
+    } catch {
       process.stdout.write(`Warning: Syntax errors detected in ${sourcePath}\n`);
     }
   }
@@ -125,11 +123,9 @@ export class MoveFileCommand implements RefactoringCommand {
   }
 
   private wouldCreateCircularDependency(sourcePath: string, destinationPath: string, referencingFile: string): boolean {
-    // Check if the referencing file is in the same directory as the destination
     const destinationDir = path.dirname(destinationPath);
     const referencingDir = path.dirname(referencingFile);
     
-    // If they're in the same directory, check if the source file imports from the referencing file
     if (destinationDir === referencingDir) {
       return this.fileImportsFrom(sourcePath, referencingFile);
     }

@@ -9,8 +9,7 @@ export class ImportReferenceService {
     try {
       const project = this.loadAllProjectFiles();
       return this.collectReferencingFiles(project, sourcePath);
-    } catch (error) {
-      // If there's an error loading project files (e.g., syntax errors), return empty array
+    } catch {
       return [];
     }
   }
