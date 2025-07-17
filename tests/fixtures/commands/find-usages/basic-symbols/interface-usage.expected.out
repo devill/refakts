@@ -1,12 +1,21 @@
 Declaration:
 [types/api.ts 3:18-3:25] ApiUser
+Context: export interface ApiUser {
 
 Usages:
 [main.ts 3:10-3:17] ApiUser
+Context: import { ApiUser, UserId, UserResponse } from './types/api';
 [main.ts 20:16-20:23] ApiUser
+Context: const apiUser: ApiUser = user.toApiFormat();
 [main.ts 35:36-35:43] ApiUser
+Context: function processUserData(userData: ApiUser): UserResponse {
 [models/user.ts 1:10-1:17] ApiUser
+Context: import { ApiUser } from '../types/api';
 [models/user.ts 10:18-10:25] ApiUser
+Context:   toApiFormat(): ApiUser {
 [models/user.ts 18:33-18:40] ApiUser
+Context:   static fromApiFormat(apiUser: ApiUser): User {
 [types/api.ts 17:40-17:47] ApiUser
+Context: export type UserResponse = ApiResponse<ApiUser>;
 [types/api.ts 18:44-18:51] ApiUser
+Context: export type UserListResponse = ApiResponse<ApiUser[]>;

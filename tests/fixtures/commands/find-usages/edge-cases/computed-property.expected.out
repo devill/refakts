@@ -1,14 +1,25 @@
 Declaration:
 [computed.ts 7:7-7:10] key
+Context: const key = 'dynamicKey';
 
 Usages:
 [computed.ts 4:4-4:7] key
+Context:   [key: string]: any;
 [computed.ts 10:4-10:7] key
+Context:   [key]: 'dynamic value',
 [computed.ts 16:27-16:30] key
+Context: const dynamicAccess = obj[key]; // Using computed property
 [computed.ts 18:28-18:31] key
+Context: const variableAccess = obj[key];
 [computed.ts 30:31-30:34] key
+Context: const result1 = getValue(obj, key);
 [computed.ts 32:15-32:18] key
+Context: setValue(obj, key, 'new value');
 [computed.ts 36:42-36:45] key
+Context: const keys = ['staticKey', 'anotherKey', key];
 [computed.ts 40:24-40:27] key
+Context: console.log(`Key is: ${key}`);
 [computed.ts 41:19-41:22] key
+Context: const keyLength = key.length;
 [computed.ts 42:18-42:21] key
+Context: const keyUpper = key.toUpperCase();

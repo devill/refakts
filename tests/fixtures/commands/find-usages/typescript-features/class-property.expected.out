@@ -1,10 +1,17 @@
 Declaration:
 [generics/container.ts 7:10-7:15] items
+Context:     this.items.push(item);
 
 Usages:
 [generics/container.ts 4:11-4:16] items
+Context:   private items: T[] = [];
 [generics/container.ts 11:17-11:22] items
+Context:     return this.items[index];
 [generics/container.ts 15:21-15:26] items
+Context:     return [...this.items];
 [generics/container.ts 19:17-19:22] items
+Context:     return this.items.find(predicate);
 [generics/container.ts 23:17-23:22] items
+Context:     return this.items.map(mapper);
 [generics/container.ts 27:17-27:22] items
+Context:     return this.items.filter(predicate);

@@ -19,7 +19,10 @@ export class CommandOptionsWrapper {
   }
 
   shouldPreviewLine(): boolean {
-    return !!(this._options['preview-line'] || this._options.previewLine);
+    const hasPreviewLineOption = this._options['preview-line'] !== undefined || this._options.previewLine !== undefined;
+    return hasPreviewLineOption ? 
+      !!(this._options['preview-line'] || this._options.previewLine) : 
+      true; // Default to true
   }
 
   get(key: string): unknown {

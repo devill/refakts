@@ -1,9 +1,15 @@
 Declaration:
 [utils/math.ts 3:17-3:20] add
+Context: export function add(a: number, b: number): number {
 
 Usages:
 [main.ts 1:10-1:13] add
+Context: import { add, multiply } from './utils/math';
 [main.ts 8:13-8:16] add
+Context: const sum = add(5, 3);
 [main.ts 44:22-44:25] add
+Context: const calculation1 = add(10, 20);
 [main.ts 45:22-45:25] add
+Context: const calculation2 = add(sum, product);
 [main.ts 46:22-46:25] add
+Context: const calculation3 = add(userId, 100);

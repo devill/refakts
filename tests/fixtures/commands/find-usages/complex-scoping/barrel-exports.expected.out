@@ -1,8 +1,13 @@
 Declaration:
 [barrel/utils.ts 3:17-3:26] transform
+Context: export function transform(input: string): string {
 
 Usages:
 [main.ts 11:29-11:38] transform
+Context: import { process, getCount, transform, validate, format, parse, MainService } from './barrel';
 [main.ts 26:21-26:30] transform
+Context: const transformed = transform('HELLO');
 [main.ts 39:22-39:31] transform
+Context: const transformed2 = transform('WORLD');
 [main.ts 40:22-40:31] transform
+Context: const transformed3 = transform('GOODBYE');

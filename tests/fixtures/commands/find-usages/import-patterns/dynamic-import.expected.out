@@ -1,6 +1,9 @@
 Declaration:
 [modules/lazy.ts 3:17-3:26] heavyTask
+Context: export function heavyTask(): Promise<string> {
 
 Usages:
 [main.ts 35:11-35:20] heavyTask
+Context:   const { heavyTask, computeHash } = await import('./modules/lazy');
 [main.ts 36:24-36:33] heavyTask
+Context:   const result = await heavyTask();
