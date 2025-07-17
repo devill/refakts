@@ -1,2 +1,2 @@
-[ignore-comments.received.ts 9:11-9:21] tempResult
-[ignore-comments.received.ts 11:12-11:22] tempResult
+[ignore-comments.received.ts 9:11-9:21] const ≫tempResult≪ = width * height;
+[ignore-comments.received.ts 11:12-11:22] return ≫tempResult≪ + 5;

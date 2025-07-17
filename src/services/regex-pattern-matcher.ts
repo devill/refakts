@@ -100,7 +100,10 @@ export class RegexPatternMatcher {
   }
 
   private hasPreviewOption(options: RegexOptions): boolean {
-    return Boolean(options.previewLine || options['preview-line']);
+    const hasExplicitPreviewOption = options.previewLine !== undefined || options['preview-line'] !== undefined;
+    return hasExplicitPreviewOption ? 
+      Boolean(options.previewLine || options['preview-line']) : 
+      true;
   }
 
   private hasPreviewMatchOption(options: RegexOptions): boolean {

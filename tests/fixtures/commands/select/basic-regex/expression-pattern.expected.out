@@ -1,3 +1,3 @@
-[expression-pattern.received.ts 9:18-9:32] width * height
-[expression-pattern.received.ts 10:23-10:37] width + height
-[expression-pattern.received.ts 11:32-11:63] width * width + height * height
+[expression-pattern.received.ts 9:18-9:32] const area = ≫width * height≪;
+[expression-pattern.received.ts 10:23-10:37] const perimeter = ≫width + height≪;
+[expression-pattern.received.ts 11:32-11:63] const diagonal = Math.sqrt(≫width * width + height * height≪);
