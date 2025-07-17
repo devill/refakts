@@ -17,7 +17,7 @@ class SimpleConsoleOutput implements ConsoleOutput {
 }
 
 export function getIncompleteRefactorings(): string[] {
-  const commandRegistry = new CommandRegistry(new SimpleConsoleOutput());
+  const commandRegistry = new CommandRegistry(new SimpleConsoleOutput(), true);
   const commands = commandRegistry.getAllCommands();
   
   return commands

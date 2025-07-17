@@ -27,7 +27,7 @@ export class CommandExecutor {
 
   constructor(options: CommandExecutorOptions = {}) {
     this.useCli = options.useCli ?? process.env.REFAKTS_TEST_CLI === 'true';
-    this.commandRegistry = new CommandRegistry(this.consoleCapture);
+    this.commandRegistry = new CommandRegistry(this.consoleCapture, true);
   }
 
   isUsingCli(): boolean {

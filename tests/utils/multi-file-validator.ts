@@ -31,6 +31,9 @@ export class MultiFileValidator implements TestValidator {
   }
 
   private async setupMultiFileProject(inputDir: string, receivedDir: string): Promise<void> {
+    if (fs.existsSync(receivedDir)) {
+      fs.rmSync(receivedDir, { recursive: true, force: true });
+    }
     await this.fileOperations.copyDirectory(inputDir, receivedDir);
   }
 

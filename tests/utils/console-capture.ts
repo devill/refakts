@@ -1,47 +1,27 @@
 import {ConsoleOutput} from '../../src/interfaces/ConsoleOutput';
 
 export class ConsoleCapture implements ConsoleOutput {
+  private output: string[] = [];
+
   async captureOutput(executeFn: () => Promise<void>): Promise<string> {
-    const captureState = this.setupCapture();
-    
-    try {
-      await executeFn();
-      return this.getFormattedOutput(captureState.output.value);
-    } finally {
-      this.restoreOriginals(captureState);
-    }
+    this.output = [];
+    await executeFn();
+    return this.getFormattedOutput();
   }
 
-  private restoreOriginals(captureState: any): void {
-    console.log = captureState.originalLog;
-    process.stdout.write = captureState.originalWrite;
+  private getFormattedOutput(): string {
+    return this.output.join('').trim();
   }
 
-  private setupCapture() {
-    const originalLog = console.log;
-    const originalWrite = process.stdout.write;
-    const output = { value: '' };
-
-    console.log = (...args: any[]) => { output.value += args.join(' ') + '\n'; };
-    process.stdout.write = (str: string) => {output.value += str; return true; };
-
-    return { originalLog, originalWrite, output };
-  }
-
-  private getFormattedOutput(output: string): string {
-    return output.trim();
-  }
-
-  // ConsoleOutput interface implementation
   log(message: string): void {
-    console.log(message);
+    this.output.push(message + '\n');
   }
 
   error(message: string): void {
-    console.error(message);
+    this.output.push(message + '\n');
   }
 
   write(data: string): void {
-    process.stdout.write(data);
+    this.output.push(data);
   }
 }

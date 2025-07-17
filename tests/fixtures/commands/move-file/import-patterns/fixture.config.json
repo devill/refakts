@@ -2,31 +2,26 @@
   {
     "id": "relative-imports",
     "description": "Test relative import path updates when moving files",
-    "command": "move-file 'src/utils/helper.ts src/lib/common/helper.ts'",
-    "skip": "Output capture issue"
+    "command": "move-file 'src/utils/helper.ts src/lib/common/helper.ts'"
   },
   {
     "id": "absolute-imports",
     "description": "Test absolute import handling",
-    "command": "move-file 'src/services/logger.ts src/core/logging/logger.ts'",
-    "skip": "Output capture issue"
+    "command": "move-file 'src/services/logger.ts src/core/logging/logger.ts'"
   },
   {
     "id": "barrel-exports",
     "description": "Move file that's re-exported through index.ts",
-    "command": "move-file 'src/components/button.ts src/ui/components/button.ts'",
-    "skip": "Output capture issue"
+    "command": "move-file 'src/components/button.ts src/ui/components/button.ts'"
   },
   {
     "id": "deep-nesting",
     "description": "Move files between deeply nested directories",
-    "command": "move-file 'src/deep/nested/utils/formatter.ts src/shared/formatting/formatter.ts'",
-    "skip": "Output capture issue"
+    "command": "move-file 'src/deep/nested/utils/formatter.ts src/shared/formatting/formatter.ts'"
   },
   {
     "id": "cross-module-move",
     "description": "Move files between different logical modules",
-    "command": "move-file 'src/user/user-validator.ts src/validation/user-validator.ts'",
-    "skip": "Output capture issue"
+    "command": "move-file 'src/user/user-validator.ts src/validation/user-validator.ts'"
   }
 ]

@@ -10,7 +10,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const program = new Command();
-const commandRegistry = new CommandRegistry(new StandardConsole());
+const showIncomplete = process.argv.includes('--show-incomplete');
+const commandRegistry = new CommandRegistry(new StandardConsole(), showIncomplete);
 
 program
   .name('refakts')
@@ -18,13 +19,7 @@ program
   .version('1.0.0')
   .option('--show-incomplete', 'Show incomplete commands in help');
 
-const showIncomplete = process.argv.includes('--show-incomplete');
-
 for (const command of commandRegistry.getAllCommands()) {
-  if (!command.complete && !showIncomplete) {
-    continue;
-  }
-  
   const warningText = !command.complete ? ' (warning: incomplete)' : '';
   const cmd = program
     .command(command.name)

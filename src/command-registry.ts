@@ -21,7 +21,7 @@ const loadCommands = (): RefactoringCommand[] => [
 export class CommandRegistry {
   private commands = new Map<string, RefactoringCommand>();
 
-  constructor(private consoleOutput: ConsoleOutput) {
+  constructor(private consoleOutput: ConsoleOutput, private showIncomplete: boolean = false) {
     this.registerCommands();
   }
 
@@ -34,6 +34,10 @@ export class CommandRegistry {
   }
 
   getAllCommands(): RefactoringCommand[] {
-    return Array.from(this.commands.values());
+    const allCommands = Array.from(this.commands.values());
+    if (this.showIncomplete) {
+      return allCommands;
+    }
+    return allCommands.filter(cmd => cmd.complete);
   }
 }
