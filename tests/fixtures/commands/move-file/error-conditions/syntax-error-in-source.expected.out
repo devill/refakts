@@ -1,3 +1,1 @@
-Warning: Syntax errors detected in src/broken.ts
-File moved: src/broken.ts → src/fixed/broken.ts
-No import references found to update
+Error: Syntax errors detected in src/broken.ts
