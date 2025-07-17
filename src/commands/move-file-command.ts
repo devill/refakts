@@ -17,17 +17,41 @@ export class MoveFileCommand implements RefactoringCommand {
   async execute(targetLocation: string, _options: CommandOptions): Promise<void> {
     const [sourcePath, destinationPath] = this.parseArguments(targetLocation);
     
-    this.validateSourceFile(sourcePath);
-    const referencingFiles = await this.findReferencingFiles(sourcePath);
-    await this.moveFile(sourcePath, destinationPath);
-    await this.updateImportReferences(sourcePath, destinationPath, referencingFiles);
+    const resolvedSourcePath = this.resolveSourcePath(sourcePath);
+    const resolvedDestinationPath = this.resolveDestinationPath(destinationPath);
+    
+    this.validateSourceFile(resolvedSourcePath);
+    const referencingFiles = await this.findReferencingFiles(resolvedSourcePath);
+    await this.moveFile(resolvedSourcePath, resolvedDestinationPath);
+    await this.updateImportReferences(resolvedSourcePath, resolvedDestinationPath, referencingFiles);
     this.outputSummary(sourcePath, destinationPath, referencingFiles);
+  }
+
+  private resolveSourcePath(sourcePath: string): string {
+    if (fs.existsSync(sourcePath)) {
+      return sourcePath;
+    }
+    
+    const srcPath = path.join('src', sourcePath);
+    if (fs.existsSync(srcPath)) {
+      return srcPath;
+    }
+    
+    return sourcePath;
+  }
+
+  private resolveDestinationPath(destinationPath: string): string {
+    if (destinationPath.startsWith('src/')) {
+      return destinationPath;
+    }
+    
+    return path.join('src', destinationPath);
   }
 
   private parseArguments(targetLocation: string): [string, string] {
     const parts = targetLocation.trim().split(/\s+/);
     if (parts.length !== 2) {
-      throw new Error('move-file requires exactly two arguments: source and destination paths.\nUsage: move-file "source.ts destination.ts"');
+      throw new Error('move-file requires exactly two arguments: source and destination paths');
     }
     return [parts[0], parts[1]];
   }
@@ -39,6 +63,10 @@ export class MoveFileCommand implements RefactoringCommand {
 
   private ensureFileExists(sourcePath: string): void {
     if (!fs.existsSync(sourcePath)) {
+      const srcPath = path.join('src', sourcePath);
+      if (fs.existsSync(srcPath)) {
+        throw new Error(`Source file does not exist: ${sourcePath}. Did you mean: ${srcPath}?`);
+      }
       throw new Error(`Source file does not exist: ${sourcePath}`);
     }
   }
