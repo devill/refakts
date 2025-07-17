@@ -1,13 +1,13 @@
 Declaration:
 [circular-a/module-a.ts 3:17-3:26] functionA
-Context: export function functionA(): string {
+Context: export function ≫functionA≪(): string {
 
 Usages:
 [circular-b/module-b.ts 9:11-9:20] functionA
-Context:   const { functionA } = require('../circular-a/module-a');
+Context:   const { ≫functionA≪ } = require('../circular-a/module-a');
 [circular-b/module-b.ts 10:24-10:33] functionA
-Context:   return `B calls A: ${functionA()}`;
+Context:   return `B calls A: ${≫functionA≪()}`;
 [main.ts 7:10-7:19] functionA
-Context: import { functionA, callModuleB } from './circular-a/module-a';
+Context: import { ≫functionA≪, callModuleB } from './circular-a/module-a';
 [main.ts 18:17-18:26] functionA
-Context: const resultA = functionA();
+Context: const resultA = ≫functionA≪();

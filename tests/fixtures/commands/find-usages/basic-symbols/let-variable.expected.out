@@ -1,15 +1,15 @@
 Declaration:
 [main.ts 32:5-32:12] counter
-Context: let counter = 0;
+Context: let ≫counter≪ = 0;
 
 Write Usages:
 [main.ts 49:1-49:8] counter
-Context: counter++; // write usage
+Context: ≫counter≪++; // write usage
 [main.ts 51:1-51:8] counter
-Context: counter = counter + 5; // write usage
+Context: ≫counter≪ = counter + 5; // write usage
 
 Read Usages:
 [main.ts 50:33-50:40] counter
-Context: console.log(`Current counter: ${counter}`); // read usage
+Context: console.log(`Current counter: ${≫counter≪}`); // read usage
 [main.ts 51:11-51:18] counter
-Context: counter = counter + 5; // write usage
+Context: counter = ≫counter≪ + 5; // write usage

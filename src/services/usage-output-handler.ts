@@ -125,10 +125,26 @@ export class UsageOutputHandler {
       const sourceContent = fs.readFileSync(usage.location.file, 'utf8');
       const lines = sourceContent.split('\n');
       const targetLine = lines[usage.location.start.line - 1];
-      return targetLine || '';
+      
+      if (!targetLine) {
+        return '';
+      }
+      
+      return this.addSymbolsToContext(targetLine, usage);
     } catch {
       return '';
     }
+  }
+
+  private addSymbolsToContext(line: string, usage: UsageLocation): string {
+    const startCol = usage.location.start.column - 1;
+    const endCol = usage.location.end.column - 1;
+    
+    const before = line.substring(0, startCol);
+    const matched = line.substring(startCol, endCol);
+    const after = line.substring(endCol);
+    
+    return `${before}≫${matched}≪${after}`;
   }
 
   private formatLineLocation(location: LocationRange, baseDir: string): string {

@@ -1,11 +1,11 @@
 Declaration:
 [interfaces/repository.ts 4:3-4:7] save
-Context:   save(entity: T): Promise<T>;
+Context:   ≫save≪(entity: T): Promise<T>;
 
 Usages:
 [interfaces/repository.ts 11:9-11:13] save
-Context:   async save(user: User): Promise<User> {
+Context:   async ≫save≪(user: User): Promise<User> {
 [interfaces/repository.ts 46:26-46:30] save
-Context:     return this.userRepo.save(user);
+Context:     return this.userRepo.≫save≪(user);
 [main.ts 30:10-30:14] save
-Context: userRepo.save({ id: '1', name: 'John', email: 'john@example.com' });
+Context: userRepo.≫save≪({ id: '1', name: 'John', email: 'john@example.com' });

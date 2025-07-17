@@ -1,9 +1,9 @@
 Declaration:
 [types/api.ts 9:13-9:19] UserId
-Context: export type UserId = number;
+Context: export type ≫UserId≪ = number;
 
 Usages:
 [main.ts 3:19-3:25] UserId
-Context: import { ApiUser, UserId, UserResponse } from './types/api';
+Context: import { ApiUser, ≫UserId≪, UserResponse } from './types/api';
 [main.ts 21:15-21:21] UserId
-Context: const userId: UserId = user.id;
+Context: const userId: ≫UserId≪ = user.id;

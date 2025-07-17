@@ -1,15 +1,15 @@
 Declaration:
 [utils/helpers.ts 3:17-3:27] formatName
-Context: export function formatName(firstName: string, lastName: string): string {
+Context: export function ≫formatName≪(firstName: string, lastName: string): string {
 
 Usages:
 [components/button.ts 1:10-1:20] formatName
-Context: import { formatName } from '../utils/helpers';
+Context: import { ≫formatName≪ } from '../utils/helpers';
 [components/button.ts 15:17-15:27] formatName
-Context:     this.text = formatName(firstName, lastName);
+Context:     this.text = ≫formatName≪(firstName, lastName);
 [main.ts 1:10-1:20] formatName
-Context: import { formatName, calculateAge, DEFAULT_GREETING } from './utils/helpers';
+Context: import { ≫formatName≪, calculateAge, DEFAULT_GREETING } from './utils/helpers';
 [main.ts 11:20-11:30] formatName
-Context:   const fullName = formatName(user.firstName, user.lastName);
+Context:   const fullName = ≫formatName≪(user.firstName, user.lastName);
 [main.ts 16:29-16:39] formatName
-Context:   const button = new Button(formatName(user.firstName, user.lastName));
+Context:   const button = new Button(≫formatName≪(user.firstName, user.lastName));
