@@ -2,25 +2,21 @@
   {
     "id": "multi-level-imports",
     "description": "Move files that import each other in chains",
-    "command": "move-file src/services/user-service.ts src/domain/user/user-service.ts",
-    "skip": "Command not implemented"
+    "command": "move-file 'src/services/user-service.ts src/domain/user/user-service.ts'"
   },
   {
     "id": "circular-dependencies",
     "description": "Move files with circular import references",
-    "command": "move-file src/modules/order.ts src/domain/order/order.ts",
-    "skip": "Command not implemented"
+    "command": "move-file 'src/modules/order.ts src/domain/order/order.ts'"
   },
   {
     "id": "mixed-file-types",
     "description": "Move TypeScript files that import JavaScript files",
-    "command": "move-file src/utils/config.ts src/configuration/config.ts",
-    "skip": "Command not implemented"
+    "command": "move-file 'src/utils/config.ts src/configuration/config.ts'"
   },
   {
     "id": "path-mapping-config",
     "description": "Move files that affect tsconfig.json path mapping",
-    "command": "move-file src/shared/constants.ts src/core/constants.ts",
-    "skip": "Command not implemented"
+    "command": "move-file 'src/shared/constants.ts src/core/constants.ts'"
   }
 ]

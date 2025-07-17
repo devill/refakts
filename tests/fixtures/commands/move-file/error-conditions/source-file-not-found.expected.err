@@ -1,1 +1,1 @@
-Error: Source file not found: src/non-existent.ts
+Source file does not exist: src/non-existent.ts

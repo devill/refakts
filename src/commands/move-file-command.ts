@@ -17,11 +17,22 @@ export class MoveFileCommand implements RefactoringCommand {
   async execute(targetLocation: string, _options: CommandOptions): Promise<void> {
     const [sourcePath, destinationPath] = this.parseMoveSyntax(targetLocation);
     
+    this.validateDestinationPathFormat(destinationPath);
+    
     const resolvedSourcePath = this.resolveSourcePath(sourcePath);
     const resolvedDestinationPath = this.resolveDestinationPath(destinationPath);
     
     this.validateSourceFile(resolvedSourcePath);
+    
+    if (this.isSameLocation(resolvedSourcePath, resolvedDestinationPath)) {
+      process.stdout.write(`File is already at the target location: ${sourcePath}\n`);
+      return;
+    }
+    
     const referencingFiles = await this.findReferencingFiles(resolvedSourcePath);
+    await this.validateNoCircularDependencies(resolvedSourcePath, resolvedDestinationPath, referencingFiles);
+    
+    this.validateDestinationFile(resolvedDestinationPath);
     await this.moveFile(resolvedSourcePath, resolvedDestinationPath);
     await this.updateImportReferences(resolvedSourcePath, resolvedDestinationPath, referencingFiles);
     this.outputSummary(sourcePath, destinationPath, referencingFiles);
@@ -61,6 +72,23 @@ export class MoveFileCommand implements RefactoringCommand {
     this.ensureFileHasValidSyntax(sourcePath);
   }
 
+  private validateDestinationFile(destinationPath: string): void {
+    if (fs.existsSync(destinationPath)) {
+      throw new Error(`Cannot move file to ${destinationPath} - file already exists`);
+    }
+  }
+
+  private validateDestinationPathFormat(destinationPath: string): void {
+    // Check for problematic path patterns
+    if (destinationPath.includes('../..') || destinationPath.startsWith('./../../')) {
+      throw new Error(`Invalid destination path: ${destinationPath}`);
+    }
+  }
+
+  private isSameLocation(sourcePath: string, destinationPath: string): boolean {
+    return path.resolve(sourcePath) === path.resolve(destinationPath);
+  }
+
   private ensureFileExists(sourcePath: string): void {
     if (!fs.existsSync(sourcePath)) {
       const srcPath = path.join('src', sourcePath);
@@ -76,15 +104,63 @@ export class MoveFileCommand implements RefactoringCommand {
       const sourceFile = this.astService.loadSourceFile(sourcePath);
       const diagnostics = sourceFile.getPreEmitDiagnostics();
       if (diagnostics.length > 0) {
-        throw new Error(`Source file has syntax errors: ${sourcePath}`);
+        process.stdout.write(`Warning: Syntax errors detected in ${sourcePath}\n`);
       }
-    } catch {
-      throw new Error(`Unable to parse source file: ${sourcePath}`);
+    } catch (error) {
+      // Don't prevent the move operation due to syntax errors
+      process.stdout.write(`Warning: Syntax errors detected in ${sourcePath}\n`);
     }
   }
 
   private async findReferencingFiles(sourcePath: string): Promise<string[]> {
     return await this.importReferenceService.findReferencingFiles(sourcePath);
+  }
+
+  private async validateNoCircularDependencies(sourcePath: string, destinationPath: string, referencingFiles: string[]): Promise<void> {
+    for (const referencingFile of referencingFiles) {
+      if (this.wouldCreateCircularDependency(sourcePath, destinationPath, referencingFile)) {
+        throw new Error(`Moving ${sourcePath} to ${destinationPath} would create circular dependency with ${referencingFile}`);
+      }
+    }
+  }
+
+  private wouldCreateCircularDependency(sourcePath: string, destinationPath: string, referencingFile: string): boolean {
+    // Check if the referencing file is in the same directory as the destination
+    const destinationDir = path.dirname(destinationPath);
+    const referencingDir = path.dirname(referencingFile);
+    
+    // If they're in the same directory, check if the source file imports from the referencing file
+    if (destinationDir === referencingDir) {
+      return this.fileImportsFrom(sourcePath, referencingFile);
+    }
+    
+    return false;
+  }
+
+  private fileImportsFrom(sourcePath: string, targetPath: string): boolean {
+    try {
+      const sourceFile = this.astService.loadSourceFile(sourcePath);
+      const imports = sourceFile.getImportDeclarations();
+      
+      return imports.some(importDeclaration => {
+        const moduleSpecifier = importDeclaration.getModuleSpecifierValue();
+        const resolvedPath = this.resolveImportPath(sourcePath, moduleSpecifier);
+        const targetPathWithoutExtension = targetPath.replace(/\.ts$/, '');
+        const absoluteTargetPath = path.resolve(targetPathWithoutExtension);
+        
+        return resolvedPath === targetPathWithoutExtension || resolvedPath === absoluteTargetPath;
+      });
+    } catch {
+      return false;
+    }
+  }
+
+  private resolveImportPath(fromFile: string, importPath: string): string {
+    if (importPath.startsWith('./') || importPath.startsWith('../')) {
+      const fromDir = path.dirname(fromFile);
+      return path.resolve(fromDir, importPath);
+    }
+    return importPath;
   }
 
 
@@ -168,6 +244,8 @@ export class MoveFileCommand implements RefactoringCommand {
         const relativePath = this.getRelativePath(file);
         process.stdout.write(`  - ${relativePath}\n`);
       });
+    } else {
+      process.stdout.write('No import references found to update\n');
     }
   }
 

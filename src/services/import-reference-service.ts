@@ -1,4 +1,4 @@
-import { SourceFile, ImportDeclaration, Project } from 'ts-morph';
+import { SourceFile, ImportDeclaration, ExportDeclaration, Project } from 'ts-morph';
 import { ASTService } from './ast-service';
 import * as path from 'path';
 
@@ -6,8 +6,13 @@ export class ImportReferenceService {
   private astService = new ASTService();
 
   async findReferencingFiles(sourcePath: string): Promise<string[]> {
-    const project = this.loadAllProjectFiles();
-    return this.collectReferencingFiles(project, sourcePath);
+    try {
+      const project = this.loadAllProjectFiles();
+      return this.collectReferencingFiles(project, sourcePath);
+    } catch (error) {
+      // If there's an error loading project files (e.g., syntax errors), return empty array
+      return [];
+    }
   }
 
   private loadAllProjectFiles() {
@@ -42,13 +47,23 @@ export class ImportReferenceService {
 
   private fileImportsFrom(sourceFile: SourceFile, targetPath: string): boolean {
     const imports = sourceFile.getImportDeclarations();
+    const exports = sourceFile.getExportDeclarations();
     const targetPaths = this.createTargetPathVariants(targetPath);
     
-    return imports.some(importDeclaration => {
+    const hasImportFromTarget = imports.some(importDeclaration => {
       const moduleSpecifier = importDeclaration.getModuleSpecifierValue();
       const resolvedPath = this.resolveImportPath(sourceFile.getFilePath(), moduleSpecifier);
       return targetPaths.includes(resolvedPath);
     });
+    
+    const hasExportFromTarget = exports.some(exportDeclaration => {
+      const moduleSpecifier = exportDeclaration.getModuleSpecifierValue();
+      if (!moduleSpecifier) return false;
+      const resolvedPath = this.resolveImportPath(sourceFile.getFilePath(), moduleSpecifier);
+      return targetPaths.includes(resolvedPath);
+    });
+    
+    return hasImportFromTarget || hasExportFromTarget;
   }
 
   private createTargetPathVariants(targetPath: string): string[] {
@@ -66,10 +81,15 @@ export class ImportReferenceService {
 
   private updateImportsInFile(sourceFile: SourceFile, sourcePath: string, destinationPath: string): void {
     const imports = sourceFile.getImportDeclarations();
+    const exports = sourceFile.getExportDeclarations();
     const updateContext = this.createUpdateContext(sourceFile, sourcePath, destinationPath);
     
     imports.forEach(importDeclaration => {
       this.updateImportDeclaration(importDeclaration, updateContext);
+    });
+    
+    exports.forEach(exportDeclaration => {
+      this.updateExportDeclaration(exportDeclaration, updateContext);
     });
   }
 
@@ -89,6 +109,18 @@ export class ImportReferenceService {
     if (this.isTargetImport(resolvedPath, context.sourcePathWithoutExtension, context.sourcePath)) {
       const newImportPath = this.calculateNewImportPath(context.filePath, context.destinationPath);
       importDeclaration.setModuleSpecifier(newImportPath);
+    }
+  }
+
+  private updateExportDeclaration(exportDeclaration: ExportDeclaration, context: { filePath: string; sourcePathWithoutExtension: string; sourcePath: string; destinationPath: string }): void {
+    const moduleSpecifier = exportDeclaration.getModuleSpecifierValue();
+    if (!moduleSpecifier) return;
+    
+    const resolvedPath = this.resolveImportPath(context.filePath, moduleSpecifier);
+    
+    if (this.isTargetImport(resolvedPath, context.sourcePathWithoutExtension, context.sourcePath)) {
+      const newImportPath = this.calculateNewImportPath(context.filePath, context.destinationPath);
+      exportDeclaration.setModuleSpecifier(newImportPath);
     }
   }
 

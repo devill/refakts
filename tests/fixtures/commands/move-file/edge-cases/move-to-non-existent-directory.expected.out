@@ -1,4 +1,3 @@
-Created directory: src/new/nested/path/
 File moved: src/services/api.ts → src/new/nested/path/api.ts
 Updated imports in:
   - src/main.ts

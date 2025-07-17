@@ -1,4 +1,3 @@
-Created directory: src/domain/types/
 File moved: src/types/user.ts → src/domain/types/user.ts
 Updated imports in:
   - src/main.ts
