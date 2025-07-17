@@ -5,6 +5,7 @@ import { RenameCommand } from './commands/rename-command';
 import { SelectCommand } from './commands/select-command';
 import { FindUsagesCommand } from './commands/find-usages-command';
 import { MoveMethodCommand } from './commands/move-method-command';
+import { MoveFileCommand } from './commands/move-file-command';
 
 const loadCommands = (): RefactoringCommand[] => [
   new ExtractVariableCommand(),
@@ -12,7 +13,8 @@ const loadCommands = (): RefactoringCommand[] => [
   new RenameCommand(),
   new SelectCommand(),
   new FindUsagesCommand(),
-  new MoveMethodCommand()
+  new MoveMethodCommand(),
+  new MoveFileCommand()
 ];
 
 export class CommandRegistry {
