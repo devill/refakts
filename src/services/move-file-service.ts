@@ -21,23 +21,29 @@ export class MoveFileService {
   private importReferenceService = new ImportReferenceService();
   private astService = new ASTService();
   async moveFile(request: MoveFileRequest): Promise<MoveFileResult> {
-    const resolvedSourcePath = this.resolveSourcePath(request.sourcePath);
     const resolvedDestinationPath = this.resolveDestinationPath(request.destinationPath);
-    
-    this.validateSourceFile(resolvedSourcePath);
-    
-    if (this.isSameLocation(resolvedSourcePath, resolvedDestinationPath)) {
+    this.validateSourceFile(request.sourcePath);
+    this.validateDestinationFile(resolvedDestinationPath);
+
+    if (this.isSameLocation(request.sourcePath, resolvedDestinationPath)) {
       return MoveFileService.sameLocationResponse(request);
     }
-    
-    const referencingFiles = await this.importReferenceService.findReferencingFiles(resolvedSourcePath);
-    await this.validateNoCircularDependencies(resolvedSourcePath, resolvedDestinationPath, referencingFiles);
-    
-    this.validateDestinationFile(resolvedDestinationPath);
-    await this.performMove(resolvedSourcePath, resolvedDestinationPath);
-    await this.importReferenceService.updateImportReferences(resolvedSourcePath, resolvedDestinationPath, referencingFiles);
-    
+
+    return await this.performSafeFileMove(request, resolvedDestinationPath);
+  }
+
+  private async performSafeFileMove(request: MoveFileRequest, resolvedDestinationPath: string) {
+    const referencingFiles = await this.collectReferences(request, resolvedDestinationPath);
+    await this.performMove(request.sourcePath, resolvedDestinationPath);
+    await this.importReferenceService.updateImportReferences(request.sourcePath, resolvedDestinationPath, referencingFiles);
+
     return MoveFileService.moveFileSuccess(request, referencingFiles);
+  }
+
+  private async collectReferences(request: MoveFileRequest, resolvedDestinationPath: string) {
+    const referencingFiles = await this.importReferenceService.findReferencingFiles(request.sourcePath);
+    await this.validateNoCircularDependencies(request.sourcePath, resolvedDestinationPath, referencingFiles);
+    return referencingFiles;
   }
 
   private static moveFileSuccess(request: MoveFileRequest, referencingFiles: string[]) {
@@ -60,17 +66,10 @@ export class MoveFileService {
     };
   }
 
-  private resolveSourcePath(sourcePath: string): string {
-    if (fs.existsSync(sourcePath)) {
-      return sourcePath;
+  private ensureSourcePathExists(sourcePath: string) {
+    if (!fs.existsSync(sourcePath)) {
+      throw new Error(`Source file does not exist: ${sourcePath}`);
     }
-    //
-    // const srcPath = path.join('src', sourcePath);
-    // if (fs.existsSync(srcPath)) {
-    //   return srcPath;
-    // }
-    
-    throw new Error(`Source file does not exist: ${sourcePath}`);
   }
 
   private resolveDestinationPath(destinationPath: string): string {
