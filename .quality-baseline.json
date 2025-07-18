@@ -66,12 +66,6 @@
       "featureEnvy"
     ]
   },
-  "src/services/structural-analyzer.ts": {
-    "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
-    "violations": [
-      "manyParameters"
-    ]
-  },
   "src/documentation/QualityChecksExtractor.ts": {
     "lastCommitId": "1f7beb997ee03de710aa7746a607c94e16e834b2",
     "violations": [
@@ -80,12 +74,6 @@
   },
   "src/locators/services/node-assignment-analyzer.ts": {
     "lastCommitId": "4064268c44577ae54af770b10caa48f776e73ecd",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
-  "src/services/selection/result-formatters.ts": {
-    "lastCommitId": "59e791a5e6dab67d6e8eca6ac7d9acf4ce77ab21",
     "violations": [
       "featureEnvy"
     ]

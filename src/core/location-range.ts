@@ -23,6 +23,11 @@ export class LocationRange {
   formatLocation(baseDir: string): string {
     const path = require('path');
     const relativePath = this.normalizeTestPath(path.relative(baseDir, this.file));
+    
+    if (this.start.column === -1 && this.end.column === -1) {
+      return `[${relativePath} ${this.start.line}:-${this.end.line}:]`;
+    }
+    
     return `[${relativePath} ${this.start.line}:${this.start.column}-${this.end.line}:${this.end.column}]`;
   }
 
