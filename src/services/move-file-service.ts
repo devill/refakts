@@ -64,11 +64,11 @@ export class MoveFileService {
     if (fs.existsSync(sourcePath)) {
       return sourcePath;
     }
-    
-    const srcPath = path.join('src', sourcePath);
-    if (fs.existsSync(srcPath)) {
-      return srcPath;
-    }
+    //
+    // const srcPath = path.join('src', sourcePath);
+    // if (fs.existsSync(srcPath)) {
+    //   return srcPath;
+    // }
     
     throw new Error(`Source file does not exist: ${sourcePath}`);
   }

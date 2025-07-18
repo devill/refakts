@@ -1,3 +1,3 @@
-File moved: utils/math.ts → helpers/math.ts
+File moved: src/utils/math.ts → src/helpers/math.ts
 Updated imports in:
   - src/main.ts
