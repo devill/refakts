@@ -1,7 +1,7 @@
 function outer() {
   function inner() {
     function deepest() {
-      let target = 'found';
+      const target = 'found';
     }
   }
 }

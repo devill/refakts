@@ -3,7 +3,7 @@ class MyClass {
   
   method() {
     const arrow = () => {
-      let local = 'test';
+      const local = 'test';
       return local;
     };
   }

@@ -103,14 +103,17 @@ export class MoveFileService {
         const relativePath = path.relative(process.cwd(), sourcePath);
         throw new Error(`Syntax errors detected in ${relativePath}`);
       }
-    } catch (error: any) {
-      // If the error is from file access (permission, not found), re-throw it
-      if (error.message?.includes('Permission denied') || error.message?.includes('Cannot read file')) {
-        throw error;
-      }
-      // For other errors during syntax checking, wrap them appropriately
-      throw new Error(`Cannot validate syntax of ${sourcePath}: ${error.message}`);
+    } catch (error: unknown) {
+      this.handleSyntaxValidationError(error, sourcePath);
     }
+  }
+
+  private handleSyntaxValidationError(error: unknown, sourcePath: string): void {
+    const errorWithMessage = error as { message?: string };
+    if (errorWithMessage.message?.includes('Permission denied') || errorWithMessage.message?.includes('Cannot read file')) {
+      throw error;
+    }
+    throw new Error(`Cannot validate syntax of ${sourcePath}: ${errorWithMessage.message || 'Unknown error'}`);
   }
 
   private hasSyntaxErrors(sourcePath: string) {

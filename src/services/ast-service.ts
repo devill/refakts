@@ -29,18 +29,20 @@ export class ASTService {
   private addSourceFileAtPath(absolutePath: string, originalPath: string): SourceFile {
     try {
       return this.project.addSourceFileAtPath(absolutePath);
-    } catch (error: any) {
-      // Check if this is a permission error
-      if (error.code === 'EACCES' || error.message?.includes('permission denied')) {
-        throw new Error(`Permission denied: Cannot read file ${originalPath}`);
-      }
-      // Check if this is a file not found error
-      if (error.code === 'ENOENT' || error.message?.includes('no such file')) {
-        throw new Error(`File not found: ${originalPath}`);
-      }
-      // For other errors, provide a generic message but preserve the original error
-      throw new Error(`Cannot load file ${originalPath}: ${error.message}`);
+    } catch (error: unknown) {
+      throw this.createLoadFileError(error, originalPath);
     }
+  }
+
+  private createLoadFileError(error: unknown, originalPath: string): Error {
+    const errorWithCode = error as { code?: string; message?: string };
+    if (errorWithCode.code === 'EACCES' || errorWithCode.message?.includes('permission denied')) {
+      return new Error(`Permission denied: Cannot read file ${originalPath}`);
+    }
+    if (errorWithCode.code === 'ENOENT' || errorWithCode.message?.includes('no such file')) {
+      return new Error(`File not found: ${originalPath}`);
+    }
+    return new Error(`Cannot load file ${originalPath}: ${errorWithCode.message || 'Unknown error'}`);
   }
 
 
