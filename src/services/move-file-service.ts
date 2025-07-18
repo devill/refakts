@@ -1,9 +1,10 @@
-import { ImportReferenceService } from './import-reference-service';
-import { ASTService } from './ast-service';
+import {ImportReferenceService} from './import-reference-service';
+import {ASTService} from './ast-service';
 import * as fs from 'fs';
 import * as path from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import {exec} from 'child_process';
+import {promisify} from 'util';
+
 const execAsync = promisify(exec);
 export interface MoveFileRequest {
   sourcePath: string;
@@ -26,13 +27,7 @@ export class MoveFileService {
     this.validateSourceFile(resolvedSourcePath);
     
     if (this.isSameLocation(resolvedSourcePath, resolvedDestinationPath)) {
-      return {
-        moved: false,
-        sourcePath: request.sourcePath,
-        destinationPath: request.destinationPath,
-        referencingFiles: [],
-        sameLocation: true
-      };
+      return MoveFileService.sameLocationResponse(request);
     }
     
     const referencingFiles = await this.importReferenceService.findReferencingFiles(resolvedSourcePath);
@@ -42,12 +37,26 @@ export class MoveFileService {
     await this.performMove(resolvedSourcePath, resolvedDestinationPath);
     await this.importReferenceService.updateImportReferences(resolvedSourcePath, resolvedDestinationPath, referencingFiles);
     
+    return MoveFileService.moveFileSuccess(request, referencingFiles);
+  }
+
+  private static moveFileSuccess(request: MoveFileRequest, referencingFiles: string[]) {
     return {
       moved: true,
       sourcePath: request.sourcePath,
       destinationPath: request.destinationPath,
       referencingFiles,
       sameLocation: false
+    };
+  }
+
+  private static sameLocationResponse(request: MoveFileRequest) {
+    return {
+      moved: false,
+      sourcePath: request.sourcePath,
+      destinationPath: request.destinationPath,
+      referencingFiles: [],
+      sameLocation: true
     };
   }
 

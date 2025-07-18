@@ -1,5 +1,5 @@
-import { SourceFile, ImportDeclaration, ExportDeclaration, Project } from 'ts-morph';
-import { ASTService } from './ast-service';
+import {ExportDeclaration, ImportDeclaration, Project, SourceFile} from 'ts-morph';
+import {ASTService} from './ast-service';
 import * as path from 'path';
 
 export class ImportReferenceService {
@@ -95,15 +95,13 @@ export class ImportReferenceService {
   }
 
   private updateImportsInFile(sourceFile: SourceFile, sourcePath: string, destinationPath: string): void {
-    const imports = sourceFile.getImportDeclarations();
-    const exports = sourceFile.getExportDeclarations();
     const updateContext = this.createUpdateContext(sourceFile, sourcePath, destinationPath);
     
-    imports.forEach(importDeclaration => {
+    sourceFile.getImportDeclarations().forEach(importDeclaration => {
       this.updateImportDeclaration(importDeclaration, updateContext);
     });
     
-    exports.forEach(exportDeclaration => {
+    sourceFile.getExportDeclarations().forEach(exportDeclaration => {
       this.updateExportDeclaration(exportDeclaration, updateContext);
     });
   }
