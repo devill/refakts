@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {exec} from 'child_process';
 import {promisify} from 'util';
+import {SourceFile} from "ts-morph";
 
 const execAsync = promisify(exec);
 export interface MoveFileRequest {
@@ -67,12 +68,6 @@ export class MoveFileService {
     };
   }
 
-  private ensureSourcePathExists(sourcePath: string) {
-    if (!fs.existsSync(sourcePath)) {
-      throw new Error(`Source file does not exist: ${sourcePath}`);
-    }
-  }
-
   private resolveDestinationPath(destinationPath: string): string {
     if (path.isAbsolute(destinationPath)) {
       return destinationPath;
@@ -103,31 +98,26 @@ export class MoveFileService {
   }
 
   private ensureFileHasValidSyntax(sourcePath: string): void {
-    const sourceFile = this.astService.loadSourceFile(sourcePath);
-    const diagnostics = sourceFile.getPreEmitDiagnostics();
-    
-    const seriousErrors = this.filterSeriousErrors(diagnostics);
-    
-    if (seriousErrors.length > 0) {
-      this.throwSyntaxError(sourcePath);
+    if (this.hasSyntaxErrors(sourcePath)) {
+      const relativePath = path.relative(process.cwd(), sourcePath);
+      throw new Error(`Syntax errors detected in ${relativePath}`);
     }
   }
 
-  private filterSeriousErrors(diagnostics: any[]): any[] {
-    return diagnostics.filter(diagnostic => {
+  private hasSyntaxErrors(sourcePath: string) {
+    const seriousErrors = this.collectErrors(this.astService.loadSourceFile(sourcePath));
+    return seriousErrors.length > 0;
+  }
+
+  private collectErrors(sourceFile: SourceFile) {
+    return sourceFile.getPreEmitDiagnostics().filter(diagnostic => {
       const message = diagnostic.getMessageText();
       const messageStr = typeof message === 'string' ? message : message.getMessageText();
-      return !messageStr.includes('Cannot find module') && 
-             !messageStr.includes('Invalid module name in augmentation') &&
-             !messageStr.includes('Cannot find name \'console\'');
+      return !messageStr.includes('Cannot find module') &&
+          !messageStr.includes('Invalid module name in augmentation') &&
+          !messageStr.includes('Cannot find name \'console\'');
     });
   }
-
-  private throwSyntaxError(sourcePath: string): never {
-    const relativePath = path.relative(process.cwd(), sourcePath);
-    throw new Error(`Syntax errors detected in ${relativePath}`);
-  }
-
   private async validateNoCircularDependencies(sourcePath: string, destinationPath: string, referencingFiles: string[]): Promise<void> {
     for (const referencingFile of referencingFiles) {
       if (this.wouldCreateCircularDependency(sourcePath, destinationPath, referencingFile)) {
