@@ -35,6 +35,7 @@
     "test:fixture:approve": "ts-node tests/scripts/fixture-approver.ts",
     "test:fixture:approve:all": "ts-node tests/scripts/fixture-approver.ts --all",
     "test:fixture:review": "ts-node tests/scripts/fixture-reviewer.ts",
+    "test:skipped": "node scripts/list-skipped-tests.js",
     "prepack": "npm run build",
     "prepublishOnly": "npm run lint && npm run test"
   },

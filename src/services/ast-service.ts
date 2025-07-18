@@ -29,8 +29,17 @@ export class ASTService {
   private addSourceFileAtPath(absolutePath: string, originalPath: string): SourceFile {
     try {
       return this.project.addSourceFileAtPath(absolutePath);
-    } catch {
-      throw new Error(`File not found: ${originalPath}`);
+    } catch (error: any) {
+      // Check if this is a permission error
+      if (error.code === 'EACCES' || error.message?.includes('permission denied')) {
+        throw new Error(`Permission denied: Cannot read file ${originalPath}`);
+      }
+      // Check if this is a file not found error
+      if (error.code === 'ENOENT' || error.message?.includes('no such file')) {
+        throw new Error(`File not found: ${originalPath}`);
+      }
+      // For other errors, provide a generic message but preserve the original error
+      throw new Error(`Cannot load file ${originalPath}: ${error.message}`);
     }
   }
 

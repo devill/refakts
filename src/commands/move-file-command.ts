@@ -10,9 +10,13 @@ export class MoveFileCommand implements RefactoringCommand {
   readonly description = 'Move a file and update all import references';
   readonly complete = true;
   
-  private moveFileService = new MoveFileService();
+  private moveFileService: MoveFileService;
   private outputHandler!: MoveFileOutputHandler;
   private consoleOutput!: ConsoleOutput;
+
+  constructor(moveFileService?: MoveFileService) {
+    this.moveFileService = moveFileService || new MoveFileService();
+  }
 
   async execute(sourcePath: string, options: CommandOptions): Promise<void> {
     const destinationPath = options.destination as string;
