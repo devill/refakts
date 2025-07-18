@@ -3,7 +3,7 @@ import { SourceFile } from 'ts-morph';
 import * as path from 'path';
 
 export interface FileSystemWrapper {
-  existsSync(filePath: string): boolean;
+  existsSync(_filePath: string): boolean;
 }
 
 export class FileValidator {

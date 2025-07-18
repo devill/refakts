@@ -6,9 +6,9 @@ import { promisify } from 'util';
 const execAsync = promisify(exec);
 
 export interface FileSystemWrapper {
-  existsSync(filePath: string): boolean;
-  mkdirSync(dirPath: string, options?: { recursive?: boolean }): void;
-  renameSync(sourcePath: string, destPath: string): void;
+  existsSync(_filePath: string): boolean;
+  mkdirSync(_dirPath: string, _options?: { recursive?: boolean }): void;
+  renameSync(_sourcePath: string, _destPath: string): void;
 }
 
 export class RealFileSystemWrapper implements FileSystemWrapper {
