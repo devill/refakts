@@ -236,6 +236,9 @@ verify(__dirname, 'test-name', result, { reporters: ['donothing'] });
 - **Jest expectations**: When testing behavior, return values, object properties, or method calls
 - **Fixtures**: When testing complete command workflows end-to-end
 
+**CRITICAL**: **NEVER** run cli commands on fixture inputs. That changes the setup and will break the test!
+If you need to test something, create a new fixture test (preferable) or create a temporary file and test cli on that. 
+
 ### Test Quality Guidelines
 
 **Keep test functions focused and under 12 lines.** Use these strategies to manage test complexity:
