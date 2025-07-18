@@ -103,29 +103,29 @@ export class MoveFileService {
   }
 
   private ensureFileHasValidSyntax(sourcePath: string): void {
-    try {
-      const sourceFile = this.astService.loadSourceFile(sourcePath);
-      const diagnostics = sourceFile.getPreEmitDiagnostics();
-      
-      const seriousErrors = diagnostics.filter(diagnostic => {
-        const message = diagnostic.getMessageText();
-        const messageStr = typeof message === 'string' ? message : message.getMessageText();
-        return !messageStr.includes('Cannot find module') && 
-               !messageStr.includes('Invalid module name in augmentation') &&
-               !messageStr.includes('Cannot find name \'console\'');
-      });
-      
-      if (seriousErrors.length > 0) {
-        const relativePath = path.relative(process.cwd(), sourcePath);
-        throw new Error(`Syntax errors detected in ${relativePath}`);
-      }
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('Syntax errors detected')) {
-        throw error;
-      }
-      const relativePath = path.relative(process.cwd(), sourcePath);
-      throw new Error(`Syntax errors detected in ${relativePath}`);
+    const sourceFile = this.astService.loadSourceFile(sourcePath);
+    const diagnostics = sourceFile.getPreEmitDiagnostics();
+    
+    const seriousErrors = this.filterSeriousErrors(diagnostics);
+    
+    if (seriousErrors.length > 0) {
+      this.throwSyntaxError(sourcePath);
     }
+  }
+
+  private filterSeriousErrors(diagnostics: any[]): any[] {
+    return diagnostics.filter(diagnostic => {
+      const message = diagnostic.getMessageText();
+      const messageStr = typeof message === 'string' ? message : message.getMessageText();
+      return !messageStr.includes('Cannot find module') && 
+             !messageStr.includes('Invalid module name in augmentation') &&
+             !messageStr.includes('Cannot find name \'console\'');
+    });
+  }
+
+  private throwSyntaxError(sourcePath: string): never {
+    const relativePath = path.relative(process.cwd(), sourcePath);
+    throw new Error(`Syntax errors detected in ${relativePath}`);
   }
 
   private async validateNoCircularDependencies(sourcePath: string, destinationPath: string, referencingFiles: string[]): Promise<void> {
