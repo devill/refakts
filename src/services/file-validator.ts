@@ -3,13 +3,13 @@ import { SourceFile } from 'ts-morph';
 import * as path from 'path';
 
 export interface FileSystemWrapper {
-  existsSync(path: string): boolean;
+  existsSync(filePath: string): boolean;
 }
 
 export class FileValidator {
   constructor(
-    private astService: ASTService,
-    private fileSystem: FileSystemWrapper
+    private _astService: ASTService,
+    private _fileSystem: FileSystemWrapper
   ) {}
 
   validateSourceFile(sourcePath: string): void {
@@ -18,14 +18,14 @@ export class FileValidator {
   }
 
   validateDestinationFile(destinationPath: string): void {
-    if (this.fileSystem.existsSync(destinationPath)) {
+    if (this._fileSystem.existsSync(destinationPath)) {
       const relativePath = path.relative(process.cwd(), destinationPath);
       throw new Error(`Cannot move file to ${relativePath} - file already exists`);
     }
   }
 
   private ensureFileExists(sourcePath: string): void {
-    if (!this.fileSystem.existsSync(sourcePath)) {
+    if (!this._fileSystem.existsSync(sourcePath)) {
       throw new Error(`Source file does not exist: ${sourcePath}`);
     }
   }
@@ -53,7 +53,7 @@ export class FileValidator {
   }
 
   private hasSyntaxErrors(sourcePath: string): boolean {
-    const seriousErrors = this.collectErrors(this.astService.loadSourceFile(sourcePath));
+    const seriousErrors = this.collectErrors(this._astService.loadSourceFile(sourcePath));
     return seriousErrors.length > 0;
   }
 

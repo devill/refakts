@@ -6,27 +6,27 @@ import { promisify } from 'util';
 const execAsync = promisify(exec);
 
 export interface FileSystemWrapper {
-  existsSync(path: string): boolean;
-  mkdirSync(path: string, options?: { recursive?: boolean }): void;
-  renameSync(oldPath: string, newPath: string): void;
+  existsSync(filePath: string): boolean;
+  mkdirSync(dirPath: string, options?: { recursive?: boolean }): void;
+  renameSync(sourcePath: string, destPath: string): void;
 }
 
 export class RealFileSystemWrapper implements FileSystemWrapper {
-  existsSync(path: string): boolean {
-    return fs.existsSync(path);
+  existsSync(filePath: string): boolean {
+    return fs.existsSync(filePath);
   }
 
-  mkdirSync(path: string, options?: { recursive?: boolean }): void {
-    fs.mkdirSync(path, options);
+  mkdirSync(dirPath: string, options?: { recursive?: boolean }): void {
+    fs.mkdirSync(dirPath, options);
   }
 
-  renameSync(oldPath: string, newPath: string): void {
-    fs.renameSync(oldPath, newPath);
+  renameSync(sourcePath: string, destPath: string): void {
+    fs.renameSync(sourcePath, destPath);
   }
 }
 
 export class FileMover {
-  constructor(private fileSystem: FileSystemWrapper) {}
+  constructor(private _fileSystem: FileSystemWrapper) {}
 
   async moveFile(sourcePath: string, destinationPath: string): Promise<void> {
     this.ensureDestinationDirectoryExists(destinationPath);
@@ -35,8 +35,8 @@ export class FileMover {
 
   private ensureDestinationDirectoryExists(destinationPath: string): void {
     const destinationDir = path.dirname(destinationPath);
-    if (!this.fileSystem.existsSync(destinationDir)) {
-      this.fileSystem.mkdirSync(destinationDir, { recursive: true });
+    if (!this._fileSystem.existsSync(destinationDir)) {
+      this._fileSystem.mkdirSync(destinationDir, { recursive: true });
     }
   }
 
@@ -44,7 +44,7 @@ export class FileMover {
     if (await this.shouldUseGitMv(sourcePath)) {
       await this.gitMoveFile(sourcePath, destinationPath);
     } else {
-      this.fileSystem.renameSync(sourcePath, destinationPath);
+      this._fileSystem.renameSync(sourcePath, destinationPath);
     }
   }
 
@@ -57,7 +57,7 @@ export class FileMover {
   private isInGitRepository(): boolean {
     try {
       const gitDir = path.join(process.cwd(), '.git');
-      return this.fileSystem.existsSync(gitDir);
+      return this._fileSystem.existsSync(gitDir);
     } catch {
       return false;
     }
@@ -81,7 +81,7 @@ export class FileMover {
     try {
       await execAsync(`git mv "${sourcePath}" "${destinationPath}"`);
     } catch {
-      this.fileSystem.renameSync(sourcePath, destinationPath);
+      this._fileSystem.renameSync(sourcePath, destinationPath);
     }
   }
 }
