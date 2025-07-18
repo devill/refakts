@@ -41,7 +41,7 @@ module.exports = [
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-non-null-assertion': 'warn',
       '@typescript-eslint/no-inferrable-types': 'error',
-      'no-console': 'warn',
+      'no-console': 'error',
       'prefer-const': 'error',
       'no-var': 'error',
       'eqeqeq': 'error',
@@ -99,6 +99,22 @@ module.exports = [
       'no-var': 'error',
       'eqeqeq': 'error',
       'no-duplicate-imports': 'error'
+    }
+  },
+  {
+    // CLI files that legitimately need console output
+    files: [
+      'src/cli-generator.ts',
+      'src/interfaces/StandardConsole.ts',
+      'src/snooze-cli.ts',
+      'src/update-docs.ts',
+      'src/roadmap/*.ts',
+      'src/quality-tools/quality-runner.ts',
+      'src/quality-tools/baseline-cli.ts',
+      'tests/scripts/*.ts'
+    ],
+    rules: {
+      'no-console': 'off'
     }
   },
   {

@@ -58,20 +58,27 @@ export class ImportReferenceService {
     const exports = sourceFile.getExportDeclarations();
     const targetPaths = this.createTargetPathVariants(targetPath);
     
-    const hasImportFromTarget = imports.some(importDeclaration => {
+    const hasImportFromTarget = this.checkImportsFromTarget(imports, targetPaths, sourceFile);
+    const hasExportFromTarget = this.checkExportsFromTarget(exports, targetPaths, sourceFile);
+    
+    return hasImportFromTarget || hasExportFromTarget;
+  }
+
+  private checkImportsFromTarget(imports: ImportDeclaration[], targetPaths: string[], sourceFile: SourceFile): boolean {
+    return imports.some(importDeclaration => {
       const moduleSpecifier = importDeclaration.getModuleSpecifierValue();
       const resolvedPath = this.resolveImportPath(sourceFile.getFilePath(), moduleSpecifier);
       return targetPaths.includes(resolvedPath);
     });
-    
-    const hasExportFromTarget = exports.some(exportDeclaration => {
+  }
+
+  private checkExportsFromTarget(exports: ExportDeclaration[], targetPaths: string[], sourceFile: SourceFile): boolean {
+    return exports.some(exportDeclaration => {
       const moduleSpecifier = exportDeclaration.getModuleSpecifierValue();
       if (!moduleSpecifier) return false;
       const resolvedPath = this.resolveImportPath(sourceFile.getFilePath(), moduleSpecifier);
       return targetPaths.includes(resolvedPath);
     });
-    
-    return hasImportFromTarget || hasExportFromTarget;
   }
 
   private createTargetPathVariants(targetPath: string): string[] {

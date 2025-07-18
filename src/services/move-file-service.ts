@@ -4,14 +4,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-
 const execAsync = promisify(exec);
-
 export interface MoveFileRequest {
   sourcePath: string;
   destinationPath: string;
 }
-
 export interface MoveFileResult {
   moved: boolean;
   sourcePath: string;
@@ -19,11 +16,9 @@ export interface MoveFileResult {
   referencingFiles: string[];
   sameLocation: boolean;
 }
-
 export class MoveFileService {
   private importReferenceService = new ImportReferenceService();
   private astService = new ASTService();
-
   async moveFile(request: MoveFileRequest): Promise<MoveFileResult> {
     const resolvedSourcePath = this.resolveSourcePath(request.sourcePath);
     const resolvedDestinationPath = this.resolveDestinationPath(request.destinationPath);
@@ -103,7 +98,6 @@ export class MoveFileService {
       const sourceFile = this.astService.loadSourceFile(sourcePath);
       const diagnostics = sourceFile.getPreEmitDiagnostics();
       
-      // Filter out module augmentation and declaration file errors
       const seriousErrors = diagnostics.filter(diagnostic => {
         const message = diagnostic.getMessageText();
         const messageStr = typeof message === 'string' ? message : message.getMessageText();

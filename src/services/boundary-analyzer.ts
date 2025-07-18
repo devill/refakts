@@ -85,10 +85,10 @@ export class BoundaryAnalyzer {
   private formatFunctionResult(func: Node, fileName: string): SelectResult {
     const positions = this.getFunctionPositions(func);
     
-    return {
-      location: `[${fileName} ${positions.startLine}:-${positions.endLine}:]`,
-      content: func.getText()
-    };
+    return new SelectResult(
+      `[${fileName} ${positions.startLine}:-${positions.endLine}:]`,
+      func.getText()
+    );
   }
 
   private getFunctionPositions(func: Node) {

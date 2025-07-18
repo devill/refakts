@@ -95,10 +95,10 @@ export class StructuralAnalyzer {
   private formatFieldResult(prop: PropertyDeclaration, fileName: string): SelectResult {
     const positions = this.getPropertyPositions(prop);
     
-    return {
-      location: `[${fileName} ${positions.startLine}:${positions.startColumn}-${positions.endLine}:${positions.endColumn}]`,
-      content: prop.getName()
-    };
+    return new SelectResult(
+      `[${fileName} ${positions.startLine}:${positions.startColumn}-${positions.endLine}:${positions.endColumn}]`,
+      prop.getName()
+    );
   }
 
   private getPropertyPositions(prop: PropertyDeclaration) {
@@ -161,10 +161,10 @@ export class StructuralAnalyzer {
   private formatMethodResult(method: MethodDeclaration, fileName: string): SelectResult {
     const positions = this.getMethodPositions(method);
     
-    return {
-      location: `[${fileName} ${positions.startLine}:-${positions.endLine}:]`,
-      content: method.getText()
-    };
+    return new SelectResult(
+      `[${fileName} ${positions.startLine}:-${positions.endLine}:]`,
+      method.getText()
+    );
   }
 
   private getMethodPositions(method: MethodDeclaration) {

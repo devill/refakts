@@ -98,30 +98,38 @@ export class UsageOutputHandler {
   }
 
   private convertToSelectResult(usage: UsageLocation, context: OutputContext): SelectResult {
-    const result = this.createBasicSelectResult(usage, context);
-    this.applyFormattingToResult(result, usage, context);
-    return result;
+    return this.applyFormattingToResult(usage, context);
   }
 
   private createBasicSelectResult(usage: UsageLocation, context: OutputContext): SelectResult {
-    return {
-      location: usage.location.formatLocation(context.baseDir),
-      content: usage.text
-    };
+    return new SelectResult(
+      usage.location.formatLocation(context.baseDir),
+      usage.text
+    );
   }
 
-  private applyFormattingToResult(result: SelectResult, usage: UsageLocation, context: OutputContext): void {
+  private applyFormattingToResult(usage: UsageLocation, context: OutputContext): SelectResult {
     if (context.options.shouldIncludeLine()) {
-      this.applyIncludeLineFormatting(result, usage, context.baseDir);
+      return this.createIncludeLineResult(usage, context.baseDir);
     } else if (context.options.shouldPreviewLine()) {
-      result.context = this.extractContextFromLocation(usage);
+      return this.createPreviewLineResult(usage, context);
     }
+    return this.createBasicSelectResult(usage, context);
   }
 
-  private applyIncludeLineFormatting(result: SelectResult, usage: UsageLocation, baseDir: string): void {
+  private createPreviewLineResult(usage: UsageLocation, context: OutputContext): SelectResult {
+    const contextStr = this.extractContextFromLocation(usage);
+    return new SelectResult(
+      usage.location.formatLocation(context.baseDir),
+      usage.text,
+      contextStr
+    );
+  }
+
+  private createIncludeLineResult(usage: UsageLocation, baseDir: string): SelectResult {
     const fullLine = this.extractContextFromLocation(usage);
-    result.location = this.formatLineLocation(usage.location, baseDir);
-    result.content = fullLine;
+    const location = this.formatLineLocation(usage.location, baseDir);
+    return new SelectResult(location, fullLine);
   }
 
   private extractContextFromLocation(usage: UsageLocation): string {

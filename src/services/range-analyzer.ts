@@ -51,17 +51,17 @@ export class RangeAnalyzer {
   }
 
   private formatRangeResults(ranges: RangeData[], fileName: string): SelectResult[] {
-    if (ranges.length === 0) return [{ location: 'No Matches' }];
+    if (ranges.length === 0) return [new SelectResult('No Matches')];
     
     return ranges.map(range => this.formatSingleRange(range, fileName));
   }
 
   private formatSingleRange(range: RangeData, fileName: string): SelectResult {
     const location = `\n[${fileName} ${range.startLine}:${range.startColumn}-${range.endLine}:${range.endColumn}]`;
-    return {
+    return new SelectResult(
       location,
-      content: `${range.content}\n[${fileName} ${range.startLine}:${range.startColumn}-${range.endLine}:${range.endColumn}]`
-    };
+      `${range.content}\n[${fileName} ${range.startLine}:${range.startColumn}-${range.endLine}:${range.endColumn}]`
+    );
   }
 
   private findContentRanges(sourceFile: SourceFile, startRegex: string, endRegex: string): RangeData[] {

@@ -26,10 +26,7 @@ export class BasicFormatter implements SelectResultFormatter {
   }
 
   private formatSingleLineMatch(match: SelectMatch, location: string): SelectResult {
-    return {
-      location,
-      content: match.text
-    };
+    return new SelectResult(location, match.text);
   }
 
   private isMultilineMatch(match: SelectMatch): boolean {
@@ -37,28 +34,25 @@ export class BasicFormatter implements SelectResultFormatter {
   }
 
   private formatMultilineMatch(match: SelectMatch, location: string): SelectResult {
-    return {
-      location: `\n${location}`,
-      content: `${match.text}\n${location}\n`
-    };
+    return new SelectResult(`\n${location}`, `${match.text}\n${location}\n`);
   }
 }
 
 export class LineFormatter implements SelectResultFormatter {
   format(matches: SelectMatch[], fileName: string): SelectResult[] {
-    return matches.map(match => ({
-      location: `[${fileName} ${match.line}:-${match.line}:]`,
-      content: match.fullLine.trim()
-    }));
+    return matches.map(match => new SelectResult(
+      `[${fileName} ${match.line}:-${match.line}:]`,
+      match.fullLine.trim()
+    ));
   }
 }
 
 export class PreviewFormatter implements SelectResultFormatter {
   format(matches: SelectMatch[], fileName: string): SelectResult[] {
-    return matches.map(match => ({
-      location: `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`,
-      content: match.fullLine.trim()
-    }));
+    return matches.map(match => new SelectResult(
+      `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`,
+      match.fullLine.trim()
+    ));
   }
 }
 
@@ -75,10 +69,10 @@ export class DefinitionFormatter implements SelectResultFormatter {
   }
 
   private buildDefinitionResult(definitionRange: {startLine: number, endLine: number, content: string}, fileName: string): SelectResult {
-    return {
-      location: `[${fileName} ${definitionRange.startLine}:-${definitionRange.endLine}:]`,
-      content: definitionRange.content
-    };
+    return new SelectResult(
+      `[${fileName} ${definitionRange.startLine}:-${definitionRange.endLine}:]`,
+      definitionRange.content
+    );
   }
 
   format(matches: SelectMatch[], fileName: string, file: string): SelectResult[] {
