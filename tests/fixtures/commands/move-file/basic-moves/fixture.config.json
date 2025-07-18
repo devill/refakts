@@ -2,21 +2,21 @@
   {
     "id": "simple-file-move",
     "description": "Move a single utility file from utils/ to helpers/",
-    "command": "move-file 'src/utils/math.ts src/helpers/math.ts'"
+    "command": "move-file src/utils/math.ts --destination src/helpers/math.ts"
   },
   {
     "id": "multiple-exports-move",
     "description": "Move a file containing multiple exported functions",
-    "command": "move-file 'src/utils/string-utils.ts src/lib/string-utils.ts'"
+    "command": "move-file src/utils/string-utils.ts --destination src/lib/string-utils.ts"
   },
   {
     "id": "default-export-move",
     "description": "Move a file with default export pattern",
-    "command": "move-file 'src/components/button.ts src/ui/button.ts'"
+    "command": "move-file src/components/button.ts --destination src/ui/button.ts"
   },
   {
     "id": "mixed-exports-move",
     "description": "Move a file with both named and default exports",
-    "command": "move-file 'src/services/api.ts src/core/api.ts'"
+    "command": "move-file src/services/api.ts --destination src/core/api.ts"
   }
 ]

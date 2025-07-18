@@ -2,26 +2,26 @@
   {
     "id": "move-to-existing-directory",
     "description": "Move file to existing directory with same name",
-    "command": "move-file 'src/utils/helper.ts src/lib/helper.ts'"
+    "command": "move-file src/utils/helper.ts --destination src/lib/helper.ts"
   },
   {
     "id": "move-to-non-existent-directory",
     "description": "Move file to non-existent directory (should auto-create)",
-    "command": "move-file 'src/services/api.ts src/new/nested/path/api.ts'"
+    "command": "move-file src/services/api.ts --destination src/new/nested/path/api.ts"
   },
   {
     "id": "move-to-same-location",
     "description": "Move file to same location (should be no-op)",
-    "command": "move-file 'src/utils/math.ts src/utils/math.ts'"
+    "command": "move-file src/utils/math.ts --destination src/utils/math.ts"
   },
   {
     "id": "move-file-no-imports",
     "description": "Move file with no imports or references",
-    "command": "move-file 'src/standalone.ts src/isolated/standalone.ts'"
+    "command": "move-file src/standalone.ts --destination src/isolated/standalone.ts"
   },
   {
     "id": "move-file-only-type-imports",
     "description": "Move file with only TypeScript type imports",
-    "command": "move-file 'src/types/user.ts src/domain/types/user.ts'"
+    "command": "move-file src/types/user.ts --destination src/domain/types/user.ts"
   }
 ]

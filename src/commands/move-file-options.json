@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "flags": "--destination <path>",
+    "description": "Destination path for the file"
+  }
+]

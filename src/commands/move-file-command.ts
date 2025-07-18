@@ -8,14 +8,18 @@ import * as path from 'path';
 export class MoveFileCommand implements RefactoringCommand {
   readonly name = 'move-file';
   readonly description = 'Move a file and update all import references';
-  readonly complete = false;
+  readonly complete = true;
   
   private moveFileService = new MoveFileService();
   private outputHandler!: MoveFileOutputHandler;
   private consoleOutput!: ConsoleOutput;
 
-  async execute(targetLocation: string, _options: CommandOptions): Promise<void> {
-    const [sourcePath, destinationPath] = this.parseMoveSyntax(targetLocation);
+  async execute(sourcePath: string, options: CommandOptions): Promise<void> {
+    const destinationPath = options.destination as string;
+    if (!destinationPath) {
+      throw new Error('--destination option is required');
+    }
+    
     this.validateDestinationPathFormat(destinationPath);
     
     const request: MoveFileRequest = { sourcePath, destinationPath };
@@ -23,13 +27,6 @@ export class MoveFileCommand implements RefactoringCommand {
     this.outputHandler.outputResult(result);
   }
 
-  private parseMoveSyntax(targetLocation: string): [string, string] {
-    const parts = targetLocation.trim().split(/\s+/);
-    if (parts.length !== 2) {
-      throw new Error(`move-file requires exactly two arguments: source and destination paths, got: ${targetLocation}`);
-    }
-    return [parts[0], parts[1]];
-  }
 
   private validateDestinationPathFormat(destinationPath: string): void {
     if (destinationPath.includes('../..') || destinationPath.startsWith('./../../')) {
