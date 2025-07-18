@@ -59,13 +59,6 @@
       "manyParameters"
     ]
   },
-  "src/services/range-analyzer.ts": {
-    "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
-    "violations": [
-      "manyParameters",
-      "featureEnvy"
-    ]
-  },
   "src/documentation/QualityChecksExtractor.ts": {
     "lastCommitId": "1f7beb997ee03de710aa7746a607c94e16e834b2",
     "violations": [

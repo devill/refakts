@@ -22,12 +22,13 @@ export class MoveFileService {
   private astService = new ASTService();
   async moveFile(request: MoveFileRequest): Promise<MoveFileResult> {
     const resolvedDestinationPath = this.resolveDestinationPath(request.destinationPath);
-    this.validateSourceFile(request.sourcePath);
-    this.validateDestinationFile(resolvedDestinationPath);
 
     if (this.isSameLocation(request.sourcePath, resolvedDestinationPath)) {
       return MoveFileService.sameLocationResponse(request);
     }
+
+    this.validateSourceFile(request.sourcePath);
+    this.validateDestinationFile(resolvedDestinationPath);
 
     return await this.performSafeFileMove(request, resolvedDestinationPath);
   }

@@ -44,18 +44,9 @@ export class SelectResult {
   }
 
   toString(): string {
-    if (this.hasPreviewContent()) {
-      return this.formatPreviewContent();
-    }
-    
-    if (this.isMultiLineResult()) {
-      return this.formatMultiLineResult();
-    }
-    
-    if (this._content) {
-      return this.formatSingleLineResult();
-    }
-    
+    if (this.hasPreviewContent()) return this.formatPreviewContent();
+    if (this.isMultiLineResult()) return this.formatMultiLineResult();
+    if (this._content) return this.formatSingleLineResult();
     return this._location;
   }
 

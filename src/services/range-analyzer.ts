@@ -1,8 +1,8 @@
-import { SourceFile } from 'ts-morph';
-import { SelectResult } from '../types/selection-types';
-import { RangeAnalysisRequest } from './range-analysis-request';
-import { PositionData } from '../core/position-data';
-import { LocationRange, SourceLocation } from '../core/location-range';
+import {SourceFile} from 'ts-morph';
+import {SelectResult} from '../types/selection-types';
+import {RangeAnalysisRequest} from './range-analysis-request';
+import {PositionData} from '../core/position-data';
+import {LocationRange} from '../core/location-range';
 import * as path from 'path';
 
 interface RangeOptions {
@@ -22,14 +22,6 @@ interface RegexOptions {
 interface RangeWithContent {
   range: LocationRange;
   content: string;
-}
-
-interface RangeCreationContext {
-  rangeStart: PositionData;
-  endMatch: RegExpExecArray;
-  request: RangeAnalysisRequest;
-  startIndex: number;
-  endIndex: number;
 }
 
 interface RangeResult {
@@ -121,45 +113,30 @@ export class RangeAnalyzer {
 
 
   private findRangeFromStartLine(request: RangeAnalysisRequest, startIndex: number): RangeWithContent | null {
+    const rangeStart = RangeAnalyzer.findRangeStart(request, startIndex);
+    const rangeEnd = this.findRangeEnd(request, startIndex);
+    if(!rangeStart || !rangeEnd) return null;
+
+    return {
+      range: new LocationRange(request.sourceFile.getFilePath(), rangeStart, rangeEnd),
+      content: request.extractContentBetween(startIndex, rangeEnd.line - 1)
+    };
+  }
+
+  private findRangeEnd(request: RangeAnalysisRequest, startIndex: number) {
+    const endResult = request.findEndMatch(startIndex);
+    if (!endResult) return null;
+    return this.calculateRangeEnd(endResult);
+  }
+
+  private static findRangeStart(request: RangeAnalysisRequest, startIndex: number) {
     const startResult = request.findStartMatch(startIndex);
     if (!startResult) return null;
-    
-    const rangeStart = new PositionData(startIndex + 1, startResult.match.index + 1);
-    const endResult = request.findEndMatch(startIndex);
-    
-    if (!endResult) return null;
-    
-    const context: RangeCreationContext = {
-      rangeStart,
-      endMatch: endResult.match,
-      request,
-      startIndex,
-      endIndex: endResult.index
-    };
-    
-    return this.createRange(context);
+    return new PositionData(startIndex + 1, startResult.match.index + 1);
   }
 
-
-
-  private createRange(context: RangeCreationContext): RangeWithContent {
-    const rangeEnd = this.calculateRangeEnd(context.endMatch, context.endIndex);
-    const content = context.request.extractContentBetween(context.startIndex, context.endIndex);
-    
-    return this.buildRangeObject(context.rangeStart, rangeEnd, content, context.request.sourceFile.getFilePath());
-  }
-
-  private calculateRangeEnd(endMatch: RegExpExecArray, endIndex: number): PositionData {
-    return new PositionData(endIndex + 1, endMatch.index + endMatch[0].length + 1);
-  }
-
-
-  private buildRangeObject(rangeStart: PositionData, rangeEnd: PositionData, content: string, filePath: string): RangeWithContent {
-    const start: SourceLocation = { line: rangeStart.line, column: rangeStart.column };
-    const end: SourceLocation = { line: rangeEnd.line, column: rangeEnd.column };
-    const range = new LocationRange(filePath, start, end);
-    
-    return { range, content };
+  private calculateRangeEnd(endResult: { match: RegExpExecArray; index: number }): PositionData {
+    return new PositionData(endResult.index + 1, endResult.match.index + (endResult.match)[0].length + 1);
   }
 
 }
