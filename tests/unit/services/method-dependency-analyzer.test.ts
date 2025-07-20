@@ -21,4 +21,19 @@ describe('MethodDependencyAnalyzer', () => {
 
     expect(result).toEqual([]);
   });
+
+  it('should return one method with no dependencies', () => {
+    const sourceFile = project.createSourceFile('test.ts', `
+      class Simple {
+        getValue() {}
+      }
+    `);
+
+    const classDeclaration = sourceFile.getClassOrThrow('Simple');
+    const result = analyzer.analyzeClassMethods(classDeclaration);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].method.getName()).toBe('getValue');
+    expect(result[0].dependencies).toEqual([]);
+  });
 });
