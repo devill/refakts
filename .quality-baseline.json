@@ -6,13 +6,6 @@
       "featureEnvy"
     ]
   },
-  "src/services/ast-service.ts": {
-    "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
-    "violations": [
-      "manyParameters",
-      "featureEnvy"
-    ]
-  },
   "src/services/range-analyzer.ts": {
     "lastCommitId": "335462f7a8081a72b769bae484085b4e5d563257",
     "violations": [
