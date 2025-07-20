@@ -1,5 +1,5 @@
 import { MethodSorter } from '../../../src/services/method-sorter';
-import { MethodWithDependencies } from '../../../src/services/method-dependency-analyzer';
+import { MethodWithDependencies, MethodDependencyAnalyzer } from '../../../src/services/method-dependency-analyzer';
 import { ClassMethodFinder } from '../../../src/services/class-method-finder';
 import { Project } from 'ts-morph';
 
@@ -47,7 +47,7 @@ describe('MethodSorter', () => {
     expect(result[1].getName()).toBe('add');
   });
 
-  it('should handle recursive methods', () => {
+  it('should not loop infinitely with recursive methods', () => {
     const fibonacci = createMethodWithDeps('fibonacci', ['fibonacci']);
     
     const methods = [fibonacci];
@@ -55,5 +55,50 @@ describe('MethodSorter', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].getName()).toBe('fibonacci');
+  });
+
+  it('should place constructor before regular methods', () => {
+    const project = new Project({ useInMemoryFileSystem: true });
+    const sourceFile = project.createSourceFile('test.ts', `
+      class Service {
+        getValue() {}
+        constructor() {}
+      }
+    `);
+    
+    const classDeclaration = sourceFile.getClasses()[0];
+    const finder = new ClassMethodFinder();
+    const methods = finder.findMethods(classDeclaration);
+    
+    const analyzer = new MethodDependencyAnalyzer();
+    const methodsWithDeps = analyzer.analyzeDependencies(methods);
+    
+    const result = sorter.sortByStepDownRule(methodsWithDeps);
+
+    expect(result).toHaveLength(2);
+    expect(result.map(m => m.getName())).toEqual(['constructor', 'getValue']);
+  });
+
+  it('should sort by dependency chain across visibility levels', () => {
+    const project = new Project({ useInMemoryFileSystem: true });
+    const sourceFile = project.createSourceFile('test.ts', `
+      class Service {
+        public process() { return this.validate(); }
+        protected validate() { return this.check(); }
+        private check() { return true; }
+      }
+    `);
+    
+    const classDeclaration = sourceFile.getClasses()[0];
+    const finder = new ClassMethodFinder();
+    const methods = finder.findMethods(classDeclaration);
+    
+    const analyzer = new MethodDependencyAnalyzer();
+    const methodsWithDeps = analyzer.analyzeDependencies(methods);
+    
+    const result = sorter.sortByStepDownRule(methodsWithDeps);
+
+    expect(result).toHaveLength(3);
+    expect(result.map(m => m.getName())).toEqual(['process', 'validate', 'check']);
   });
 });

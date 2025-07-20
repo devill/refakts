@@ -10,7 +10,16 @@ export class MethodSorter {
       this.visitMethod(methodWithDeps, methodsWithDeps, visited, sorted);
     }
     
-    return sorted.reverse();
+    const reversed = sorted.reverse();
+    
+    // Move constructor to the front
+    const constructorIndex = reversed.findIndex(m => m.getName() === 'constructor');
+    if (constructorIndex > 0) {
+      const constructor = reversed.splice(constructorIndex, 1)[0];
+      reversed.unshift(constructor);
+    }
+    
+    return reversed;
   }
 
   private visitMethod(
