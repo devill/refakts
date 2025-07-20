@@ -35,4 +35,31 @@ describe('MethodDependencyAnalyzer', () => {
     expect(result[0].method.getName()).toBe('getValue');
     expect(result[0].dependencies).toEqual([]);
   });
+
+  it('should detect method calling another method', () => {
+    const sourceFile = project.createSourceFile('test.ts', `
+      class Calculator {
+        calculate() {
+          return this.add(1, 2);
+        }
+        
+        add(a, b) {
+          return a + b;
+        }
+      }
+    `);
+
+    const classDeclaration = sourceFile.getClassOrThrow('Calculator');
+    const methods = finder.findMethods(classDeclaration);
+    const result = analyzer.analyzeDependencies(methods);
+
+    expect(result).toHaveLength(2);
+    
+    const calculateMethod = result.find(r => r.method.getName() === 'calculate')!;
+    expect(calculateMethod.dependencies).toHaveLength(1);
+    expect(calculateMethod.dependencies[0].getName()).toBe('add');
+    
+    const addMethod = result.find(r => r.method.getName() === 'add')!;
+    expect(addMethod.dependencies).toHaveLength(0);
+  });
 });
