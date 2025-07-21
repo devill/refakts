@@ -35,7 +35,7 @@ module.exports = [
     },
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
-      'no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
+      'no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -88,7 +88,7 @@ module.exports = [
     },
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
-      'no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
+      'no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'off', // Allow any in tests for mocking
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
