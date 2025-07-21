@@ -1,0 +1,12 @@
+"validName": validName
+"_underscore": _underscore
+"camelCase": camelCase
+"snake_case": snake_case
+"name123": name123
+"_123name": _123name
+"123invalid": null
+"invalid-dash": null
+"invalid.dot": null
+"invalid space": null
+"": null
+"a": a

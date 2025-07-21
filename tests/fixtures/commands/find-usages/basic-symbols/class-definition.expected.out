@@ -1,0 +1,10 @@
+Declaration:
+[models/user.ts 3:14-3:18] export class ≫User≪ {
+
+Usages:
+[main.ts 2:10-2:14] import { ≫User≪ } from './models/user';
+[main.ts 12:18-12:22] const user = new ≫User≪(1, 'John Doe', 'john@example.com');
+[main.ts 13:21-13:25] const anotherUser = ≫User≪.fromApiFormat({
+[main.ts 36:16-36:20]   const user = ≫User≪.fromApiFormat(userData);
+[models/user.ts 18:43-18:47]   static fromApiFormat(apiUser: ApiUser): ≫User≪ {
+[models/user.ts 19:16-19:20]     return new ≫User≪(apiUser.id, apiUser.name, apiUser.email);

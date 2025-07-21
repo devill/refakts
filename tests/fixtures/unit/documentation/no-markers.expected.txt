@@ -1,5 +1,0 @@
-# Example Document
-
-Some introductory text without any markers.
-
-More content below.

@@ -1,5 +1,5 @@
 import { ASTService } from '../../../src/services/ast-service';
-import { LocationRange } from '../../../src/core/location-parser';
+import { LocationRange } from '../../../src/core/location-range';
 import { Project } from 'ts-morph';
 
 describe('ASTService', () => {
@@ -17,13 +17,7 @@ describe('ASTService', () => {
       const sourceCode = 'const x = 42;';
       project.createSourceFile(tempFilePath, sourceCode);
 
-      const location: LocationRange = {
-        file: tempFilePath,
-        startLine: 10,
-        startColumn: 1,
-        endLine: 10,
-        endColumn: 5
-      };
+      const location = new LocationRange(tempFilePath, { line: 10, column: 1 }, { line: 10, column: 5 });
 
       expect(() => {
         astService.findNodeByLocation(location);
@@ -35,13 +29,7 @@ describe('ASTService', () => {
       const sourceCode = 'const x = 42;';
       project.createSourceFile(tempFilePath, sourceCode);
 
-      const location: LocationRange = {
-        file: tempFilePath,
-        startLine: 1,
-        startColumn: 100,
-        endLine: 1,
-        endColumn: 105
-      };
+      const location = new LocationRange(tempFilePath, { line: 1, column: 100 }, { line: 1, column: 105 });
 
       expect(() => {
         astService.findNodeByLocation(location);

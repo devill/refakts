@@ -1,0 +1,47 @@
+[
+  {
+    "id": "exported-function",
+    "description": "Find usages of exported function across files",
+    "command": "find-usages '[utils/math.ts 3:17-3:20]'"
+  },
+  {
+    "id": "class-definition",
+    "description": "Find usages of class definition and instantiations",
+    "command": "find-usages '[models/user.ts 3:14-3:18]'"
+  },
+  {
+    "id": "interface-usage",
+    "description": "Find usages of interface in type annotations",
+    "command": "find-usages '[types/api.ts 3:18-3:25]'"
+  },
+  {
+    "id": "type-alias",
+    "description": "Find usages of type alias in type annotations",
+    "command": "find-usages '[types/api.ts 9:13-9:17]'"
+  },
+  {
+    "id": "enum-definition",
+    "description": "Find usages of enum values",
+    "command": "find-usages '[enums/status.ts 3:12-3:18]'"
+  },
+  {
+    "id": "const-variable",
+    "description": "Find usages of exported const variable",
+    "command": "find-usages '[constants/config.ts 3:14-3:25]'"
+  },
+  {
+    "id": "const-variable-by-usage",
+    "description": "Find const variable by selecting usage in import statement",
+    "command": "find-usages '[main.ts 5:10-5:22]'"
+  },
+  {
+    "id": "let-variable",
+    "description": "Find usages of mutable let variable",
+    "command": "find-usages '[main.ts 32:5-32:12]'"
+  },
+  {
+    "id": "let-variable-by-usage",
+    "description": "Find usages by selecting a usage instead of declaration",
+    "command": "find-usages '[main.ts 49:1-49:8]'"
+  }
+]

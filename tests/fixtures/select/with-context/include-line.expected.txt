@@ -1,2 +1,0 @@
-[include-line.input.ts 8:-8:] const tempResult = transform(input);
-[include-line.input.ts 9:-9:] const output = validate(tempResult);

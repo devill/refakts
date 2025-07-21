@@ -1,0 +1,2 @@
+Command execution failed: extract-variable "[./tests/fixtures/commands/extract-variable/missing-name-option.received.ts 2:17-2:25]"
+--name must be specified

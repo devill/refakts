@@ -1,0 +1,27 @@
+[
+  {
+    "id": "generic-type-parameter",
+    "description": "Find usages of generic type parameter across methods",
+    "command": "find-usages '[generics/container.ts 3:20-3:21]'"
+  },
+  {
+    "id": "interface-method",
+    "description": "Find usages of interface method signature",
+    "command": "find-usages '[interfaces/repository.ts 4:3-4:7]'"
+  },
+  {
+    "id": "class-property",
+    "description": "Find usages of class property access",
+    "command": "find-usages '[generics/container.ts 7:10-7:15]'"
+  },
+  {
+    "id": "constructor-parameter",
+    "description": "Find usages of constructor parameter property",
+    "command": "find-usages '[generics/service.ts 5:12-5:16]'"
+  },
+  {
+    "id": "method-override",
+    "description": "Find usages of overridden method",
+    "command": "find-usages '[interfaces/repository.ts 11:8-11:12]'"
+  }
+]

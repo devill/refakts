@@ -1,0 +1,12 @@
+Move a file and update all import references
+
+Usage:
+  refakts move-file <source> --destination <destination>
+
+Arguments:
+  source          Source file path
+  --destination   Destination file path
+
+Examples:
+  refakts move-file src/utils/math.ts --destination src/helpers/math.ts
+  refakts move-file components/Button.tsx --destination ui/Button.tsx

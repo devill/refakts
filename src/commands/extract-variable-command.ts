@@ -1,17 +1,19 @@
 import { RefactoringCommand, CommandOptions } from '../command';
+import { ConsoleOutput } from '../interfaces/ConsoleOutput';
 import { Node, Expression } from 'ts-morph';
 import { ASTService } from '../services/ast-service';
 import { ExtractionScopeAnalyzer } from '../services/extraction-scope-analyzer';
 import { VariableNameValidator } from '../services/variable-name-validator';
 import { StatementInserter } from '../services/statement-inserter';
 import { ExpressionMatcher } from '../services/expression-matcher';
-import { LocationRange } from '../core/location-parser';
+import { LocationRange } from '../core/location-range';
 
 export class ExtractVariableCommand implements RefactoringCommand {
   readonly name = 'extract-variable';
   readonly description = 'Extract expression into a variable';
   readonly complete = true;
 
+  private consoleOutput!: ConsoleOutput;
   private astService = new ASTService();
   private scopeAnalyzer = new ExtractionScopeAnalyzer();
   private nameValidator = new VariableNameValidator();
@@ -90,5 +92,9 @@ export class ExtractVariableCommand implements RefactoringCommand {
         expression.replaceWithText(uniqueName);
       }
     }
+  }
+
+  setConsoleOutput(consoleOutput: ConsoleOutput): void {
+    this.consoleOutput = consoleOutput;
   }
 }

@@ -1,0 +1,19 @@
+Examples:
+  refakts find-usages "[src/file.ts 10:5-10:10]"
+  refakts find-usages "[src/file.ts 3:15-3:20]"
+  refakts find-usages "[src/file.ts 10:5-10:10]" --include-line
+  refakts find-usages "[src/file.ts 3:15-3:20]" --preview-line
+
+Formatting options:
+  --include-line    Include full line containing the match
+  --preview-line    Show line context as preview without including in selection
+
+Output format:
+  Declaration:
+  [file.ts line:col-line:col] symbolName
+
+  Write Usages:
+  [file.ts line:col-line:col] symbolName
+
+  Read Usages:
+  [file.ts line:col-line:col] symbolName

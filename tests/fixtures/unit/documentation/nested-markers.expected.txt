@@ -1,9 +1,0 @@
-# Example Document
-
-<!-- AUTO-GENERATED HELP START -->
-New help content
-<!-- AUTO-GENERATED HELP END -->
-should handle this
-<!-- AUTO-GENERATED HELP END -->
-
-Final content.

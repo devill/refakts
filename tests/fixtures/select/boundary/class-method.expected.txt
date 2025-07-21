@@ -1,4 +1,0 @@
-[class-method.input.ts 4:3-6:4]
-calculateTax(amount: number) {
-    return amount * this.rate;
-  }

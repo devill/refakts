@@ -1,0 +1,10 @@
+[
+  {
+    "flags": "--to <file>",
+    "description": "Target file to move the method to"
+  },
+  {
+    "flags": "--target-class <className>",
+    "description": "Name of the class to move the method to"
+  }
+]

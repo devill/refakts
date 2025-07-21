@@ -1,10 +1,13 @@
 import { RefactoringCommand } from './command';
 import { ExtractVariableCommand } from './commands/extract-variable-command';
+import { FindUsagesCommand } from './commands/find-usages-command';
 import { InlineVariableCommand } from './commands/inline-variable-command';
+import { MoveFileCommand } from './commands/move-file-command';
+import { MoveMethodCommand } from './commands/move-method-command';
 import { RenameCommand } from './commands/rename-command';
 import { SelectCommand } from './commands/select-command';
 import { SortMethodsCommand } from './commands/sort-methods-command';
-import { VariableLocatorCommand } from './commands/variable-locator-command';
+import { ConsoleOutput } from './interfaces/ConsoleOutput';
 
 const loadCommands = (): RefactoringCommand[] => [
   new ExtractVariableCommand(),
@@ -12,24 +15,35 @@ const loadCommands = (): RefactoringCommand[] => [
   new RenameCommand(),
   new SelectCommand(),
   new SortMethodsCommand(),
-  new VariableLocatorCommand()
+  new FindUsagesCommand(),
+  new MoveMethodCommand(),
+  new MoveFileCommand()
 ];
 
 export class CommandRegistry {
   private commands = new Map<string, RefactoringCommand>();
+  private consoleOutput: ConsoleOutput;
+  private showIncomplete: boolean;
 
-  constructor() {
+  constructor(consoleOutput: ConsoleOutput, showIncomplete = false) {
+    this.consoleOutput = consoleOutput;
+    this.showIncomplete = showIncomplete;
     this.registerCommands();
   }
 
   private registerCommands(): void {
     const commands = loadCommands();
     for (const command of commands) {
+      command.setConsoleOutput(this.consoleOutput);
       this.commands.set(command.name, command);
     }
   }
 
   getAllCommands(): RefactoringCommand[] {
-    return Array.from(this.commands.values());
+    const allCommands = Array.from(this.commands.values());
+    if (this.showIncomplete) {
+      return allCommands;
+    }
+    return allCommands.filter(cmd => cmd.complete);
   }
 }

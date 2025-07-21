@@ -6,10 +6,10 @@
     "refakts": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc && cp src/commands/*.json dist/commands/",
-    "test": "jest && touch /tmp/refakts-last-test",
+    "build": "tsc && cp src/commands/*.json dist/commands/ && cp src/commands/*.help.txt dist/commands/",
+    "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage && touch /tmp/refakts-last-test",
+    "test:coverage": "jest --coverage",
     "dev": "ts-node src/cli.ts",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src tests/integration tests/utils tests/unit --ext .ts --fix",
@@ -31,6 +31,11 @@
     "usage-report": "ts-node scripts/usage-report.ts",
     "usage-consolidate": "ts-node scripts/consolidate-usage.ts",
     "check-junk-files": "ts-node scripts/check-junk-files.ts",
+    "test:fixture": "ts-node tests/scripts/fixture-runner.ts",
+    "test:fixture:approve": "ts-node tests/scripts/fixture-approver.ts",
+    "test:fixture:approve:all": "ts-node tests/scripts/fixture-approver.ts --all",
+    "test:fixture:review": "ts-node tests/scripts/fixture-reviewer.ts",
+    "test:skipped": "node scripts/list-skipped-tests.js",
     "prepack": "npm run build",
     "prepublishOnly": "npm run lint && npm run test"
   },
@@ -54,7 +59,7 @@
   },
   "homepage": "https://github.com/devill/refakts#readme",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "files": [
     "dist/**/*",
@@ -68,6 +73,7 @@
     "@types/node": "^24.0.7",
     "@typescript-eslint/eslint-plugin": "^8.35.1",
     "@typescript-eslint/parser": "^8.35.1",
+    "approvals": "^7.3.0",
     "complexity-report": "^2.0.0-alpha",
     "eslint": "^9.30.1",
     "eslint-config-prettier": "^10.1.5",

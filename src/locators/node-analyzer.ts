@@ -59,26 +59,6 @@ export class NodeAnalyzer {
     return VariableNameExtractor.getVariableNameFromNode(node);
   }
 
-  static extractCandidateNameOrThrow(node: Node): string {
-    return VariableNameExtractor.extractCandidateNameOrThrow(node);
-  }
-
-  static extractCandidateName(node: Node): string | null {
-    return VariableNameExtractor.extractCandidateName(node);
-  }
-
-  static trySimpleTextExtraction(node: Node): string | null {
-    return VariableNameExtractor.trySimpleTextExtraction(node);
-  }
-
-  static tryVariableDeclarationExtraction(node: Node): string | null {
-    return VariableNameExtractor.tryVariableDeclarationExtraction(node);
-  }
-
-  static tryIdentifierDescendantExtraction(node: Node): string | null {
-    return VariableNameExtractor.tryIdentifierDescendantExtraction(node);
-  }
-
   static findContainingDeclaration(node: Node): Node | undefined {
     return NodeDeclarationMatcher.findContainingDeclaration(node);
   }

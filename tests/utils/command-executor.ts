@@ -1,10 +1,9 @@
 import {CommandRegistry} from '../../src/command-registry';
-import * as fs from 'fs';
-import * as path from 'path';
 import {CommandLineParser} from './command-line-parser';
 import {ConsoleCapture} from './console-capture';
 import {CliExecutor} from './cli-executor';
-import {CommandExecutionBuilder} from './builders/command-execution-builder';
+import {ExecutionContext} from './execution-context';
+import {DirectoryUtils} from '../../src/utils/directory-utils';
 
 export interface CommandExecutorOptions {
   useCli?: boolean; // If true, uses CLI subprocess. If false, calls commands directly
@@ -19,7 +18,7 @@ export interface CommandExecutionContext {
 }
 
 export class CommandExecutor {
-  private commandRegistry = new CommandRegistry();
+  private commandRegistry: CommandRegistry;
   private useCli: boolean;
   private parser = new CommandLineParser();
   private consoleCapture = new ConsoleCapture();
@@ -27,6 +26,7 @@ export class CommandExecutor {
 
   constructor(options: CommandExecutorOptions = {}) {
     this.useCli = options.useCli ?? process.env.REFAKTS_TEST_CLI === 'true';
+    this.commandRegistry = new CommandRegistry(this.consoleCapture, true);
   }
 
   isUsingCli(): boolean {
@@ -37,19 +37,23 @@ export class CommandExecutor {
     if (this.useCli) {
       return this.cliExecutor.executeCommand(commandString, cwd);
     } else {
-      return this.executeDirect(commandString);
+      return this.executeDirect(commandString, cwd);
     }
   }
 
+  private async executeDirect(commandString: string, cwd: string): Promise<string | void> {
+    return DirectoryUtils.withRootDirectory(cwd, async () => {
+      return new ExecutionContext(this.executionContextFor(commandString))
+          .execute(this.consoleCapture);
+    });
+  }
 
-  private async executeDirect(commandString: string): Promise<string | void> {
+  private executionContextFor(commandString: string) {
     const parsedCommand = this.parser.parseCommand(commandString);
-    return CommandExecutionBuilder.create()
-        .withContext({
-          command: this.findCommand(parsedCommand.commandName),
-          ...parsedCommand
-        })
-        .execute(this.consoleCapture);
+    return {
+      command: this.findCommand(parsedCommand.commandName),
+      ...parsedCommand
+    };
   }
 
   private findCommand(commandName: string) {
@@ -61,22 +65,5 @@ export class CommandExecutor {
     }
     
     return command;
-  }
-
-  private handleExecutionError(commandString: string, error: unknown): never {
-    throw new Error(`Command execution failed: ${commandString}\n${(error as Error).message}`);
-  }
-
-
-
-
-  private loadCommandOptions(commandName: string): any[] {
-    const optionsPath = path.join(__dirname, '..', '..', 'src', 'commands', `${commandName}-options.json`);
-    try {
-      const optionsData = fs.readFileSync(optionsPath, 'utf8');
-      return JSON.parse(optionsData);
-    } catch {
-      return [];
-    }
   }
 }

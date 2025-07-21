@@ -1,96 +1,27 @@
-import { execSync } from 'child_process';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
 import { QualityIssue } from './quality-check-interface';
+import { QualityBaseline, FileBaseline } from './baseline-types';
+import { getLastCommitId } from './baseline-git';
+import { loadBaseline, saveBaseline } from './baseline-file-io';
+import { generateBaseline, buildCurrentViolationsMap } from './baseline-violations';
 
-interface FileBaseline {
-  lastCommitId: string;
-  violations: string[];
-}
+export { generateBaseline, loadBaseline, saveBaseline };
 
-interface QualityBaseline {
-  [filePath: string]: FileBaseline;
-}
-
-const BASELINE_FILE = '.quality-baseline.json';
-
-export const getLastCommitId = (filePath: string): string | null => {
-  try {
-    const result = execSync(`git log -1 --format="%H" -- "${filePath}"`, { 
-      encoding: 'utf8',
-      cwd: process.cwd()
-    }).trim();
-    return result || null;
-  } catch {
-    return null;
-  }
-};
-
-export const loadBaseline = (): QualityBaseline => {
-  const baselinePath = join(process.cwd(), BASELINE_FILE);
-  if (!existsSync(baselinePath)) {
-    return {};
-  }
-  
-  try {
-    const content = readFileSync(baselinePath, 'utf8');
-    return JSON.parse(content);
-  } catch {
-    return {};
-  }
-};
-
-export const saveBaseline = (baseline: QualityBaseline): void => {
-  const baselinePath = join(process.cwd(), BASELINE_FILE);
-  writeFileSync(baselinePath, JSON.stringify(baseline, null, 2));
-};
-
-export const generateBaseline = (issues: QualityIssue[]): QualityBaseline => {
-  const baseline: QualityBaseline = {};
-  
-  const blacklistedTypes = ['manyParameters', 'featureEnvy'];
-  const relevantIssues = issues.filter(issue => blacklistedTypes.includes(issue.type));
-  
-  const fileViolations = new Map<string, Set<string>>();
-  
-  relevantIssues.forEach(issue => {
-    const filePath = issue.file;
-    if (!filePath) {
-      return;
-    }
-    if (!fileViolations.has(filePath)) {
-      fileViolations.set(filePath, new Set());
-    }
-    const violations = fileViolations.get(filePath);
-    if (violations) {
-      violations.add(issue.type);
-    }
-  });
-  
-  fileViolations.forEach((violations, filePath) => {
-    const commitId = getLastCommitId(filePath);
-    if (commitId) {
-      baseline[filePath] = {
-        lastCommitId: commitId,
-        violations: Array.from(violations)
-      };
-    }
-  });
-  
-  return baseline;
-};
-
-export const shouldFilterViolation = (issue: QualityIssue, baseline: QualityBaseline): boolean => {
+const hasValidFileBaseline = (issue: QualityIssue, baseline: QualityBaseline): FileBaseline | null => {
   if (!issue.file) {
-    return false;
+    return null;
   }
   
   const fileBaseline = baseline[issue.file];
-  if (!fileBaseline) {
-    return false;
+  if (!fileBaseline || !fileBaseline.violations.includes(issue.type)) {
+    return null;
   }
   
-  if (!fileBaseline.violations.includes(issue.type)) {
+  return fileBaseline;
+};
+
+export const shouldFilterViolation = (issue: QualityIssue, baseline: QualityBaseline): boolean => {
+  const fileBaseline = hasValidFileBaseline(issue, baseline);
+  if (!fileBaseline || !issue.file) {
     return false;
   }
   
@@ -98,48 +29,66 @@ export const shouldFilterViolation = (issue: QualityIssue, baseline: QualityBase
   return currentCommitId === fileBaseline.lastCommitId;
 };
 
-export const cleanupResolvedFiles = (allIssues: QualityIssue[]): void => {
-  const baseline = loadBaseline();
-  const blacklistedTypes = ['manyParameters', 'featureEnvy'];
+const hasFileChanged = (filePath: string, fileBaseline: FileBaseline): boolean => {
+  const currentCommitId = getLastCommitId(filePath);
+  return currentCommitId !== fileBaseline.lastCommitId;
+};
+
+const hasBaselineViolations = (fileBaseline: FileBaseline, currentViolations: Map<string, Set<string>>, filePath: string): boolean => {
+  const currentFileViolations = currentViolations.get(filePath);
+  return fileBaseline.violations.some(violationType => 
+    currentFileViolations?.has(violationType)
+  );
+};
+
+const shouldRemoveBaselineEntry = (filePath: string, fileBaseline: FileBaseline, currentViolations: Map<string, Set<string>>): boolean => {
+  if (!hasFileChanged(filePath, fileBaseline)) {
+    return false;
+  }
   
-  const currentViolations = new Map<string, Set<string>>();
-  
-  allIssues
-    .filter(issue => blacklistedTypes.includes(issue.type) && issue.file)
-    .forEach(issue => {
-      const filePath = issue.file as string;
-      if (!currentViolations.has(filePath)) {
-        currentViolations.set(filePath, new Set());
-      }
-      const violations = currentViolations.get(filePath);
-      if (violations) {
-        violations.add(issue.type);
-      }
-    });
-  
+  return !hasBaselineViolations(fileBaseline, currentViolations, filePath);
+};
+
+const processBaselineEntry = (newBaseline: QualityBaseline, filePath: string, fileBaseline: FileBaseline, currentViolations: Map<string, Set<string>>): boolean => {
+  if (shouldRemoveBaselineEntry(filePath, fileBaseline, currentViolations)) {
+    delete newBaseline[filePath];
+    return true;
+  }
+  return false;
+};
+
+const removeResolvedEntries = (baseline: QualityBaseline, currentViolations: Map<string, Set<string>>): { newBaseline: QualityBaseline; hasChanges: boolean } => {
   let hasChanges = false;
   const newBaseline = { ...baseline };
   
   Object.entries(baseline).forEach(([filePath, fileBaseline]) => {
-    const currentCommitId = getLastCommitId(filePath);
-    const fileChanged = currentCommitId !== fileBaseline.lastCommitId;
-    
-    if (fileChanged) {
-      const currentFileViolations = currentViolations.get(filePath);
-      const hasAnyBaselineViolations = fileBaseline.violations.some(violationType => 
-        currentFileViolations?.has(violationType)
-      );
-      
-      if (!hasAnyBaselineViolations) {
-        delete newBaseline[filePath];
-        hasChanges = true;
-      }
+    if (processBaselineEntry(newBaseline, filePath, fileBaseline, currentViolations)) {
+      hasChanges = true;
     }
   });
+  
+  return { newBaseline, hasChanges };
+};
+
+export const cleanupResolvedFiles = (allIssues: QualityIssue[]): void => {
+  const baseline = loadBaseline();
+  const currentViolations = buildCurrentViolationsMap(allIssues);
+  const { newBaseline, hasChanges } = removeResolvedEntries(baseline, currentViolations);
   
   if (hasChanges) {
     saveBaseline(newBaseline);
   }
+};
+
+const createStatusEntry = (filePath: string, fileBaseline: FileBaseline): { filePath: string; violations: string[]; changed: boolean } => {
+  const currentCommitId = getLastCommitId(filePath);
+  const changed = currentCommitId !== fileBaseline.lastCommitId;
+  
+  return {
+    filePath,
+    violations: fileBaseline.violations,
+    changed
+  };
 };
 
 export const getBaselineStatus = (): { filePath: string; violations: string[]; changed: boolean }[] => {
@@ -147,14 +96,7 @@ export const getBaselineStatus = (): { filePath: string; violations: string[]; c
   const status: { filePath: string; violations: string[]; changed: boolean }[] = [];
   
   Object.entries(baseline).forEach(([filePath, fileBaseline]) => {
-    const currentCommitId = getLastCommitId(filePath);
-    const changed = currentCommitId !== fileBaseline.lastCommitId;
-    
-    status.push({
-      filePath,
-      violations: fileBaseline.violations,
-      changed
-    });
+    status.push(createStatusEntry(filePath, fileBaseline));
   });
   
   return status;

@@ -1,0 +1,15 @@
+[code-block-boundaries.received.ts 6:-10:]
+function getUserData() {
+    const userInfo = fetchUser();
+    const userPrefs = loadPreferences();
+    return { userInfo, userPrefs };
+}
+[code-block-boundaries.received.ts 6:-10:]
+
+[code-block-boundaries.received.ts 12:-16:]
+function processUserAction(action: string) {
+    const userData = getUserData();
+    const result = executeAction(action, userData);
+    return result;
+}
+[code-block-boundaries.received.ts 12:-16:]

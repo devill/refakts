@@ -1,5 +1,5 @@
 import { PositionData } from '../../../src/core/position-data';
-import { LocationRange } from '../../../src/core/location-parser';
+import { LocationRange } from '../../../src/core/location-range';
 import { SelectMatch } from '../../../src/types/selection-types';
 
 describe('PositionData', () => {
@@ -25,13 +25,7 @@ describe('PositionData', () => {
 
   describe('fromLocation', () => {
     it('should create position data from LocationRange', () => {
-      const location: LocationRange = {
-        file: 'test.ts',
-        startLine: 3,
-        startColumn: 8,
-        endLine: 3,
-        endColumn: 15
-      };
+      const location = new LocationRange('test.ts', { line: 3, column: 8 }, { line: 3, column: 15 });
 
       const position = PositionData.fromLocation(location);
       
@@ -85,10 +79,8 @@ describe('PositionData', () => {
       
       expect(locationRange).toEqual({
         file: 'test.ts',
-        startLine: 5,
-        startColumn: 10,
-        endLine: 6,
-        endColumn: 15
+        start: { line: 5, column: 10 },
+        end: { line: 6, column: 15 }
       });
     });
 
@@ -98,10 +90,8 @@ describe('PositionData', () => {
       
       expect(locationRange).toEqual({
         file: 'test.ts',
-        startLine: 5,
-        startColumn: 10,
-        endLine: 5,
-        endColumn: 10
+        start: { line: 5, column: 10 },
+        end: { line: 5, column: 10 }
       });
     });
   });

@@ -4,21 +4,23 @@ import { Command } from 'commander';
 import { CommandRegistry } from './command-registry';
 import { CommandOption, CommandOptions, RefactoringCommand } from './command';
 import { UsageTracker } from './usage-tracker';
-import { LocationParser } from './core/location-parser';
+import { LocationParser } from './core/location-range';
+import { StandardConsole } from './interfaces/StandardConsole';
 import * as fs from 'fs';
 import * as path from 'path';
 
 const program = new Command();
-const commandRegistry = new CommandRegistry();
+const showIncomplete = process.argv.includes('--show-incomplete');
+const commandRegistry = new CommandRegistry(new StandardConsole(), showIncomplete);
 
 program
   .name('refakts')
   .description('TypeScript refactoring tool based on ts-morph')
-  .version('1.0.0');
+  .version('1.0.0')
+  .option('--show-incomplete', 'Show incomplete commands in help');
 
 for (const command of commandRegistry.getAllCommands()) {
   const warningText = !command.complete ? ' (warning: incomplete)' : '';
-  
   const cmd = program
     .command(command.name)
     .description(command.description + warningText)

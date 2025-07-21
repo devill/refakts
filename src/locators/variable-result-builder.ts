@@ -1,18 +1,46 @@
-import { Node } from 'ts-morph';
-import { UsageTypeDetector } from './usage-type-detector';
+import {Node} from 'ts-morph';
+import {UsageTypeDetector} from './usage-type-detector';
+import {LocationRange} from '../core/location-range';
+import path from "path";
 
 export interface VariableLocation {
   kind: 'declaration' | 'usage';
   usageType?: 'read' | 'write' | 'update';
-  line: number;
-  column: number;
+  location: LocationRange;
   text: string;
 }
 
-export interface VariableLocationResult {
-  variable: string;
-  declaration: VariableLocation;
-  usages: VariableLocation[];
+export class VariableLocationResult {
+  public readonly variable: string;
+  public readonly declaration: VariableLocation;
+  public readonly usages: VariableLocation[];
+
+  constructor(variable: string, declaration: VariableLocation, usages: VariableLocation[]) {
+    this.variable = variable;
+    this.declaration = declaration;
+    this.usages = usages;
+  }
+
+  formatAsLocationStrings(): string[] {
+    const locations: string[] = [];
+    this.addDeclarationLocation(locations);
+    this.addUsageLocations(locations);
+    return locations;
+  }
+
+  private addDeclarationLocation(locations: string[]): void {
+    if (this.declaration) {
+      locations.push(`${this.declaration.location.toString()} ${this.declaration.text}`);
+    }
+  }
+
+  private addUsageLocations(locations: string[]): void {
+    if (this.usages) {
+      for (const usage of this.usages) {
+        locations.push(`${usage.location.toString()} ${usage.text}`);
+      }
+    }
+  }
 }
 
 export interface VariableNodeResult {
@@ -25,11 +53,11 @@ export class VariableResultBuilder {
   private usageTypeDetector = new UsageTypeDetector();
 
   buildLocationResult(variableName: string, declaration: Node, usages: Node[]): VariableLocationResult {
-    return {
-      variable: variableName,
-      declaration: this.createLocation(declaration, 'declaration'),
-      usages: usages.map(usage => this.createUsageLocation(usage))
-    };
+    return new VariableLocationResult(
+      variableName,
+      this.createLocation(declaration, 'declaration'),
+      usages.map(usage => this.createUsageLocation(usage))
+    );
   }
 
   buildNodeResult(variableName: string, declaration: Node, usages: Node[]): VariableNodeResult {
@@ -44,14 +72,20 @@ export class VariableResultBuilder {
   }
 
   private createLocation(node: Node, kind: 'declaration' | 'usage'): VariableLocation {
-    const position = this.getNodePosition(node);
-    
     return {
       kind,
-      line: position.line,
-      column: position.column,
+      location: this.createLocationRange(node),
       text: node.getText()
     };
+  }
+
+  private createLocationRange(node: Node): LocationRange {
+    const sourceFile = node.getSourceFile();
+    return new LocationRange(
+      path.basename(sourceFile.getFilePath()),
+      sourceFile.getLineAndColumnAtPos(node.getStart()),
+      sourceFile.getLineAndColumnAtPos(node.getEnd())
+    );
   }
 
   private createUsageLocation(node: Node): VariableLocation {
@@ -64,9 +98,4 @@ export class VariableResultBuilder {
     };
   }
 
-  private getNodePosition(node: Node): {line: number; column: number} {
-    const start = node.getStart();
-    const sourceFile = node.getSourceFile();
-    return sourceFile.getLineAndColumnAtPos(start);
-  }
 }

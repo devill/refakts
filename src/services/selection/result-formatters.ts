@@ -1,6 +1,7 @@
 import { SelectMatch, SelectResult } from '../../types/selection-types';
 import { DefinitionRangeDetector } from './definition-range-detector';
 import { MatchContext } from './match-context';
+import { LocationRange, SourceLocation } from '../../core/location-range';
 
 export interface SelectResultFormatter {
   format(_matches: SelectMatch[], _fileName: string, _file?: string): SelectResult[];
@@ -12,53 +13,66 @@ export class BasicFormatter implements SelectResultFormatter {
   }
 
   private formatMatch(match: SelectMatch, fileName: string): SelectResult {
-    const location = this.createLocationString(match, fileName);
+    const locationRange = this.createLocationRange(match, fileName);
     
     if (this.isMultilineMatch(match)) {
-      return this.formatMultilineMatch(match, location);
+      return this.formatMultilineMatch(match, locationRange);
     }
     
-    return this.formatSingleLineMatch(match, location);
+    return this.formatSingleLineMatch(match, locationRange);
   }
 
-  private createLocationString(match: SelectMatch, fileName: string): string {
-    return `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`;
+  private createLocationRange(match: SelectMatch, fileName: string): LocationRange {
+    const start: SourceLocation = { line: match.line, column: match.column };
+    const end: SourceLocation = { line: match.endLine, column: match.endColumn };
+    return new LocationRange(fileName, start, end);
   }
 
-  private formatSingleLineMatch(match: SelectMatch, location: string): SelectResult {
-    return {
-      location,
-      content: match.text
-    };
+  private formatSingleLineMatch(match: SelectMatch, locationRange: LocationRange): SelectResult {
+    return new SelectResult(locationRange.formatLocation('.'), match.text);
   }
 
   private isMultilineMatch(match: SelectMatch): boolean {
     return match.line !== match.endLine;
   }
 
-  private formatMultilineMatch(match: SelectMatch, location: string): SelectResult {
-    return {
-      location: `\n${location}`,
-      content: `${match.text}\n${location}\n`
-    };
+  private formatMultilineMatch(match: SelectMatch, locationRange: LocationRange): SelectResult {
+    const location = locationRange.formatLocation('.');
+    return new SelectResult(`\n${location}`, `${match.text}\n${location}\n`);
   }
 }
 
 export class LineFormatter implements SelectResultFormatter {
   format(matches: SelectMatch[], fileName: string): SelectResult[] {
-    return matches.map(match => ({
-      location: `[${fileName} ${match.line}:-${match.line}:]`,
-      content: match.fullLine.trim()
-    }));
+    return matches.map(match => {
+      const location = this.formatLineLocation(match, fileName);
+      return new SelectResult(
+        location,
+        match.fullLine.trim()
+      );
+    });
+  }
+
+  private formatLineLocation(match: SelectMatch, fileName: string): string {
+    return `[${fileName} ${match.line}:-${match.line}:]`;
   }
 }
 
 export class PreviewFormatter implements SelectResultFormatter {
   format(matches: SelectMatch[], fileName: string): SelectResult[] {
-    return matches.map(match => ({
-      location: `[${fileName} ${match.line}:${match.column}-${match.endLine}:${match.endColumn}]`,
-      content: match.fullLine.trim()
-    }));
+    return matches.map(match => {
+      const locationRange = this.createLocationRange(match, fileName);
+      return new SelectResult(
+        locationRange.formatLocation('.'),
+        match.fullLine.trim()
+      );
+    });
+  }
+
+  private createLocationRange(match: SelectMatch, fileName: string): LocationRange {
+    const start: SourceLocation = { line: match.line, column: match.column };
+    const end: SourceLocation = { line: match.endLine, column: match.endColumn };
+    return new LocationRange(fileName, start, end);
   }
 }
 
@@ -75,10 +89,15 @@ export class DefinitionFormatter implements SelectResultFormatter {
   }
 
   private buildDefinitionResult(definitionRange: {startLine: number, endLine: number, content: string}, fileName: string): SelectResult {
-    return {
-      location: `[${fileName} ${definitionRange.startLine}:-${definitionRange.endLine}:]`,
-      content: definitionRange.content
-    };
+    const location = this.formatDefinitionLocation(definitionRange, fileName);
+    return new SelectResult(
+      location,
+      definitionRange.content
+    );
+  }
+
+  private formatDefinitionLocation(definitionRange: {startLine: number, endLine: number, content: string}, fileName: string): string {
+    return `[${fileName} ${definitionRange.startLine}:-${definitionRange.endLine}:]`;
   }
 
   format(matches: SelectMatch[], fileName: string, file: string): SelectResult[] {

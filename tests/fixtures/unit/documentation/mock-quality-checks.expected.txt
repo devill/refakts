@@ -1,4 +1,0 @@
-- **COMMENTS DETECTED** (Comments indicate code that is not self-documenting.)
-- **HIGH COMPLEXITY** (Complex functions are harder to understand, test, and maintain.)
-- **CRITICAL: OVERSIZED FUNCTIONS** (Functions over 10 lines violate single responsibility principle.)
-- **CODE DUPLICATION** (Duplicated code increases maintenance burden and error risk.)

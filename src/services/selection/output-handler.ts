@@ -1,10 +1,16 @@
-/* eslint-disable no-console */
 import { SelectResult } from '../../types/selection-types';
+import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 
 export class SelectOutputHandler {
+  private consoleOutput: ConsoleOutput;
+  
+  constructor(consoleOutput: ConsoleOutput) {
+    this.consoleOutput = consoleOutput;
+  }
+
   outputResults(results: SelectResult[]): void {
     if (this.hasNoResults(results)) {
-      console.log('No Matches');
+      this.consoleOutput.log('No Matches');
       return;
     }
     
@@ -28,68 +34,16 @@ export class SelectOutputHandler {
       const currentResult = results[index];
       const nextResult = results[index + 1];
       if (this.needsSpacing(currentResult, nextResult)) {
-        console.log('');
+        this.consoleOutput.log('');
       }
     }
   }
 
   private needsSpacing(currentResult: SelectResult, nextResult: SelectResult): boolean {
-    return this.isMultiLineResult(currentResult) || this.isMultiLineResult(nextResult);
+    return currentResult.isMultiLineResult() || nextResult.isMultiLineResult();
   }
 
   private outputSingleResult(result: SelectResult): void {
-    const outputType = this.determineOutputType(result);
-    this.executeOutput(result, outputType);
-  }
-
-  private determineOutputType(result: SelectResult): string {
-    const typeChecks = [
-      { check: this.hasPreviewContent(result), type: 'preview' },
-      { check: this.isMultiLineResult(result), type: 'multiline' },
-      { check: !!result.content, type: 'withContent' }
-    ];
-    
-    const found = typeChecks.find(check => check.check);
-    return found ? found.type : 'locationOnly';
-  }
-
-  private hasPreviewContent(result: SelectResult): boolean {
-    return !!(result.content && result.context);
-  }
-
-  private executeOutput(result: SelectResult, outputType: string): void {
-    const outputHandlers = this.getOutputHandlers(result);
-    const handler = outputHandlers[outputType];
-    if (handler) {
-      handler();
-    }
-  }
-
-  private getOutputHandlers(result: SelectResult): Record<string, () => void> {
-    return {
-      preview: () => this.outputPreviewResult(result),
-      multiline: () => this.outputMultiLineResult(result),
-      withContent: () => console.log(`${result.location} ${result.content}`),
-      locationOnly: () => console.log(result.location)
-    };
-  }
-
-  private outputPreviewResult(result: SelectResult): void {
-    console.log(`${result.location} ${result.content}`);
-    console.log(`Context: ${result.context}`);
-  }
-
-  private isMultiLineResult(result: SelectResult): boolean {
-    if (!result.content || !result.location.includes(':-') || !result.location.includes(':')) {
-      return false;
-    }
-    const hasMultiLineRange = result.location.match(/(\d+):-(\d+):/);
-    return hasMultiLineRange ? hasMultiLineRange[1] !== hasMultiLineRange[2] : false;
-  }
-
-  private outputMultiLineResult(result: SelectResult): void {
-    console.log(result.location);
-    console.log(result.content);
-    console.log(result.location);
+    this.consoleOutput.log(result.toString());
   }
 }

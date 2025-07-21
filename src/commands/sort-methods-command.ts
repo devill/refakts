@@ -1,20 +1,24 @@
-import { RefactoringCommand, CommandOptions } from '../command';
+import { ClassDeclaration, ClassMemberTypes, Node, SyntaxKind } from 'ts-morph';
+import { CommandOptions, RefactoringCommand } from '../command';
+import { LocationRange } from '../core/location-range';
+import { ConsoleOutput } from '../interfaces/ConsoleOutput';
 import { ASTService } from '../services/ast-service';
 import { ClassMethodFinder, MethodInfo } from '../services/class-method-finder';
 import { MethodDependencyAnalyzer } from '../services/method-dependency-analyzer';
 import { MethodSorter } from '../services/method-sorter';
-import { LocationRange } from '../core/location-parser';
-import { ClassDeclaration, SyntaxKind, ClassMemberTypes, Node } from 'ts-morph';
+import { SelectOutputHandler } from '../services/selection/output-handler';
 
 export class SortMethodsCommand implements RefactoringCommand {
   readonly name = 'sort-methods';
   readonly description = 'Sort methods according to the step down rule';
   readonly complete = true;
 
+  private consoleOutput!: ConsoleOutput;
   private astService = new ASTService();
   private methodFinder = new ClassMethodFinder();
   private dependencyAnalyzer = new MethodDependencyAnalyzer();
   private methodSorter = new MethodSorter();
+  private outputHandler!: SelectOutputHandler;
 
   async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
@@ -52,6 +56,11 @@ export class SortMethodsCommand implements RefactoringCommand {
 
   getHelpText(): string {
     return '\nExamples:\n  refakts sort-methods "[src/file.ts 5:1-5:10]"';
+  }
+
+  setConsoleOutput(consoleOutput: ConsoleOutput): void {
+    this.consoleOutput = consoleOutput;
+    this.outputHandler = new SelectOutputHandler(consoleOutput);
   }
 
   private async performMethodSorting(targetClass: ClassDeclaration): Promise<void> {

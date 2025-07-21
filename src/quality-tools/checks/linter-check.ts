@@ -1,6 +1,6 @@
-import { QualityCheck, QualityIssue, QualityGroup } from '../quality-check-interface';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import {QualityCheck, QualityGroup, QualityIssue} from '../quality-check-interface';
+import {exec} from 'child_process';
+import {promisify} from 'util';
 
 const execAsync = promisify(exec);
 
@@ -67,67 +67,100 @@ function parseEslintResults(stdout: string): QualityIssue[] {
   return results.flatMap(processEslintResult);
 }
 
+function filterNonFixtureFiles(files: string[]): string[] {
+  return files.filter(file => !file.endsWith('.fixture.ts'));
+}
+
+function createLinterError(message: string): QualityIssue {
+  return {
+    type: 'linter-error',
+    severity: 'critical',
+    message
+  };
+}
+
+async function handleLinterError(error: Error): Promise<QualityIssue[]> {
+  if (error.message.includes('Command failed')) {
+    return await handleEslintCommandFailed();
+  }
+  return [createLinterError(`Linter check failed: ${error.message}`)];
+}
+
+async function handleEslintCommandFailed(): Promise<QualityIssue[]> {
+  try {
+    const { stdout } = await execAsync('npx eslint src tests/integration tests/utils tests/unit --ext .ts --ignore-pattern "**/*.fixture.ts" --format json').catch(err => ({ stdout: err.stdout }));
+    
+    if (stdout) {
+      return parseEslintResults(stdout);
+    }
+  } catch (parseError) {
+    return [createLinterError(`Failed to parse ESLint output: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`)];
+  }
+  return [];
+}
+
+async function runEslintForFiles(files: string[]): Promise<QualityIssue[]> {
+  const fileArgs = files.map(f => `'${f}'`).join(' ');
+  const { stdout, stderr } = await execAsync(`npx eslint ${fileArgs} --format json --no-warn-ignored`);
+  
+  if (stderr && !stderr.includes('warning')) {
+    return [createLinterError(`ESLint execution failed: ${stderr}`)];
+  }
+
+  return parseEslintResults(stdout);
+}
+
+function getGroupDefinition(groupKey: string): Omit<QualityGroup, 'violations'> | undefined {
+  if (groupKey === 'linter-violation') {
+    return createLinterViolationGroup();
+  }
+  if (groupKey === 'linter-error') {
+    return createLinterErrorGroup();
+  }
+  return undefined;
+}
+
+function createLinterViolationGroup(): Omit<QualityGroup, 'violations'> {
+  return {
+    title: 'ESLint Violations',
+    description: 'Code style and potential bug issues detected by ESLint',
+    actionGuidance: 'Run `npm run lint:fix` to automatically fix many of these issues. Manual fixes may be needed for logical errors.',
+    requiresUserConsultation: false
+  };
+}
+
+function createLinterErrorGroup(): Omit<QualityGroup, 'violations'> {
+  return {
+    title: 'Linter Execution Errors',
+    description: 'Issues with running the linter itself',
+    actionGuidance: 'Check ESLint configuration and ensure all dependencies are installed.',
+    requiresUserConsultation: true
+  };
+}
+
+async function checkLinterFiles(files: string[]): Promise<QualityIssue[]> {
+  if (shouldSkipLinting(files)) {
+    return [];
+  }
+
+  try {
+    return await runEslintForFiles(filterNonFixtureFiles(files));
+  } catch (error) {
+    return await handleLinterError(error as Error);
+  }
+}
+
+function shouldSkipLinting(files: string[]): boolean {
+  if (files.length === 0) {
+    return true;
+  }
+  
+  const filteredFiles = filterNonFixtureFiles(files);
+  return filteredFiles.length === 0;
+}
+
 export const linterCheck: QualityCheck = {
   name: 'linter-check',
-  check: async (files: string[]): Promise<QualityIssue[]> => {
-    if (files.length === 0) {
-      return [];
-    }
-    
-    try {
-      const fileArgs = files.map(f => `'${f}'`).join(' ');
-      const { stdout, stderr } = await execAsync(`npx eslint ${fileArgs} --format json --no-warn-ignored`);
-      
-      if (stderr && !stderr.includes('warning')) {
-        return [{
-          type: 'linter-error',
-          severity: 'critical',
-          message: `ESLint execution failed: ${stderr}`,
-        }];
-      }
-
-      return parseEslintResults(stdout);
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('Command failed')) {
-        try {
-          const { stdout } = await execAsync('npx eslint src tests/integration tests/utils tests/unit --ext .ts --format json').catch(err => ({ stdout: err.stdout }));
-          
-          if (stdout) {
-            return parseEslintResults(stdout);
-          }
-        } catch (parseError) {
-          return [{
-            type: 'linter-error',
-            severity: 'critical',
-            message: `Failed to parse ESLint output: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`,
-          }];
-        }
-      }
-      
-      return [{
-        type: 'linter-error',
-        severity: 'critical',
-        message: `Linter check failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      }];
-    }
-  },
-  getGroupDefinition: (groupKey: string): Omit<QualityGroup, 'violations'> | undefined => {
-    if (groupKey === 'linter-violation') {
-      return {
-        title: 'ESLint Violations',
-        description: 'Code style and potential bug issues detected by ESLint',
-        actionGuidance: 'Run `npm run lint:fix` to automatically fix many of these issues. Manual fixes may be needed for logical errors.',
-        requiresUserConsultation: false
-      };
-    }
-    if (groupKey === 'linter-error') {
-      return {
-        title: 'Linter Execution Errors',
-        description: 'Issues with running the linter itself',
-        actionGuidance: 'Check ESLint configuration and ensure all dependencies are installed.',
-        requiresUserConsultation: true
-      };
-    }
-    return undefined;
-  }
+  check: checkLinterFiles,
+  getGroupDefinition: getGroupDefinition
 };

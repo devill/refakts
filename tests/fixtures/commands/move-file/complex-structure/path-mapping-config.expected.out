@@ -1,0 +1,4 @@
+File moved: src/shared/constants.ts → src/core/constants.ts
+Updated imports in:
+  - src/main.ts
+  - src/services/user-service.ts

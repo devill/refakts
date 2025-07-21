@@ -1,9 +1,9 @@
+import {SourceLocation} from "../../../src/core/location-range";
+
 export interface LocationInfo {
   file: string;
-  startLine: number;
-  startColumn: number;
-  endLine: number;
-  endColumn: number;
+  start: { line: number; column: number };
+  end: { line: number; column: number };
 }
 
 export interface LocationParseResult {
@@ -51,10 +51,15 @@ export class LocationParser {
   private createLocationObject(match: RegExpMatchArray): LocationInfo {
     return {
       file: match[1],
-      startLine: parseInt(match[2], 10),
-      startColumn: parseInt(match[3], 10),
-      endLine: parseInt(match[4], 10),
-      endColumn: parseInt(match[5], 10)
+      start: LocationParser.makeSourceLocation(match[2], match[3]),
+      end: LocationParser.makeSourceLocation(match[4],match[5])
+    };
+  }
+
+  private static makeSourceLocation(line: string, column: string) : SourceLocation {
+    return {
+      line: parseInt(line, 10),
+      column: parseInt(column, 10)
     };
   }
 }

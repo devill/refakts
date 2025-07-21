@@ -1,0 +1,5 @@
+File moved: src/services/user-service.ts → src/domain/user/user-service.ts
+Updated imports in:
+  - src/main.ts
+  - src/modules/order.ts
+  - src/modules/user.ts

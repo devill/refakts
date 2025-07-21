@@ -1,0 +1,2 @@
+Command execution failed: rename "[./tests/fixtures/commands/rename/missing-to-option.received.ts 2:9-2:15]"
+--to must be specified for rename operations

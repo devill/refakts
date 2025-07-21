@@ -58,6 +58,24 @@ export class RangeAnalysisRequest {
     return this.lines.slice(startIndex, endIndex + 1).join('\n');
   }
 
+  findEndMatch(startIndex: number): { match: RegExpExecArray; index: number } | null {
+    for (let j = startIndex; j < this.getTotalLines(); j++) {
+      if (this.shouldSkipLine(j + 1)) continue;
+      
+      const endMatch = this.patterns.end.exec(this.getLineByIndex(j) || '');
+      if (endMatch) return { match: endMatch, index: j };
+    }
+    
+    return null;
+  }
+
+  findStartMatch(startIndex: number): { match: RegExpExecArray; index: number } | null {
+    const startMatch = this.patterns.start.exec(this.getLineByIndex(startIndex) || '');
+    if (!startMatch) return null;
+    
+    return { match: startMatch, index: startIndex };
+  }
+
 
   getTotalLines(): number {
     return this.lines.length;

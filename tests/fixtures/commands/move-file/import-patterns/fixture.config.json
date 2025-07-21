@@ -1,0 +1,27 @@
+[
+  {
+    "id": "relative-imports",
+    "description": "Test relative import path updates when moving files",
+    "command": "move-file src/utils/helper.ts --destination src/lib/common/helper.ts"
+  },
+  {
+    "id": "absolute-imports",
+    "description": "Test absolute import handling",
+    "command": "move-file src/services/logger.ts --destination src/core/logging/logger.ts"
+  },
+  {
+    "id": "barrel-exports",
+    "description": "Move file that's re-exported through index.ts",
+    "command": "move-file src/components/button.ts --destination src/ui/components/button.ts"
+  },
+  {
+    "id": "deep-nesting",
+    "description": "Move files between deeply nested directories",
+    "command": "move-file src/deep/nested/utils/formatter.ts --destination src/shared/formatting/formatter.ts"
+  },
+  {
+    "id": "cross-module-move",
+    "description": "Move files between different logical modules",
+    "command": "move-file src/user/user-validator.ts --destination src/validation/user-validator.ts"
+  }
+]

@@ -1,0 +1,4 @@
+ClassDeclaration: FOUND - CORRECT
+PropertyDeclaration: FOUND - CORRECT
+ArrowFunction: FOUND - CORRECT
+StringLiteral: FOUND - CORRECT

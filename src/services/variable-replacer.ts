@@ -49,7 +49,6 @@ export class VariableReplacer {
 
   private isMatchingIdentifier(node: Node, request: VariableReferenceRequest): boolean {
     return request.isMatchingReference(node) &&
-           !this.contextAnalyzer.isInTypeContext(node) &&
-           !this.contextAnalyzer.isInDestructuringPattern(node);
+           this.contextAnalyzer.isValidReferenceContext(node);
   }
 }

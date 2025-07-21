@@ -1,0 +1,3 @@
+VariableDeclaration - variable: true
+Parameter - param: true
+FunctionDeclaration - namedFn: false

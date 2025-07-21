@@ -36,6 +36,16 @@ export class MatchContext {
     return { line, column };
   }
 
+  getMatchPositions(match: RegExpExecArray) {
+    const startIndex = match.index;
+    const endIndex = match.index + match[0].length;
+    
+    const startPos = this.getLineColumnFromIndex(startIndex);
+    const endPos = this.getLineColumnFromIndex(endIndex);
+    
+    return startPos && endPos ? { startPos, endPos } : null;
+  }
+
   isMatchInComment(selectMatch: SelectMatch): boolean {
     const beforeMatch = this.content.substring(0, this.getIndexFromLineColumn(selectMatch.line, selectMatch.column));
     const commentStartIndex = beforeMatch.lastIndexOf('/**');

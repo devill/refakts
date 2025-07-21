@@ -34,7 +34,8 @@ RefakTS provides surgical refactoring operations via command line, allowing AI a
 - rename [options] <target>            Rename a variable and all its references
 - select [options] <target>            Find code elements and return their locations with content preview
 - sort-methods <target>                Sort methods according to the step down rule
-- variable-locator <target>            Find variable declarations and all their usages
+- find-usages [options] <target>       Find all usages of a symbol across files
+- move-file [options] <target>         Move a file and update all import references
 ```
 <!-- AUTO-GENERATED HELP END -->
 
@@ -116,7 +117,6 @@ RefakTS development demonstrates an approach for helping AI agents develop pract
 - **COMMENTS DETECTED** (Comments indicate code that is not self-documenting.)
 - **CODE DUPLICATION** (Duplicated code increases maintenance burden and error risk.)
 - **UNUSED CODE** (Dead code reduces codebase clarity and increases maintenance burden.)
-- **INCOMPLETE REFACTORINGS** (Incomplete refactorings should be finished or marked complete.)
 - **FEATURE ENVY** (Methods that use another class more than their own class.)
 - **LARGE CHANGES** (Large diffs are harder to review and more likely to introduce bugs.)
 - **OPEN-CLOSED PRINCIPLE VIOLATIONS** (Files changing frequently suggest design should be extensible without modification.)

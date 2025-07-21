@@ -1,5 +1,5 @@
 import { ExtractVariableCommand } from '../../src/commands/extract-variable-command';
-import { LocationParser } from '../../src/core/location-parser';
+import { LocationParser } from '../../src/core/location-range';
 
 describe('CLI Location Handling', () => {
   it('should pass location to command options when using location format', () => {

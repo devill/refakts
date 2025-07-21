@@ -1,0 +1,6 @@
+[multiple-regex-patterns.received.ts 7:11-7:16] const ≫width≪ = 10;
+[multiple-regex-patterns.received.ts 8:11-8:17] const ≫height≪ = 20;
+[multiple-regex-patterns.received.ts 9:18-9:23] const area = ≫width≪ * height;
+[multiple-regex-patterns.received.ts 9:26-9:32] const area = width * ≫height≪;
+[multiple-regex-patterns.received.ts 10:28-10:33] const perimeter = 2 * (≫width≪ + height);
+[multiple-regex-patterns.received.ts 10:36-10:42] const perimeter = 2 * (width + ≫height≪);

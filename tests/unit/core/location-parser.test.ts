@@ -1,26 +1,20 @@
-import { LocationParser } from '../../../src/core/location-parser';
+import { LocationParser, LocationRange } from '../../../src/core/location-range';
 
 describe('LocationParser', () => {
   describe('parseLocation', () => {
     it('should parse character-precise location', () => {
       const result = LocationParser.parseLocation('[src/test.ts 5:8-5:18]');
-      expect(result).toEqual({
-        file: 'src/test.ts',
-        startLine: 5,
-        startColumn: 8,
-        endLine: 5,
-        endColumn: 18
-      });
+      expect(result.file).toBe('src/test.ts');
+      expect(result.start).toEqual({ line: 5, column: 8 });
+      expect(result.end).toEqual({ line: 5, column: 18 });
     });
 
     it('should parse full line location', () => {
       const result = LocationParser.parseLocation('[src/test.ts 5:-5:]');
       expect(result).toEqual({
         file: 'src/test.ts',
-        startLine: 5,
-        startColumn: 0,
-        endLine: 5,
-        endColumn: Number.MAX_SAFE_INTEGER
+        start: { line: 5, column: 0 },
+        end: { line: 5, column: Number.MAX_SAFE_INTEGER }
       });
     });
 
@@ -28,10 +22,8 @@ describe('LocationParser', () => {
       const result = LocationParser.parseLocation('[src/test.ts 5:8-]');
       expect(result).toEqual({
         file: 'src/test.ts',
-        startLine: 5,
-        startColumn: 8,
-        endLine: 5,
-        endColumn: Number.MAX_SAFE_INTEGER
+        start: { line: 5, column: 8, },
+        end: { line: 5, column: Number.MAX_SAFE_INTEGER }
       });
     });
 
@@ -39,10 +31,8 @@ describe('LocationParser', () => {
       const result = LocationParser.parseLocation('[src/test.ts 5-7:18]');
       expect(result).toEqual({
         file: 'src/test.ts',
-        startLine: 5,
-        startColumn: 0,
-        endLine: 7,
-        endColumn: 18
+        start: { line: 5, column: 0, },
+        end: { line: 7, column: 18 }
       });
     });
 
@@ -50,10 +40,8 @@ describe('LocationParser', () => {
       const result = LocationParser.parseLocation('[src/test.ts 5:8-10:18]');
       expect(result).toEqual({
         file: 'src/test.ts',
-        startLine: 5,
-        startColumn: 8,
-        endLine: 10,
-        endColumn: 18
+        start: { line: 5, column: 8, },
+        end: { line: 10, column: 18 }
       });
     });
 
@@ -61,10 +49,8 @@ describe('LocationParser', () => {
       const result = LocationParser.parseLocation('[src/path with spaces/test.ts 5:8-5:18]');
       expect(result).toEqual({
         file: 'src/path with spaces/test.ts',
-        startLine: 5,
-        startColumn: 8,
-        endLine: 5,
-        endColumn: 18
+        start: { line: 5, column: 8, },
+        end: { line: 5, column: 18 }
       });
     });
 
@@ -72,10 +58,8 @@ describe('LocationParser', () => {
       const result = LocationParser.parseLocation('[/absolute/path/test.ts 5:8-5:18]');
       expect(result).toEqual({
         file: '/absolute/path/test.ts',
-        startLine: 5,
-        startColumn: 8,
-        endLine: 5,
-        endColumn: 18
+        start: { line: 5, column: 8, },
+        end: { line: 5, column: 18 }
       });
     });
 
@@ -126,35 +110,17 @@ describe('LocationParser', () => {
 
   describe('formatLocation', () => {
     it('should format location correctly', () => {
-      const location = {
-        file: 'src/test.ts',
-        startLine: 5,
-        startColumn: 8,
-        endLine: 5,
-        endColumn: 18
-      };
+      const location = new LocationRange('src/test.ts', { line: 5, column: 8 }, { line: 5, column: 18 });
       expect(LocationParser.formatLocation(location)).toBe('[src/test.ts 5:8-5:18]');
     });
 
     it('should format multi-line location correctly', () => {
-      const location = {
-        file: 'src/test.ts',
-        startLine: 5,
-        startColumn: 8,
-        endLine: 10,
-        endColumn: 18
-      };
+      const location = new LocationRange('src/test.ts', { line: 5, column: 8 }, { line: 10, column: 18 });
       expect(LocationParser.formatLocation(location)).toBe('[src/test.ts 5:8-10:18]');
     });
 
     it('should format location with special values correctly', () => {
-      const location = {
-        file: 'src/test.ts',
-        startLine: 5,
-        startColumn: 0,
-        endLine: 5,
-        endColumn: Number.MAX_SAFE_INTEGER
-      };
+      const location = new LocationRange('src/test.ts', { line: 5, column: 0 }, { line: 5, column: Number.MAX_SAFE_INTEGER });
       expect(LocationParser.formatLocation(location)).toBe(`[src/test.ts 5:0-5:${Number.MAX_SAFE_INTEGER}]`);
     });
   });

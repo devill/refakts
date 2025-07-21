@@ -1,0 +1,9 @@
+Declaration:
+[utils/helpers.ts 3:17-3:27] export function ≫formatName≪(firstName: string, lastName: string): string {
+
+Usages:
+[components/button.ts 1:10-1:20] import { ≫formatName≪ } from '../utils/helpers';
+[components/button.ts 15:17-15:27]     this.text = ≫formatName≪(firstName, lastName);
+[main.ts 1:10-1:20] import { ≫formatName≪, calculateAge, DEFAULT_GREETING } from './utils/helpers';
+[main.ts 11:20-11:30]   const fullName = ≫formatName≪(user.firstName, user.lastName);
+[main.ts 16:29-16:39]   const button = new Button(≫formatName≪(user.firstName, user.lastName));

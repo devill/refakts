@@ -1,3 +1,0 @@
-[simple-variable.input.ts 7:9-7:19] count = 42
-[simple-variable.input.ts 8:15-8:20] count
-[simple-variable.input.ts 9:10-9:15] count

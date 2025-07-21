@@ -1,0 +1,10 @@
+Declaration:
+[lib/utils.ts 3:17-3:23] export function ≫format≪(text: string): string {
+
+Usages:
+[main.ts 4:10-4:16] import { ≫format≪, validate, CONSTANTS } from './lib/utils';
+[main.ts 17:23-17:29] const formattedText = ≫format≪('hello world');
+[main.ts 42:15-42:21] const text1 = ≫format≪('first');
+[main.ts 43:15-43:21] const text2 = ≫format≪('second');
+[main.ts 44:15-44:21] const text3 = ≫format≪('third');
+[main.ts 51:23-51:29]     const formatted = ≫format≪(post.title);

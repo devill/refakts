@@ -1,23 +1,27 @@
-export class ConsoleCapture {
+import {ConsoleOutput} from '../../src/interfaces/ConsoleOutput';
+
+export class ConsoleCapture implements ConsoleOutput {
+  private output: string[] = [];
+
   async captureOutput(executeFn: () => Promise<void>): Promise<string> {
-    const { originalLog, output } = this.setupCapture();
-    
-    try {
-      await executeFn();
-      return this.getFormattedOutput(output.value);
-    } finally {
-      console.log = originalLog;
-    }
+    this.output = [];
+    await executeFn();
+    return this.getFormattedOutput();
   }
 
-  private setupCapture() {
-    const originalLog = console.log;
-    const output = { value: '' };
-    console.log = (...args: any[]) => { output.value += args.join(' ') + '\n'; };
-    return { originalLog, output };
+  private getFormattedOutput(): string {
+    return this.output.join('').trim();
   }
 
-  private getFormattedOutput(output: string): string {
-    return output.trim();
+  log(message: string): void {
+    this.output.push(message + '\n');
+  }
+
+  error(message: string): void {
+    this.output.push(message + '\n');
+  }
+
+  write(data: string): void {
+    this.output.push(data);
   }
 }

@@ -1,7 +1,8 @@
 import * as path from 'path';
 import { TestCase } from './types/test-case-types';
 import { FileSystemScanner } from './scanners/file-system-scanner';
-import { TestCaseFactory } from './factories/test-case-factory';
+import { FixtureLocation } from './fixture-location';
+import { InputFileScanner } from './input-file-scanner';
 
 interface TestDirectoryConfig {
   testDir: string;
@@ -17,7 +18,7 @@ interface TestCaseProcessingConfig {
   expectedExtension: string;
 }
 
-export { TestCase, TestMeta } from './types/test-case-types';
+export { TestCase, FixtureTestCase, TestMeta, FixtureConfig } from './types/test-case-types';
 export { extractMetaFromFile } from './parsers/meta-parser';
 
 export function getTestCases(fixturesDir: string, expectedExtension: string): TestCase[] {
@@ -27,6 +28,14 @@ export function getTestCases(fixturesDir: string, expectedExtension: string): Te
     return [];
   }
   
+  return loadTestCasesBasedOnExtension(fixturesDir, expectedExtension, scanner);
+}
+
+function loadTestCasesBasedOnExtension(fixturesDir: string, expectedExtension: string, scanner: FileSystemScanner): TestCase[] {
+  if (expectedExtension === 'input') {
+    const inputScanner = new InputFileScanner();
+    return inputScanner.scanRecursively(fixturesDir, scanner);
+  }
   return loadTestCasesFromDirectories(fixturesDir, expectedExtension, scanner);
 }
 
@@ -34,19 +43,19 @@ function loadTestCasesFromDirectories(fixturesDir: string, expectedExtension: st
   const testCases: TestCase[] = [];
   const testDirs = scanner.getDirectoryNames(fixturesDir);
   for (const testDir of testDirs) {
-    const config = createTestDirectoryConfig(testDir, fixturesDir, expectedExtension, scanner);
+    const config = createTestDirectoryConfig({ testDir, fixturesDir, expectedExtension, scanner });
     testCases.push(...processTestDirectory(config));
   }
   
   return testCases;
 }
 
-function createTestDirectoryConfig(testDir: string, fixturesDir: string, expectedExtension: string, scanner: FileSystemScanner): TestDirectoryConfig {
+function createTestDirectoryConfig(params: { testDir: string; fixturesDir: string; expectedExtension: string; scanner: FileSystemScanner }): TestDirectoryConfig {
   return {
-    testDir,
-    fixturesDir,
-    expectedExtension,
-    scanner
+    testDir: params.testDir,
+    fixturesDir: params.fixturesDir,
+    expectedExtension: params.expectedExtension,
+    scanner: params.scanner
   };
 }
 
@@ -67,13 +76,7 @@ function createTestCaseProcessingConfig(config: TestDirectoryConfig, testPath: s
   };
 }
 
-
 function getSingleFileTestCases(config: TestCaseProcessingConfig): TestCase[] {
-  const factoryConfig = {
-    testDir: config.testDir,
-    testPath: config.testPath,
-    expectedExtension: config.expectedExtension
-  };
-  
-  return TestCaseFactory.createSingleFileTestCases(factoryConfig, config.files);
+  const context = { testDir: config.testDir, testPath: config.testPath, files: config.files };
+  return FixtureLocation.createSingleFileTestCases(context, config.expectedExtension);
 }

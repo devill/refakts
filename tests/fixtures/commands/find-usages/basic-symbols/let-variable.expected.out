@@ -1,0 +1,10 @@
+Declaration:
+[main.ts 32:5-32:12] let ≫counter≪ = 0;
+
+Write Usages:
+[main.ts 49:1-49:8] ≫counter≪++; // write usage
+[main.ts 51:1-51:8] ≫counter≪ = counter + 5; // write usage
+
+Read Usages:
+[main.ts 50:33-50:40] console.log(`Current counter: ${≫counter≪}`); // read usage
+[main.ts 51:11-51:18] counter = ≫counter≪ + 5; // write usage

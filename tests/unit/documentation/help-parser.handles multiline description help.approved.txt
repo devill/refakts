@@ -1,0 +1,1 @@
+- extract-variable [options] <target>  Extract expression into a variable with support for complex expressions select <target>                      Find code elements and return their locations with content preview

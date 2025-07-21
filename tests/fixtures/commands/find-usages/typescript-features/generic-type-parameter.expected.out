@@ -1,0 +1,9 @@
+Declaration:
+[generics/container.ts 3:14-3:23] export class ≫Container≪<T> {
+
+Usages:
+[generics/container.ts 30:23-30:32]   static create<T>(): ≫Container≪<T> {
+[generics/container.ts 31:16-31:25]     return new ≫Container≪<T>();
+[main.ts 1:10-1:19] import { ≫Container≪ } from './generics/container';
+[main.ts 6:29-6:38] const stringContainer = new ≫Container≪<string>();
+[main.ts 7:25-7:34] const numberContainer = ≫Container≪.create<number>();

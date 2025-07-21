@@ -3,9 +3,9 @@ import { CommandExecutor } from './command-executor';
 import { TestCase } from './test-case-loader';
 import { FileOperations } from './file-operations';
 
-export class TextOutputValidator {
-  private commandExecutor: CommandExecutor;
-  private fileOps: FileOperations;
+abstract class BaseOutputValidator {
+  protected commandExecutor: CommandExecutor;
+  protected fileOps: FileOperations;
   
   constructor(commandExecutor: CommandExecutor) {
     this.commandExecutor = commandExecutor;
@@ -14,20 +14,20 @@ export class TextOutputValidator {
 
   async validate(testCase: TestCase): Promise<void> {
     for (const command of testCase.commands) {
-      await this.executeAndValidateTextCommand(testCase, command);
+      await this.executeAndValidateCommand(testCase, command);
     }
     
     this.fileOps.cleanupReceivedFile(testCase.receivedFile);
   }
 
-  private async executeAndValidateTextCommand(testCase: TestCase, command: string): Promise<void> {
+  private async executeAndValidateCommand(testCase: TestCase, command: string): Promise<void> {
     const updatedCommand = this.updateCommandPath(command, testCase.inputFile);
     
     try {
       const output = await this.commandExecutor.executeCommand(updatedCommand);
-      this.validateSuccessTextOutput(testCase, output);
+      this.handleSuccessOutput(testCase, output);
     } catch (error) {
-      this.validateErrorTextOutput(testCase, error);
+      this.handleErrorOutput(testCase, error);
     }
   }
 
@@ -36,12 +36,19 @@ export class TextOutputValidator {
     return command.replace(inputFileName, inputFile);
   }
 
-  private validateSuccessTextOutput(testCase: TestCase, output: string | void): void {
+  // eslint-disable-next-line no-unused-vars
+  protected abstract handleSuccessOutput(testCase: TestCase, output: string | void): void;
+  // eslint-disable-next-line no-unused-vars
+  protected abstract handleErrorOutput(testCase: TestCase, error: unknown): void;
+}
+
+export class TextOutputValidator extends BaseOutputValidator {
+  protected handleSuccessOutput(testCase: TestCase, output: string | void): void {
     const textContent = this.extractTextContent(output);
     this.fileOps.writeAndCompareOutput(testCase, textContent);
   }
 
-  private validateErrorTextOutput(testCase: TestCase, error: unknown): void {
+  protected handleErrorOutput(testCase: TestCase, error: unknown): void {
     const errorMessage = (error as Error).message;
     this.fileOps.writeAndCompareOutput(testCase, errorMessage);
   }
@@ -54,42 +61,15 @@ export class TextOutputValidator {
   }
 }
 
-export class YamlOutputValidator {
-  private commandExecutor: CommandExecutor;
-  private fileOps: FileOperations;
-  
-  constructor(commandExecutor: CommandExecutor) {
-    this.commandExecutor = commandExecutor;
-    this.fileOps = new FileOperations();
-  }
-
-  async validate(testCase: TestCase): Promise<void> {
-    for (const command of testCase.commands) {
-      await this.executeAndValidateYamlCommand(testCase, command);
-    }
-    
-    this.fileOps.cleanupReceivedFile(testCase.receivedFile);
-  }
-
-  private async executeAndValidateYamlCommand(testCase: TestCase, command: string): Promise<void> {
-    const updatedCommand = this.updateCommandPath(command, testCase.inputFile);
-    
-    try {
-      const output = await this.commandExecutor.executeCommand(updatedCommand);
-      this.validateYamlCommandOutput(testCase, output);
-    } catch (error) {
-      throw new Error(`Command failed: ${updatedCommand}\n${error}`);
-    }
-  }
-
-  private updateCommandPath(command: string, inputFile: string): string {
-    const inputFileName = path.basename(inputFile);
-    return command.replace(inputFileName, inputFile);
-  }
-
-  private validateYamlCommandOutput(testCase: TestCase, output: string | void): void {
+export class YamlOutputValidator extends BaseOutputValidator {
+  protected handleSuccessOutput(testCase: TestCase, output: string | void): void {
     const yamlContent = this.extractYamlContent(output);
     this.fileOps.writeAndCompareYamlOutput(testCase, yamlContent);
+  }
+
+  protected handleErrorOutput(_testCase: TestCase, error: unknown): void {
+    const updatedCommand = '';
+    throw new Error(`Command failed: ${updatedCommand}\n${error}`);
   }
 
   private extractYamlContent(output: string | void): string {

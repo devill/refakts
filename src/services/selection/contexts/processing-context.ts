@@ -36,13 +36,7 @@ export class ProcessingContext {
   }
 
   private getMatchPositions(match: RegExpExecArray) {
-    const startIndex = match.index;
-    const endIndex = match.index + match[0].length;
-    
-    const startPos = this._context.getLineColumnFromIndex(startIndex);
-    const endPos = this._context.getLineColumnFromIndex(endIndex);
-    
-    return startPos && endPos ? { startPos, endPos } : null;
+    return this._context.getMatchPositions(match);
   }
 
   private extractMultilineMatchDetails(match: RegExpExecArray, startPos: Position): { textToUse: string; adjustedStartPos: Position } {

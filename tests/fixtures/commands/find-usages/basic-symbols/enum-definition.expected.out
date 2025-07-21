@@ -1,0 +1,6 @@
+Declaration:
+[enums/status.ts 3:13-3:19] export enum ≫Status≪ {
+
+Usages:
+[main.ts 4:10-4:16] import { ≫Status≪, Priority } from './enums/status';
+[main.ts 24:20-24:26] const userStatus = ≫Status≪.ACTIVE;

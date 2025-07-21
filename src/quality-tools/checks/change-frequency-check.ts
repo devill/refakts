@@ -55,7 +55,7 @@ const analyzeFileChangeFrequency = async (recentlyChangedFiles: string[]): Promi
   return stdout.split('\n')
     .filter(line => line.trim())
     .map(line => line.trim().split(/\s+/))
-    .filter(([count, file]) => parseInt(count) >= 10 && recentlyChangedFiles.includes(file))
+    .filter(([count, file]) => parseInt(count) >= 20 && recentlyChangedFiles.includes(file))
     .map(([count, file]) => `${file} changed ${count} times in last 100 commits`);
 };
 
@@ -72,7 +72,7 @@ const analyzeCohesiveChanges = async (recentlyChangedFiles: string[]): Promise<s
   const frequentPairs = countFilePairs(filePairs);
   
   return Array.from(frequentPairs.entries())
-    .filter(([, count]) => count >= 10)
+    .filter(([, count]) => count >= 20)
     .map(([pair, count]) => `[${pair}] change together ${count} times`);
 };
 

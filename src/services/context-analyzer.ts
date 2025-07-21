@@ -23,6 +23,10 @@ export class ContextAnalyzer {
     return false;
   }
 
+  isValidReferenceContext(node: Node): boolean {
+    return !this.isInTypeContext(node) && !this.isInDestructuringPattern(node);
+  }
+
   private isDestructuringContext(node: Node): boolean {
     return node.getKind() === SyntaxKind.ObjectBindingPattern ||
            node.getKind() === SyntaxKind.ArrayBindingPattern ||

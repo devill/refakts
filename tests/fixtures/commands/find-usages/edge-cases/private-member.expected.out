@@ -1,0 +1,8 @@
+Declaration:
+[private-class.ts 4:11-4:17]   private ≫secret≪: string = 'hidden';
+
+Usages:
+[private-class.ts 8:22-8:28]     console.log(this.≫secret≪); // Private member usage
+[private-class.ts 12:17-12:23]     return this.≫secret≪; // Private member usage
+[private-class.ts 17:33-17:39]     console.log(`Secret: ${this.≫secret≪}`); // Private field usage
+[private-class.ts 21:10-21:16]     this.≫secret≪ = newSecret; // Private member update

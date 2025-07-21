@@ -3,10 +3,18 @@ import { SelectResult } from '../types/selection-types';
 import { MatchContext } from './selection/match-context';
 import * as path from 'path';
 
+interface StructuralAnalysisContext {
+  sourceFile: SourceFile;
+  regex: RegExp;
+  context: MatchContext;
+  options: Record<string, unknown>;
+}
+
 export class StructuralAnalyzer {
   findStructuralMatches(sourceFile: SourceFile, options: Record<string, unknown>): SelectResult[] {
     const { regex, context } = this.prepareMatchingContext(sourceFile, options);
-    return this.collectAllMatches(sourceFile, regex, context, options);
+    const analysisContext: StructuralAnalysisContext = { sourceFile, regex, context, options };
+    return this.collectAllMatches(analysisContext);
   }
 
   private prepareMatchingContext(sourceFile: SourceFile, options: Record<string, unknown>) {
@@ -17,24 +25,24 @@ export class StructuralAnalyzer {
     return { regex, context };
   }
 
-  private collectAllMatches(sourceFile: SourceFile, regex: RegExp, context: MatchContext, options: Record<string, unknown>): SelectResult[] {
+  private collectAllMatches(analysisContext: StructuralAnalysisContext): SelectResult[] {
     const results: SelectResult[] = [];
     
-    this.addFieldMatches(sourceFile, regex, context, options, results);
-    this.addMethodMatches(sourceFile, regex, context, options, results);
+    this.addFieldMatches(analysisContext, results);
+    this.addMethodMatches(analysisContext, results);
     
     return results;
   }
 
-  private addFieldMatches(sourceFile: SourceFile, regex: RegExp, context: MatchContext, options: Record<string, unknown>, results: SelectResult[]): void {
-    if (this.shouldIncludeFields(options)) {
-      results.push(...this.findASTFieldMatches(sourceFile, regex, context.fileName));
+  private addFieldMatches(analysisContext: StructuralAnalysisContext, results: SelectResult[]): void {
+    if (this.shouldIncludeFields(analysisContext.options)) {
+      results.push(...this.findASTFieldMatches(analysisContext.sourceFile, analysisContext.regex, analysisContext.context.fileName));
     }
   }
 
-  private addMethodMatches(sourceFile: SourceFile, regex: RegExp, context: MatchContext, options: Record<string, unknown>, results: SelectResult[]): void {
-    if (this.shouldIncludeMethods(options)) {
-      results.push(...this.findASTMethodMatches(sourceFile, regex, context.fileName));
+  private addMethodMatches(analysisContext: StructuralAnalysisContext, results: SelectResult[]): void {
+    if (this.shouldIncludeMethods(analysisContext.options)) {
+      results.push(...this.findASTMethodMatches(analysisContext.sourceFile, analysisContext.regex, analysisContext.context.fileName));
     }
   }
 
@@ -95,10 +103,10 @@ export class StructuralAnalyzer {
   private formatFieldResult(prop: PropertyDeclaration, fileName: string): SelectResult {
     const positions = this.getPropertyPositions(prop);
     
-    return {
-      location: `[${fileName} ${positions.startLine}:${positions.startColumn}-${positions.endLine}:${positions.endColumn}]`,
-      content: prop.getName()
-    };
+    return new SelectResult(
+      `[${fileName} ${positions.startLine}:${positions.startColumn}-${positions.endLine}:${positions.endColumn}]`,
+      prop.getName()
+    );
   }
 
   private getPropertyPositions(prop: PropertyDeclaration) {
@@ -161,10 +169,10 @@ export class StructuralAnalyzer {
   private formatMethodResult(method: MethodDeclaration, fileName: string): SelectResult {
     const positions = this.getMethodPositions(method);
     
-    return {
-      location: `[${fileName} ${positions.startLine}:-${positions.endLine}:]`,
-      content: method.getText()
-    };
+    return new SelectResult(
+      `[${fileName} ${positions.startLine}:-${positions.endLine}:]`,
+      method.getText()
+    );
   }
 
   private getMethodPositions(method: MethodDeclaration) {

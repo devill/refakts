@@ -1,0 +1,5 @@
+Declaration:
+[destructured.ts 3:17-3:25] export function ≫original≪(x: number): number {
+
+Usages:
+[user-of-destructured.ts 3:10-3:18] import { ≫original≪ as renamed, anotherFunc, CONFIG } from './destructured';

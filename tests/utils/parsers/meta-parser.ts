@@ -21,6 +21,24 @@ function parseLine(trimmed: string, meta: TestMeta): void {
   } else if (trimmed.startsWith('* @command')) {
     meta.commands.push(trimmed.replace('* @command', '').trim());
   } else if (trimmed.startsWith('* @skip')) {
-    meta.skip = true;
+    meta.skip = parseSkipValue(trimmed);
   }
+}
+
+function parseSkipValue(line: string): boolean | string {
+  const skipContent = line.replace('* @skip', '').trim();
+  
+  if (skipContent === '') return true;
+  
+  return extractQuotedContent(skipContent) || skipContent;
+}
+
+function extractQuotedContent(content: string): string | null {
+  return isQuotedWith(content, '"') || isQuotedWith(content, "'") || null;
+}
+
+function isQuotedWith(content: string, quote: string): string | null {
+  return content.startsWith(quote) && content.endsWith(quote) 
+    ? content.slice(1, -1) 
+    : null;
 }

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-RefakTS is a TypeScript refactoring tool built for AI coding agents to perform precise refactoring operations via command line instead of requiring complete code regeneration. The tool uses ts-morph for AST manipulation and @phenomnomnominal/tsquery for node selection.
+RefakTS is a TypeScript refactoring tool built for AI coding agents to perform precise refactoring operations via command line instead of requiring complete code regeneration. The tool uses ts-morph for AST manipulation and TypeScript analysis.
 
 ## Development Environment
 
@@ -45,6 +45,12 @@ npm run roadmap:remove <feature-name>  # Remove completed or obsolete features
 # Usage tracking (automatic via git hooks)
 npm run usage:report                 # View command usage statistics
 npm run usage:consolidate            # Manually consolidate usage logs
+
+# Fixture testing workflow
+npm run test:fixture                                    # Run all fixture tests
+npm run test:fixture:approve <fixture_path>             # Approve received files as expected for specific test (single-file fixtures only)
+npm run test:fixture:approve:all                       # Auto-approve all received files as expected (single-file fixtures only)
+npm run test:fixture:review <fixture_path>              # Review received files for a specific test (single-file fixtures only)
 ```
 
 
@@ -57,7 +63,8 @@ npm run usage:consolidate            # Manually consolidate usage logs
 - rename [options] <target>            Rename a variable and all its references
 - select [options] <target>            Find code elements and return their locations with content preview
 - sort-methods <target>                Sort methods according to the step down rule
-- variable-locator <target>            Find variable declarations and all their usages
+- find-usages [options] <target>       Find all usages of a symbol across files
+- move-file [options] <target>         Move a file and update all import references
 ```
 <!-- AUTO-GENERATED HELP END -->
 
@@ -72,33 +79,63 @@ npm run usage:consolidate            # Manually consolidate usage logs
 
 **CORE APPROACH: "Minimal, surgical, trust the existing systems"** - This is the fundamental approach for all code changes. Avoid over-engineering, unnecessary abstractions, and complex error handling that masks real issues. Let errors bubble up naturally and change only what's broken.
 
-**Avoid Mindless Extract Method** - Don't mechanically apply "extract method" refactoring without considering the bigger design picture. This often leads to:
-- Procedural code with high number of function parameters
-- Repeated function calls that should be consolidated
-- Loss of semantic meaning in favor of artificial line count reduction
-
 **Prefer Meaningful Refactoring:**
-- **Consolidate repeated calls** - If calling the same function multiple times, store the result once and reuse it
 - **Use destructuring** - Modern JavaScript/TypeScript features like spread operator (`...`) and destructuring can eliminate redundancy elegantly
 - **Consider data structures** - Sometimes the real solution is introducing a proper class or data structure rather than more functions
 - **Address root causes** - Look for code smells like repeated calls, excessive parameters, or unclear responsibilities
+- **Prefer classes over interfaces** A frequent cause of feature envy is an over reliance on interfaces when a class would be a better choice
 
-**Example of good refactoring:**
+**Function Refactoring Philosophy:**
+- **Explaining methods > explaining variables** - Hide irrelevant complexity behind intention-revealing method names rather than cramming logic inline
+- **True single responsibility** - Each function should have ONE clear job. Mix responsibilities (e.g., issue creation + line counting) violates this principle
+- **Separate "what" from "how"** - Coordinate operations in one place, delegate implementation details to focused helper methods
+- **Optimize for readability first** - Write code that reveals intent clearly; optimize for performance later if needed
+- **Example pattern**: Instead of `const lineCount = func.getEndLineNumber() - func.getStartLineNumber() + 1`, use `getLineCount(func)` to hide the complexity
+
+## Command Output Architecture
+
+**CRITICAL: Use Output Handlers for Consistent Formatting**
+
+RefakTS now follows a unified output architecture to eliminate code duplication and ensure consistent formatting across commands.
+
+**Output Handler Pattern:**
+- **`SelectOutputHandler`** - Handles all formatted output for code selections
+- **`UsageOutputHandler`** - Bridges usage data to SelectOutputHandler for consistent formatting
+- **Shared formatting options** - `--include-line`, `--preview-line` work across commands
+
+**For New Commands:**
+1. **Don't duplicate output logic** - Use existing output handlers
+2. **Convert your data to `SelectResult[]`** - This enables automatic formatting support
+3. **Use parameter objects** - Avoid functions with many parameters (quality violation)
+4. **Encapsulate data in classes** - Create collection classes like `UsageCollection` for complex data
+
+**Example Implementation:**
 ```typescript
-// Bad: Repeated calls
-return {
-  name: getName(),
-  email: getEmail(), 
-  phone: getPhone()
-};
+// ❌ BAD: Duplicating output formatting
+class MyCommand {
+  execute() {
+    const results = this.findData();
+    // 50+ lines of output formatting logic...
+  }
+}
 
-// Good: Destructuring
-const { name, email, phone } = getUserData();
-return { name, email, phone };
-
-// Better: Spread operator
-return { ...getUserData() };
+// ✅ GOOD: Using output handlers
+class MyCommand {
+  private outputHandler = new SelectOutputHandler();
+  
+  execute() {
+    const results = this.findData();
+    const selectResults = results.map(r => this.convertToSelectResult(r));
+    this.outputHandler.outputResults(selectResults);
+  }
+}
 ```
+
+**Architecture Benefits:**
+- **Eliminates duplication** - find-usages went from 200 to 92 lines (54% reduction)
+- **Consistent UX** - All commands support same formatting options
+- **Easier maintenance** - Output improvements benefit all commands
+- **Quality compliance** - Avoids parameter count and feature envy violations
 
 ## Feature Roadmap 
 
@@ -127,30 +164,120 @@ npm run roadmap:add --feature "name" --description "desc" --why "reason"
 
 ## Architecture
 
-RefakTS follows a **command-based architecture** with clear separation of concerns. Commands implement `RefactoringCommand` interface and are registered through `CommandRegistry`. Each command encapsulates a specific refactoring operation and leverages shared services for AST manipulation.
+RefakTS follows a **command-based architecture** with clear separation of concerns. Commands implement `RefactoringCommand` interface and are registered through `CommandRegistry`. Each command encapsulates a specific refactoring operation.
 
-The architecture is built on **ts-morph** for AST manipulation and **@phenomnomnominal/tsquery** for node selection. `ASTService` provides unified interface for loading TypeScript files, while `TSQueryHandler` bridges between tsquery results and ts-morph nodes. Supporting services like `VariableNameValidator`, `StatementInserter`, and scope analyzers provide reusable functionality.
+The architecture is built on **ts-morph** for AST manipulation and TypeScript analysis. `ASTService` provides unified interface for loading TypeScript files. A **strategy pattern** powers flexible selection, where different `SelectionStrategy` implementations handle various code selection methods.
 
-A **strategy pattern** powers flexible selection, where different `SelectionStrategy` implementations handle various code selection methods. Key insight: RefakTS separates **what to find** (selection strategies) from **what to do** (command implementations).
+**Key insight**: RefakTS separates **what to find** (selection strategies) from **what to do** (command implementations).
 
-### Test Selection Guide:
-- **Refactoring tests** (`fixtures/refactoring/`): For commands that modify files - validate against `.expected.ts` files
-- **Locator tests** (`fixtures/locators/`): For commands that find/analyze code - use `.expected.yaml` for structured data comparison
-- **Select tests** (`fixtures/select`): For commands that help identify source code locations based on string matchers - validate against `.expected.txt`.
+### Unified Test Framework
 
-Files matching `*.received.*` are gitignored and appear only during test failures.
+**NEW ARCHITECTURE**: RefakTS now uses a unified testing framework that supports both single-file and multi-file fixtures with automatic test discovery.
 
-### Test Fixture Rules:
-- **Folder structure**: Group tests by command (e.g., `fixtures/refactoring/extract-variable/`, `fixtures/select/basic-regex/`)
-- **JSDoc format**: Use multi-line comments with proper JSDoc notation:
-  ```typescript
-  /**
-   * @description Brief description of what the test validates
-   * @command command-name "target-or-args"
-   * @expect-error true  // Only for error cases
-   */
-  ```
-- **Error cases**: Use `expected.txt` files for console output validation (already supported)
+**Test Types**:
+- **Single-file tests** (`tests/fixtures/[category]/[command]/[test-name].input.ts`): For simple refactoring tests
+- **Multi-file tests** (`tests/fixtures/commands/[command]/[test-name]/input/`): For complex scenarios requiring multiple files
+- **Integration tests**: All fixtures are automatically discovered and run through `tests/integration/fixture.test.ts`
+
+**File Structure**:
+```
+tests/fixtures/
+├── refactoring/           # Single-file refactoring tests
+│   └── extract-variable/
+│       ├── basic-extraction.input.ts
+│       └── basic-extraction.expected.ts
+├── commands/              # Multi-file command tests
+│   └── find-usages/
+│       └── cross-file-import/
+│           ├── fixture.config.json
+│           ├── input/
+│           │   ├── main.ts
+│           │   └── utils/helpers.ts
+│           └── basic-cross-file-usage.expected.out
+```
+
+**Expected Files**:
+- `.expected.ts` - File transformation results
+- `.expected.out` - Console output validation
+- `.expected.err` - Error message validation
+- `.expected/` - Directory with expected multi-file results
+
+**Test Configuration**:
+- `fixture.config.json` - Multi-file test configuration with test cases
+- `@skip` annotation - Skip individual tests
+- `@expect-error` annotation - Expect command to fail
+
+**Files matching `*.received.*` are gitignored and appear only during test failures.**
+
+### Unit Test Guidelines
+
+**For unit tests, always use the `approvals` framework when testing against expected text output.** This ensures consistency and follows established patterns.
+
+**Approvals Framework Usage**:
+```typescript
+import { verify } from 'approvals';
+
+// In your test
+verify(__dirname, 'test-name', result, { reporters: ['donothing'] });
+```
+
+**Key Benefits**:
+- **Automatic file management**: Approved files are stored next to the test file
+- **Clear diff visualization**: When tests fail, you can see exactly what changed
+- **Simple approval workflow**: Copy received files to approved files when output is correct
+- **CI-friendly**: Use `{ reporters: ['donothing'] }` to avoid GUI diff tools in tests
+
+**File Organization**:
+- **Fixture tests**: Use the `tests/fixtures/` directory for end-to-end command testing
+- **Unit tests**: Use approvals for text output validation, stored next to the test file
+- **Behavioral tests**: Use standard Jest expectations for behavior validation
+
+**When to Use Each Approach**:
+- **Approvals**: When testing text output, formatted strings, generated code, or any string-based results
+- **Jest expectations**: When testing behavior, return values, object properties, or method calls
+- **Fixtures**: When testing complete command workflows end-to-end
+
+**CRITICAL**: **NEVER** run cli commands on fixture inputs. That changes the setup and will break the test!
+If you need to test something, create a new fixture test (preferable) or create a temporary file and test cli on that. 
+
+### Test Quality Guidelines
+
+**Keep test functions focused and under 12 lines.** Use these strategies to manage test complexity:
+
+**Custom Expectations**:
+```typescript
+// Instead of verbose inline expectations
+expect(() => command.validateOptions(finalOptions)).not.toThrow();
+
+// Create custom expectations
+expectProvidedLocationToBeAccepted(finalOptions);
+```
+
+**Object Testing with Approvals**:
+```typescript
+// Instead of multiple field expectations
+expect(result.field1).toBe('value1');
+expect(result.field2).toBe('value2');
+expect(result.field3).toBe('value3');
+
+// Use approvals for complete object validation
+verify(__dirname, 'result-validation', result, { reporters: ['donothing'] });
+```
+
+**External Test Data Files**:
+- **Commit well-named input files** next to test files instead of creating temporary files in tests
+- **Use meaningful names** that describe the test scenario
+- **Load files in setup** when needed across multiple test cases
+
+**Test Organization**:
+- **Use setup functions** to create objects needed in multiple test cases
+- **Use data providers** when multiple test cases have similar structures
+- **Split large test files** into multiple focused files when even refactoring can't reduce complexity
+- **Group tests meaningfully** by the functionality being tested
+
+**Quality Management**:
+- **Use `npm run quality:baseline:generate`** to snooze existing violations when there are too many to fix immediately
+- **Address quality issues** when files are modified rather than in bulk cleanup sessions
 
 ## Development Workflow
 
@@ -205,3 +332,9 @@ Any message containing the emoji pattern **👧🏻💬** followed by text shoul
 - **TREAT** these auto-prompts with the same urgency as direct user requests
 - While there are unresolved issues prompted by 👧🏻💬 add the STARTER_CHARACTER = 🚨
 - **DOCUMENT** progress using TodoWrite tool to track completion
+
+### Quality Standards
+- **NEVER** declare code "excellent" or "in good condition" while quality warnings exist
+- **ALWAYS** continue working until `npm run quality` shows zero violations
+- **REMEMBER** that builds will reject code with quality warnings
+- **COMPLETE** all quality fixes before considering the task done

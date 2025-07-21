@@ -1,0 +1,4 @@
+let x = 5;: PASS
+function fn() { let x = 5; }: PASS
+if (true) { let x = 5; }: PASS
+const arrow = () => { let x = 5; };: PASS

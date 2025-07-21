@@ -34,7 +34,7 @@ export class LineProcessingContext {
 
   private createSelectMatch(match: RegExpExecArray): SelectMatch {
     const { textToUse, startIndex } = this.extractMatchDetails(match);
-    const matchContext = new SelectMatchContext(textToUse, startIndex, this._lineIndex, this._line);
+    const matchContext = new SelectMatchContext(textToUse, startIndex, this._lineIndex, this._line, match);
     return matchContext.buildSelectMatch();
   }
 

@@ -1,5 +1,5 @@
 import { SourceFile } from 'ts-morph';
-import { SelectResult, SelectMatch } from '../types/selection-types';
+import { SelectResult, SelectMatch, SelectMatchSorter } from '../types/selection-types';
 import { SelectPatternMatcher } from './selection/pattern-matcher';
 import { SelectResultFormatter, BasicFormatter, LineFormatter, PreviewFormatter, DefinitionFormatter } from './selection/result-formatters';
 import { MatchContext } from './selection/match-context';
@@ -50,17 +50,9 @@ export class RegexPatternMatcher {
       allMatches.push(...matches);
     }
     
-    return this.sortMatchesByPosition(allMatches);
+    return SelectMatchSorter.sortByPosition(allMatches);
   }
 
-  private sortMatchesByPosition(matches: SelectMatch[]): SelectMatch[] {
-    return matches.sort((a, b) => {
-      if (a.line !== b.line) {
-        return a.line - b.line;
-      }
-      return a.column - b.column;
-    });
-  }
 
   private processMatches(matches: SelectMatch[], context: MatchContext, options: RegexOptions): SelectResult[] {
     const formatter = this.determineFormatter(options);
@@ -100,7 +92,10 @@ export class RegexPatternMatcher {
   }
 
   private hasPreviewOption(options: RegexOptions): boolean {
-    return Boolean(options.previewLine || options['preview-line']);
+    const hasExplicitPreviewOption = options.previewLine !== undefined || options['preview-line'] !== undefined;
+    return hasExplicitPreviewOption ? 
+      Boolean(options.previewLine || options['preview-line']) : 
+      true;
   }
 
   private hasPreviewMatchOption(options: RegexOptions): boolean {

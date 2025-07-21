@@ -1,0 +1,6 @@
+Declaration:
+[lib/utils.ts 7:17-7:25] export function ≫validate≪(input: string): boolean {
+
+Usages:
+[main.ts 4:18-4:26] import { format, ≫validate≪, CONSTANTS } from './lib/utils';
+[main.ts 18:17-18:25] const isValid = ≫validate≪(formattedText);

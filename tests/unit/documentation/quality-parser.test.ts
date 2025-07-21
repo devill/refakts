@@ -1,5 +1,4 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import { verify } from 'approvals';
 import { 
   MOCK_QUALITY_CHECKS,
   EMPTY_QUALITY_CHECKS,
@@ -61,53 +60,24 @@ function isValidKey(check: { getGroupDefinition?: (_key: string) => { title: str
 }
 
 describe('Quality Parser', () => {
-  const expectedDir = path.join(__dirname, '../../fixtures/unit/documentation');
 
   test('extracts descriptions from quality checks', () => {
     const result = getQualityChecksContent(MOCK_QUALITY_CHECKS);
-    const expectedPath = path.join(expectedDir, 'mock-quality-checks.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    verify(__dirname, 'quality-parser.extracts descriptions from quality checks', result, { reporters: ['donothing'] });
   });
 
   test('handles empty quality checks array', () => {
     const result = getQualityChecksContent(EMPTY_QUALITY_CHECKS);
-    const expectedPath = path.join(expectedDir, 'empty-quality-checks.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    verify(__dirname, 'quality-parser.handles empty quality checks array', result, { reporters: ['donothing'] });
   });
 
   test('handles broken quality check gracefully', () => {
     const result = getQualityChecksContent(BROKEN_QUALITY_CHECK);
-    const expectedPath = path.join(expectedDir, 'broken-quality-check.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    verify(__dirname, 'quality-parser.handles broken quality check gracefully', result, { reporters: ['donothing'] });
   });
 
   test('handles quality check with no group definitions', () => {
     const result = getQualityChecksContent(NO_GROUP_DEFINITIONS);
-    const expectedPath = path.join(expectedDir, 'no-group-definitions.expected.txt');
-    
-    if (!fs.existsSync(expectedPath)) {
-      fs.writeFileSync(expectedPath, result);
-    }
-    
-    const expected = fs.readFileSync(expectedPath, 'utf8');
-    expect(result).toBe(expected);
+    verify(__dirname, 'quality-parser.handles quality check with no group definitions', result, { reporters: ['donothing'] });
   });
 });
