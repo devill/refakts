@@ -1,6 +1,6 @@
 /**
  * @description Basic class with methods out of order that need sorting by step down rule
- * @command sort-methods "tests/fixtures/refactoring/sort-methods/simple-class.input.ts"
+ * @command sort-methods "[simple-class.input.ts 5:1-5:10]"
  */
 export class Calculator {
   private baseValue = 10;
@@ -12,12 +12,12 @@ export class Calculator {
     }
   }
 
-  public calculate(x: number, y: number): number {
-    return this.add(this.multiply(x, this.multiplier), y);
-  }
-
   public getResult(): number {
     return this.calculate(5, 3);
+  }
+
+  public calculate(x: number, y: number): number {
+    return this.add(this.multiply(x, this.multiplier), y);
   }
 
   private add(a: number, b: number): number {

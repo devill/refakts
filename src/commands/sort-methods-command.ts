@@ -65,33 +65,18 @@ export class SortMethodsCommand implements RefactoringCommand {
 
   private reorderMethodsInClass(targetClass: ClassDeclaration, sortedMethods: MethodInfo[]): void {
     const allMembers = targetClass.getMembers();
-    const nonMethodMembers = this.findNonMethodMembers(allMembers);
-    const memberTexts = this.extractMemberTexts(nonMethodMembers, sortedMethods);
+    const nonMethodCount = this.countNonMethodMembers(allMembers);
     
-    this.removeAllMembers(targetClass);
-    this.addMembersInOrder(targetClass, memberTexts);
+    sortedMethods.forEach((method, index) => {
+      const targetIndex = nonMethodCount + index;
+      method.getNode().setOrder(targetIndex);
+    });
   }
   
-  private findNonMethodMembers(allMembers: ClassMemberTypes[]) {
+  private countNonMethodMembers(allMembers: ClassMemberTypes[]): number {
     return allMembers.filter(member => 
       !member.isKind(SyntaxKind.MethodDeclaration) && 
       !member.isKind(SyntaxKind.Constructor)
-    );
-  }
-  
-  private extractMemberTexts(nonMethodMembers: ClassMemberTypes[], sortedMethods: MethodInfo[]) {
-    return {
-      nonMethodTexts: nonMethodMembers.map(member => member.getFullText()),
-      sortedMethodTexts: sortedMethods.map(method => method.getNode().getFullText())
-    };
-  }
-  
-  private removeAllMembers(targetClass: ClassDeclaration): void {
-    targetClass.getMembers().forEach(member => member.remove());
-  }
-  
-  private addMembersInOrder(targetClass: ClassDeclaration, memberTexts: {nonMethodTexts: string[], sortedMethodTexts: string[]}): void {
-    memberTexts.nonMethodTexts.forEach(text => targetClass.addMember(text));
-    memberTexts.sortedMethodTexts.forEach(text => targetClass.addMember(text));
+    ).length;
   }
 }
