@@ -23,8 +23,16 @@ export class MethodDependencyAnalyzer {
   }
 
   private extractDependencyNames(method: MethodInfo): Set<string> {
+    const callExpressions = this.getCallExpressions(method);
+    return this.collectMethodNames(callExpressions);
+  }
+
+  private getCallExpressions(method: MethodInfo): CallExpression[] {
+    return method.getNode().getDescendantsOfKind(SyntaxKind.CallExpression);
+  }
+
+  private collectMethodNames(callExpressions: CallExpression[]): Set<string> {
     const dependencies = new Set<string>();
-    const callExpressions = method.getNode().getDescendantsOfKind(SyntaxKind.CallExpression);
     
     for (const call of callExpressions) {
       const methodName = this.extractMethodNameFromCall(call);

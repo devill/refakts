@@ -1,20 +1,27 @@
-import { MethodWithDependencies } from './method-dependency-analyzer';
-import { MethodInfo } from './class-method-finder';
 
-interface SortingContext {
-  allMethods: MethodWithDependencies[];
+export interface BasicMethodInfo {
+  getName(): string;
+}
+
+export interface BasicMethodWithDependencies<T extends BasicMethodInfo = BasicMethodInfo> {
+  method: T;
+  dependencies: T[];
+}
+
+interface SortingContext<T extends BasicMethodInfo = BasicMethodInfo> {
+  allMethods: BasicMethodWithDependencies<T>[];
   visited: Set<string>;
-  sorted: MethodInfo[];
+  sorted: T[];
 }
 
 export class MethodSorter {
-  sortByStepDownRule(methodsWithDeps: MethodWithDependencies[]): MethodInfo[] {
+  sortByStepDownRule<T extends BasicMethodInfo>(methodsWithDeps: BasicMethodWithDependencies<T>[]): T[] {
     const context = this.createSortingContext(methodsWithDeps);
     this.performTopologicalSort(methodsWithDeps, context);
     return this.finalizeOrder(context.sorted);
   }
 
-  private createSortingContext(allMethods: MethodWithDependencies[]): SortingContext {
+  private createSortingContext<T extends BasicMethodInfo>(allMethods: BasicMethodWithDependencies<T>[]): SortingContext<T> {
     return {
       allMethods,
       visited: new Set<string>(),
@@ -22,18 +29,18 @@ export class MethodSorter {
     };
   }
 
-  private performTopologicalSort(methods: MethodWithDependencies[], context: SortingContext): void {
+  private performTopologicalSort<T extends BasicMethodInfo>(methods: BasicMethodWithDependencies<T>[], context: SortingContext<T>): void {
     for (const method of methods) {
       this.visitMethod(method, context);
     }
   }
 
-  private finalizeOrder(sorted: MethodInfo[]): MethodInfo[] {
-    const reversed = sorted.reverse();  // Reverse to get step-down order
+  private finalizeOrder<T extends BasicMethodInfo>(sorted: T[]): T[] {
+    const reversed = sorted.reverse();
     return this.moveConstructorToFront(reversed);
   }
 
-  private moveConstructorToFront(methods: MethodInfo[]): MethodInfo[] {
+  private moveConstructorToFront<T extends BasicMethodInfo>(methods: T[]): T[] {
     const constructorIndex = methods.findIndex(m => m.getName() === 'constructor');
     if (constructorIndex > 0) {
       const constructor = methods.splice(constructorIndex, 1)[0];
@@ -42,17 +49,17 @@ export class MethodSorter {
     return methods;
   }
 
-  private visitMethod(current: MethodWithDependencies, context: SortingContext): void {
+  private visitMethod<T extends BasicMethodInfo>(current: BasicMethodWithDependencies<T>, context: SortingContext<T>): void {
     const methodName = current.method.getName();
     
     if (context.visited.has(methodName)) return;
     
     context.visited.add(methodName);
     this.visitDependencies(current, context);
-    context.sorted.push(current.method);  // Add AFTER visiting dependencies
+    context.sorted.push(current.method);
   }
 
-  private visitDependencies(current: MethodWithDependencies, context: SortingContext): void {
+  private visitDependencies<T extends BasicMethodInfo>(current: BasicMethodWithDependencies<T>, context: SortingContext<T>): void {
     for (const dependency of current.dependencies) {
       const depMethod = context.allMethods.find(m => m.method.getName() === dependency.getName());
       if (depMethod) {
