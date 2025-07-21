@@ -8,20 +8,32 @@ export interface BasicMethodWithDependencies<T extends BasicMethodInfo = BasicMe
   dependencies: T[];
 }
 
-interface SortingContext<T extends BasicMethodInfo = BasicMethodInfo> {
+interface SortingContext<T extends BasicMethodInfo> {
   allMethods: BasicMethodWithDependencies<T>[];
   visited: Set<string>;
   sorted: T[];
 }
 
-export class MethodSorter {
-  sortByStepDownRule<T extends BasicMethodInfo>(methodsWithDeps: BasicMethodWithDependencies<T>[]): T[] {
-    const context = this.createSortingContext(methodsWithDeps);
-    this.performTopologicalSort(methodsWithDeps, context);
-    return this.finalizeOrder(context.sorted);
+export class MethodSorter<T extends BasicMethodInfo> {
+  private context: SortingContext<T>;
+
+  private constructor(methodsWithDeps: BasicMethodWithDependencies<T>[]) {
+    this.context = this.createSortingContext(methodsWithDeps);
   }
 
-  private createSortingContext<T extends BasicMethodInfo>(allMethods: BasicMethodWithDependencies<T>[]): SortingContext<T> {
+  static sortByStepDownRule<T extends BasicMethodInfo>(
+    methodsWithDeps: BasicMethodWithDependencies<T>[]
+  ): T[] {
+    const instance = new MethodSorter(methodsWithDeps);
+    return instance.getResult();
+  }
+
+  private getResult(): T[] {
+    this.performTopologicalSort();
+    return this.finalizeOrder(this.context.sorted);
+  }
+
+  private createSortingContext(allMethods: BasicMethodWithDependencies<T>[]): SortingContext<T> {
     return {
       allMethods,
       visited: new Set<string>(),
@@ -29,18 +41,18 @@ export class MethodSorter {
     };
   }
 
-  private performTopologicalSort<T extends BasicMethodInfo>(methods: BasicMethodWithDependencies<T>[], context: SortingContext<T>): void {
-    for (const method of methods) {
-      this.visitMethod(method, context);
+  private performTopologicalSort(): void {
+    for (const method of this.context.allMethods) {
+      this.visitMethod(method);
     }
   }
 
-  private finalizeOrder<T extends BasicMethodInfo>(sorted: T[]): T[] {
+  private finalizeOrder(sorted: T[]): T[] {
     const reversed = sorted.reverse();
     return this.moveConstructorToFront(reversed);
   }
 
-  private moveConstructorToFront<T extends BasicMethodInfo>(methods: T[]): T[] {
+  private moveConstructorToFront(methods: T[]): T[] {
     const constructorIndex = methods.findIndex(m => m.getName() === 'constructor');
     if (constructorIndex > 0) {
       const constructor = methods.splice(constructorIndex, 1)[0];
@@ -49,21 +61,21 @@ export class MethodSorter {
     return methods;
   }
 
-  private visitMethod<T extends BasicMethodInfo>(current: BasicMethodWithDependencies<T>, context: SortingContext<T>): void {
+  private visitMethod(current: BasicMethodWithDependencies<T>): void {
     const methodName = current.method.getName();
     
-    if (context.visited.has(methodName)) return;
+    if (this.context.visited.has(methodName)) return;
     
-    context.visited.add(methodName);
-    this.visitDependencies(current, context);
-    context.sorted.push(current.method);
+    this.context.visited.add(methodName);
+    this.visitDependencies(current);
+    this.context.sorted.push(current.method);
   }
 
-  private visitDependencies<T extends BasicMethodInfo>(current: BasicMethodWithDependencies<T>, context: SortingContext<T>): void {
+  private visitDependencies(current: BasicMethodWithDependencies<T>): void {
     for (const dependency of current.dependencies) {
-      const depMethod = context.allMethods.find(m => m.method.getName() === dependency.getName());
+      const depMethod = this.context.allMethods.find(m => m.method.getName() === dependency.getName());
       if (depMethod) {
-        this.visitMethod(depMethod, context);
+        this.visitMethod(depMethod);
       }
     }
   }

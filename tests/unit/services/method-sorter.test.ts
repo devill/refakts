@@ -13,8 +13,7 @@ describe('MethodSorter', () => {
 
   it('should return empty array for no methods', () => {
     const methods: BasicMethodWithDependencies[] = [];
-    const sorter = new MethodSorter();
-    const result = sorter.sortByStepDownRule(methods);
+    const result = MethodSorter.sortByStepDownRule(methods);
 
     expect(result).toEqual([]);
   });
@@ -24,8 +23,7 @@ describe('MethodSorter', () => {
     const add = createMethodWithDeps('add', []);
     
     const methods = [calculate, add];
-    const sorter = new MethodSorter();
-    const result = sorter.sortByStepDownRule(methods);
+    const result = MethodSorter.sortByStepDownRule(methods);
 
     expect(result.map(m => m.getName())).toEqual(['calculate', 'add']);
   });
@@ -33,8 +31,7 @@ describe('MethodSorter', () => {
   it('should not loop infinitely with recursive methods', () => {
     const fibonacci = createMethodWithDeps('fibonacci', ['fibonacci']);
     
-    const sorter = new MethodSorter();
-    const result = sorter.sortByStepDownRule([fibonacci]);
+    const result = MethodSorter.sortByStepDownRule([fibonacci]);
 
     expect(result.map(m => m.getName())).toEqual(['fibonacci']);
   });
@@ -43,8 +40,7 @@ describe('MethodSorter', () => {
     const getValue = createMethodWithDeps('getValue', []);
     const constructor = createMethodWithDeps('constructor', []);
     
-    const sorter = new MethodSorter();
-    const result = sorter.sortByStepDownRule([getValue, constructor]);
+    const result = MethodSorter.sortByStepDownRule([getValue, constructor]);
 
     expect(result.map(m => m.getName())).toEqual(['constructor', 'getValue']);
   });
@@ -54,8 +50,7 @@ describe('MethodSorter', () => {
     const validate = createMethodWithDeps('validate', ['check']);
     const check = createMethodWithDeps('check', []);
     
-    const sorter = new MethodSorter();
-    const result = sorter.sortByStepDownRule([process, validate, check]);
+    const result = MethodSorter.sortByStepDownRule([process, validate, check]);
 
     expect(result.map(m => m.getName())).toEqual(['process', 'validate', 'check']);
   });

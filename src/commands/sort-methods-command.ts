@@ -17,7 +17,6 @@ export class SortMethodsCommand implements RefactoringCommand {
   private astService = new ASTService();
   private methodFinder = new ClassMethodFinder();
   private dependencyAnalyzer = new MethodDependencyAnalyzer();
-  private methodSorter = new MethodSorter();
   private outputHandler!: SelectOutputHandler;
 
   async execute(file: string, options: CommandOptions): Promise<void> {
@@ -77,7 +76,7 @@ export class SortMethodsCommand implements RefactoringCommand {
   
   private getSortedMethods(methods: MethodInfo[]): MethodInfo[] {
     const methodsWithDeps = this.dependencyAnalyzer.analyzeDependencies(methods);
-    return this.methodSorter.sortByStepDownRule(methodsWithDeps);
+    return MethodSorter.sortByStepDownRule(methodsWithDeps);
   }
 
   private reorderMethodsInClass(targetClass: ClassDeclaration, sortedMethods: MethodInfo[]): void {
