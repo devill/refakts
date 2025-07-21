@@ -1,6 +1,6 @@
 import { RefactoringCommand, CommandOptions } from '../command';
 import { ASTService } from '../services/ast-service';
-import { ClassMethodFinder } from '../services/class-method-finder';
+import { ClassMethodFinder, MethodInfo } from '../services/class-method-finder';
 import { MethodDependencyAnalyzer } from '../services/method-dependency-analyzer';
 import { MethodSorter } from '../services/method-sorter';
 import { LocationRange } from '../core/location-parser';
@@ -63,27 +63,35 @@ export class SortMethodsCommand implements RefactoringCommand {
     this.reorderMethodsInClass(targetClass, sortedMethods);
   }
 
-  private reorderMethodsInClass(targetClass: ClassDeclaration, sortedMethods: any[]): void {
+  private reorderMethodsInClass(targetClass: ClassDeclaration, sortedMethods: MethodInfo[]): void {
     const allMembers = targetClass.getMembers();
+    const nonMethodMembers = this.findNonMethodMembers(allMembers);
+    const memberTexts = this.extractMemberTexts(nonMethodMembers, sortedMethods);
     
-    // Store ALL texts before any manipulation to avoid "removed node" errors
-    const nonMethodMembers = allMembers.filter(member => 
+    this.removeAllMembers(targetClass);
+    this.addMembersInOrder(targetClass, memberTexts);
+  }
+  
+  private findNonMethodMembers(allMembers: any[]) {
+    return allMembers.filter(member => 
       !member.isKind(SyntaxKind.MethodDeclaration) && 
       !member.isKind(SyntaxKind.Constructor)
     );
-    const nonMethodTexts = nonMethodMembers.map(member => member.getFullText());
-    const sortedMethodTexts = sortedMethods.map(method => method.getNode().getFullText());
-    
-    // Remove all members
+  }
+  
+  private extractMemberTexts(nonMethodMembers: any[], sortedMethods: MethodInfo[]) {
+    return {
+      nonMethodTexts: nonMethodMembers.map(member => member.getFullText()),
+      sortedMethodTexts: sortedMethods.map(method => method.getNode().getFullText())
+    };
+  }
+  
+  private removeAllMembers(targetClass: ClassDeclaration): void {
     targetClass.getMembers().forEach(member => member.remove());
-    
-    // Add back in correct order: properties first, then sorted methods
-    nonMethodTexts.forEach(methodText => {
-      targetClass.addMember(methodText);
-    });
-    
-    sortedMethodTexts.forEach(methodText => {
-      targetClass.addMember(methodText);
-    });
+  }
+  
+  private addMembersInOrder(targetClass: ClassDeclaration, memberTexts: {nonMethodTexts: string[], sortedMethodTexts: string[]}): void {
+    memberTexts.nonMethodTexts.forEach(text => targetClass.addMember(text));
+    memberTexts.sortedMethodTexts.forEach(text => targetClass.addMember(text));
   }
 }
