@@ -29,7 +29,7 @@ export class MethodSorter {
   }
 
   private finalizeOrder(sorted: MethodInfo[]): MethodInfo[] {
-    const reversed = sorted.reverse();
+    const reversed = sorted.reverse();  // Reverse to get step-down order
     return this.moveConstructorToFront(reversed);
   }
 
@@ -49,7 +49,7 @@ export class MethodSorter {
     
     context.visited.add(methodName);
     this.visitDependencies(current, context);
-    context.sorted.push(current.method);
+    context.sorted.push(current.method);  // Add AFTER visiting dependencies
   }
 
   private visitDependencies(current: MethodWithDependencies, context: SortingContext): void {

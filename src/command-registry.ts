@@ -3,6 +3,7 @@ import { ExtractVariableCommand } from './commands/extract-variable-command';
 import { InlineVariableCommand } from './commands/inline-variable-command';
 import { RenameCommand } from './commands/rename-command';
 import { SelectCommand } from './commands/select-command';
+import { SortMethodsCommand } from './commands/sort-methods-command';
 import { VariableLocatorCommand } from './commands/variable-locator-command';
 
 const loadCommands = (): RefactoringCommand[] => [
@@ -10,6 +11,7 @@ const loadCommands = (): RefactoringCommand[] => [
   new InlineVariableCommand(),
   new RenameCommand(),
   new SelectCommand(),
+  new SortMethodsCommand(),
   new VariableLocatorCommand()
 ];
 

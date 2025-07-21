@@ -56,6 +56,7 @@ npm run usage:consolidate            # Manually consolidate usage logs
 - inline-variable <target>             Replace variable usage with its value
 - rename [options] <target>            Rename a variable and all its references
 - select [options] <target>            Find code elements and return their locations with content preview
+- sort-methods <target>                Sort methods according to the step down rule
 - variable-locator <target>            Find variable declarations and all their usages
 ```
 <!-- AUTO-GENERATED HELP END -->

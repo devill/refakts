@@ -1,7 +1,6 @@
 /**
  * @description Basic class with methods out of order that need sorting by step down rule
- * @command sort-methods "tests/fixtures/refactoring/sort-methods/simple-class.input.ts"
- * @skip true
+ * @command sort-methods "[simple-class.input.ts 5:1-5:10]"
  */
 export class Calculator {
   private baseValue = 10;
