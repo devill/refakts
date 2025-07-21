@@ -4,7 +4,7 @@ import { ClassMethodFinder, MethodInfo } from '../services/class-method-finder';
 import { MethodDependencyAnalyzer } from '../services/method-dependency-analyzer';
 import { MethodSorter } from '../services/method-sorter';
 import { LocationRange } from '../core/location-parser';
-import { ClassDeclaration, SyntaxKind } from 'ts-morph';
+import { ClassDeclaration, SyntaxKind, ClassMemberTypes } from 'ts-morph';
 
 export class SortMethodsCommand implements RefactoringCommand {
   readonly name = 'sort-methods';
@@ -46,7 +46,7 @@ export class SortMethodsCommand implements RefactoringCommand {
   }
 
   getHelpText(): string {
-    return '\nExamples:\n  refakts sort-methods "[src/file.ts 5:1]"';
+    return '\nExamples:\n  refakts sort-methods "[src/file.ts 5:1-5:10]"';
   }
 
   private async performMethodSorting(targetClass: ClassDeclaration): Promise<void> {
@@ -72,14 +72,14 @@ export class SortMethodsCommand implements RefactoringCommand {
     this.addMembersInOrder(targetClass, memberTexts);
   }
   
-  private findNonMethodMembers(allMembers: any[]) {
+  private findNonMethodMembers(allMembers: ClassMemberTypes[]) {
     return allMembers.filter(member => 
       !member.isKind(SyntaxKind.MethodDeclaration) && 
       !member.isKind(SyntaxKind.Constructor)
     );
   }
   
-  private extractMemberTexts(nonMethodMembers: any[], sortedMethods: MethodInfo[]) {
+  private extractMemberTexts(nonMethodMembers: ClassMemberTypes[], sortedMethods: MethodInfo[]) {
     return {
       nonMethodTexts: nonMethodMembers.map(member => member.getFullText()),
       sortedMethodTexts: sortedMethods.map(method => method.getNode().getFullText())
