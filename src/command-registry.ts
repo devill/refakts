@@ -1,11 +1,12 @@
 import { RefactoringCommand } from './command';
 import { ExtractVariableCommand } from './commands/extract-variable-command';
+import { FindUsagesCommand } from './commands/find-usages-command';
 import { InlineVariableCommand } from './commands/inline-variable-command';
+import { MoveFileCommand } from './commands/move-file-command';
+import { MoveMethodCommand } from './commands/move-method-command';
 import { RenameCommand } from './commands/rename-command';
 import { SelectCommand } from './commands/select-command';
-import { FindUsagesCommand } from './commands/find-usages-command';
-import { MoveMethodCommand } from './commands/move-method-command';
-import { MoveFileCommand } from './commands/move-file-command';
+import { SortMethodsCommand } from './commands/sort-methods-command';
 import { ConsoleOutput } from './interfaces/ConsoleOutput';
 
 const loadCommands = (): RefactoringCommand[] => [
@@ -13,6 +14,7 @@ const loadCommands = (): RefactoringCommand[] => [
   new InlineVariableCommand(),
   new RenameCommand(),
   new SelectCommand(),
+  new SortMethodsCommand(),
   new FindUsagesCommand(),
   new MoveMethodCommand(),
   new MoveFileCommand()
