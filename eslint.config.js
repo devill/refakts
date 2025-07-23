@@ -104,7 +104,7 @@ module.exports = [
   {
     // CLI files that legitimately need console output
     files: [
-      'src/cli-generator.ts',
+      'src/command-line-parser/cli-generator.ts',
       'src/interfaces/StandardConsole.ts',
       'src/snooze-cli.ts',
       'src/update-docs.ts',
