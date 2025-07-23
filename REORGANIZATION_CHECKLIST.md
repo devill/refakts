@@ -28,8 +28,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 3 files ✅ (2.1%)
-**Remaining:** 140 files
+**Completed:** 9 files ✅ (6.3%)
+**Remaining:** 134 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -247,12 +247,12 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 
 ### 🗺️ dev/roadmap/ (Roadmap voting system)
 
-- [ ] `roadmap/index.ts` → `dev/roadmap/index.ts`
-- [ ] `roadmap/roadmap-cli.ts` → `dev/roadmap/roadmap-cli.ts`
-- [ ] `roadmap/roadmap-display.ts` → `dev/roadmap/roadmap-display.ts`
-- [ ] `roadmap/roadmap-service.ts` → `dev/roadmap/roadmap-service.ts`
-- [ ] `roadmap/roadmap-storage.ts` → `dev/roadmap/roadmap-storage.ts`
-- [ ] `roadmap/types.ts` → `dev/roadmap/types.ts`
+- [x] `roadmap/index.ts` → `dev/roadmap/index.ts` ✅
+- [x] `roadmap/roadmap-cli.ts` → `dev/roadmap/roadmap-cli.ts` ✅
+- [x] `roadmap/roadmap-display.ts` → `dev/roadmap/roadmap-display.ts` ✅
+- [x] `roadmap/roadmap-service.ts` → `dev/roadmap/roadmap-service.ts` ✅
+- [x] `roadmap/roadmap-storage.ts` → `dev/roadmap/roadmap-storage.ts` ✅
+- [x] `roadmap/types.ts` → `dev/roadmap/types.ts` ✅
 
 ### 🏛️ Files Staying in Core (minimal/foundational usage)
 

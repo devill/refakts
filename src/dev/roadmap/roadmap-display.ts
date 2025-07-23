@@ -1,4 +1,4 @@
-import { RoadmapData, RoadmapFeature } from './types';
+import { RoadmapData, RoadmapFeature } from '../../roadmap/types';
 
 export class RoadmapDisplay {
   showStatus(data: RoadmapData): void {
