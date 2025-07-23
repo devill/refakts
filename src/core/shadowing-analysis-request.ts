@@ -2,6 +2,8 @@ import { Node } from 'ts-morph';
 import { NodeContext } from './node-context';
 import { NodeDeclarationMatcher } from '../locators/services/node-declaration-matcher';
 import { ShadowingAnalysisRequestFactory } from './shadowing-analysis-request-factory';
+import { NodeContext as LocatorNodeContext } from '../locators/node-context';
+import { ScopeContext } from './scope-context';
 
 
 export class ShadowingAnalysisRequest {
@@ -43,12 +45,10 @@ export class ShadowingAnalysisRequest {
   validateScopeContainment(): boolean {
     const declarationScope = this.getDeclarationScope();
     const usageScope = this.getUsageScope();
-    const { NodeContext: LocatorNodeContext } = require('../locators/node-context');
     return LocatorNodeContext.isScopeContainedIn(usageScope, declarationScope);
   }
 
   getScopeContext() {
-    const { ScopeContext } = require('./scope-context');
     return new ScopeContext(this.getUsageScope(), this.getDeclarationScope(), this.getTargetNode());
   }
 
@@ -62,7 +62,6 @@ export class ShadowingAnalysisRequest {
   }
 
   private findShadowingInScopeChain(scopeContext: { usageScope: Node; declarationScope: Node; targetNode: Node }): boolean {
-    const { NodeContext: LocatorNodeContext } = require('../locators/node-context');
     let current: Node | undefined = scopeContext.usageScope;
     while (current && current !== scopeContext.declarationScope) {
       if (this.hasShadowingDeclaration(current, scopeContext.targetNode)) return true;
@@ -72,7 +71,6 @@ export class ShadowingAnalysisRequest {
   }
 
   private hasShadowingDeclaration(scope: Node, originalDeclaration: Node): boolean {
-    const { ScopeContext } = require('./scope-context');
     const scopeContext = new ScopeContext(scope, scope, originalDeclaration);
     let hasShadowing = false;
     scope.forEachDescendant((child: Node) => {
@@ -82,7 +80,6 @@ export class ShadowingAnalysisRequest {
   }
 
   private checkChildForShadowing(scopeContext: { usageScope: Node; targetNode: Node }, child: Node): boolean {
-    const { NodeContext: LocatorNodeContext } = require('../locators/node-context');
     const childContext = new LocatorNodeContext(child);
     return childContext.isShadowingDeclaration(this.variableName, scopeContext.targetNode, scopeContext.usageScope);
   }
