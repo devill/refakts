@@ -1,5 +1,5 @@
 import { Project, SourceFile, SyntaxKind, VariableDeclaration, Identifier } from 'ts-morph';
-import { RenameVariableTransformation } from '../../src/transformations/rename-variable-transformation';
+import { RenameVariableTransformation } from '../../src/core/transformations/rename-variable-transformation';
 
 export interface TransformationScenarioConfig {
   fileName: string;

@@ -1,4 +1,4 @@
-import { MethodSorter, BasicMethodInfo, BasicMethodWithDependencies } from '../../../src/services/method-sorter';
+import { MethodSorter, BasicMethodInfo, BasicMethodWithDependencies } from '../../../src/core/transformations/method-sorter';
 
 describe('MethodSorter', () => {
   function createMockMethod(name: string): BasicMethodInfo {

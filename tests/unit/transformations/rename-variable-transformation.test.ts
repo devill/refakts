@@ -1,4 +1,4 @@
-import { RenameVariableTransformation } from '../../../src/transformations/rename-variable-transformation';
+import { RenameVariableTransformation } from '../../../src/core/transformations/rename-variable-transformation';
 import { Project, SyntaxKind } from 'ts-morph';
 import { RenameTransformationTestHelper } from '../../utils/rename-transformation-test-helper';
 import { verify } from 'approvals';

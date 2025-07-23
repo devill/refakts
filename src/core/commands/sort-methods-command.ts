@@ -5,7 +5,7 @@ import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 import { ASTService } from '../ast/ast-service';
 import { ClassMethodFinder, MethodInfo } from '../../services/class-method-finder';
 import { MethodDependencyAnalyzer } from '../../services/method-dependency-analyzer';
-import { MethodSorter } from '../../services/method-sorter';
+import { MethodSorter } from '../transformations/method-sorter';
 import { SelectOutputHandler } from '../../services/selection/output-handler';
 
 export class SortMethodsCommand implements RefactoringCommand {

@@ -1,5 +1,5 @@
 import { ConsoleOutput } from '../interfaces/ConsoleOutput';
-import { MoveFileResult } from './move-file-service';
+import { MoveFileResult } from '../core/transformations/move-file-service';
 import * as path from 'path';
 
 export class MoveFileOutputHandler {
