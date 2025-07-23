@@ -110,7 +110,9 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [ ] `services/file-system-helper.ts` → `core/services/file-system/helper.ts`
 - [ ] `services/file-system-wrapper.ts` → `core/services/file-system/wrapper.ts`
 - [ ] `utils/directory-utils.ts` → `core/services/file-system/directory.ts` *rename*
+- [ ] `services/error-utils.ts` → `core/services/file-system/error-utils.ts`
 - [ ] `services/file-validator.ts` → `core/services/file-validator.ts`
+- [ ] `services/moved-file-import-updater.ts` → `core/services/moved-file-import-updater.ts`
 - [ ] `services/import-reference-service.ts` → `core/services/import-reference-service.ts`
 - [ ] `services/method-dependency-analyzer.ts` → `core/services/method-dependency-analyzer.ts`
 - [ ] `services/position-converter.ts` → `core/services/position-converter.ts`
