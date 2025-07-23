@@ -1,6 +1,7 @@
 import { Node } from 'ts-morph';
 import { NodeContext } from './node-context';
 import { NodeDeclarationMatcher } from '../locators/services/node-declaration-matcher';
+import { ShadowingAnalysisRequestFactory } from './shadowing-analysis-request-factory';
 
 
 export class ShadowingAnalysisRequest {
@@ -15,7 +16,7 @@ export class ShadowingAnalysisRequest {
   }
 
   static create(usage: Node, declaration: Node, variableName: string): ShadowingAnalysisRequest {
-    return NodeContext.createShadowingAnalysisRequest(usage, declaration, variableName);
+    return ShadowingAnalysisRequestFactory.create(usage, declaration, variableName);
   }
 
 

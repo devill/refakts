@@ -20,12 +20,6 @@ export class NodeContext {
     return new NodeContext(node, sourceFile, position);
   }
 
-  static createShadowingAnalysisRequest(usage: Node, declaration: Node, variableName: string): import('./shadowing-analysis-request').ShadowingAnalysisRequest {
-    const usageContext = this.create(usage, usage.getSourceFile());
-    const declarationContext = this.create(declaration, declaration.getSourceFile());
-    const { ShadowingAnalysisRequest } = require('./shadowing-analysis-request');
-    return new ShadowingAnalysisRequest(usageContext, declarationContext, variableName);
-  }
 
 
   getContainingDeclaration(): Node | undefined {

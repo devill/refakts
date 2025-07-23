@@ -1,4 +1,5 @@
 import { NodeContext } from '../../../src/core/node-context';
+import { ShadowingAnalysisRequestFactory } from '../../../src/core/shadowing-analysis-request-factory';
 import * as ts from 'typescript';
 import { verify } from 'approvals';
 import { setupProject } from './node-context-setup';
@@ -42,7 +43,7 @@ describe('NodeContext - Variables', () => {
       const outerDeclaration = declarations[0];
       const innerDeclaration = declarations[1];
       
-      const request = NodeContext.createShadowingAnalysisRequest(
+      const request = ShadowingAnalysisRequestFactory.create(
         innerDeclaration, 
         outerDeclaration, 
         'x'
@@ -61,7 +62,7 @@ describe('NodeContext - Variables', () => {
       const declaration1 = sourceFile1.getDescendantsOfKind(ts.SyntaxKind.VariableDeclaration)[0];
       const declaration2 = sourceFile2.getDescendantsOfKind(ts.SyntaxKind.VariableDeclaration)[0];
       
-      const request = NodeContext.createShadowingAnalysisRequest(
+      const request = ShadowingAnalysisRequestFactory.create(
         declaration2, 
         declaration1, 
         'globalVar'
