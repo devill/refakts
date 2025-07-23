@@ -1,6 +1,6 @@
 import { Node, SourceFile } from 'ts-morph';
 import { NodeAnalyzer } from '../../locators/node-analyzer';
-import { PositionData } from '../position-data';
+import { PositionData } from './position-data';
 import { NodeContext } from '../node-context';
 
 export class PositionFinder {

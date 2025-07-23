@@ -1,6 +1,6 @@
 import { SourceFile } from 'ts-morph';
-import { LocationRange } from './ast/location-range';
-import { SelectMatch } from '../types/selection-types';
+import { LocationRange } from '../ast/location-range';
+import { SelectMatch } from '../../types/selection-types';
 
 
 export class PositionData {
