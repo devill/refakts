@@ -2,6 +2,13 @@
 
 This checklist tracks the systematic reorganization of the RefakTS codebase into a purpose-driven directory structure.
 
+## Purpose of the reorganization
+
+- The original architecture was a bit haphazard, and hard to follow. We want to clean that up. As a first step we reorganize files on a best effort basis.
+- We want to test the new move-file command to see if there are any remaining bugs. 
+
+**CRITICAL**: When there is a bug, always prioritise fixing it. Best way to do that is to `git reset --hard HEAD` to the last commit and fix the bug before moving on. Fix the bug in `main`, then rebase `reorganize-codebase-clean` onto it. 
+
 ## Overview
 
 **Target Structure (relative to src/):**
@@ -302,3 +309,5 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 1. **Start reorganization**: Begin with low-impact directories (dev/roadmap first)
 2. **Test thoroughly**: Run tests after each move to ensure stability
 3. **Document progress**: Update checklist as we complete each section
+4. **Commit the changes**: Once all steps are complete commit the change
+5. **STOP**: I (Ivett) want to review each commit before moving on. 
