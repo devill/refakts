@@ -1,4 +1,4 @@
-import {VariableResultBuilder} from '../../../src/locators/variable-result-builder';
+import {VariableResultBuilder} from '../../../src/core/locators/variable-result-builder';
 import {Project} from 'ts-morph';
 import * as ts from 'typescript';
 import * as fs from 'fs';

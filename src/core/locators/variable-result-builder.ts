@@ -1,7 +1,7 @@
 import {Node} from 'ts-morph';
-import {UsageTypeDetector} from './usage-type-detector';
-import {LocationRange} from '../core/ast/location-range';
-import path from "path";
+import {UsageTypeDetector} from '../../locators/usage-type-detector';
+import {LocationRange} from '../ast/location-range';
+import * as path from "path";
 
 export interface VariableLocation {
   kind: 'declaration' | 'usage';
