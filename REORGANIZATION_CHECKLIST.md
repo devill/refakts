@@ -28,8 +28,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 0 files ✅ (0%)
-**Remaining:** 143 files
+**Completed:** 3 files ✅ (2.1%)
+**Remaining:** 140 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -38,9 +38,9 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 
 ### 🔧 command-line-parser/ (CLI argument parsing and command registration)
 
-- [ ] `cli.ts` → `command-line-parser/cli.ts`
-- [ ] `cli-generator.ts` → `command-line-parser/cli-generator.ts`
-- [ ] `index.ts` → `command-line-parser/index.ts`
+- [x] `cli.ts` → `command-line-parser/cli.ts` ✅
+- [x] `cli-generator.ts` → `command-line-parser/cli-generator.ts` ✅
+- [x] `index.ts` → `command-line-parser/index.ts` ✅
 
 ### ⚙️ core/commands/ (Lightweight command orchestrators)
 
@@ -157,30 +157,30 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 **Selection Type Files:**
 - [ ] `types/selection-types.ts` → `core/services/selection/selection-types.ts`
 
-### 📊 output-formatter/ (Format output to human-readable format)
+### 📊 command-line-parser/output-formatter/ (Format output to human-readable format)
 
 **Main Output Handlers:**
-- [ ] `services/move-file-output-handler.ts` → `output-formatter/move-file-output-handler.ts`
-- [ ] `services/selection/output-handler.ts` → `output-formatter/selection-output-handler.ts`
-- [ ] `services/selection/result-formatters.ts` → `output-formatter/result-formatters.ts`
-- [ ] `services/usage-output-handler.ts` → `output-formatter/usage-output-handler.ts`
-- [ ] `services/selection/match-context.ts` → `output-formatter/match-context.ts`
+- [ ] `services/move-file-output-handler.ts` → `command-line-parser/output-formatter/move-file-output-handler.ts`
+- [ ] `services/selection/output-handler.ts` → `command-line-parser/output-formatter/selection-output-handler.ts`
+- [ ] `services/selection/result-formatters.ts` → `command-line-parser/output-formatter/result-formatters.ts`
+- [ ] `services/usage-output-handler.ts` → `command-line-parser/output-formatter/usage-output-handler.ts`
+- [ ] `services/selection/match-context.ts` → `command-line-parser/output-formatter/match-context.ts`
 
 **Pattern Matching & Formatting Services:**
-- [ ] `services/regex-pattern-matcher.ts` → `output-formatter/services/regex-pattern-matcher.ts` *(output formatting, not core service)*
-- [ ] `services/selection/pattern-matcher.ts` → `output-formatter/services/pattern-matcher.ts` *(output formatting logic)*
+- [ ] `services/regex-pattern-matcher.ts` → `command-line-parser/output-formatter/services/regex-pattern-matcher.ts` *(output formatting, not core service)*
+- [ ] `services/selection/pattern-matcher.ts` → `command-line-parser/output-formatter/services/pattern-matcher.ts` *(output formatting logic)*
 
 **Context Classes:**
-- [ ] `services/selection/contexts/line-processing-context.ts` → `output-formatter/contexts/line-processing-context.ts`
-- [ ] `services/selection/contexts/match-build-context.ts` → `output-formatter/contexts/match-build-context.ts`
-- [ ] `services/selection/contexts/match-details-context.ts` → `output-formatter/contexts/match-details-context.ts`
-- [ ] `services/selection/contexts/processing-context.ts` → `output-formatter/contexts/processing-context.ts`
-- [ ] `services/selection/contexts/select-match-context.ts` → `output-formatter/contexts/select-match-context.ts`
+- [ ] `services/selection/contexts/line-processing-context.ts` → `command-line-parser/output-formatter/contexts/line-processing-context.ts`
+- [ ] `services/selection/contexts/match-build-context.ts` → `command-line-parser/output-formatter/contexts/match-build-context.ts`
+- [ ] `services/selection/contexts/match-details-context.ts` → `command-line-parser/output-formatter/contexts/match-details-context.ts`
+- [ ] `services/selection/contexts/processing-context.ts` → `command-line-parser/output-formatter/contexts/processing-context.ts`
+- [ ] `services/selection/contexts/select-match-context.ts` → `command-line-parser/output-formatter/contexts/select-match-context.ts`
 
 **Console Interfaces:**
-- [ ] `interfaces/ConsoleOutput.ts` → `output-formatter/console-output.ts` *rename*
-- [ ] `interfaces/FakeConsole.ts` → `output-formatter/fake-console.ts` *rename*
-- [ ] `interfaces/StandardConsole.ts` → `output-formatter/standard-console.ts` *rename*
+- [ ] `interfaces/ConsoleOutput.ts` → `command-line-parser/output-formatter/console-output.ts` *rename*
+- [ ] `interfaces/FakeConsole.ts` → `command-line-parser/output-formatter/fake-console.ts` *rename*
+- [ ] `interfaces/StandardConsole.ts` → `command-line-parser/output-formatter/standard-console.ts` *rename*
 
 
 

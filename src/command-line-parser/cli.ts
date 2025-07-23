@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { CommandRegistry } from './command-registry';
-import { CommandOption, CommandOptions, RefactoringCommand } from './command';
-import { UsageTracker } from './usage-tracker';
-import { LocationParser } from './core/location-range';
-import { StandardConsole } from './interfaces/StandardConsole';
+import { CommandRegistry } from '../command-registry';
+import { CommandOption, CommandOptions, RefactoringCommand } from '../command';
+import { UsageTracker } from '../usage-tracker';
+import { LocationParser } from '../core/location-range';
+import { StandardConsole } from '../interfaces/StandardConsole';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -49,7 +49,7 @@ function loadCommandOptions(commandName: string): CommandOption[] {
 }
 
 function getOptionsPath(commandName: string): string {
-  return path.join(__dirname, 'commands', `${commandName}-options.json`);
+  return path.join(__dirname, '..', 'commands', `${commandName}-options.json`);
 }
 
 function readOptionsFile(optionsPath: string, commandName: string): CommandOption[] {

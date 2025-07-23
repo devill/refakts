@@ -10,7 +10,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "dev": "ts-node src/cli.ts",
+    "dev": "ts-node src/command-line-parser/cli.ts",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src tests/integration tests/utils tests/unit --ext .ts --fix",
     "quality": "ts-node src/quality-tools/quality-runner.ts",
