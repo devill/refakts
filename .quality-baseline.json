@@ -91,13 +91,6 @@
       "fileSize"
     ]
   },
-  "tests/unit/transformations/rename-variable-transformation.test.ts": {
-    "lastCommitId": "3d34e061be1508fca967eece52ba4a223eef982d",
-    "violations": [
-      "comment",
-      "fileSize"
-    ]
-  },
   "tests/unit/locators/services/node-scope-analyzer.test.ts": {
     "lastCommitId": "9b4e45f84db60197ee70fedccf738b8fe3ae4449",
     "violations": [
