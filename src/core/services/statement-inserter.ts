@@ -1,5 +1,5 @@
 import { Node, Block, SourceFile, Statement } from 'ts-morph';
-import { ExtractionScopeAnalyzer } from './extraction-scope-analyzer';
+import { ExtractionScopeAnalyzer } from '../../services/extraction-scope-analyzer';
 
 export class StatementInserter {
   private scopeAnalyzer: ExtractionScopeAnalyzer;

@@ -1,5 +1,5 @@
 import { Project, SyntaxKind } from 'ts-morph';
-import { StatementInserter } from '../../../src/services/statement-inserter';
+import { StatementInserter } from '../../../src/core/services/statement-inserter';
 import * as fixtures from '../../fixtures/unit/services/statement-scenarios';
 
 describe('StatementInserter', () => {
