@@ -65,12 +65,6 @@
       "featureEnvy"
     ]
   },
-  "tests/unit/cli-location-handling.test.ts": {
-    "lastCommitId": "8e4ee18ff5b38927e2f5362fd7be00a87e3d3a0c",
-    "violations": [
-      "comment"
-    ]
-  },
   "tests/unit/documentation/help-parser.test.ts": {
     "lastCommitId": "86bb345942fe8286dfd2451aeeb4688d858dc625",
     "violations": [

@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 29 files ✅ (20.3%)
-**Remaining:** 114 files
+**Completed:** 33 files ✅ (23.1%)
+**Remaining:** 110 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -74,10 +74,10 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 
 ### 🔸 core/ast/ (Core AST operations and types)
 
-- [ ] `services/ast-service.ts` → `core/ast/ast-service.ts`
-- [ ] `core/location-range.ts` → `core/ast/location-range.ts` *(move to eliminate AST→Services dependency)*
-- [ ] `locators/node-position-helper.ts` → `core/ast/node-position-helper.ts`
-- [ ] `locators/node-type-classifier.ts` → `core/ast/node-type-classifier.ts`
+- [x] `services/ast-service.ts` → `core/ast/ast-service.ts` ✅
+- [x] `core/location-range.ts` → `core/ast/location-range.ts` ✅ *(move to eliminate AST→Services dependency)*
+- [x] `locators/node-position-helper.ts` → `core/ast/node-position-helper.ts` ✅
+- [x] `locators/node-type-classifier.ts` → `core/ast/node-type-classifier.ts` ✅
 
 ### 🔍 core/locators/ (Find files and AST nodes based on search conditions)
 
