@@ -16,7 +16,6 @@ describe('StatementInserter', () => {
       const sourceFile = project.createSourceFile('test.ts', fixtures.functionWithStatements);
       const doubledIdentifier = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
         .find(node => node.getText() === 'doubled' && node.getParent()?.getKind() === SyntaxKind.BinaryExpression);
-      
       expect(doubledIdentifier).toBeDefined();
       
       inserter.insertVariableDeclaration(doubledIdentifier!, 'newVar');
@@ -25,7 +24,6 @@ describe('StatementInserter', () => {
       expect(updatedCode).toContain('const newVar = doubled;');
       expect(updatedCode).toContain('const result = doubled + 10;');
       
-      // Check that the new variable is inserted before the result assignment
       const newVarIndex = updatedCode.indexOf('const newVar = doubled;');
       const resultIndex = updatedCode.indexOf('const result = doubled + 10;');
       expect(newVarIndex).toBeLessThan(resultIndex);
@@ -36,7 +34,6 @@ describe('StatementInserter', () => {
       const localVarIdentifier = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
         .find(node => node.getText() === 'localVar' && 
                node.getParent()?.getKind() === SyntaxKind.CallExpression);
-      
       expect(localVarIdentifier).toBeDefined();
       
       inserter.insertVariableDeclaration(localVarIdentifier!, 'extracted');
@@ -66,7 +63,6 @@ describe('StatementInserter', () => {
       const innerIdentifier = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
         .find(node => node.getText() === 'inner' && 
                node.getParent()?.getKind() === SyntaxKind.CallExpression);
-      
       expect(innerIdentifier).toBeDefined();
       
       inserter.insertVariableDeclaration(innerIdentifier!, 'innerRef');
@@ -159,7 +155,6 @@ describe('StatementInserter', () => {
       const updatedCode = sourceFile.getFullText();
       expect(updatedCode).toContain('const beforeFirst = first;');
       
-      // Check that it's inserted before the first declaration
       const beforeFirstIndex = updatedCode.indexOf('const beforeFirst = first;');
       const firstIndex = updatedCode.indexOf('const first = 1;');
       expect(beforeFirstIndex).toBeLessThan(firstIndex);
@@ -186,10 +181,8 @@ describe('StatementInserter', () => {
     });
 
     it('should test error condition with orphaned node', () => {
-      // Create a sourceFile and manually construct a node without proper parent structure
       project.createSourceFile('test.ts', 'const x = 1;');
       
-      // Create a mock node that will return undefined for findContainingStatement
       const mockNode = {
         getText: () => 'mockNode',
         getParent: () => undefined
