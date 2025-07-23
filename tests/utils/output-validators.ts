@@ -36,9 +36,7 @@ abstract class BaseOutputValidator {
     return command.replace(inputFileName, inputFile);
   }
 
-  // eslint-disable-next-line no-unused-vars
   protected abstract handleSuccessOutput(testCase: TestCase, output: string | void): void;
-  // eslint-disable-next-line no-unused-vars
   protected abstract handleErrorOutput(testCase: TestCase, error: unknown): void;
 }
 

@@ -1,9 +1,11 @@
 import {ExportDeclaration, ImportDeclaration, Project, SourceFile} from 'ts-morph';
 import {ASTService} from './ast-service';
+import { MovedFileImportUpdater } from './moved-file-import-updater';
 import * as path from 'path';
 
 export class ImportReferenceService {
   private astService = new ASTService();
+  private movedFileImportUpdater = new MovedFileImportUpdater(this.astService);
 
   checkFileImportsFrom(sourcePath: string, targetPath: string): boolean {
     try {
@@ -162,73 +164,11 @@ export class ImportReferenceService {
   }
 
   async checkMovedFileHasImportsToUpdate(originalPath: string, newPath: string): Promise<boolean> {
-    try {
-      const project = this.astService.getProject();
-      let movedFile = project.getSourceFile(newPath);
-      
-      if (!movedFile) {
-        movedFile = project.addSourceFileAtPath(newPath);
-      }
-      
-      if (!movedFile) return false;
-
-      const imports = movedFile.getImportDeclarations();
-      const exports = movedFile.getExportDeclarations();
-
-      for (const importDecl of imports) {
-        const moduleSpecifier = importDecl.getModuleSpecifierValue();
-        if (this.isRelativeImport(moduleSpecifier)) {
-          return true;
-        }
-      }
-
-      for (const exportDecl of exports) {
-        const moduleSpecifier = exportDecl.getModuleSpecifierValue();
-        if (moduleSpecifier && this.isRelativeImport(moduleSpecifier)) {
-          return true;
-        }
-      }
-
-      return false;
-    } catch {
-      return false;
-    }
+    return this.movedFileImportUpdater.checkMovedFileHasImportsToUpdate(originalPath, newPath);
   }
 
   async updateImportsInMovedFile(originalPath: string, newPath: string): Promise<void> {
-    try {
-      const project = this.astService.getProject();
-      let movedFile = project.getSourceFile(newPath);
-      
-      if (!movedFile) {
-        movedFile = project.addSourceFileAtPath(newPath);
-      }
-      
-      if (!movedFile) return;
-
-      const originalDir = path.dirname(originalPath);
-      const newDir = path.dirname(newPath);
-
-      for (const importDecl of movedFile.getImportDeclarations()) {
-        const moduleSpecifier = importDecl.getModuleSpecifierValue();
-        if (this.isRelativeImport(moduleSpecifier)) {
-          const newImportPath = this.recalculateRelativeImport(moduleSpecifier, originalDir, newDir);
-          importDecl.setModuleSpecifier(newImportPath);
-        }
-      }
-
-      for (const exportDecl of movedFile.getExportDeclarations()) {
-        const moduleSpecifier = exportDecl.getModuleSpecifierValue();
-        if (moduleSpecifier && this.isRelativeImport(moduleSpecifier)) {
-          const newImportPath = this.recalculateRelativeImport(moduleSpecifier, originalDir, newDir);
-          exportDecl.setModuleSpecifier(newImportPath);
-        }
-      }
-
-      await this.astService.saveSourceFile(movedFile);
-    } catch {
-      // Silent fail to not break the move operation
-    }
+    return this.movedFileImportUpdater.updateImportsInMovedFile(originalPath, newPath);
   }
 
   private isRelativeImport(moduleSpecifier: string): boolean {

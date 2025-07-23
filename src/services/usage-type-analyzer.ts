@@ -2,9 +2,7 @@ import { Node, SyntaxKind } from 'ts-morph';
 import { UsageType } from '../core/location-range';
 
 interface UsageHandler {
-  // eslint-disable-next-line no-unused-vars
   canHandle(parent: Node): boolean;
-  // eslint-disable-next-line no-unused-vars
   handle(node: Node, parent: Node): UsageType;
 }
 
