@@ -2,3 +2,4 @@ File moved: src/modules/order.ts → src/domain/order/order.ts
 Updated imports in:
   - src/main.ts
   - src/services/payment-service.ts
+  - src/domain/order/order.ts

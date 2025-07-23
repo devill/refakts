@@ -41,8 +41,10 @@ export class MoveFileService {
     const referencingFiles = await this.collectReferences(request, resolvedDestinationPath);
     await this.fileMover.moveFile(request.sourcePath, resolvedDestinationPath);
     await this.importReferenceService.updateImportReferences(request.sourcePath, resolvedDestinationPath, referencingFiles);
+    
+    const updatedReferencingFiles = await this.updateImportsInMovedFile(request.sourcePath, resolvedDestinationPath, referencingFiles);
 
-    return MoveFileService.moveFileSuccess(request, referencingFiles);
+    return MoveFileService.moveFileSuccess(request, updatedReferencingFiles);
   }
 
   private async collectReferences(request: MoveFileRequest, resolvedDestinationPath: string) {
@@ -101,6 +103,17 @@ export class MoveFileService {
     }
     
     return false;
+  }
+
+  private async updateImportsInMovedFile(originalPath: string, newPath: string, referencingFiles: string[]): Promise<string[]> {
+    const movedFileNeedsUpdate = await this.importReferenceService.checkMovedFileHasImportsToUpdate(originalPath, newPath);
+    
+    if (movedFileNeedsUpdate) {
+      await this.importReferenceService.updateImportsInMovedFile(originalPath, newPath);
+      return [...referencingFiles, newPath];
+    }
+    
+    return referencingFiles;
   }
 
 }

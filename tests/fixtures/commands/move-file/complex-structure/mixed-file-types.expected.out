@@ -1,3 +1,4 @@
 File moved: src/utils/config.ts → src/configuration/config.ts
 Updated imports in:
   - src/main.ts
+  - src/configuration/config.ts

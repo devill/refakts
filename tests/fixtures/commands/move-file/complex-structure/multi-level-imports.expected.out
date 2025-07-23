@@ -3,3 +3,4 @@ Updated imports in:
   - src/main.ts
   - src/modules/order.ts
   - src/modules/user.ts
+  - src/domain/user/user-service.ts
