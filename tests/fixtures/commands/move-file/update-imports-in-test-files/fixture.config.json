@@ -1,0 +1,7 @@
+[
+  {
+    "id": "basic-test-import-update",
+    "description": "Move file and update imports in both src and test directories",
+    "command": "move-file src/utils/helper.ts --destination src/core/helper.ts"
+  }
+]
