@@ -1,6 +1,6 @@
 import { Node } from 'ts-morph';
 import { NodeAnalyzer } from './node-analyzer';
-import { ShadowingAnalysisRequest } from '../core/shadowing-analysis-request';
+import { ShadowingAnalysisRequest } from '../core/locators/shadowing-analysis-request';
 
 export class ShadowingDetector {
 

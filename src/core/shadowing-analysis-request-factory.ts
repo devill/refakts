@@ -1,6 +1,6 @@
 import { Node } from 'ts-morph';
 import { NodeContext } from './node-context';
-import { ShadowingAnalysisRequest } from './shadowing-analysis-request';
+import { ShadowingAnalysisRequest } from './locators/shadowing-analysis-request';
 
 export class ShadowingAnalysisRequestFactory {
   static create(usage: Node, declaration: Node, variableName: string): ShadowingAnalysisRequest {
