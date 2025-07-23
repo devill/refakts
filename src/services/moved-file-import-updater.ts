@@ -73,6 +73,7 @@ export class MovedFileImportUpdater {
 
       await this.astService.saveSourceFile(movedFile);
     } catch {
+      return;
     }
   }
 
