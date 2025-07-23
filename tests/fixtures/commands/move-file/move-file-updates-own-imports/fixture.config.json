@@ -1,0 +1,7 @@
+[
+  {
+    "id": "moved-file-with-relative-imports",
+    "description": "Move a file that has relative imports to a different directory depth",
+    "command": "move-file src/utils/parser.ts --destination src/core/parsing/parser.ts"
+  }
+]

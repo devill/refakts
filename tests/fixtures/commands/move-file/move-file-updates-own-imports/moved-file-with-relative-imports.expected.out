@@ -1,0 +1,4 @@
+File moved: src/utils/parser.ts → src/core/parsing/parser.ts
+Updated imports in:
+  - src/main.ts
+  - src/core/parsing/parser.ts
