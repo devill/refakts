@@ -1,5 +1,5 @@
 import {Node, Project, SourceFile, SyntaxKind} from 'ts-morph';
-import {LocationRange, UsageLocation} from '../core/location-range';
+import {LocationRange, UsageLocation} from '../core/ast/location-range';
 import {FileSystemHelper} from './file-system-helper';
 import {PositionConverter} from './position-converter';
 

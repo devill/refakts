@@ -1,4 +1,4 @@
-import { UsageLocation, LocationRange } from './location-range';
+import { UsageLocation, LocationRange } from './ast/location-range';
 
 export class UsageCollection {
   constructor(

@@ -1,4 +1,4 @@
-import { LocationParser, LocationRange } from '../../../src/core/location-range';
+import { LocationParser, LocationRange } from '../../../src/core/ast/location-range';
 
 describe('LocationParser', () => {
   describe('parseLocation', () => {

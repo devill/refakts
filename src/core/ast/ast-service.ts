@@ -1,5 +1,5 @@
 import { Project, Node, SourceFile } from 'ts-morph';
-import { createLoadFileError } from './error-utils';
+import { createLoadFileError } from '../../services/error-utils';
 import { LocationRange, LocationParser } from '../core/location-range';
 import { FileSystemHelper } from './file-system-helper';
 import * as path from 'path';
@@ -16,11 +16,11 @@ export class ASTService {
     const fileSystemHelper = new FileSystemHelper(new Project({}));
     const projectRoot = fileSystemHelper.findProjectRoot(filePath);
     const tsConfigPath = path.join(projectRoot, 'tsconfig.json');
-    
+
     if (require('fs').existsSync(tsConfigPath)) {
       return new ASTService(new Project({ tsConfigFilePath: tsConfigPath }));
     }
-    
+
     return new ASTService();
   }
 
@@ -38,7 +38,7 @@ export class ASTService {
     if (this.tsConfigResolved) {
       return;
     }
-    
+
     this.loadProjectWithTsConfig(filePath);
     this.tsConfigResolved = true;
   }

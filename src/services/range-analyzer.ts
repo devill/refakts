@@ -2,7 +2,7 @@ import {SourceFile} from 'ts-morph';
 import {SelectResult} from '../types/selection-types';
 import {RangeAnalysisRequest} from './range-analysis-request';
 import {PositionData} from '../core/position-data';
-import {LocationRange} from '../core/location-range';
+import {LocationRange} from '../core/ast/location-range';
 import * as path from 'path';
 
 interface RangeOptions {

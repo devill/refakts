@@ -1,7 +1,7 @@
 import { RefactoringCommand, CommandOptions } from './command';
 import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 import { SelectOutputHandler } from '../../services/selection/output-handler';
-import { ASTService } from '../../services/ast-service';
+import { ASTService } from '../ast/ast-service';
 import { SelectionStrategyFactory } from '../../strategies/selection-strategy-factory';
 import { SelectionStrategy } from '../../strategies/selection-strategy';
 

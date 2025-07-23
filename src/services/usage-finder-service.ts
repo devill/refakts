@@ -1,5 +1,5 @@
-import {LocationRange, UsageLocation} from '../core/location-range';
-import {ASTService} from './ast-service';
+import {LocationRange, UsageLocation} from '../core/ast/location-range';
+import {ASTService} from '../core/ast/ast-service';
 import {CrossFileReferenceFinder} from './cross-file-reference-finder';
 import {ProjectScopeService} from './project-scope-service';
 import {SourceFile} from 'ts-morph';

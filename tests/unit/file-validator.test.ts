@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import { FileValidator, FileSystemWrapper } from '../../src/services/file-validator';
-import { ASTService } from '../../src/services/ast-service';
+import { ASTService } from '../../src/core/ast/ast-service';
 
 describe('FileValidator', () => {
   let fileValidator: FileValidator;

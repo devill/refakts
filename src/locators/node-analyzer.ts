@@ -1,5 +1,5 @@
 import { Node, SourceFile } from 'ts-morph';
-import { NodeTypeClassifier } from './node-type-classifier';
+import { NodeTypeClassifier } from '../core/ast/node-type-classifier';
 import { 
   NodePositionService, 
   NodePositionParams,

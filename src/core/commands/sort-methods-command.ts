@@ -1,8 +1,8 @@
 import { ClassDeclaration, ClassMemberTypes, Node, SyntaxKind } from 'ts-morph';
 import { CommandOptions, RefactoringCommand } from './command';
-import { LocationRange } from '../location-range';
+import { LocationRange } from '../ast/location-range';
 import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
-import { ASTService } from '../../services/ast-service';
+import { ASTService } from '../ast/ast-service';
 import { ClassMethodFinder, MethodInfo } from '../../services/class-method-finder';
 import { MethodDependencyAnalyzer } from '../../services/method-dependency-analyzer';
 import { MethodSorter } from '../../services/method-sorter';

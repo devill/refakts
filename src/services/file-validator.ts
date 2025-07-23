@@ -1,4 +1,4 @@
-import { ASTService } from './ast-service';
+import { ASTService } from '../core/ast/ast-service';
 import { SourceFile, Diagnostic } from 'ts-morph';
 import * as path from 'path';
 
@@ -66,7 +66,7 @@ export class FileValidator {
   private isSeriousError(diagnostic: Diagnostic): boolean {
     const messageStr = this.getDiagnosticMessage(diagnostic);
     const code = typeof diagnostic.getCode === 'function' ? diagnostic.getCode() : 0;
-    
+
     return !messageStr.includes('Cannot find module') &&
         !messageStr.includes('Could not find a declaration file for module') &&
         !messageStr.includes('Invalid module name in augmentation') &&

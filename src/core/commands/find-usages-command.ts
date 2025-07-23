@@ -1,6 +1,6 @@
 import {CommandOptions, RefactoringCommand} from './command';
 import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
-import {LocationParser, LocationRange} from '../location-range';
+import {LocationParser, LocationRange} from '../ast/location-range';
 import {UsageFinderService} from '../../services/usage-finder-service';
 import {UsageOutputHandler} from '../../services/usage-output-handler';
 import * as fs from 'fs';

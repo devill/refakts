@@ -1,7 +1,7 @@
 import { SelectMatch, SelectResult } from '../../types/selection-types';
 import { DefinitionRangeDetector } from './definition-range-detector';
 import { MatchContext } from './match-context';
-import { LocationRange, SourceLocation } from '../../core/location-range';
+import { LocationRange, SourceLocation } from '../../core/ast/location-range';
 
 export interface SelectResultFormatter {
   format(_matches: SelectMatch[], _fileName: string, _file?: string): SelectResult[];

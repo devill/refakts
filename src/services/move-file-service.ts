@@ -1,5 +1,5 @@
 import {ImportReferenceService} from './import-reference-service';
-import {ASTService} from './ast-service';
+import {ASTService} from '../core/ast/ast-service';
 import {FileValidator} from './file-validator';
 import {FileMover, RealFileSystemWrapper} from './file-system-wrapper';
 import * as path from 'path';

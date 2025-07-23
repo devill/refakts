@@ -1,4 +1,4 @@
-import { UsageLocation, LocationRange } from '../core/location-range';
+import { UsageLocation, LocationRange } from '../core/ast/location-range';
 import { SelectResult } from '../types/selection-types';
 import { SelectOutputHandler } from './selection/output-handler';
 import { CommandOptions, CommandOptionsWrapper } from '../core/commands/command';
