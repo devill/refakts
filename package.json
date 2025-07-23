@@ -63,6 +63,7 @@
   },
   "files": [
     "dist/**/*",
+    "*.d.ts",
     "README.md",
     "LICENSE.md"
   ],
