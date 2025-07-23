@@ -109,10 +109,11 @@ export class ImportReferenceService {
   }
 
   private createUpdateContext(sourceFile: SourceFile, sourcePath: string, destinationPath: string) {
+    const absoluteSourcePath = path.resolve(sourcePath);
     return {
       filePath: sourceFile.getFilePath(),
-      sourcePathWithoutExtension: sourcePath.replace(/\.ts$/, ''),
-      sourcePath,
+      sourcePathWithoutExtension: absoluteSourcePath.replace(/\.ts$/, ''),
+      sourcePath: absoluteSourcePath,
       destinationPath
     };
   }

@@ -39,8 +39,8 @@ export class MoveFileService {
 
   private async performSafeFileMove(request: MoveFileRequest, resolvedDestinationPath: string) {
     const referencingFiles = await this.collectReferences(request, resolvedDestinationPath);
-    await this.fileMover.moveFile(request.sourcePath, resolvedDestinationPath);
     await this.importReferenceService.updateImportReferences(request.sourcePath, resolvedDestinationPath, referencingFiles);
+    await this.fileMover.moveFile(request.sourcePath, resolvedDestinationPath);
     
     const updatedReferencingFiles = await this.updateImportsInMovedFile(request.sourcePath, resolvedDestinationPath, referencingFiles);
 
