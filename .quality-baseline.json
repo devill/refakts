@@ -53,12 +53,6 @@
       "functionSize"
     ]
   },
-  "src/roadmap/roadmap-service.ts": {
-    "lastCommitId": "1f7beb997ee03de710aa7746a607c94e16e834b2",
-    "violations": [
-      "manyParameters"
-    ]
-  },
   "src/documentation/QualityChecksExtractor.ts": {
     "lastCommitId": "1f7beb997ee03de710aa7746a607c94e16e834b2",
     "violations": [

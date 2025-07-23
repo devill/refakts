@@ -1,5 +1,5 @@
-import { RoadmapData, RoadmapFeature } from './types';
-import { RoadmapStorage } from './roadmap-storage';
+import {RoadmapData, RoadmapFeature} from './types';
+import {RoadmapStorage} from './roadmap-storage';
 
 export class RoadmapService {
   private storage = new RoadmapStorage();
@@ -18,7 +18,10 @@ export class RoadmapService {
     const data = this.storage.loadRoadmap();
     
     this.validateFeatureDoesNotExist(data, featureName);
-    this.addFeatureToRoadmap(data, featureName, description, why);
+    data.features.push({
+      name: featureName, description, why,
+      score: 0, status: 'proposed'
+    });
     
     this.storage.saveRoadmap(data);
     process.stdout.write(`✅ Added feature '${featureName}' to roadmap\n`);
@@ -78,15 +81,5 @@ export class RoadmapService {
       process.stderr.write(`❌ Feature '${featureName}' already exists.\n`);
       process.exit(1);
     }
-  }
-
-  private addFeatureToRoadmap(data: RoadmapData, featureName: string, description: string, why?: string): void {
-    data.features.push({
-      name: featureName,
-      description,
-      why,
-      score: 0,
-      status: 'proposed'
-    });
   }
 }
