@@ -1,4 +1,4 @@
-import {CommandRegistry} from '../../src/command-registry';
+import {CommandRegistry} from '../../src/core/commands/command-registry';
 import {CommandLineParser} from './command-line-parser';
 import {ConsoleCapture} from './console-capture';
 import {CliExecutor} from './cli-executor';

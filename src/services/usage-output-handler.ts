@@ -1,7 +1,7 @@
 import { UsageLocation, LocationRange } from '../core/location-range';
 import { SelectResult } from '../types/selection-types';
 import { SelectOutputHandler } from './selection/output-handler';
-import { CommandOptions, CommandOptionsWrapper } from '../command';
+import { CommandOptions, CommandOptionsWrapper } from '../core/commands/command';
 import { UsageCollection } from '../core/usage-collection';
 import { ConsoleOutput } from '../interfaces/ConsoleOutput';
 

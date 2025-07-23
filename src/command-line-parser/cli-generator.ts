@@ -1,4 +1,4 @@
-import { CommandRegistry } from '../command-registry';
+import { CommandRegistry } from '../core/commands/command-registry';
 import { ConsoleOutput } from '../interfaces/ConsoleOutput';
 
 class SimpleConsoleOutput implements ConsoleOutput {

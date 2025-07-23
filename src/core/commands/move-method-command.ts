@@ -1,5 +1,5 @@
-import { RefactoringCommand, CommandOptions } from '../command';
-import { ConsoleOutput } from '../interfaces/ConsoleOutput';
+import { RefactoringCommand, CommandOptions } from './command';
+import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 
 export class MoveMethodCommand implements RefactoringCommand {
   readonly name = 'move-method';

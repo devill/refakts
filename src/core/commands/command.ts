@@ -30,7 +30,7 @@ export class CommandOptionsWrapper {
   }
 }
 
-import { ConsoleOutput } from './interfaces/ConsoleOutput';
+import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 
 export interface RefactoringCommand {
   readonly name: string;

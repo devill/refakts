@@ -1,13 +1,13 @@
 import { RefactoringCommand } from './command';
-import { ExtractVariableCommand } from './commands/extract-variable-command';
-import { FindUsagesCommand } from './commands/find-usages-command';
-import { InlineVariableCommand } from './commands/inline-variable-command';
-import { MoveFileCommand } from './commands/move-file-command';
-import { MoveMethodCommand } from './commands/move-method-command';
-import { RenameCommand } from './commands/rename-command';
-import { SelectCommand } from './commands/select-command';
-import { SortMethodsCommand } from './commands/sort-methods-command';
-import { ConsoleOutput } from './interfaces/ConsoleOutput';
+import { ExtractVariableCommand } from './extract-variable-command';
+import { FindUsagesCommand } from './find-usages-command';
+import { InlineVariableCommand } from './inline-variable-command';
+import { MoveFileCommand } from './move-file-command';
+import { MoveMethodCommand } from './move-method-command';
+import { RenameCommand } from './rename-command';
+import { SelectCommand } from './select-command';
+import { SortMethodsCommand } from './sort-methods-command';
+import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 
 const loadCommands = (): RefactoringCommand[] => [
   new ExtractVariableCommand(),

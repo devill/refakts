@@ -1,12 +1,12 @@
 import { ClassDeclaration, ClassMemberTypes, Node, SyntaxKind } from 'ts-morph';
-import { CommandOptions, RefactoringCommand } from '../command';
-import { LocationRange } from '../core/location-range';
-import { ConsoleOutput } from '../interfaces/ConsoleOutput';
-import { ASTService } from '../services/ast-service';
-import { ClassMethodFinder, MethodInfo } from '../services/class-method-finder';
-import { MethodDependencyAnalyzer } from '../services/method-dependency-analyzer';
-import { MethodSorter } from '../services/method-sorter';
-import { SelectOutputHandler } from '../services/selection/output-handler';
+import { CommandOptions, RefactoringCommand } from './command';
+import { LocationRange } from '../location-range';
+import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
+import { ASTService } from '../../services/ast-service';
+import { ClassMethodFinder, MethodInfo } from '../../services/class-method-finder';
+import { MethodDependencyAnalyzer } from '../../services/method-dependency-analyzer';
+import { MethodSorter } from '../../services/method-sorter';
+import { SelectOutputHandler } from '../../services/selection/output-handler';
 
 export class SortMethodsCommand implements RefactoringCommand {
   readonly name = 'sort-methods';

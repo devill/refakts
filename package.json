@@ -6,7 +6,7 @@
     "refakts": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc && cp src/commands/*.json dist/commands/ && cp src/commands/*.help.txt dist/commands/",
+    "build": "tsc && cp src/core/commands/*.json dist/core/commands/ && cp src/core/commands/*.help.txt dist/core/commands/",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

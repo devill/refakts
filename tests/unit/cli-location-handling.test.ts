@@ -1,4 +1,4 @@
-import { ExtractVariableCommand } from '../../src/commands/extract-variable-command';
+import { ExtractVariableCommand } from '../../src/core/commands/extract-variable-command';
 import { LocationParser } from '../../src/core/location-range';
 
 describe('CLI Location Handling', () => {

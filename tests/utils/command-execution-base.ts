@@ -1,4 +1,4 @@
-import { RefactoringCommand } from '../../src/command';
+import { RefactoringCommand } from '../../src/core/commands/command';
 import { ConsoleCapture } from './console-capture';
 
 export abstract class CommandExecutionBase {

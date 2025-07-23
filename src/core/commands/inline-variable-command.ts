@@ -1,12 +1,12 @@
-import { RefactoringCommand, CommandOptions } from '../command';
-import { ConsoleOutput } from '../interfaces/ConsoleOutput';
+import { RefactoringCommand, CommandOptions } from './command';
+import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 import { Node, VariableDeclaration } from 'ts-morph';
-import { ASTService } from '../services/ast-service';
-import { VariableDeclarationFinder } from '../services/variable-declaration-finder';
-import { ExpressionAnalyzer } from '../services/expression-analyzer';
-import { VariableReplacer } from '../services/variable-replacer';
-import { LocationRange } from '../core/location-range';
-import { NodeAnalyzer } from '../locators/node-analyzer';
+import { ASTService } from '../../services/ast-service';
+import { VariableDeclarationFinder } from '../../services/variable-declaration-finder';
+import { ExpressionAnalyzer } from '../../services/expression-analyzer';
+import { VariableReplacer } from '../../services/variable-replacer';
+import { LocationRange } from '../location-range';
+import { NodeAnalyzer } from '../../locators/node-analyzer';
 
 export class InlineVariableCommand implements RefactoringCommand {
   readonly name = 'inline-variable';
