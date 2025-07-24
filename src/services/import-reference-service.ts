@@ -84,27 +84,34 @@ export class ImportReferenceService {
   }
 
   private createTargetPathVariants(targetPath: string): string[] {
+    const baseVariants = this.createBaseFileVariants(targetPath);
+    const directoryVariants = this.createDirectoryVariantsForIndexFiles(targetPath);
+    
+    return [...baseVariants, ...directoryVariants];
+  }
+
+  private createBaseFileVariants(targetPath: string): string[] {
     const targetPathWithoutExtension = targetPath.replace(/\.ts$/, '');
     const absoluteTargetPath = path.resolve(targetPath);
     const absoluteTargetPathWithoutExtension = absoluteTargetPath.replace(/\.ts$/, '');
     
-    const variants = [
+    return [
       targetPathWithoutExtension,
       targetPath,
       absoluteTargetPath,
       absoluteTargetPathWithoutExtension
     ];
-    
-    // If target is an index.ts file, also include directory variants
-    // This handles cases like './services' resolving to './services/index.ts'
-    if (path.basename(targetPath) === 'index.ts') {
-      const directory = path.dirname(targetPath);
-      const absoluteDirectory = path.resolve(directory);
-      
-      variants.push(directory, absoluteDirectory);
+  }
+
+  private createDirectoryVariantsForIndexFiles(targetPath: string): string[] {
+    if (path.basename(targetPath) !== 'index.ts') {
+      return [];
     }
     
-    return variants;
+    const directory = path.dirname(targetPath);
+    const absoluteDirectory = path.resolve(directory);
+    
+    return [directory, absoluteDirectory];
   }
 
   private updateImportsInFile(sourceFile: SourceFile, sourcePath: string, destinationPath: string): void {
