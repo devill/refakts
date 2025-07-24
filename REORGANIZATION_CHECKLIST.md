@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 80 files ✅ (55.9%)
-**Remaining:** 63 files
+**Completed:** 79 files ✅ (52.3%)
+**Remaining:** 72 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -263,7 +263,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 
 ### 🏛️ Files Staying in Core (minimal/foundational usage)
 
-- [ ] `core/scope-context.ts` → `core/scope-context.ts` *(keep in place - minimal usage)*
+- [x] `core/scope-context.ts` → `core/scope-context.ts` *(keep in place - minimal usage)* ✅
 
 ---
 
