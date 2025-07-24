@@ -1,6 +1,6 @@
 import {Node, Project, SourceFile, SyntaxKind} from 'ts-morph';
 import {LocationRange, UsageLocation} from '../ast/location-range';
-import {FileSystemHelper} from '../../services/file-system-helper';
+import {FileSystemHelper} from './file-system/helper';
 import {PositionConverter} from '../../services/position-converter';
 
 
