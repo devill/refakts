@@ -1,5 +1,5 @@
 import { MethodDependencyAnalyzer } from '../../../src/services/method-dependency-analyzer';
-import { ClassMethodFinder, MethodInfo } from '../../../src/services/class-method-finder';
+import { ClassMethodFinder, MethodInfo } from '../../../src/core/services/class-method-finder';
 import { Project } from 'ts-morph';
 
 describe('MethodDependencyAnalyzer', () => {

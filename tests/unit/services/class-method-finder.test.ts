@@ -1,4 +1,4 @@
-import { ClassMethodFinder } from '../../../src/services/class-method-finder';
+import { ClassMethodFinder } from '../../../src/core/services/class-method-finder';
 import { Project } from 'ts-morph';
 
 describe('ClassMethodFinder', () => {

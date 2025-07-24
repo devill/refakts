@@ -77,13 +77,6 @@
       "comment"
     ]
   },
-  "tests/unit/services/statement-inserter.test.ts": {
-    "lastCommitId": "31b4190c2a2553ae9628127c36b7ed55ee71ebd8",
-    "violations": [
-      "comment",
-      "fileSize"
-    ]
-  },
   "tests/unit/services/variable-name-validator.test.ts": {
     "lastCommitId": "5ebd46de91df11378651335978a0b01024b892f2",
     "violations": [

@@ -3,7 +3,7 @@ import { CommandOptions, RefactoringCommand } from './command';
 import { LocationRange } from '../ast/location-range';
 import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 import { ASTService } from '../ast/ast-service';
-import { ClassMethodFinder, MethodInfo } from '../../services/class-method-finder';
+import { ClassMethodFinder, MethodInfo } from '../services/class-method-finder';
 import { MethodDependencyAnalyzer } from '../../services/method-dependency-analyzer';
 import { MethodSorter } from '../transformations/method-sorter';
 import { SelectOutputHandler } from '../../services/selection/output-handler';
