@@ -3,8 +3,8 @@
 import * as path from 'path';
 import { DocumentationUpdater } from './documentation-updater';
 
-const CLAUDE_MD_PATH = path.join(__dirname, '..', 'CLAUDE.md');
-const README_PATH = path.join(__dirname, '..', 'README.md');
+const CLAUDE_MD_PATH = path.join(__dirname, '..', '..', 'CLAUDE.md');
+const README_PATH = path.join(__dirname, '..', '..', 'README.md');
 
 async function updateClaudeDocumentation(updater: DocumentationUpdater): Promise<void> {
   process.stdout.write('Updating CLAUDE.md...\n');
