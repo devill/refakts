@@ -6,7 +6,7 @@ import { VariableDeclarationFinder } from '../services/variable-declaration-find
 import { ExpressionAnalyzer } from '../services/expression-analyzer';
 import { VariableReplacer } from '../transformations/variable-replacer';
 import { LocationRange } from '../ast/location-range';
-import { NodeAnalyzer } from '../../locators/node-analyzer';
+import { NodeAnalyzer } from '../services/node-analyzer';
 
 export class InlineVariableCommand implements RefactoringCommand {
   readonly name = 'inline-variable';

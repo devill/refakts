@@ -1,5 +1,5 @@
 import { Node, SourceFile } from 'ts-morph';
-import { NodeTypeClassifier } from '../core/ast/node-type-classifier';
+import { NodeTypeClassifier } from '../ast/node-type-classifier';
 import { 
   NodePositionService, 
   NodePositionParams,
@@ -7,7 +7,7 @@ import {
   NodeAssignmentAnalyzer, 
   VariableNameExtractor, 
   NodeDeclarationMatcher 
-} from '../core/services/locators/index';
+} from './locators/index';
 
 export class NodeAnalyzer {
 

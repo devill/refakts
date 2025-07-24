@@ -2,7 +2,7 @@ import { Node, SourceFile } from 'ts-morph';
 import { SourceFileHelper } from '../services/source-file-helper';
 import { ShadowingDetector } from '../services/shadowing-detector';
 import { VariableContext } from './variable-context';
-import { NodeAnalyzer } from '../../locators/node-analyzer';
+import { NodeAnalyzer } from '../services/node-analyzer';
 
 export class VariableNodeMatcher {
   private shadowingDetector = new ShadowingDetector();
