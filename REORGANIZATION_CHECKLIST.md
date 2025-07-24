@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 123 files ✅ (81.5%)
-**Remaining:** 28 files
+**Completed:** 124 files ✅ (82.1%)
+**Remaining:** 27 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -218,7 +218,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 **Main Quality Tools:**
 - [x] `quality-tools/baseline-cli.ts` → `dev/quality/baseline-cli.ts` ✅
 - [x] `quality-tools/baseline-file-io.ts` → `dev/quality/baseline-file-io.ts` ✅
-- [ ] `quality-tools/baseline-git.ts` → `dev/quality/baseline-git.ts`
+- [x] `quality-tools/baseline-git.ts` → `dev/quality/baseline-git.ts` ✅
 - [ ] `quality-tools/baseline-manager.ts` → `dev/quality/baseline-manager.ts`
 - [ ] `quality-tools/baseline-types.ts` → `dev/quality/baseline-types.ts`
 - [ ] `quality-tools/baseline-violations.ts` → `dev/quality/baseline-violations.ts`
