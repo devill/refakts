@@ -65,12 +65,6 @@
       "featureEnvy"
     ]
   },
-  "src/locators/services/node-assignment-analyzer.ts": {
-    "lastCommitId": "4064268c44577ae54af770b10caa48f776e73ecd",
-    "violations": [
-      "featureEnvy"
-    ]
-  },
   "tests/unit/documentation/help-parser.test.ts": {
     "lastCommitId": "86bb345942fe8286dfd2451aeeb4688d858dc625",
     "violations": [

@@ -2,4 +2,4 @@ export { NodePositionService, NodePositionParams } from '../../../locators/servi
 export { NodeScopeAnalyzer } from '../../../locators/services/node-scope-analyzer';
 export { NodeAssignmentAnalyzer } from './node-assignment-analyzer';
 export { VariableNameExtractor } from '../../../locators/services/variable-name-extractor';
-export { NodeDeclarationMatcher } from '../../../locators/services/node-declaration-matcher';
+export { NodeDeclarationMatcher } from './node-declaration-matcher';

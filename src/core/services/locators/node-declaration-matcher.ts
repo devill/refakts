@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import { Node } from 'ts-morph';
-import { NodeContext } from '../../core/node-context';
+import { NodeContext } from '../../node-context';
 
 export class NodeDeclarationMatcher {
   static findContainingDeclaration(node: Node): Node | undefined {
