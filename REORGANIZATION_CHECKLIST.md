@@ -211,7 +211,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [x] `core/section-replacement-request.ts` → `dev/section-replacement-request.ts` ✅
 
 **Files to Delete:**
-- [ ] `moved-test.ts` → **DELETE** *(leftover test file)*
+- [x] `moved-test.ts` → **DELETE** *(leftover test file)*
 
 ### 🔍 dev/quality/ (Code quality detection)
 
