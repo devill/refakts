@@ -1,6 +1,6 @@
 import { Node, VariableDeclaration } from 'ts-morph';
 import { ContextAnalyzer } from '../services/context-analyzer';
-import { VariableReferenceRequest } from '../../services/variable-reference-request';
+import { VariableReferenceRequest } from '../services/variable-reference-request';
 
 export class VariableReplacer {
   private contextAnalyzer = new ContextAnalyzer();

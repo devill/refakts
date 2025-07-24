@@ -1,5 +1,5 @@
 import { Node } from 'ts-morph';
-import { NodeContext } from '../core/node-context';
+import { NodeContext } from '../node-context';
 
 export class VariableReferenceRequest {
   public readonly scope: Node;
