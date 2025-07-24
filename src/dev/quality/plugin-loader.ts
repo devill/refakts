@@ -6,7 +6,7 @@ import { duplicationCheck } from '../../quality-tools/checks/duplication-check';
 import { unusedMethodCheck } from '../../quality-tools/checks/unused-method-check';
 import { complexityCheck } from '../../quality-tools/checks/complexity-check';
 import { gitDiffCheck } from '../../quality-tools/checks/git-diff-check';
-import { changeFrequencyCheck } from '../../quality-tools/checks/change-frequency-check';
+import { changeFrequencyCheck } from './checks/change-frequency-check';
 import { linterCheck } from '../../quality-tools/checks/linter-check';
 import { featureEnvyCheck } from '../../quality-tools/checks/feature-envy-check';
 export const loadQualityChecks = (): QualityCheck[] => [
