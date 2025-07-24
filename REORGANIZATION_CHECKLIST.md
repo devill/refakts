@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 119 files ✅ (78.8%)
-**Remaining:** 32 files
+**Completed:** 120 files ✅ (79.5%)
+**Remaining:** 31 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -205,7 +205,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 **Scripts:**
 - [x] `update-docs.ts` → `dev/update-docs.ts` ✅
 - [x] `usage-tracker.ts` → `dev/usage-tracker.ts` ✅
-- [ ] `snooze-cli.ts` → `dev/snooze-cli.ts`
+- [x] `snooze-cli.ts` → `dev/snooze-cli.ts` ✅
 
 **Type Files (used by dev tools):**
 - [ ] `core/section-replacement-request.ts` → `dev/section-replacement-request.ts`

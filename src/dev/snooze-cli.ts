@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { clearExpiredSnoozes } from './quality-tools/snooze-tracker';
+import { clearExpiredSnoozes } from '../quality-tools/snooze-tracker';
 
 const program = new Command();
 
