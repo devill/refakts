@@ -1,5 +1,5 @@
 import { QualityCheck } from './quality-check-interface';
-import { commentCheck } from '../../quality-tools/checks/comment-check';
+import { commentCheck } from './checks/comment-check';
 import { fileSizeCheck } from '../../quality-tools/checks/file-size-check';
 import { functionSizeCheck } from '../../quality-tools/checks/function-size-check';
 import { duplicationCheck } from '../../quality-tools/checks/duplication-check';
