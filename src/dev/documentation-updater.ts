@@ -1,6 +1,6 @@
 import { HelpContentExtractor } from './help-content-extractor';
 import { QualityChecksExtractor } from './quality-checks-extractor';
-import { SectionReplacer } from '../documentation/SectionReplacer';
+import { SectionReplacer } from './section-replacer';
 import { FileManager } from './file-manager';
 import { ClaudeFormatter } from '../documentation/formatters/ClaudeFormatter';
 import { ReadmeFormatter } from '../documentation/formatters/ReadmeFormatter';
