@@ -1,4 +1,4 @@
-import { ConsoleOutput } from '../command-line-parser/output-formatter/console-output';
+import { ConsoleOutput } from './console-output';
 
 export class StandardConsole implements ConsoleOutput {
   log(message: string): void {
