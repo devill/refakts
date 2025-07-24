@@ -1,7 +1,7 @@
 import { SourceFile } from 'ts-morph';
 import { SelectResult } from '../types/selection-types';
 import { SelectionStrategy } from './selection-strategy';
-import { BoundaryAnalyzer } from '../services/boundary-analyzer';
+import { BoundaryAnalyzer } from '../core/services/boundary-analyzer';
 
 export class BoundarySelectionStrategy implements SelectionStrategy {
   private boundaryAnalyzer = new BoundaryAnalyzer();
