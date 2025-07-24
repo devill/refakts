@@ -1,8 +1,8 @@
 import {SourceFile} from 'ts-morph';
-import {SelectResult} from '../types/selection-types';
-import {RangeAnalysisRequest} from '../core/services/range-analysis-request';
-import {PositionData} from '../core/locators/position-data';
-import {LocationRange} from '../core/ast/location-range';
+import {SelectResult} from '../../types/selection-types';
+import {RangeAnalysisRequest} from './range-analysis-request';
+import {PositionData} from '../locators/position-data';
+import {LocationRange} from '../ast/location-range';
 import * as path from 'path';
 
 interface RangeOptions {
