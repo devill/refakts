@@ -1,4 +1,4 @@
-import {QualityCheck, QualityIssue} from '../../dev/quality/quality-check-interface';
+import {QualityCheck, QualityIssue} from '../quality-check-interface';
 import {
   ArrowFunction,
   ClassDeclaration,
