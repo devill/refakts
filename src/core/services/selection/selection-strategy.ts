@@ -1,5 +1,5 @@
 import { SourceFile } from 'ts-morph';
-import { SelectResult } from '../types/selection-types';
+import { SelectResult } from '../../../types/selection-types';
 
 export interface SelectionStrategy {
   canHandle(_options: Record<string, unknown>): boolean;

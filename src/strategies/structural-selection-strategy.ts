@@ -1,6 +1,6 @@
 import { SourceFile } from 'ts-morph';
 import { SelectResult } from '../types/selection-types';
-import { SelectionStrategy } from './selection-strategy';
+import { SelectionStrategy } from '../core/services/selection/selection-strategy';
 import { StructuralAnalyzer } from '../core/services/structural-analyzer';
 
 export class StructuralSelectionStrategy implements SelectionStrategy {

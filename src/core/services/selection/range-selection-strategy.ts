@@ -1,6 +1,6 @@
 import { SourceFile } from 'ts-morph';
 import { SelectResult } from '../../../types/selection-types';
-import { SelectionStrategy } from '../../../strategies/selection-strategy';
+import { SelectionStrategy } from './selection-strategy';
 import { RangeAnalyzer } from '../range-analyzer';
 
 export class RangeSelectionStrategy implements SelectionStrategy {

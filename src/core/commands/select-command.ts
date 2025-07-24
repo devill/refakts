@@ -3,7 +3,7 @@ import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 import { SelectOutputHandler } from '../../services/selection/output-handler';
 import { ASTService } from '../ast/ast-service';
 import { SelectionStrategyFactory } from '../services/selection/selection-strategy-factory';
-import { SelectionStrategy } from '../../strategies/selection-strategy';
+import { SelectionStrategy } from '../services/selection/selection-strategy';
 
 export class SelectCommand implements RefactoringCommand {
   readonly name = 'select';

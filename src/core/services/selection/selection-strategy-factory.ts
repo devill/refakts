@@ -1,4 +1,4 @@
-import { SelectionStrategy } from '../../../strategies/selection-strategy';
+import { SelectionStrategy } from './selection-strategy';
 import { RangeSelectionStrategy } from './range-selection-strategy';
 import { StructuralSelectionStrategy } from '../../../strategies/structural-selection-strategy';
 import { BoundarySelectionStrategy } from './boundary-selection-strategy';
