@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 80 files ✅ (53.0%)
-**Remaining:** 71 files
+**Completed:** 81 files ✅ (53.6%)
+**Remaining:** 70 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -139,7 +139,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [x] `locators/usage-type-detector.ts` → `core/services/usage-type-detector.ts` ✅
 
 **Core Type Files (widely used):**
-- [ ] `core/usage-collection.ts` → `core/services/usage-collection.ts`
+- [x] `core/usage-collection.ts` → `core/services/usage-collection.ts` ✅
 - [ ] `locators/node-analyzer.ts` → `core/services/node-analyzer.ts` *(service facade, not core AST)*
 - [ ] `locators/node-context.ts` **MERGE WITH** `core/node-context.ts` → `core/services/node-context.ts` *(unified context service)*
 

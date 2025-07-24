@@ -2,7 +2,7 @@ import { UsageLocation, LocationRange } from '../core/ast/location-range';
 import { SelectResult } from '../types/selection-types';
 import { SelectOutputHandler } from './selection/output-handler';
 import { CommandOptions, CommandOptionsWrapper } from '../core/commands/command';
-import { UsageCollection } from '../core/usage-collection';
+import { UsageCollection } from '../core/services/usage-collection';
 import { ConsoleOutput } from '../interfaces/ConsoleOutput';
 
 interface OutputContext {
