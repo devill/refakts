@@ -1,6 +1,6 @@
 import { QualityCheck } from './quality-check-interface';
 import { commentCheck } from './checks/comment-check';
-import { fileSizeCheck } from '../../quality-tools/checks/file-size-check';
+import { fileSizeCheck } from './checks/file-size-check';
 import { functionSizeCheck } from '../../quality-tools/checks/function-size-check';
 import { duplicationCheck } from './checks/duplication-check';
 import { unusedMethodCheck } from '../../quality-tools/checks/unused-method-check';
