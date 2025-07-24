@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 82 files ✅ (54.3%)
-**Remaining:** 69 files
+**Completed:** 83 files ✅ (55.0%)
+**Remaining:** 68 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -141,12 +141,12 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 **Core Type Files (widely used):**
 - [x] `core/usage-collection.ts` → `core/services/usage-collection.ts` ✅
 - [x] `locators/node-analyzer.ts` → `core/services/node-analyzer.ts` *(service facade, not core AST)* ✅
-- [ ] `locators/node-context.ts` **MERGE WITH** `core/node-context.ts` → `core/services/node-context.ts` *(unified context service)*
+- [S] `locators/node-context.ts` **MERGE WITH** `core/node-context.ts` → `core/services/node-context.ts` *(unified context service)*
 
 
 **Locator Services:**
 - [x] `locators/services/index.ts` → `core/services/locators/index.ts` ✅
-- [ ] `locators/services/node-assignment-analyzer.ts` → `core/services/locators/node-assignment-analyzer.ts`
+- [x] `locators/services/node-assignment-analyzer.ts` → `core/services/locators/node-assignment-analyzer.ts` ✅
 - [ ] `locators/services/node-declaration-matcher.ts` → `core/services/locators/node-declaration-matcher.ts`
 - [ ] `locators/services/node-position-service.ts` → `core/services/locators/node-position-service.ts`
 - [ ] `locators/services/node-scope-analyzer.ts` → `core/services/locators/node-scope-analyzer.ts`

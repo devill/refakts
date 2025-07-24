@@ -1,4 +1,4 @@
-import { NodeAssignmentAnalyzer } from '../../../../src/locators/services/node-assignment-analyzer';
+import { NodeAssignmentAnalyzer } from '../../../../src/core/services/locators/node-assignment-analyzer';
 import { Project } from 'ts-morph';
 import * as ts from 'typescript';
 import { verify } from 'approvals';

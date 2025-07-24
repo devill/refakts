@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 # Function to find the next pending file from checklist
 get_next_pending_file() {
-    # Parse the checklist to find the first unchecked file
+    # Parse the checklist to find the first unchecked file (skip [S] marked files)
     local next_move=$(grep -n "^- \[ \]" REORGANIZATION_CHECKLIST.md | head -1)
     
     if [ -z "$next_move" ]; then
@@ -22,10 +22,10 @@ get_next_pending_file() {
         return 1
     fi
     
-    # Extract the file paths using more robust parsing
+    # Extract the file paths using more robust parsing that handles special cases
     local line=$(echo "$next_move" | cut -d: -f2-)
-    local source=$(echo "$line" | sed -n 's/^- \[ \] `\([^`]*\)` → `\([^`]*\)`.*/\1/p')
-    local dest=$(echo "$line" | sed -n 's/^- \[ \] `\([^`]*\)` → `\([^`]*\)`.*/\2/p')
+    local source=$(echo "$line" | sed -n 's/^- \[ \] `\([^`]*\)`.* → `\([^`]*\)`.*/\1/p')
+    local dest=$(echo "$line" | sed -n 's/^- \[ \] `\([^`]*\)`.* → `\([^`]*\)`.*/\2/p')
     
     if [ -z "$source" ] || [ -z "$dest" ]; then
         echo ""

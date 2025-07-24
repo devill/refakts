@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import { Node, BinaryExpression } from 'ts-morph';
-import { NodeContext } from '../../core/node-context';
+import { NodeContext } from '../../node-context';
 
 export class NodeAssignmentAnalyzer {
   static isAssignmentContext(parent: Node | undefined, node: Node): boolean {
