@@ -170,6 +170,20 @@ The architecture is built on **ts-morph** for AST manipulation and TypeScript an
 
 **Key insight**: RefakTS separates **what to find** (selection strategies) from **what to do** (command implementations).
 
+### TypeScript Configuration Context
+
+**CRITICAL: Multi-Project Context Awareness** - RefakTS operates in multiple TypeScript project contexts:
+
+1. **Main Project**: Uses the root `tsconfig.json` for the RefakTS codebase itself
+2. **Multi-File Fixtures**: Each fixture in `tests/fixtures/commands/[command]/[test-name]/input/` is its own TypeScript project with its own `tsconfig.json`
+
+The `ASTService` must be context-aware and load the appropriate `tsconfig.json`:
+- When running RefakTS normally: Load from project root
+- When running fixture tests: Load from the fixture's input directory
+- When processing files: Find the nearest `tsconfig.json` relative to the source files
+
+**Why This Matters**: Fixtures test real-world scenarios with different TypeScript configurations (ES2015 vs ES2020, module systems, etc.). Using the wrong `tsconfig.json` causes "Syntax errors detected" failures when modern syntax doesn't match compiler options.
+
 ### Unified Test Framework
 
 **NEW ARCHITECTURE**: RefakTS now uses a unified testing framework that supports both single-file and multi-file fixtures with automatic test discovery.

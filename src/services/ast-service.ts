@@ -2,17 +2,58 @@ import { Project, Node, SourceFile } from 'ts-morph';
 import { createLoadFileError } from './error-utils';
 import { LocationRange, LocationParser } from '../core/location-range';
 import * as path from 'path';
+import * as fs from 'fs';
 
 export class ASTService {
-  private readonly project: Project;
+  private project: Project | null = null;
+  private readonly providedProject?: Project;
 
   constructor(project?: Project) {
-    this.project = project || new Project();
+    this.providedProject = project;
+  }
+
+  private getOrCreateProject(sourceFilePath?: string): Project {
+    if (this.project) {
+      return this.project;
+    }
+
+    if (this.providedProject) {
+      this.project = this.providedProject;
+      return this.project;
+    }
+
+    this.project = new Project({
+      tsConfigFilePath: this.findNearestTsConfig(sourceFilePath)
+    });
+    
+    return this.project;
+  }
+
+  private findNearestTsConfig(sourceFilePath?: string): string {
+    const startDir = sourceFilePath ? path.dirname(path.resolve(sourceFilePath)) : process.cwd();
+    return this.findTsConfigInDirectory(startDir) || path.resolve(process.cwd(), "tsconfig.json");
+  }
+
+  private findTsConfigInDirectory(dir: string): string | null {
+    const tsConfigPath = path.join(dir, "tsconfig.json");
+    
+    if (fs.existsSync(tsConfigPath)) {
+      return tsConfigPath;
+    }
+    
+    const parentDir = path.dirname(dir);
+    if (parentDir === dir) {
+      // Reached root directory
+      return null;
+    }
+    
+    return this.findTsConfigInDirectory(parentDir);
   }
 
   loadSourceFile(filePath: string): SourceFile {
     const absolutePath = this.resolveAbsolutePath(filePath);
-    const existingFile = this.getExistingSourceFile(absolutePath);
+    const project = this.getOrCreateProject(filePath);
+    const existingFile = project.getSourceFile(absolutePath);
     if (existingFile) {
       return existingFile;
     }
@@ -23,13 +64,10 @@ export class ASTService {
     return path.resolve(filePath);
   }
 
-  private getExistingSourceFile(absolutePath: string): SourceFile | undefined {
-    return this.project.getSourceFile(absolutePath);
-  }
-
   private addSourceFileAtPath(absolutePath: string, originalPath: string): SourceFile {
     try {
-      return this.project.addSourceFileAtPath(absolutePath);
+      const project = this.getOrCreateProject(originalPath);
+      return project.addSourceFileAtPath(absolutePath);
     } catch (error: unknown) {
       throw createLoadFileError(error, originalPath);
     }
@@ -42,7 +80,7 @@ export class ASTService {
   }
 
   getProject(): Project {
-    return this.project;
+    return this.getOrCreateProject(undefined);
   }
 
   findNodeByLocation(location: LocationRange): Node {
