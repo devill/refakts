@@ -1,9 +1,9 @@
-import { UsageLocation, LocationRange } from '../core/ast/location-range';
-import { SelectResult } from '../core/services/selection/selection-types';
-import { SelectOutputHandler } from '../command-line-parser/output-formatter/selection-output-handler';
-import { CommandOptions, CommandOptionsWrapper } from '../core/commands/command';
-import { UsageCollection } from '../core/services/usage-collection';
-import { ConsoleOutput } from '../interfaces/ConsoleOutput';
+import { UsageLocation, LocationRange } from '../../core/ast/location-range';
+import { SelectResult } from '../../core/services/selection/selection-types';
+import { SelectOutputHandler } from './selection-output-handler';
+import { CommandOptions, CommandOptionsWrapper } from '../../core/commands/command';
+import { UsageCollection } from '../../core/services/usage-collection';
+import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 
 interface OutputContext {
   baseDir: string;
