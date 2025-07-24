@@ -1,6 +1,6 @@
 import {ExportDeclaration, ImportDeclaration, Project, SourceFile} from 'ts-morph';
-import {ASTService} from '../core/ast/ast-service';
-import { MovedFileImportUpdater } from '../core/services/moved-file-import-updater';
+import {ASTService} from '../ast/ast-service';
+import { MovedFileImportUpdater } from './moved-file-import-updater';
 import * as path from 'path';
 
 export class ImportReferenceService {
