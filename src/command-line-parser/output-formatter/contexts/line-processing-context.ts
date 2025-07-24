@@ -1,5 +1,5 @@
 import { SelectMatch } from '../../../core/services/selection/selection-types';
-import { SelectMatchContext } from './select-match-context';
+import { SelectMatchContext } from '../../../services/selection/contexts/select-match-context';
 
 export class LineProcessingContext {
   constructor(
