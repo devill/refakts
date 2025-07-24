@@ -4,7 +4,7 @@ import { SectionReplacer } from './section-replacer';
 import { FileManager } from './file-manager';
 import { ClaudeFormatter } from './formatters/claude-formatter';
 import { ReadmeFormatter } from './formatters/readme-formatter';
-import { SectionReplacementRequest } from '../core/section-replacement-request';
+import { SectionReplacementRequest } from './section-replacement-request';
 
 export class DocumentationUpdater {
   private helpExtractor = new HelpContentExtractor();

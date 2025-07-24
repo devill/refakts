@@ -1,4 +1,4 @@
-import { SectionReplacementRequest } from '../core/section-replacement-request';
+import { SectionReplacementRequest } from './section-replacement-request';
 
 export class SectionReplacer {
   constructor(private _suppressWarnings = false) {}
