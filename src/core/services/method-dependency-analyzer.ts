@@ -1,4 +1,4 @@
-import { MethodInfo } from '../core/services/class-method-finder';
+import { MethodInfo } from './class-method-finder';
 import { PropertyAccessExpression, SyntaxKind, CallExpression } from 'ts-morph';
 
 export interface MethodWithDependencies {
