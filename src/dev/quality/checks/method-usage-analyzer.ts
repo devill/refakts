@@ -1,5 +1,5 @@
 import { MethodDeclaration, PropertyAccessExpression, CallExpression, SyntaxKind, Node, Symbol, ClassDeclaration } from 'ts-morph';
-import { UsageAnalysisRequest } from '../../../core/usage-analysis-request';
+import { UsageAnalysisRequest } from '../usage-analysis-request';
 
 export interface UsageAnalysis {
   externalUsage: Map<string, number>;
