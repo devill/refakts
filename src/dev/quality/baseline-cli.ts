@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { loadQualityChecks } from '../../quality-tools/plugin-loader';
+import { loadQualityChecks } from './plugin-loader';
 import { generateBaseline, saveBaseline, getBaselineStatus } from './baseline-manager';
 import { QualityIssue } from '../../quality-tools/quality-check-interface';
 import { resolveGlobPatterns } from './glob-resolver';

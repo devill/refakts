@@ -1,4 +1,4 @@
-import { loadQualityChecks } from '../quality-tools/plugin-loader';
+import { loadQualityChecks } from './quality/plugin-loader';
 
 interface QualityCheck {
   name: string;

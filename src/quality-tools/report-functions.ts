@@ -1,5 +1,5 @@
 import {QualityGroup, QualityIssue} from './quality-check-interface';
-import {loadQualityChecks} from './plugin-loader';
+import {loadQualityChecks} from '../dev/quality/plugin-loader';
 import * as path from 'path';
 
 export const formatIssue = (issue: QualityIssue): string => {
