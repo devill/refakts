@@ -5,12 +5,6 @@
       "fileSize"
     ]
   },
-  "src/quality-tools/baseline-cli.ts": {
-    "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
-    "violations": [
-      "functionSize"
-    ]
-  },
   "src/quality-tools/quality-reporter.ts": {
     "lastCommitId": "be7ae462c72a8885f9b37e1fada012eabb05f5f3",
     "violations": [
