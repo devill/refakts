@@ -1,5 +1,5 @@
 import { SelectionStrategy } from './selection-strategy';
-import { RangeSelectionStrategy } from './range-selection-strategy';
+import { RangeSelectionStrategy } from '../core/services/selection/range-selection-strategy';
 import { StructuralSelectionStrategy } from './structural-selection-strategy';
 import { BoundarySelectionStrategy } from '../core/services/selection/boundary-selection-strategy';
 import { RegexSelectionStrategy } from './regex-selection-strategy';
