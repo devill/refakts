@@ -1,4 +1,4 @@
-import { FileManager } from '../../../src/documentation/FileManager';
+import { FileManager } from '../../../src/dev/file-manager';
 import * as fs from 'fs';
 
 jest.mock('fs');
