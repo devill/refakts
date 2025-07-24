@@ -2,7 +2,7 @@
 
 import { program } from 'commander';
 import { loadQualityChecks } from '../../quality-tools/plugin-loader';
-import { generateBaseline, saveBaseline, getBaselineStatus } from '../../quality-tools/baseline-manager';
+import { generateBaseline, saveBaseline, getBaselineStatus } from './baseline-manager';
 import { QualityIssue } from '../../quality-tools/quality-check-interface';
 import { resolveGlobPatterns } from '../../quality-tools/glob-resolver';
 

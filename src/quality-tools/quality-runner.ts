@@ -3,7 +3,7 @@
 import { QualityIssue } from './quality-check-interface';
 import { loadQualityChecks } from './plugin-loader';
 import { generateReport } from './quality-reporter';
-import { loadBaseline, shouldFilterViolation, cleanupResolvedFiles } from './baseline-manager';
+import { loadBaseline, shouldFilterViolation, cleanupResolvedFiles } from '../dev/quality/baseline-manager';
 import { program } from 'commander';
 import { resolveGlobPatterns } from './glob-resolver';
 

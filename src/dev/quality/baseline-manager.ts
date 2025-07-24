@@ -1,8 +1,8 @@
-import { QualityIssue } from './quality-check-interface';
-import { QualityBaseline, FileBaseline } from './baseline-types';
-import { getLastCommitId } from '../dev/quality/baseline-git';
-import { loadBaseline, saveBaseline } from '../dev/quality/baseline-file-io';
-import { generateBaseline, buildCurrentViolationsMap } from './baseline-violations';
+import { QualityIssue } from '../../quality-tools/quality-check-interface';
+import { QualityBaseline, FileBaseline } from '../../quality-tools/baseline-types';
+import { getLastCommitId } from './baseline-git';
+import { loadBaseline, saveBaseline } from './baseline-file-io';
+import { generateBaseline, buildCurrentViolationsMap } from '../../quality-tools/baseline-violations';
 
 export { generateBaseline, loadBaseline, saveBaseline };
 
