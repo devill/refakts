@@ -1,6 +1,6 @@
 import {ImportReferenceService} from '../../services/import-reference-service';
 import {ASTService} from '../ast/ast-service';
-import {FileValidator} from '../../services/file-validator';
+import {FileValidator} from '../services/file-validator';
 import {FileMover, RealFileSystemWrapper} from '../services/file-system/wrapper';
 import * as path from 'path';
 export interface MoveFileRequest {

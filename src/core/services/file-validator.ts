@@ -59,23 +59,11 @@ export class FileValidator {
 
   private collectErrors(sourceFile: SourceFile) {
     return sourceFile.getPreEmitDiagnostics().filter(diagnostic => {
-      return this.isSeriousError(diagnostic);
+      const message = diagnostic.getMessageText();
+      const messageStr = typeof message === 'string' ? message : message.getMessageText();
+      return !messageStr.includes('Cannot find module') &&
+          !messageStr.includes('Invalid module name in augmentation') &&
+          !messageStr.includes('Cannot find name \'console\'');
     });
-  }
-
-  private isSeriousError(diagnostic: Diagnostic): boolean {
-    const messageStr = this.getDiagnosticMessage(diagnostic);
-    const code = typeof diagnostic.getCode === 'function' ? diagnostic.getCode() : 0;
-
-    return !messageStr.includes('Cannot find module') &&
-        !messageStr.includes('Could not find a declaration file for module') &&
-        !messageStr.includes('Invalid module name in augmentation') &&
-        !messageStr.includes('Cannot find name \'console\'') &&
-        code !== 6059;
-  }
-
-  private getDiagnosticMessage(diagnostic: Diagnostic): string {
-    const message = diagnostic.getMessageText();
-    return typeof message === 'string' ? message : message.getMessageText();
   }
 }
