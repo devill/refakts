@@ -1,6 +1,6 @@
-import { QualityIssue, QualityGroup } from '../dev/quality/quality-check-interface';
-import { groupByType, createGroup } from './report-functions';
-import { loadQualityChecks } from '../dev/quality/plugin-loader';
+import { QualityIssue, QualityGroup } from './quality-check-interface';
+import { groupByType, createGroup } from '../../quality-tools/report-functions';
+import { loadQualityChecks } from './plugin-loader';
 
 const VIOLATION_LIMIT = 10;
 

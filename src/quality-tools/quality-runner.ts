@@ -2,7 +2,7 @@
 
 import { QualityIssue } from '../dev/quality/quality-check-interface';
 import { loadQualityChecks } from '../dev/quality/plugin-loader';
-import { generateReport } from './quality-reporter';
+import { generateReport } from '../dev/quality/quality-reporter';
 import { loadBaseline, shouldFilterViolation, cleanupResolvedFiles } from '../dev/quality/baseline-manager';
 import { program } from 'commander';
 import { resolveGlobPatterns } from '../dev/quality/glob-resolver';
