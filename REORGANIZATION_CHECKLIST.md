@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 93 files ✅ (61.6%)
-**Remaining:** 58 files
+**Completed:** 94 files ✅ (62.3%)
+**Remaining:** 57 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -159,7 +159,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [x] `strategies/regex-selection-strategy.ts` → `core/services/selection/regex-selection-strategy.ts` ✅
 - [x] `strategies/selection-strategy-factory.ts` → `core/services/selection/selection-strategy-factory.ts` ✅
 - [x] `strategies/selection-strategy.ts` → `core/services/selection/selection-strategy.ts` ✅
-- [ ] `strategies/structural-selection-strategy.ts` → `core/services/selection/structural-selection-strategy.ts`
+- [x] `strategies/structural-selection-strategy.ts` → `core/services/selection/structural-selection-strategy.ts` ✅
 
 **Selection Type Files:**
 - [ ] `types/selection-types.ts` → `core/services/selection/selection-types.ts`
