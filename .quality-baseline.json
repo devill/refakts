@@ -65,6 +65,12 @@
       "featureEnvy"
     ]
   },
+  "src/core/services/locators/node-assignment-analyzer.ts": {
+    "lastCommitId": "91d8212ac518e5946bb66448dd0509e1edc9a019",
+    "violations": [
+      "featureEnvy"
+    ]
+  },
   "tests/unit/documentation/help-parser.test.ts": {
     "lastCommitId": "86bb345942fe8286dfd2451aeeb4688d858dc625",
     "violations": [
@@ -85,14 +91,14 @@
     ]
   },
   "tests/unit/locators/services/node-scope-analyzer.test.ts": {
-    "lastCommitId": "9b4e45f84db60197ee70fedccf738b8fe3ae4449",
+    "lastCommitId": "b448f4b2b37f7731dc9709dd91268d4a2f99078f",
     "violations": [
       "comment",
       "fileSize"
     ]
   },
   "tests/unit/locators/services/variable-name-extractor.test.ts": {
-    "lastCommitId": "9b4e45f84db60197ee70fedccf738b8fe3ae4449",
+    "lastCommitId": "50793babbaba68c8e636ccc4539f689bb8653591",
     "violations": [
       "comment",
       "fileSize",
