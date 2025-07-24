@@ -1,5 +1,5 @@
 import {Node} from 'ts-morph';
-import {UsageTypeDetector} from '../../locators/usage-type-detector';
+import {UsageTypeDetector} from '../services/usage-type-detector';
 import {LocationRange} from '../ast/location-range';
 import * as path from "path";
 

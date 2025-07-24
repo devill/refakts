@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 79 files ✅ (52.3%)
-**Remaining:** 72 files
+**Completed:** 80 files ✅ (53.0%)
+**Remaining:** 71 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -136,7 +136,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [x] `locators/shadowing-analyzer.ts` → `core/services/shadowing-analyzer.ts` ✅
 - [x] `locators/shadowing-detector.ts` → `core/services/shadowing-detector.ts` ✅
 - [x] `locators/source-file-helper.ts` → `core/services/source-file-helper.ts` ✅
-- [ ] `locators/usage-type-detector.ts` → `core/services/usage-type-detector.ts`
+- [x] `locators/usage-type-detector.ts` → `core/services/usage-type-detector.ts` ✅
 
 **Core Type Files (widely used):**
 - [ ] `core/usage-collection.ts` → `core/services/usage-collection.ts`
