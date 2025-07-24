@@ -1,7 +1,7 @@
 import { SelectMatch } from '../../../core/services/selection/selection-types';
 import { MatchContext } from '../../../command-line-parser/output-formatter/match-context';
 import { MatchBuildContext } from '../../../command-line-parser/output-formatter/contexts/match-build-context';
-import { MatchDetailsContext } from './match-details-context';
+import { MatchDetailsContext } from '../../../command-line-parser/output-formatter/contexts/match-details-context';
 
 interface Position {
   line: number;
