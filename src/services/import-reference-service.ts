@@ -159,7 +159,21 @@ export class ImportReferenceService {
   }
 
   private isTargetImport(resolvedPath: string, sourcePathWithoutExtension: string, sourcePath: string): boolean {
+    return this.matchesFileTarget(resolvedPath, sourcePathWithoutExtension, sourcePath) ||
+           this.matchesDirectoryTarget(resolvedPath, sourcePath);
+  }
+
+  private matchesFileTarget(resolvedPath: string, sourcePathWithoutExtension: string, sourcePath: string): boolean {
     return resolvedPath === sourcePathWithoutExtension || resolvedPath === sourcePath;
+  }
+
+  private matchesDirectoryTarget(resolvedPath: string, sourcePath: string): boolean {
+    if (path.basename(sourcePath) !== 'index.ts') {
+      return false;
+    }
+    
+    const sourceDirectory = path.dirname(sourcePath);
+    return resolvedPath === sourceDirectory;
   }
 
   private resolveImportPath(fromFile: string, importPath: string): string {
