@@ -1,6 +1,6 @@
 import { SelectMatch, SelectResult } from '../../core/services/selection/selection-types';
 import { DefinitionRangeDetector } from '../../core/services/selection/definition-range-detector';
-import { MatchContext } from './match-context';
+import { MatchContext } from '../../services/selection/match-context';
 import { LocationRange, SourceLocation } from '../../core/ast/location-range';
 
 export interface SelectResultFormatter {
