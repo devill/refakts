@@ -1,4 +1,4 @@
-import { QualityIssue } from '../../quality-tools/quality-check-interface';
+import { QualityIssue } from './quality-check-interface';
 import { QualityBaseline, FileBaseline } from './baseline-types';
 import { getLastCommitId } from './baseline-git';
 

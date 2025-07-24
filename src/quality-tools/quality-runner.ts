@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { QualityIssue } from './quality-check-interface';
+import { QualityIssue } from '../dev/quality/quality-check-interface';
 import { loadQualityChecks } from '../dev/quality/plugin-loader';
 import { generateReport } from './quality-reporter';
 import { loadBaseline, shouldFilterViolation, cleanupResolvedFiles } from '../dev/quality/baseline-manager';

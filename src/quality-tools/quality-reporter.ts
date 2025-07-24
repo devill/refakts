@@ -1,4 +1,4 @@
-import { QualityIssue, QualityGroup } from './quality-check-interface';
+import { QualityIssue, QualityGroup } from '../dev/quality/quality-check-interface';
 import { groupByType, createGroup } from './report-functions';
 import { loadQualityChecks } from '../dev/quality/plugin-loader';
 

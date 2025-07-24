@@ -1,4 +1,4 @@
-import { QualityCheck, QualityIssue } from '../quality-check-interface';
+import { QualityCheck, QualityIssue } from '../../dev/quality/quality-check-interface';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 

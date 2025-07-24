@@ -1,4 +1,4 @@
-import {QualityGroup, QualityIssue} from './quality-check-interface';
+import {QualityGroup, QualityIssue} from '../dev/quality/quality-check-interface';
 import {loadQualityChecks} from '../dev/quality/plugin-loader';
 import * as path from 'path';
 

@@ -3,7 +3,7 @@
 import { program } from 'commander';
 import { loadQualityChecks } from './plugin-loader';
 import { generateBaseline, saveBaseline, getBaselineStatus } from './baseline-manager';
-import { QualityIssue } from '../../quality-tools/quality-check-interface';
+import { QualityIssue } from './quality-check-interface';
 import { resolveGlobPatterns } from './glob-resolver';
 
 const runQualityChecks = async (files: string[]): Promise<QualityIssue[]> => {
