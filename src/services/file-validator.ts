@@ -61,13 +61,12 @@ export class FileValidator {
     return sourceFile.getPreEmitDiagnostics().filter(diagnostic => {
       const message = diagnostic.getMessageText();
       const messageStr = typeof message === 'string' ? message : message.getMessageText();
-      const code = diagnostic.getCode();
+      const code = typeof diagnostic.getCode === 'function' ? diagnostic.getCode() : 0;
       
-      // Filter out non-syntax errors
       return !messageStr.includes('Cannot find module') &&
           !messageStr.includes('Invalid module name in augmentation') &&
           !messageStr.includes('Cannot find name \'console\'') &&
-          code !== 6059; // File not under 'rootDir' - not a syntax error
+          code !== 6059;
     });
   }
 }

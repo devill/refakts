@@ -41,7 +41,7 @@ describe('FileValidator', () => {
       mockFileSystem.existsSync.mockReturnValue(true);
       const mockSourceFile = {
         getPreEmitDiagnostics: jest.fn().mockReturnValue([
-          { getMessageText: () => 'Unexpected token' }
+          { getMessageText: () => 'Unexpected token', getCode: () => 1000 }
         ])
       } as any;
       mockASTService.loadSourceFile.mockReturnValue(mockSourceFile);
@@ -64,9 +64,9 @@ describe('FileValidator', () => {
       mockFileSystem.existsSync.mockReturnValue(true);
       const mockSourceFile = {
         getPreEmitDiagnostics: jest.fn().mockReturnValue([
-          { getMessageText: () => 'Cannot find module' },
-          { getMessageText: () => 'Invalid module name in augmentation' },
-          { getMessageText: () => 'Cannot find name \'console\'' }
+          { getMessageText: () => 'Cannot find module', getCode: () => 2307 },
+          { getMessageText: () => 'Invalid module name in augmentation', getCode: () => 2664 },
+          { getMessageText: () => 'Cannot find name \'console\'', getCode: () => 2304 }
         ])
       } as any;
       mockASTService.loadSourceFile.mockReturnValue(mockSourceFile);
