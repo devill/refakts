@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 131 files ✅ (86.8%)
-**Remaining:** 20 files
+**Completed:** 132 files ✅ (87.4%)
+**Remaining:** 19 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -226,7 +226,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [x] `quality-tools/plugin-loader.ts` → `dev/quality/plugin-loader.ts` ✅
 - [x] `quality-tools/quality-check-interface.ts` → `dev/quality/quality-check-interface.ts` ✅
 - [x] `quality-tools/quality-reporter.ts` → `dev/quality/quality-reporter.ts` ✅
-- [ ] `quality-tools/quality-runner.ts` → `dev/quality/quality-runner.ts`
+- [x] `quality-tools/quality-runner.ts` → `dev/quality/quality-runner.ts` ✅
 - [ ] `quality-tools/quality-watcher.sh` → `dev/quality/quality-watcher.sh`
 - [ ] `quality-tools/report-functions.ts` → `dev/quality/report-functions.ts`
 - [ ] `quality-tools/snooze-tracker.ts` → `dev/quality/snooze-tracker.ts`
