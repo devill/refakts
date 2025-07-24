@@ -1,5 +1,5 @@
 import { ASTService } from '../ast/ast-service';
-import { SourceFile, Diagnostic } from 'ts-morph';
+import { SourceFile } from 'ts-morph';
 import * as path from 'path';
 
 export interface FileSystemWrapper {

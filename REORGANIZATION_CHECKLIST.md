@@ -141,7 +141,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 **Core Type Files (widely used):**
 - [x] `core/usage-collection.ts` → `core/services/usage-collection.ts` ✅
 - [x] `locators/node-analyzer.ts` → `core/services/node-analyzer.ts` *(service facade, not core AST)* ✅
-- [S] `locators/node-context.ts` **MERGE WITH** `core/node-context.ts` → `core/services/node-context.ts` *(unified context service)*
+- [ ] `locators/node-context.ts` **MERGE WITH** `core/node-context.ts` → `core/services/node-context.ts` *(unified context service)*
 
 
 **Locator Services:**
@@ -227,7 +227,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [x] `quality-tools/quality-check-interface.ts` → `dev/quality/quality-check-interface.ts` ✅
 - [x] `quality-tools/quality-reporter.ts` → `dev/quality/quality-reporter.ts` ✅
 - [x] `quality-tools/quality-runner.ts` → `dev/quality/quality-runner.ts` ✅
-- [S] `quality-tools/quality-watcher.sh` → `dev/quality/quality-watcher.sh`
+- [ ] `quality-tools/quality-watcher.sh` → `dev/quality/quality-watcher.sh`
 - [x] `quality-tools/report-functions.ts` → `dev/quality/report-functions.ts` ✅
 - [x] `quality-tools/snooze-tracker.ts` → `dev/quality/snooze-tracker.ts` ✅
 
@@ -279,6 +279,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 
 ### 📝 After Completion
 
+- [ ] Review if there are any files that were created during the moves that are now misplaced. 
+- [ ] Clean up left over empty directories
 - [ ] Run full test suite to ensure everything works
 - [ ] Update CLAUDE.md with new architecture documentation
 

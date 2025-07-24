@@ -1,54 +1,79 @@
 {
   "src/core/services/import-reference-service.ts": {
-    "lastCommitId": "b2bef4e79b015bb230464cd52cdf4e565ce447c9",
+    "lastCommitId": "9a1aaea33847ecc9ad8d699302c8db5d00b74c58",
     "violations": [
       "fileSize"
     ]
   },
-  "src/quality-tools/quality-runner.ts": {
-    "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
+  "src/dev/quality/baseline-cli.ts": {
+    "lastCommitId": "72f0b80a2c1206e923102a707e6bb7d401905fb6",
     "violations": [
       "functionSize"
     ]
   },
-  "src/quality-tools/checks/change-frequency-check.ts": {
-    "lastCommitId": "0acfff1685761789fbafab9445f505b3a55b7a52",
+  "src/dev/quality/quality-reporter.ts": {
+    "lastCommitId": "46ea050c4c98d51ec2aa45b5e1002fd3fa12b2b7",
     "violations": [
       "functionSize"
     ]
   },
-  "src/quality-tools/checks/comment-check.ts": {
-    "lastCommitId": "19044c32a45e48f850d2885176ae55ac8cf6ed3e",
+  "src/dev/quality/quality-runner.ts": {
+    "lastCommitId": "b8db3b34de2b48f00e68d78cac77eba6819d4cac",
     "violations": [
       "functionSize"
     ]
   },
-  "src/quality-tools/checks/complexity-check.ts": {
-    "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
+  "src/core/transformations/move-file-service.ts": {
+    "lastCommitId": "9a1aaea33847ecc9ad8d699302c8db5d00b74c58",
+    "violations": [
+      "functionSize",
+      "featureEnvy"
+    ]
+  },
+  "src/dev/quality/checks/change-frequency-check.ts": {
+    "lastCommitId": "ac67caabff0debfaff48cb59d92f40a8f844f03a",
     "violations": [
       "functionSize"
     ]
   },
-  "src/quality-tools/checks/duplication-check.ts": {
-    "lastCommitId": "2a5bf8d1200325313242815b5fd407bee455171f",
+  "src/dev/quality/checks/comment-check.ts": {
+    "lastCommitId": "75aef8f398d46ef7c661d51612fb4753c61129ff",
     "violations": [
       "functionSize"
     ]
   },
-  "src/quality-tools/checks/feature-envy-check.ts": {
-    "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
+  "src/dev/quality/checks/complexity-check.ts": {
+    "lastCommitId": "34c0630e797e2ab9addd58832ab8d95dfdd19d09",
     "violations": [
       "functionSize"
     ]
   },
-  "src/quality-tools/checks/git-diff-check.ts": {
-    "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
+  "src/dev/quality/checks/duplication-check.ts": {
+    "lastCommitId": "acf936d061ba5318a2af93071cc8c84a298af8ae",
     "violations": [
       "functionSize"
+    ]
+  },
+  "src/dev/quality/checks/feature-envy-check.ts": {
+    "lastCommitId": "6bc4666b54e4d3d72d5b68b565bc91c57b60272c",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/dev/quality/checks/git-diff-check.ts": {
+    "lastCommitId": "e2df9dece60ba7ddd2a9c840397ffb04fce238cb",
+    "violations": [
+      "functionSize"
+    ]
+  },
+  "src/dev/quality-checks-extractor.ts": {
+    "lastCommitId": "9af607f7cabaa98d0ceed3f3c9498701f8595d4f",
+    "violations": [
+      "featureEnvy"
     ]
   },
   "src/core/services/locators/node-assignment-analyzer.ts": {
-    "lastCommitId": "91d8212ac518e5946bb66448dd0509e1edc9a019",
+    "lastCommitId": "e37f849566f5affaa17254ceaebb6b99b12da3d9",
     "violations": [
       "featureEnvy"
     ]
@@ -66,21 +91,21 @@
     ]
   },
   "tests/unit/services/variable-name-validator.test.ts": {
-    "lastCommitId": "a6984490fd6005c2f8c758a0d3712389a546fb09",
+    "lastCommitId": "4d7170d18e23cea4dc86b7c500ac66e148a95683",
     "violations": [
       "comment",
       "fileSize"
     ]
   },
   "tests/unit/locators/services/node-scope-analyzer.test.ts": {
-    "lastCommitId": "b448f4b2b37f7731dc9709dd91268d4a2f99078f",
+    "lastCommitId": "a2275658cfe4f7a63c19bda87abc0569e6bb3835",
     "violations": [
       "comment",
       "fileSize"
     ]
   },
   "tests/unit/locators/services/variable-name-extractor.test.ts": {
-    "lastCommitId": "50793babbaba68c8e636ccc4539f689bb8653591",
+    "lastCommitId": "b922c96b0df21f9ff912dfedd5f3972e25094bdd",
     "violations": [
       "comment",
       "fileSize",
@@ -88,7 +113,7 @@
     ]
   },
   "tests/unit/services/extraction-scope-analyzer.test.ts": {
-    "lastCommitId": "8b7af381c7b1f1a5c6548055d52ef086592e8024",
+    "lastCommitId": "77a62ba593983ab542a704f579b5278f63e66e91",
     "violations": [
       "fileSize"
     ]
