@@ -4,7 +4,7 @@ import { program } from 'commander';
 import { loadQualityChecks } from '../../quality-tools/plugin-loader';
 import { generateBaseline, saveBaseline, getBaselineStatus } from './baseline-manager';
 import { QualityIssue } from '../../quality-tools/quality-check-interface';
-import { resolveGlobPatterns } from '../../quality-tools/glob-resolver';
+import { resolveGlobPatterns } from './glob-resolver';
 
 const runQualityChecks = async (files: string[]): Promise<QualityIssue[]> => {
   const checks = loadQualityChecks();

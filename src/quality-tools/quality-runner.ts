@@ -5,7 +5,7 @@ import { loadQualityChecks } from './plugin-loader';
 import { generateReport } from './quality-reporter';
 import { loadBaseline, shouldFilterViolation, cleanupResolvedFiles } from '../dev/quality/baseline-manager';
 import { program } from 'commander';
-import { resolveGlobPatterns } from './glob-resolver';
+import { resolveGlobPatterns } from '../dev/quality/glob-resolver';
 
 const runQualityChecks = async (files: string[]): Promise<QualityIssue[]> => {
   const checks = loadQualityChecks();
