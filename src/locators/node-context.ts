@@ -3,7 +3,7 @@ import { Node, SourceFile } from 'ts-morph';
 import { ScopeAnalyzer } from '../core/services/scope-analyzer';
 import { DeclarationFinder } from '../core/locators/declaration-finder';
 import { VariableNameOperations } from '../core/locators/variable-name-operations';
-import { isShadowingDeclaration } from './shadowing-analyzer';
+import { isShadowingDeclaration } from '../core/services/shadowing-analyzer';
 
 export class NodeContext {
   private readonly node: Node;
