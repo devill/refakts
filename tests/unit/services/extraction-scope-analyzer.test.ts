@@ -1,5 +1,5 @@
 import { Project, Node, SyntaxKind } from 'ts-morph';
-import { ExtractionScopeAnalyzer } from '../../../src/services/extraction-scope-analyzer';
+import { ExtractionScopeAnalyzer } from '../../../src/core/services/extraction-scope-analyzer';
 import * as fixtures from '../../fixtures/unit/services/scope-scenarios';
 import { ASTNodeFinder } from '../../utils/ast-node-finder';
 

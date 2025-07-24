@@ -1,5 +1,5 @@
 import { Node, Expression } from 'ts-morph';
-import { ExtractionScopeAnalyzer } from '../../services/extraction-scope-analyzer';
+import { ExtractionScopeAnalyzer } from './extraction-scope-analyzer';
 
 export class ExpressionMatcher {
   private scopeAnalyzer: ExtractionScopeAnalyzer;

@@ -1,5 +1,5 @@
 import { Node, FunctionDeclaration, FunctionExpression } from 'ts-morph';
-import { NodeAnalyzer } from '../locators/node-analyzer';
+import { NodeAnalyzer } from '../../locators/node-analyzer';
 
 export class ExtractionScopeAnalyzer {
   findExtractionScope(node: Node): Node {
