@@ -5,7 +5,7 @@ jest.mock('os', () => ({
   homedir: jest.fn().mockReturnValue('/home/user')
 }));
 
-import { UsageTracker } from '../../src/usage-tracker';
+import { UsageTracker } from '../../src/dev/usage-tracker';
 
 describe('UsageTracker', () => {
   const mockedFs = fs as jest.Mocked<typeof fs>;

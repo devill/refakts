@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import { CommandRegistry } from '../core/commands/command-registry';
 import { CommandOption, CommandOptions, RefactoringCommand } from '../core/commands/command';
-import { UsageTracker } from '../usage-tracker';
+import { UsageTracker } from '../dev/usage-tracker';
 import { LocationParser } from '../core/ast/location-range';
 import { StandardConsole } from './output-formatter/standard-console';
 import * as fs from 'fs';

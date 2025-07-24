@@ -1,6 +1,6 @@
 #!/usr/bin/env ts-node
 
-import { UsageTracker } from '../src/usage-tracker';
+import { UsageTracker } from '../src/dev/usage-tracker';
 import * as fs from 'fs';
 import * as path from 'path';
 
