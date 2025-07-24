@@ -1,5 +1,5 @@
 import { SelectMatch, SelectResult } from '../../types/selection-types';
-import { DefinitionRangeDetector } from './definition-range-detector';
+import { DefinitionRangeDetector } from '../../core/services/selection/definition-range-detector';
 import { MatchContext } from './match-context';
 import { LocationRange, SourceLocation } from '../../core/ast/location-range';
 

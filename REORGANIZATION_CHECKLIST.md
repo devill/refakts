@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 87 files ✅ (57.6%)
-**Remaining:** 64 files
+**Completed:** 88 files ✅ (58.3%)
+**Remaining:** 63 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -153,7 +153,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [x] `locators/services/variable-name-extractor.ts` → `core/services/locators/variable-name-extractor.ts` ✅
 
 **Selection Services:**
-- [ ] `services/selection/definition-range-detector.ts` → `core/services/selection/definition-range-detector.ts`
+- [x] `services/selection/definition-range-detector.ts` → `core/services/selection/definition-range-detector.ts` ✅
 - [ ] `strategies/boundary-selection-strategy.ts` → `core/services/selection/boundary-selection-strategy.ts`
 - [ ] `strategies/range-selection-strategy.ts` → `core/services/selection/range-selection-strategy.ts`
 - [ ] `strategies/regex-selection-strategy.ts` → `core/services/selection/regex-selection-strategy.ts`
