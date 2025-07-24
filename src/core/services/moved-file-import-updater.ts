@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { SourceFile, ImportDeclaration, ExportDeclaration } from 'ts-morph';
-import { ASTService } from '../core/ast/ast-service';
+import { ASTService } from '../ast/ast-service';
 
 export class MovedFileImportUpdater {
   constructor(private astService: ASTService) {}
