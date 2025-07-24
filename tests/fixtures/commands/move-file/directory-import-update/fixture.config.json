@@ -1,0 +1,7 @@
+[
+  {
+    "id": "directory-import-update-on-index-move",
+    "description": "When moving a directory's index.ts file, updates imports that reference the directory",
+    "command": "move-file src/utils/index.ts --destination src/helpers/index.ts"
+  }
+]

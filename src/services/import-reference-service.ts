@@ -88,12 +88,23 @@ export class ImportReferenceService {
     const absoluteTargetPath = path.resolve(targetPath);
     const absoluteTargetPathWithoutExtension = absoluteTargetPath.replace(/\.ts$/, '');
     
-    return [
+    const variants = [
       targetPathWithoutExtension,
       targetPath,
       absoluteTargetPath,
       absoluteTargetPathWithoutExtension
     ];
+    
+    // If target is an index.ts file, also include directory variants
+    // This handles cases like './services' resolving to './services/index.ts'
+    if (path.basename(targetPath) === 'index.ts') {
+      const directory = path.dirname(targetPath);
+      const absoluteDirectory = path.resolve(directory);
+      
+      variants.push(directory, absoluteDirectory);
+    }
+    
+    return variants;
   }
 
   private updateImportsInFile(sourceFile: SourceFile, sourcePath: string, destinationPath: string): void {
