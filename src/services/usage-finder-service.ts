@@ -5,15 +5,20 @@ import {ProjectScopeService} from './project-scope-service';
 import {SourceFile} from 'ts-morph';
 
 export class UsageFinderService {
-  private astService = new ASTService();
-  private projectScopeService = new ProjectScopeService(this.astService.getProject());
+  private astService?: ASTService;
+  private projectScopeService?: ProjectScopeService;
 
   async findUsages(location: LocationRange): Promise<UsageLocation[]> {
+    this.astService = ASTService.createForFile(location.file);
+    this.projectScopeService = new ProjectScopeService(this.astService.getProject());
     const sourceFile = this.validateSourceFile(location);
     return await this.findReferences(location, sourceFile);
   }
 
   private validateSourceFile(location: LocationRange): SourceFile {
+    if (!this.astService) {
+      throw new Error('ASTService not initialized');
+    }
     const sourceFile = this.astService.loadSourceFile(location.file);
     this.checkForCompilationErrors(sourceFile, location.file);
     location.validateLocationBounds(sourceFile);
@@ -38,6 +43,9 @@ export class UsageFinderService {
   }
 
   private createReferenceFinder(location: LocationRange) {
+    if (!this.astService || !this.projectScopeService) {
+      throw new Error('Services not initialized');
+    }
     const project = this.astService.getProject();
     const finder = new CrossFileReferenceFinder(project);
     const scopeDirectory = this.projectScopeService.determineScopeDirectory(location.file);

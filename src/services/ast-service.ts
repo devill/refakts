@@ -1,28 +1,54 @@
 import { Project, Node, SourceFile } from 'ts-morph';
 import { createLoadFileError } from './error-utils';
 import { LocationRange, LocationParser } from '../core/location-range';
+import { FileSystemHelper } from './file-system-helper';
 import * as path from 'path';
 
 export class ASTService {
-  private readonly project: Project;
+  private project: Project;
+  private tsConfigResolved = false;
 
   constructor(project?: Project) {
-    this.project = project || new Project(this.shouldUseTsConfig() ? {
-      tsConfigFilePath: "tsconfig.json"
-    } : {});
+    this.project = project || new Project({});
   }
 
-  private shouldUseTsConfig(): boolean {
-    return process.env.NODE_ENV !== 'test';
+  static createForFile(filePath: string): ASTService {
+    const fileSystemHelper = new FileSystemHelper(new Project({}));
+    const projectRoot = fileSystemHelper.findProjectRoot(filePath);
+    const tsConfigPath = path.join(projectRoot, 'tsconfig.json');
+    
+    if (require('fs').existsSync(tsConfigPath)) {
+      return new ASTService(new Project({ tsConfigFilePath: tsConfigPath }));
+    }
+    
+    return new ASTService();
   }
 
   loadSourceFile(filePath: string): SourceFile {
+    this.ensureTsConfigLoaded(filePath);
     const absolutePath = this.resolveAbsolutePath(filePath);
     const existingFile = this.getExistingSourceFile(absolutePath);
     if (existingFile) {
       return existingFile;
     }
     return this.addSourceFileAtPath(absolutePath, filePath);
+  }
+
+  private ensureTsConfigLoaded(filePath: string): void {
+    if (this.tsConfigResolved) {
+      return;
+    }
+    
+    const fileSystemHelper = new FileSystemHelper(this.project);
+    const projectRoot = fileSystemHelper.findProjectRoot(filePath);
+    const tsConfigPath = path.join(projectRoot, 'tsconfig.json');
+    
+    if (require('fs').existsSync(tsConfigPath)) {
+      // Replace the project with one that uses the correct tsconfig
+      this.project = new Project({ tsConfigFilePath: tsConfigPath });
+    }
+    
+    this.tsConfigResolved = true;
   }
 
   private resolveAbsolutePath(filePath: string): string {

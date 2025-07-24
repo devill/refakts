@@ -18,6 +18,7 @@ export class SelectCommand implements RefactoringCommand {
   async execute(file: string, options: CommandOptions): Promise<void> {
     const strategy = this.strategyFactory.getStrategy(options);
     strategy.validateOptions(options);
+    this.astService = ASTService.createForFile(file);
     await this.performSelection(file, options, strategy);
   }
 

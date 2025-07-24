@@ -64,6 +64,7 @@ export class FileValidator {
       const code = typeof diagnostic.getCode === 'function' ? diagnostic.getCode() : 0;
       
       return !messageStr.includes('Cannot find module') &&
+          !messageStr.includes('Could not find a declaration file for module') &&
           !messageStr.includes('Invalid module name in augmentation') &&
           !messageStr.includes('Cannot find name \'console\'') &&
           code !== 6059;

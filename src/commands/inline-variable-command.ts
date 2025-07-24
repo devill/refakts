@@ -21,6 +21,7 @@ export class InlineVariableCommand implements RefactoringCommand {
 
   async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
+    this.astService = ASTService.createForFile(file);
     const sourceFile = this.astService.loadSourceFile(file);
     const node = this.findTargetNode(options);
     await this.performInlineVariable(node);
