@@ -2,7 +2,7 @@ import { RefactoringCommand, CommandOptions } from './command';
 import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 import { Node, VariableDeclaration } from 'ts-morph';
 import { ASTService } from '../ast/ast-service';
-import { VariableDeclarationFinder } from '../../services/variable-declaration-finder';
+import { VariableDeclarationFinder } from '../services/variable-declaration-finder';
 import { ExpressionAnalyzer } from '../services/expression-analyzer';
 import { VariableReplacer } from '../transformations/variable-replacer';
 import { LocationRange } from '../ast/location-range';
