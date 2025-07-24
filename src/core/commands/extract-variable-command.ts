@@ -3,7 +3,7 @@ import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 import { Node, Expression } from 'ts-morph';
 import { ASTService } from '../ast/ast-service';
 import { ExtractionScopeAnalyzer } from '../services/extraction-scope-analyzer';
-import { VariableNameValidator } from '../../services/variable-name-validator';
+import { VariableNameValidator } from '../services/variable-name-validator';
 import { StatementInserter } from '../transformations/statement-inserter';
 import { ExpressionMatcher } from '../services/expression-matcher';
 import { LocationRange } from '../ast/location-range';
