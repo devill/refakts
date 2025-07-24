@@ -1,7 +1,7 @@
 import {Node, Project, SourceFile, SyntaxKind} from 'ts-morph';
 import {LocationRange, UsageLocation} from '../ast/location-range';
 import {FileSystemHelper} from './file-system/helper';
-import {PositionConverter} from '../../services/position-converter';
+import {PositionConverter} from './position-converter';
 
 
 export interface FindUsagesResult {
