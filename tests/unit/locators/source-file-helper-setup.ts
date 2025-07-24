@@ -2,7 +2,7 @@ import { Project } from 'ts-morph';
 import * as ts from 'typescript';
 import * as fs from 'fs';
 import * as path from 'path';
-import { SourceFileHelper } from '../../../src/locators/source-file-helper';
+import { SourceFileHelper } from '../../../src/core/services/source-file-helper';
 
 export function setupProject() {
   return new Project();

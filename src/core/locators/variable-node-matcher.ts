@@ -1,5 +1,5 @@
 import { Node, SourceFile } from 'ts-morph';
-import { SourceFileHelper } from '../../locators/source-file-helper';
+import { SourceFileHelper } from '../services/source-file-helper';
 import { ShadowingDetector } from '../services/shadowing-detector';
 import { VariableContext } from './variable-context';
 import { NodeAnalyzer } from '../../locators/node-analyzer';

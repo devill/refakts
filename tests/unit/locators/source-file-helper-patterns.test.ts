@@ -1,4 +1,4 @@
-import { SourceFileHelper } from '../../../src/locators/source-file-helper';
+import { SourceFileHelper } from '../../../src/core/services/source-file-helper';
 import * as ts from 'typescript';
 import { verify } from 'approvals';
 import { setupProject } from './source-file-helper-setup';
