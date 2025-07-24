@@ -1,5 +1,5 @@
 import { SelectMatch } from '../../core/services/selection/selection-types';
-import { MatchContext } from './match-context';
+import { MatchContext } from '../../command-line-parser/output-formatter/match-context';
 import { ProcessingContext } from './contexts/processing-context';
 import { LineProcessingContext } from './contexts/line-processing-context';
 

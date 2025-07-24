@@ -1,4 +1,4 @@
-import { MatchContext } from '../match-context';
+import { MatchContext } from '../../../command-line-parser/output-formatter/match-context';
 
 interface Position {
   line: number;
