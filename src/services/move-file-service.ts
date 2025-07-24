@@ -28,28 +28,50 @@ export class MoveFileService {
       return MoveFileService.sameLocationResponse(request);
     }
 
+    this.validateMoveRequest(request, resolvedDestinationPath);
+    return await this.performSafeFileMove(request, resolvedDestinationPath);
+  }
+
+  private validateMoveRequest(request: MoveFileRequest, resolvedDestinationPath: string): void {
     const astService = ASTService.createForFile(request.sourcePath);
     const fileValidator = new FileValidator(astService, new RealFileSystemWrapper());
     fileValidator.validateSourceFile(request.sourcePath);
     fileValidator.validateDestinationFile(resolvedDestinationPath);
-
-    return await this.performSafeFileMove(request, resolvedDestinationPath, astService);
   }
 
-  private async performSafeFileMove(request: MoveFileRequest, resolvedDestinationPath: string, astService: ASTService) {
+  private async performSafeFileMove(request: MoveFileRequest, resolvedDestinationPath: string) {
     const importReferenceService = new ImportReferenceService();
     const referencingFiles = await this.collectReferences(request, resolvedDestinationPath, importReferenceService);
-    await importReferenceService.updateImportReferences(request.sourcePath, resolvedDestinationPath, referencingFiles);
-    await this.fileMover.moveFile(request.sourcePath, resolvedDestinationPath);
     
-    const updatedReferencingFiles = await this.updateImportsInMovedFile(request.sourcePath, resolvedDestinationPath, referencingFiles, importReferenceService);
+    const context = { request, resolvedDestinationPath, referencingFiles, importReferenceService };
+    await this.executeFileMove(context);
+    const updatedReferencingFiles = await this.handlePostMoveUpdates(context);
 
     return MoveFileService.moveFileSuccess(request, updatedReferencingFiles);
   }
 
+  private async executeFileMove(context: FileMoveContext): Promise<void> {
+    await context.importReferenceService.updateImportReferences(context.request.sourcePath, context.resolvedDestinationPath, context.referencingFiles);
+    await this.fileMover.moveFile(context.request.sourcePath, context.resolvedDestinationPath);
+  }
+
+  private async handlePostMoveUpdates(context: FileMoveContext): Promise<string[]> {
+    return await this.updateImportsInMovedFile({
+      originalPath: context.request.sourcePath,
+      newPath: context.resolvedDestinationPath,
+      referencingFiles: context.referencingFiles,
+      importReferenceService: context.importReferenceService
+    });
+  }
+
   private async collectReferences(request: MoveFileRequest, resolvedDestinationPath: string, importReferenceService: ImportReferenceService) {
     const referencingFiles = await importReferenceService.findReferencingFiles(request.sourcePath);
-    await this.validateNoCircularDependencies(request.sourcePath, resolvedDestinationPath, referencingFiles, importReferenceService);
+    await this.validateNoCircularDependencies({
+      sourcePath: request.sourcePath,
+      destinationPath: resolvedDestinationPath,
+      referencingFiles,
+      importReferenceService
+    });
     return referencingFiles;
   }
 
@@ -83,37 +105,71 @@ export class MoveFileService {
   private isSameLocation(sourcePath: string, destinationPath: string): boolean {
     return path.resolve(sourcePath) === path.resolve(destinationPath);
   }
-  private async validateNoCircularDependencies(sourcePath: string, destinationPath: string, referencingFiles: string[], importReferenceService: ImportReferenceService): Promise<void> {
-    for (const referencingFile of referencingFiles) {
-      if (this.wouldCreateCircularDependency(sourcePath, destinationPath, referencingFile, importReferenceService)) {
-        const relativeSourcePath = path.relative(process.cwd(), sourcePath);
-        const relativeDestinationPath = path.relative(process.cwd(), destinationPath);
+
+  private async updateImportsInMovedFile(request: ImportUpdateRequest): Promise<string[]> {
+    const movedFileNeedsUpdate = await request.importReferenceService.checkMovedFileHasImportsToUpdate(request.originalPath, request.newPath);
+    
+    if (movedFileNeedsUpdate) {
+      await request.importReferenceService.updateImportsInMovedFile(request.originalPath, request.newPath);
+      return [...request.referencingFiles, request.newPath];
+    }
+    
+    return request.referencingFiles;
+  }
+
+  private async validateNoCircularDependencies(request: CircularDependencyCheckRequest): Promise<void> {
+    for (const referencingFile of request.referencingFiles) {
+      if (this.wouldCreateCircularDependency({
+        sourcePath: request.sourcePath,
+        destinationPath: request.destinationPath,
+        referencingFile,
+        importReferenceService: request.importReferenceService
+      })) {
+        const relativeSourcePath = path.relative(process.cwd(), request.sourcePath);
+        const relativeDestinationPath = path.relative(process.cwd(), request.destinationPath);
         const relativeReferencingFile = path.relative(process.cwd(), referencingFile);
         throw new Error(`Moving ${relativeSourcePath} to ${relativeDestinationPath} would create circular dependency with ${relativeReferencingFile}`);
       }
     }
   }
 
-  private wouldCreateCircularDependency(sourcePath: string, destinationPath: string, referencingFile: string, importReferenceService: ImportReferenceService): boolean {
-    const destinationDir = path.dirname(destinationPath);
-    const referencingDir = path.dirname(referencingFile);
+  private wouldCreateCircularDependency(request: CircularDependencyCheckContext): boolean {
+    const destinationDir = path.dirname(request.destinationPath);
+    const referencingDir = path.dirname(request.referencingFile);
     
     if (destinationDir === referencingDir) {
-      return importReferenceService.checkFileImportsFrom(sourcePath, referencingFile);
+      return request.importReferenceService.checkFileImportsFrom(request.sourcePath, request.referencingFile);
     }
     
     return false;
   }
 
-  private async updateImportsInMovedFile(originalPath: string, newPath: string, referencingFiles: string[], importReferenceService: ImportReferenceService): Promise<string[]> {
-    const movedFileNeedsUpdate = await importReferenceService.checkMovedFileHasImportsToUpdate(originalPath, newPath);
-    
-    if (movedFileNeedsUpdate) {
-      await importReferenceService.updateImportsInMovedFile(originalPath, newPath);
-      return [...referencingFiles, newPath];
-    }
-    
-    return referencingFiles;
-  }
+}
 
+interface CircularDependencyCheckRequest {
+  sourcePath: string;
+  destinationPath: string;
+  referencingFiles: string[];
+  importReferenceService: ImportReferenceService;
+}
+
+interface ImportUpdateRequest {
+  originalPath: string;
+  newPath: string;
+  referencingFiles: string[];
+  importReferenceService: ImportReferenceService;
+}
+
+interface CircularDependencyCheckContext {
+  sourcePath: string;
+  destinationPath: string;
+  referencingFile: string;
+  importReferenceService: ImportReferenceService;
+}
+
+interface FileMoveContext {
+  request: MoveFileRequest;
+  resolvedDestinationPath: string;
+  referencingFiles: string[];
+  importReferenceService: ImportReferenceService;
 }

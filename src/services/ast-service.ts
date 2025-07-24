@@ -39,16 +39,21 @@ export class ASTService {
       return;
     }
     
-    const fileSystemHelper = new FileSystemHelper(this.project);
-    const projectRoot = fileSystemHelper.findProjectRoot(filePath);
-    const tsConfigPath = path.join(projectRoot, 'tsconfig.json');
-    
+    this.loadProjectWithTsConfig(filePath);
+    this.tsConfigResolved = true;
+  }
+
+  private loadProjectWithTsConfig(filePath: string): void {
+    const tsConfigPath = this.findTsConfigPath(filePath);
     if (require('fs').existsSync(tsConfigPath)) {
-      // Replace the project with one that uses the correct tsconfig
       this.project = new Project({ tsConfigFilePath: tsConfigPath });
     }
-    
-    this.tsConfigResolved = true;
+  }
+
+  private findTsConfigPath(filePath: string): string {
+    const fileSystemHelper = new FileSystemHelper(this.project);
+    const projectRoot = fileSystemHelper.findProjectRoot(filePath);
+    return path.join(projectRoot, 'tsconfig.json');
   }
 
   private resolveAbsolutePath(filePath: string): string {

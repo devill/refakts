@@ -1,5 +1,5 @@
 import { ASTService } from './ast-service';
-import { SourceFile } from 'ts-morph';
+import { SourceFile, Diagnostic } from 'ts-morph';
 import * as path from 'path';
 
 export interface FileSystemWrapper {
@@ -59,15 +59,23 @@ export class FileValidator {
 
   private collectErrors(sourceFile: SourceFile) {
     return sourceFile.getPreEmitDiagnostics().filter(diagnostic => {
-      const message = diagnostic.getMessageText();
-      const messageStr = typeof message === 'string' ? message : message.getMessageText();
-      const code = typeof diagnostic.getCode === 'function' ? diagnostic.getCode() : 0;
-      
-      return !messageStr.includes('Cannot find module') &&
-          !messageStr.includes('Could not find a declaration file for module') &&
-          !messageStr.includes('Invalid module name in augmentation') &&
-          !messageStr.includes('Cannot find name \'console\'') &&
-          code !== 6059;
+      return this.isSeriousError(diagnostic);
     });
+  }
+
+  private isSeriousError(diagnostic: Diagnostic): boolean {
+    const messageStr = this.getDiagnosticMessage(diagnostic);
+    const code = typeof diagnostic.getCode === 'function' ? diagnostic.getCode() : 0;
+    
+    return !messageStr.includes('Cannot find module') &&
+        !messageStr.includes('Could not find a declaration file for module') &&
+        !messageStr.includes('Invalid module name in augmentation') &&
+        !messageStr.includes('Cannot find name \'console\'') &&
+        code !== 6059;
+  }
+
+  private getDiagnosticMessage(diagnostic: Diagnostic): string {
+    const message = diagnostic.getMessageText();
+    return typeof message === 'string' ? message : message.getMessageText();
   }
 }
