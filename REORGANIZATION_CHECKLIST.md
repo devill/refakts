@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 145 files ✅ (96.7%)
-**Remaining:** 5 files
+**Completed:** 146 files ✅ (97.3%)
+**Remaining:** 4 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -245,7 +245,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 
 **Quality Check Services:**
 - [x] `quality-tools/checks/services/feature-envy-detector.ts` → `dev/quality/services/feature-envy-detector.ts` ✅
-- [ ] `quality-tools/checks/services/import-symbol-extractor.ts` → `dev/quality/services/import-symbol-extractor.ts`
+- [x] `quality-tools/checks/services/import-symbol-extractor.ts` → `dev/quality/services/import-symbol-extractor.ts` ✅
 - [ ] `quality-tools/checks/services/index.ts` → `dev/quality/checks/index.ts`
 - [ ] `quality-tools/checks/services/method-usage-analyzer.ts` → `dev/quality/checks/method-usage-analyzer.ts`
 
