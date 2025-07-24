@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 50 files ✅ (35.0%)
-**Remaining:** 93 files
+**Completed:** 80 files ✅ (55.9%)
+**Remaining:** 63 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -107,35 +107,35 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 
 **Main Services:**
 
-- [ ] `services/boundary-analyzer.ts` → `core/services/boundary-analyzer.ts`
-- [ ] `services/class-method-finder.ts` → `core/services/class-method-finder.ts`
-- [ ] `services/context-analyzer.ts` → `core/services/context-analyzer.ts`
-- [ ] `services/cross-file-reference-finder.ts` → `core/services/cross-file-reference-finder.ts`
-- [ ] `services/expression-analyzer.ts` → `core/services/expression-analyzer.ts`
-- [ ] `services/expression-matcher.ts` → `core/services/expression-matcher.ts`
-- [ ] `services/extraction-scope-analyzer.ts` → `core/services/extraction-scope-analyzer.ts`
-- [ ] `services/file-system-helper.ts` → `core/services/file-system/helper.ts`
-- [ ] `services/file-system-wrapper.ts` → `core/services/file-system/wrapper.ts`
-- [ ] `utils/directory-utils.ts` → `core/services/file-system/directory.ts` *rename*
-- [ ] `services/error-utils.ts` → `core/services/file-system/error-utils.ts`
-- [ ] `services/file-validator.ts` → `core/services/file-validator.ts`
-- [ ] `services/moved-file-import-updater.ts` → `core/services/moved-file-import-updater.ts`
-- [ ] `services/import-reference-service.ts` → `core/services/import-reference-service.ts`
-- [ ] `services/method-dependency-analyzer.ts` → `core/services/method-dependency-analyzer.ts`
-- [ ] `services/position-converter.ts` → `core/services/position-converter.ts`
-- [ ] `services/project-scope-service.ts` → `core/services/project-scope-service.ts`
-- [ ] `services/range-analysis-request.ts` → `core/services/range-analysis-request.ts`
-- [ ] `services/range-analyzer.ts` → `core/services/range-analyzer.ts`
-- [ ] `services/structural-analyzer.ts` → `core/services/structural-analyzer.ts`
-- [ ] `services/usage-finder-service.ts` → `core/services/usage-finder-service.ts`
-- [ ] `services/usage-type-analyzer.ts` → `core/services/usage-type-analyzer.ts`
-- [ ] `services/variable-declaration-finder.ts` → `core/services/variable-declaration-finder.ts`
-- [ ] `services/variable-name-validator.ts` → `core/services/variable-name-validator.ts`
-- [ ] `services/variable-reference-request.ts` → `core/services/variable-reference-request.ts`
-- [ ] `locators/scope-analyzer.ts` → `core/services/scope-analyzer.ts`
-- [ ] `locators/shadowing-analyzer.ts` → `core/services/shadowing-analyzer.ts`
-- [ ] `locators/shadowing-detector.ts` → `core/services/shadowing-detector.ts`
-- [ ] `locators/source-file-helper.ts` → `core/services/source-file-helper.ts`
+- [x] `services/boundary-analyzer.ts` → `core/services/boundary-analyzer.ts` ✅
+- [x] `services/class-method-finder.ts` → `core/services/class-method-finder.ts` ✅
+- [x] `services/context-analyzer.ts` → `core/services/context-analyzer.ts` ✅
+- [x] `services/cross-file-reference-finder.ts` → `core/services/cross-file-reference-finder.ts` ✅
+- [x] `services/expression-analyzer.ts` → `core/services/expression-analyzer.ts` ✅
+- [x] `services/expression-matcher.ts` → `core/services/expression-matcher.ts` ✅
+- [x] `services/extraction-scope-analyzer.ts` → `core/services/extraction-scope-analyzer.ts` ✅
+- [x] `services/file-system-helper.ts` → `core/services/file-system/helper.ts` ✅
+- [x] `services/file-system-wrapper.ts` → `core/services/file-system/wrapper.ts` ✅
+- [x] `utils/directory-utils.ts` → `core/services/file-system/directory.ts` ✅ *rename*
+- [x] `services/error-utils.ts` → `core/services/file-system/error-utils.ts` ✅
+- [x] `services/file-validator.ts` → `core/services/file-validator.ts` ✅
+- [x] `services/moved-file-import-updater.ts` → `core/services/moved-file-import-updater.ts` ✅
+- [x] `services/import-reference-service.ts` → `core/services/import-reference-service.ts` ✅
+- [x] `services/method-dependency-analyzer.ts` → `core/services/method-dependency-analyzer.ts` ✅
+- [x] `services/position-converter.ts` → `core/services/position-converter.ts` ✅
+- [x] `services/project-scope-service.ts` → `core/services/project-scope-service.ts` ✅
+- [x] `services/range-analysis-request.ts` → `core/services/range-analysis-request.ts` ✅
+- [x] `services/range-analyzer.ts` → `core/services/range-analyzer.ts` ✅
+- [x] `services/structural-analyzer.ts` → `core/services/structural-analyzer.ts` ✅
+- [x] `services/usage-finder-service.ts` → `core/services/usage-finder-service.ts` ✅
+- [x] `services/usage-type-analyzer.ts` → `core/services/usage-type-analyzer.ts` ✅
+- [x] `services/variable-declaration-finder.ts` → `core/services/variable-declaration-finder.ts` ✅
+- [x] `services/variable-name-validator.ts` → `core/services/variable-name-validator.ts` ✅
+- [x] `services/variable-reference-request.ts` → `core/services/variable-reference-request.ts` ✅
+- [x] `locators/scope-analyzer.ts` → `core/services/scope-analyzer.ts` ✅
+- [x] `locators/shadowing-analyzer.ts` → `core/services/shadowing-analyzer.ts` ✅
+- [x] `locators/shadowing-detector.ts` → `core/services/shadowing-detector.ts` ✅
+- [x] `locators/source-file-helper.ts` → `core/services/source-file-helper.ts` ✅
 - [ ] `locators/usage-type-detector.ts` → `core/services/usage-type-detector.ts`
 
 **Core Type Files (widely used):**
@@ -145,7 +145,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 
 
 **Locator Services:**
-- [ ] `locators/services/index.ts` → `core/services/locators/index.ts`
+- [x] `locators/services/index.ts` → `core/services/locators/index.ts` ✅
 - [ ] `locators/services/node-assignment-analyzer.ts` → `core/services/locators/node-assignment-analyzer.ts`
 - [ ] `locators/services/node-declaration-matcher.ts` → `core/services/locators/node-declaration-matcher.ts`
 - [ ] `locators/services/node-position-service.ts` → `core/services/locators/node-position-service.ts`
