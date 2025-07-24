@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 101 files ✅ (66.9%)
-**Remaining:** 50 files
+**Completed:** 102 files ✅ (67.5%)
+**Remaining:** 49 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -175,7 +175,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 
 **Pattern Matching & Formatting Services:**
 - [x] `services/regex-pattern-matcher.ts` → `command-line-parser/output-formatter/services/regex-pattern-matcher.ts` *(output formatting, not core service)* ✅
-- [ ] `services/selection/pattern-matcher.ts` → `command-line-parser/output-formatter/services/pattern-matcher.ts` *(output formatting logic)*
+- [x] `services/selection/pattern-matcher.ts` → `command-line-parser/output-formatter/services/pattern-matcher.ts` *(output formatting logic)* ✅
 
 **Context Classes:**
 - [ ] `services/selection/contexts/line-processing-context.ts` → `command-line-parser/output-formatter/contexts/line-processing-context.ts`

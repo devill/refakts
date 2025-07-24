@@ -1,7 +1,7 @@
-import { SelectMatch } from '../../core/services/selection/selection-types';
-import { MatchContext } from '../../command-line-parser/output-formatter/match-context';
-import { ProcessingContext } from './contexts/processing-context';
-import { LineProcessingContext } from './contexts/line-processing-context';
+import { SelectMatch } from '../../../core/services/selection/selection-types';
+import { MatchContext } from '../match-context';
+import { ProcessingContext } from '../../../services/selection/contexts/processing-context';
+import { LineProcessingContext } from '../../../services/selection/contexts/line-processing-context';
 
 export class SelectPatternMatcher {
   findMatches(content: string, pattern: RegExp): SelectMatch[] {

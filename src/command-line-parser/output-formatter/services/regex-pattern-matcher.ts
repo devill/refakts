@@ -1,6 +1,6 @@
 import { SourceFile } from 'ts-morph';
 import { SelectResult, SelectMatch, SelectMatchSorter } from '../../../core/services/selection/selection-types';
-import { SelectPatternMatcher } from '../../../services/selection/pattern-matcher';
+import { SelectPatternMatcher } from './pattern-matcher';
 import { SelectResultFormatter, BasicFormatter, LineFormatter, PreviewFormatter, DefinitionFormatter } from '../result-formatters';
 import { MatchContext } from '../match-context';
 import * as path from 'path';
