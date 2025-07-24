@@ -1,4 +1,4 @@
-import { NodeScopeAnalyzer } from '../../../../src/locators/services/node-scope-analyzer';
+import { NodeScopeAnalyzer } from '../../../../src/core/services/locators/node-scope-analyzer';
 import { Project } from 'ts-morph';
 import * as ts from 'typescript';
 import { verify } from 'approvals';

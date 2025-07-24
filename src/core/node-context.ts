@@ -2,7 +2,7 @@ import * as ts from 'typescript';
 import { Node, SourceFile } from 'ts-morph';
 import { PositionData } from './locators/position-data';
 import { NodeDeclarationMatcher } from './services/locators/node-declaration-matcher';
-import { NodeScopeAnalyzer } from '../locators/services/node-scope-analyzer';
+import { NodeScopeAnalyzer } from './services/locators/node-scope-analyzer';
 
 export class NodeContext {
   readonly node: Node;
