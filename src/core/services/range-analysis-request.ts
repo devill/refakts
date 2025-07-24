@@ -1,5 +1,5 @@
 import { SourceFile } from 'ts-morph';
-import { PositionData } from '../core/locators/position-data';
+import { PositionData } from '../locators/position-data';
 
 interface RangePattern {
   start: RegExp;
