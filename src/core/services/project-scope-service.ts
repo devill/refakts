@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { FileSystemHelper } from '../core/services/file-system/helper';
+import { FileSystemHelper } from './file-system/helper';
 import { Project } from 'ts-morph';
 
 export class ProjectScopeService {

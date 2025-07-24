@@ -1,7 +1,7 @@
 import {LocationRange, UsageLocation} from '../core/ast/location-range';
 import {ASTService} from '../core/ast/ast-service';
 import {CrossFileReferenceFinder} from '../core/services/cross-file-reference-finder';
-import {ProjectScopeService} from './project-scope-service';
+import {ProjectScopeService} from '../core/services/project-scope-service';
 import {SourceFile} from 'ts-morph';
 
 export class UsageFinderService {
