@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 142 files ✅ (94.7%)
-**Remaining:** 8 files
+**Completed:** 143 files ✅ (95.3%)
+**Remaining:** 7 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -240,7 +240,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [x] `quality-tools/checks/file-size-check.ts` → `dev/quality/checks/file-size-check.ts` ✅
 - [x] `quality-tools/checks/function-size-check.ts` → `dev/quality/checks/function-size-check.ts` ✅
 - [x] `quality-tools/checks/git-diff-check.ts` → `dev/quality/checks/git-diff-check.ts` ✅
-- [ ] `quality-tools/checks/linter-check.ts` → `dev/quality/checks/linter-check.ts`
+- [x] `quality-tools/checks/linter-check.ts` → `dev/quality/checks/linter-check.ts` ✅
 - [ ] `quality-tools/checks/unused-method-check.ts` → `dev/quality/checks/unused-method-check.ts`
 
 **Quality Check Services:**

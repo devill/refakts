@@ -7,7 +7,7 @@ import { unusedMethodCheck } from '../../quality-tools/checks/unused-method-chec
 import { complexityCheck } from './checks/complexity-check';
 import { gitDiffCheck } from './checks/git-diff-check';
 import { changeFrequencyCheck } from './checks/change-frequency-check';
-import { linterCheck } from '../../quality-tools/checks/linter-check';
+import { linterCheck } from './checks/linter-check';
 import { featureEnvyCheck } from './checks/feature-envy-check';
 export const loadQualityChecks = (): QualityCheck[] => [
   linterCheck,
