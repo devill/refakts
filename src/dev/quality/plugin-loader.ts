@@ -5,7 +5,7 @@ import { functionSizeCheck } from './checks/function-size-check';
 import { duplicationCheck } from './checks/duplication-check';
 import { unusedMethodCheck } from '../../quality-tools/checks/unused-method-check';
 import { complexityCheck } from './checks/complexity-check';
-import { gitDiffCheck } from '../../quality-tools/checks/git-diff-check';
+import { gitDiffCheck } from './checks/git-diff-check';
 import { changeFrequencyCheck } from './checks/change-frequency-check';
 import { linterCheck } from '../../quality-tools/checks/linter-check';
 import { featureEnvyCheck } from './checks/feature-envy-check';
