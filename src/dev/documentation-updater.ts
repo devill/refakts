@@ -1,4 +1,4 @@
-import { HelpContentExtractor } from '../documentation/HelpContentExtractor';
+import { HelpContentExtractor } from './help-content-extractor';
 import { QualityChecksExtractor } from '../documentation/QualityChecksExtractor';
 import { SectionReplacer } from '../documentation/SectionReplacer';
 import { FileManager } from './file-manager';
