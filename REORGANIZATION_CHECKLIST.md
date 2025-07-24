@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 105 files ✅ (69.5%)
-**Remaining:** 46 files
+**Completed:** 106 files ✅ (70.2%)
+**Remaining:** 45 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -181,7 +181,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [x] `services/selection/contexts/line-processing-context.ts` → `command-line-parser/output-formatter/contexts/line-processing-context.ts` ✅
 - [x] `services/selection/contexts/match-build-context.ts` → `command-line-parser/output-formatter/contexts/match-build-context.ts` ✅
 - [x] `services/selection/contexts/match-details-context.ts` → `command-line-parser/output-formatter/contexts/match-details-context.ts` ✅
-- [ ] `services/selection/contexts/processing-context.ts` → `command-line-parser/output-formatter/contexts/processing-context.ts`
+- [x] `services/selection/contexts/processing-context.ts` → `command-line-parser/output-formatter/contexts/processing-context.ts` ✅
 - [ ] `services/selection/contexts/select-match-context.ts` → `command-line-parser/output-formatter/contexts/select-match-context.ts`
 
 **Console Interfaces:**
