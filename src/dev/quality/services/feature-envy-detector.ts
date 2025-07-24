@@ -1,5 +1,5 @@
 import { MethodDeclaration, ClassDeclaration, SyntaxKind } from 'ts-morph';
-import { MethodUsageAnalyzer, UsageAnalysis } from '../../../quality-tools/checks/services/method-usage-analyzer';
+import { MethodUsageAnalyzer, UsageAnalysis } from '../checks/method-usage-analyzer';
 
 export interface FeatureEnvyResult {
   enviedClass: string;
