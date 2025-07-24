@@ -1,9 +1,9 @@
-import { HelpContentExtractor } from './HelpContentExtractor';
-import { QualityChecksExtractor } from './QualityChecksExtractor';
-import { SectionReplacer } from './SectionReplacer';
-import { FileManager } from './FileManager';
-import { ClaudeFormatter } from './formatters/ClaudeFormatter';
-import { ReadmeFormatter } from './formatters/ReadmeFormatter';
+import { HelpContentExtractor } from '../documentation/HelpContentExtractor';
+import { QualityChecksExtractor } from '../documentation/QualityChecksExtractor';
+import { SectionReplacer } from '../documentation/SectionReplacer';
+import { FileManager } from '../documentation/FileManager';
+import { ClaudeFormatter } from '../documentation/formatters/ClaudeFormatter';
+import { ReadmeFormatter } from '../documentation/formatters/ReadmeFormatter';
 import { SectionReplacementRequest } from '../core/section-replacement-request';
 
 export class DocumentationUpdater {
