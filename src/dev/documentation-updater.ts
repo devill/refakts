@@ -1,5 +1,5 @@
 import { HelpContentExtractor } from './help-content-extractor';
-import { QualityChecksExtractor } from '../documentation/QualityChecksExtractor';
+import { QualityChecksExtractor } from './quality-checks-extractor';
 import { SectionReplacer } from '../documentation/SectionReplacer';
 import { FileManager } from './file-manager';
 import { ClaudeFormatter } from '../documentation/formatters/ClaudeFormatter';

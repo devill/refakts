@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 113 files ✅ (74.8%)
-**Remaining:** 38 files
+**Completed:** 114 files ✅ (75.5%)
+**Remaining:** 37 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -197,7 +197,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [x] `documentation/DocumentationUpdater.ts` → `dev/documentation-updater.ts` *rename* ✅
 - [x] `documentation/FileManager.ts` → `dev/file-manager.ts` *rename* ✅
 - [x] `documentation/HelpContentExtractor.ts` → `dev/help-content-extractor.ts` *rename* ✅
-- [ ] `documentation/QualityChecksExtractor.ts` → `dev/quality-checks-extractor.ts` *rename*
+- [x] `documentation/QualityChecksExtractor.ts` → `dev/quality-checks-extractor.ts` *rename* ✅
 - [ ] `documentation/SectionReplacer.ts` → `dev/section-replacer.ts` *rename*
 - [ ] `documentation/formatters/ClaudeFormatter.ts` → `dev/formatters/claude-formatter.ts` *rename*
 - [ ] `documentation/formatters/ReadmeFormatter.ts` → `dev/formatters/readme-formatter.ts` *rename*
