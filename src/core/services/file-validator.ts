@@ -1,4 +1,4 @@
-import { ASTService } from '../core/ast/ast-service';
+import { ASTService } from '../ast/ast-service';
 import { SourceFile, Diagnostic } from 'ts-morph';
 import * as path from 'path';
 
@@ -62,6 +62,7 @@ export class FileValidator {
       const message = diagnostic.getMessageText();
       const messageStr = typeof message === 'string' ? message : message.getMessageText();
       return !messageStr.includes('Cannot find module') &&
+          !messageStr.includes('Could not find a declaration file for module') &&
           !messageStr.includes('Invalid module name in augmentation') &&
           !messageStr.includes('Cannot find name \'console\'');
     });

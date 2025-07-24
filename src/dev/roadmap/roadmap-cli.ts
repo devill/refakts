@@ -1,5 +1,5 @@
-import { RoadmapService } from '../../roadmap/roadmap-service';
-import { RoadmapDisplay } from '../../roadmap/roadmap-display';
+import { RoadmapService } from './roadmap-service';
+import { RoadmapDisplay } from './roadmap-display';
 
 export class RoadmapCLI {
   private service = new RoadmapService();

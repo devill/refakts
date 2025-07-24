@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { RoadmapData } from '../../roadmap/types';
+import { RoadmapData } from './types';
 
 export class RoadmapStorage {
   private roadmapFile = path.join(process.cwd(), 'roadmap-data.json');

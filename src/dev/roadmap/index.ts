@@ -1,4 +1,4 @@
-import { RoadmapCLI } from '../../roadmap/roadmap-cli';
+import { RoadmapCLI } from './roadmap-cli';
 
 function main() {
   const args = process.argv.slice(2);
@@ -12,8 +12,8 @@ if (require.main === module) {
   main();
 }
 
-export { RoadmapService } from '../../roadmap/roadmap-service';
-export { RoadmapDisplay } from '../../roadmap/roadmap-display';
-export { RoadmapStorage } from '../../roadmap/roadmap-storage';
-export { RoadmapCLI } from '../../roadmap/roadmap-cli';
-export * from '../../roadmap/types';
+export { RoadmapService } from './roadmap-service';
+export { RoadmapDisplay } from './roadmap-display';
+export { RoadmapStorage } from './roadmap-storage';
+export { RoadmapCLI } from './roadmap-cli';
+export * from './types';

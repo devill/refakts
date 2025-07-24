@@ -1,7 +1,7 @@
 import { Project, Node, SourceFile } from 'ts-morph';
 import { createLoadFileError } from '../services/file-system/error-utils';
-import { LocationRange, LocationParser } from '../core/location-range';
-import { FileSystemHelper } from './file-system-helper';
+import { LocationRange, LocationParser } from './location-range';
+import { FileSystemHelper } from '../services/file-system/helper';
 import * as path from 'path';
 
 export class ASTService {
