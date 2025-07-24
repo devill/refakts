@@ -1,7 +1,7 @@
 import { SourceFile } from 'ts-morph';
 import { SelectResult } from './selection-types';
 import { SelectionStrategy } from './selection-strategy';
-import { RegexPatternMatcher } from '../../../services/regex-pattern-matcher';
+import { RegexPatternMatcher } from '../../../command-line-parser/output-formatter/services/regex-pattern-matcher';
 
 export class RegexSelectionStrategy implements SelectionStrategy {
   private regexMatcher = new RegexPatternMatcher();
