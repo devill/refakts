@@ -1,5 +1,5 @@
 import { RefactoringCommand, CommandOptions } from './command';
-import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
+import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
 import { SelectOutputHandler } from '../../command-line-parser/output-formatter/selection-output-handler';
 import { ASTService } from '../ast/ast-service';
 import { SelectionStrategyFactory } from '../services/selection/selection-strategy-factory';

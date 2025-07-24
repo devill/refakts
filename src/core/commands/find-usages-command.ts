@@ -1,5 +1,5 @@
 import {CommandOptions, RefactoringCommand} from './command';
-import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
+import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
 import {LocationParser, LocationRange} from '../ast/location-range';
 import {UsageFinderService} from '../services/usage-finder-service';
 import {UsageOutputHandler} from '../../command-line-parser/output-formatter/usage-output-handler';

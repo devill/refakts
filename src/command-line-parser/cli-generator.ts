@@ -1,5 +1,5 @@
 import { CommandRegistry } from '../core/commands/command-registry';
-import { ConsoleOutput } from '../interfaces/ConsoleOutput';
+import { ConsoleOutput } from './output-formatter/console-output';
 
 class SimpleConsoleOutput implements ConsoleOutput {
   log(message: string): void {

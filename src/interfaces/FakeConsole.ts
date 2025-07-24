@@ -1,4 +1,4 @@
-import { ConsoleOutput } from './ConsoleOutput';
+import { ConsoleOutput } from '../command-line-parser/output-formatter/console-output';
 
 export class FakeConsole implements ConsoleOutput {
   private _output: string[] = [];

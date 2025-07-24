@@ -1,5 +1,5 @@
 import { CommandOptions, RefactoringCommand } from './command';
-import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
+import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
 import { MoveFileService, MoveFileRequest } from '../transformations/move-file-service';
 import { MoveFileOutputHandler } from '../../command-line-parser/output-formatter/move-file-output-handler';
 import * as fs from 'fs';

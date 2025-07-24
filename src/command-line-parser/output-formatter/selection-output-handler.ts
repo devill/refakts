@@ -1,5 +1,5 @@
 import { SelectResult } from '../../core/services/selection/selection-types';
-import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
+import { ConsoleOutput } from './console-output';
 
 export class SelectOutputHandler {
   private consoleOutput: ConsoleOutput;

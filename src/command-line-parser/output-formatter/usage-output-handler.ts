@@ -3,7 +3,7 @@ import { SelectResult } from '../../core/services/selection/selection-types';
 import { SelectOutputHandler } from './selection-output-handler';
 import { CommandOptions, CommandOptionsWrapper } from '../../core/commands/command';
 import { UsageCollection } from '../../core/services/usage-collection';
-import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
+import { ConsoleOutput } from './console-output';
 
 interface OutputContext {
   baseDir: string;

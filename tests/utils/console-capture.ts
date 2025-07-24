@@ -1,4 +1,4 @@
-import {ConsoleOutput} from '../../src/interfaces/ConsoleOutput';
+import {ConsoleOutput} from '../../src/command-line-parser/output-formatter/console-output';
 
 export class ConsoleCapture implements ConsoleOutput {
   private output: string[] = [];

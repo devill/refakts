@@ -1,4 +1,4 @@
-import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
+import { ConsoleOutput } from './console-output';
 import { MoveFileResult } from '../../core/transformations/move-file-service';
 import * as path from 'path';
 

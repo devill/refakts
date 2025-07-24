@@ -1,5 +1,5 @@
 import { RefactoringCommand, CommandOptions } from './command';
-import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
+import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
 import { Node, SourceFile } from 'ts-morph';
 import { ASTService } from '../ast/ast-service';
 import { VariableLocator, VariableNodeResult } from '../locators/variable-locator';

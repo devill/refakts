@@ -35,8 +35,8 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 ## Progress Tracking
 
 **Total Files:** 143 files to move/rename
-**Completed:** 107 files ✅ (70.9%)
-**Remaining:** 44 files
+**Completed:** 108 files ✅ (71.5%)
+**Remaining:** 43 files
 **Status:** ✅ **READY** - move-file command bug fixed
 
 ---
@@ -185,7 +185,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [x] `services/selection/contexts/select-match-context.ts` → `command-line-parser/output-formatter/contexts/select-match-context.ts` ✅
 
 **Console Interfaces:**
-- [ ] `interfaces/ConsoleOutput.ts` → `command-line-parser/output-formatter/console-output.ts` *rename*
+- [x] `interfaces/ConsoleOutput.ts` → `command-line-parser/output-formatter/console-output.ts` *rename* ✅
 - [ ] `interfaces/FakeConsole.ts` → `command-line-parser/output-formatter/fake-console.ts` *rename*
 - [ ] `interfaces/StandardConsole.ts` → `command-line-parser/output-formatter/standard-console.ts` *rename*
 

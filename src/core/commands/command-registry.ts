@@ -7,7 +7,7 @@ import { MoveMethodCommand } from './move-method-command';
 import { RenameCommand } from './rename-command';
 import { SelectCommand } from './select-command';
 import { SortMethodsCommand } from './sort-methods-command';
-import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
+import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
 
 const loadCommands = (): RefactoringCommand[] => [
   new ExtractVariableCommand(),
