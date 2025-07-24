@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import { Node } from 'ts-morph';
-import { NodeContext } from './node-context';
+import { NodeContext } from '../../locators/node-context';
 
 export class ScopeAnalyzer {
   static isScopeNode(node: Node): boolean {

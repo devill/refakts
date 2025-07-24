@@ -1,5 +1,5 @@
 import { Node } from 'ts-morph';
-import { ScopeAnalyzer } from './scope-analyzer';
+import { ScopeAnalyzer } from '../core/services/scope-analyzer';
 import { VariableNameOperations } from '../core/locators/variable-name-operations';
 import { DeclarationFinder } from '../core/locators/declaration-finder';
 

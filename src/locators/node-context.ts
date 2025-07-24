@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import { Node, SourceFile } from 'ts-morph';
-import { ScopeAnalyzer } from './scope-analyzer';
+import { ScopeAnalyzer } from '../core/services/scope-analyzer';
 import { DeclarationFinder } from '../core/locators/declaration-finder';
 import { VariableNameOperations } from '../core/locators/variable-name-operations';
 import { isShadowingDeclaration } from './shadowing-analyzer';
