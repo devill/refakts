@@ -1,7 +1,7 @@
-import { QualityCheck, QualityIssue } from '../../dev/quality/quality-check-interface';
+import { QualityCheck, QualityIssue } from '../quality-check-interface';
 import { Project } from 'ts-morph';
 import * as path from 'path';
-import { ImportSymbolExtractor, FeatureEnvyDetector } from './services';
+import { ImportSymbolExtractor, FeatureEnvyDetector } from '../../../quality-tools/checks/services';
 
 export const featureEnvyCheck: QualityCheck = {
   name: 'featureEnvy',
