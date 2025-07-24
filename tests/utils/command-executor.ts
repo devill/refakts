@@ -3,7 +3,7 @@ import {CommandLineParser} from './command-line-parser';
 import {ConsoleCapture} from './console-capture';
 import {CliExecutor} from './cli-executor';
 import {ExecutionContext} from './execution-context';
-import {DirectoryUtils} from '../../src/utils/directory-utils';
+import {DirectoryUtils} from '../../src/core/services/file-system/directory';
 
 export interface CommandExecutorOptions {
   useCli?: boolean; // If true, uses CLI subprocess. If false, calls commands directly
