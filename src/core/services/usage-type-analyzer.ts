@@ -1,5 +1,5 @@
 import { Node, SyntaxKind } from 'ts-morph';
-import { UsageType } from '../core/ast/location-range';
+import { UsageType } from '../ast/location-range';
 
 interface UsageHandler {
   canHandle(parent: Node): boolean;

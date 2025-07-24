@@ -1,6 +1,6 @@
 import { Node, SourceFile } from 'ts-morph';
 import { LocationRange, UsageLocation } from '../ast/location-range';
-import { UsageTypeAnalyzer } from '../../services/usage-type-analyzer';
+import { UsageTypeAnalyzer } from './usage-type-analyzer';
 
 export class PositionConverter {
   static getStartPosition(sourceFile: SourceFile, location: LocationRange): number {
