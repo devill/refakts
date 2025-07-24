@@ -1,5 +1,5 @@
 import {SourceFile} from 'ts-morph';
-import {SelectResult} from '../../types/selection-types';
+import {SelectResult} from './selection/selection-types';
 import {RangeAnalysisRequest} from './range-analysis-request';
 import {PositionData} from '../locators/position-data';
 import {LocationRange} from '../ast/location-range';

@@ -1,5 +1,5 @@
 import { SourceFile } from 'ts-morph';
-import { SelectResult } from '../../../types/selection-types';
+import { SelectResult } from './selection-types';
 import { SelectionStrategy } from './selection-strategy';
 import { RegexPatternMatcher } from '../../../services/regex-pattern-matcher';
 

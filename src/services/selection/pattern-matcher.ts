@@ -1,4 +1,4 @@
-import { SelectMatch } from '../../types/selection-types';
+import { SelectMatch } from '../../core/services/selection/selection-types';
 import { MatchContext } from './match-context';
 import { ProcessingContext } from './contexts/processing-context';
 import { LineProcessingContext } from './contexts/line-processing-context';

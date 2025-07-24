@@ -1,4 +1,4 @@
-import { SelectResult } from '../../types/selection-types';
+import { SelectResult } from '../../core/services/selection/selection-types';
 import { ConsoleOutput } from '../../interfaces/ConsoleOutput';
 
 export class SelectOutputHandler {

@@ -1,4 +1,4 @@
-import { SelectMatch } from '../../../types/selection-types';
+import { SelectMatch } from '../../../core/services/selection/selection-types';
 import { MatchContext } from '../match-context';
 import { MatchBuildContext } from './match-build-context';
 import { MatchDetailsContext } from './match-details-context';

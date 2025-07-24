@@ -1,4 +1,4 @@
-import { SelectMatch, SelectResult } from '../../types/selection-types';
+import { SelectMatch, SelectResult } from '../../core/services/selection/selection-types';
 import { DefinitionRangeDetector } from '../../core/services/selection/definition-range-detector';
 import { MatchContext } from './match-context';
 import { LocationRange, SourceLocation } from '../../core/ast/location-range';

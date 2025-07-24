@@ -1,5 +1,5 @@
 import { SourceFile, ClassDeclaration, PropertyDeclaration, MethodDeclaration } from 'ts-morph';
-import { SelectResult } from '../../types/selection-types';
+import { SelectResult } from './selection/selection-types';
 import { MatchContext } from '../../services/selection/match-context';
 import * as path from 'path';
 

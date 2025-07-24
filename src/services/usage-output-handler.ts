@@ -1,5 +1,5 @@
 import { UsageLocation, LocationRange } from '../core/ast/location-range';
-import { SelectResult } from '../types/selection-types';
+import { SelectResult } from '../core/services/selection/selection-types';
 import { SelectOutputHandler } from './selection/output-handler';
 import { CommandOptions, CommandOptionsWrapper } from '../core/commands/command';
 import { UsageCollection } from '../core/services/usage-collection';

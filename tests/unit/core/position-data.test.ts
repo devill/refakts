@@ -1,6 +1,6 @@
 import { PositionData } from '../../../src/core/locators/position-data';
 import { LocationRange } from '../../../src/core/ast/location-range';
-import { SelectMatch } from '../../../src/types/selection-types';
+import { SelectMatch } from '../../../src/core/services/selection/selection-types';
 
 describe('PositionData', () => {
   describe('constructor', () => {
