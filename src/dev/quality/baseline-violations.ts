@@ -1,6 +1,6 @@
-import { QualityIssue } from './quality-check-interface';
-import { QualityBaseline, FileBaseline } from '../dev/quality/baseline-types';
-import { getLastCommitId } from '../dev/quality/baseline-git';
+import { QualityIssue } from '../../quality-tools/quality-check-interface';
+import { QualityBaseline, FileBaseline } from './baseline-types';
+import { getLastCommitId } from './baseline-git';
 
 const getBlacklistedTypes = (): string[] => {
   return ['manyParameters', 'featureEnvy', 'fileSize', 'functionSize', 'comment'];
