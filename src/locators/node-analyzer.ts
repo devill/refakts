@@ -7,7 +7,7 @@ import {
   NodeAssignmentAnalyzer, 
   VariableNameExtractor, 
   NodeDeclarationMatcher 
-} from './services';
+} from '../core/services/locators/index';
 
 export class NodeAnalyzer {
 

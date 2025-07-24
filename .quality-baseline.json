@@ -1,4 +1,10 @@
 {
+  "src/core/services/import-reference-service.ts": {
+    "lastCommitId": "b2bef4e79b015bb230464cd52cdf4e565ce447c9",
+    "violations": [
+      "fileSize"
+    ]
+  },
   "src/quality-tools/baseline-cli.ts": {
     "lastCommitId": "a72fa72ef3743bd784e97d7d0d0b685a14aaa395",
     "violations": [
@@ -78,7 +84,7 @@
     ]
   },
   "tests/unit/services/variable-name-validator.test.ts": {
-    "lastCommitId": "5ebd46de91df11378651335978a0b01024b892f2",
+    "lastCommitId": "a6984490fd6005c2f8c758a0d3712389a546fb09",
     "violations": [
       "comment",
       "fileSize"
@@ -100,7 +106,7 @@
     ]
   },
   "tests/unit/services/extraction-scope-analyzer.test.ts": {
-    "lastCommitId": "a0fece80d0baa84a5fb21ead3febdc6c373a150f",
+    "lastCommitId": "8b7af381c7b1f1a5c6548055d52ef086592e8024",
     "violations": [
       "fileSize"
     ]
