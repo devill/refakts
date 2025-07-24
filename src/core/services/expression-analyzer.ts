@@ -1,5 +1,5 @@
 import { Node } from 'ts-morph';
-import { NodeAnalyzer } from '../locators/node-analyzer';
+import { NodeAnalyzer } from '../../locators/node-analyzer';
 
 export class ExpressionAnalyzer {
   needsParentheses(node: Node): boolean {
