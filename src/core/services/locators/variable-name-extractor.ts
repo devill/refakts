@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import { Node } from 'ts-morph';
-import { NodeTypeClassifier } from '../../core/ast/node-type-classifier';
+import { NodeTypeClassifier } from '../../ast/node-type-classifier';
 
 export class VariableNameExtractor {
   static getVariableName(declaration: Node): string | undefined {

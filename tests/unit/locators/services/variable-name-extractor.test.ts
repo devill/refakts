@@ -1,4 +1,4 @@
-import { VariableNameExtractor } from '../../../../src/locators/services/variable-name-extractor';
+import { VariableNameExtractor } from '../../../../src/core/services/locators/variable-name-extractor';
 import { Project } from 'ts-morph';
 import * as ts from 'typescript';
 import { verify } from 'approvals';
