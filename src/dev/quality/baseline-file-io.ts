@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { QualityBaseline, BASELINE_FILE } from '../../quality-tools/baseline-types';
+import { QualityBaseline, BASELINE_FILE } from './baseline-types';
 
 const getBaselinePath = (): string => {
   return join(process.cwd(), BASELINE_FILE);

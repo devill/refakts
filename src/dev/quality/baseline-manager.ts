@@ -1,5 +1,5 @@
 import { QualityIssue } from '../../quality-tools/quality-check-interface';
-import { QualityBaseline, FileBaseline } from '../../quality-tools/baseline-types';
+import { QualityBaseline, FileBaseline } from './baseline-types';
 import { getLastCommitId } from './baseline-git';
 import { loadBaseline, saveBaseline } from './baseline-file-io';
 import { generateBaseline, buildCurrentViolationsMap } from '../../quality-tools/baseline-violations';
