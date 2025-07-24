@@ -5,7 +5,7 @@ import { ASTService } from '../ast/ast-service';
 import { ExtractionScopeAnalyzer } from '../../services/extraction-scope-analyzer';
 import { VariableNameValidator } from '../../services/variable-name-validator';
 import { StatementInserter } from '../transformations/statement-inserter';
-import { ExpressionMatcher } from '../../services/expression-matcher';
+import { ExpressionMatcher } from '../services/expression-matcher';
 import { LocationRange } from '../ast/location-range';
 
 export class ExtractVariableCommand implements RefactoringCommand {

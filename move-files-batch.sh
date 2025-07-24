@@ -53,12 +53,8 @@ echo "📊 Progress tracking: Moving core/services files"
 echo ""
 
 # List of files to move (core/services section from checklist)
+# Already moved: boundary-analyzer, class-method-finder, context-analyzer, cross-file-reference-finder, expression-analyzer
 declare -a moves=(
-    "services/boundary-analyzer.ts:core/services/boundary-analyzer.ts"
-    "services/class-method-finder.ts:core/services/class-method-finder.ts"
-    "services/context-analyzer.ts:core/services/context-analyzer.ts"
-    "services/cross-file-reference-finder.ts:core/services/cross-file-reference-finder.ts"
-    "services/expression-analyzer.ts:core/services/expression-analyzer.ts"
     "services/expression-matcher.ts:core/services/expression-matcher.ts"
     "services/extraction-scope-analyzer.ts:core/services/extraction-scope-analyzer.ts"
     "services/file-system-helper.ts:core/services/file-system/helper.ts"
