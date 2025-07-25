@@ -42,7 +42,7 @@ jobs:
     
     - name: Test CLI functionality
       run: |
-        node dist/cli.js --help
+        node dist/command-line-parser/cli.js --help
         echo "const x = 1 + 2;" > test.ts
-        node dist/cli.js select test.ts --regex "x"
+        node dist/command-line-parser/cli.js select test.ts --regex "x"
         rm test.ts

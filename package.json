@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "bin": {
-    "refakts": "dist/cli.js"
+    "refakts": "dist/command-line-parser/cli.js"
   },
   "scripts": {
     "build": "tsc && cp src/core/commands/*.json dist/core/commands/ && cp src/core/commands/*.help.txt dist/core/commands/",
