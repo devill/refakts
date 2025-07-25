@@ -1,5 +1,5 @@
 import { ASTService } from '../ast/ast-service';
-import { SourceFile } from 'ts-morph';
+import { SourceFile, Diagnostic } from 'ts-morph';
 import * as path from 'path';
 
 export interface FileSystemWrapper {
@@ -56,19 +56,29 @@ export class FileValidator {
 
   private getSyntaxErrors(sourcePath: string): string[] {
     const seriousErrors = this.collectErrors(this._astService.loadSourceFile(sourcePath));
-    return seriousErrors.map(diagnostic => {
-      const message = diagnostic.getMessageText();
-      const messageStr = typeof message === 'string' ? message : message.getMessageText();
-      const start = diagnostic.getStart ? diagnostic.getStart() : undefined;
-      if (start !== undefined) {
-        const sourceFile = diagnostic.getSourceFile ? diagnostic.getSourceFile() : undefined;
-        if (sourceFile) {
-          const lineAndChar = sourceFile.getLineAndColumnAtPos(start);
-          return `Line ${lineAndChar.line + 1}, Column ${lineAndChar.column + 1}: ${messageStr}`;
-        }
-      }
-      return messageStr;
-    });
+    return seriousErrors.map(diagnostic => this.formatDiagnostic(diagnostic));
+  }
+
+  private formatDiagnostic(diagnostic: Diagnostic): string {
+    const messageStr = this.extractMessageText(diagnostic);
+    const locationPrefix = this.formatLocationPrefix(diagnostic);
+    return locationPrefix ? `${locationPrefix}: ${messageStr}` : messageStr;
+  }
+
+  private extractMessageText(diagnostic: Diagnostic): string {
+    const message = diagnostic.getMessageText();
+    return typeof message === 'string' ? message : message.getMessageText();
+  }
+
+  private formatLocationPrefix(diagnostic: Diagnostic): string | undefined {
+    const start = diagnostic.getStart ? diagnostic.getStart() : undefined;
+    if (start === undefined) return undefined;
+    
+    const sourceFile = diagnostic.getSourceFile ? diagnostic.getSourceFile() : undefined;
+    if (!sourceFile) return undefined;
+    
+    const lineAndChar = sourceFile.getLineAndColumnAtPos(start);
+    return `Line ${lineAndChar.line + 1}, Column ${lineAndChar.column + 1}`;
   }
 
   private collectErrors(sourceFile: SourceFile) {

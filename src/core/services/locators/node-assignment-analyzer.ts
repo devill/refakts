@@ -1,6 +1,5 @@
 import * as ts from 'typescript';
 import { Node, BinaryExpression } from 'ts-morph';
-import { NodeContext } from '../core-node-context';
 
 export class NodeAssignmentAnalyzer {
   static isAssignmentContext(parent: Node | undefined, node: Node): boolean {
@@ -17,10 +16,10 @@ export class NodeAssignmentAnalyzer {
   }
 
   static determineUsageType(node: Node): 'read' | 'write' | 'update' {
-    const nodeContext = NodeContext.create(node, node.getSourceFile());
+    const parent = node.getParent();
     
-    if (nodeContext.isAssignmentContext()) return 'write';
-    if (nodeContext.isUpdateContext()) return 'update';
+    if (this.isAssignmentContext(parent, node)) return 'write';
+    if (this.isUpdateContext(parent, node)) return 'update';
     return 'read';
   }
 
