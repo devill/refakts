@@ -1,6 +1,6 @@
 import { Project } from 'ts-morph';
 import * as ts from 'typescript';
-import { NodeContext } from '../../../src/core/node-context';
+import { NodeContext } from '../../../src/core/services/core-node-context';
 
 export function setupProject() {
   return new Project();

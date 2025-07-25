@@ -32,9 +32,11 @@ export class FileValidator {
 
   private ensureFileHasValidSyntax(sourcePath: string): void {
     try {
-      if (this.hasSyntaxErrors(sourcePath)) {
+      const errors = this.getSyntaxErrors(sourcePath);
+      if (errors.length > 0) {
         const relativePath = path.relative(process.cwd(), sourcePath);
-        throw new Error(`Syntax errors detected in ${relativePath}`);
+        const errorDetails = errors.map(error => `  - ${error}`).join('\n');
+        throw new Error(`Syntax errors detected in ${relativePath}:\n${errorDetails}`);
       }
     } catch (error: unknown) {
       this.handleSyntaxValidationError(error, sourcePath);
@@ -52,9 +54,21 @@ export class FileValidator {
     throw new Error(`Cannot validate syntax of ${sourcePath}: ${errorWithMessage.message || 'Unknown error'}`);
   }
 
-  private hasSyntaxErrors(sourcePath: string): boolean {
+  private getSyntaxErrors(sourcePath: string): string[] {
     const seriousErrors = this.collectErrors(this._astService.loadSourceFile(sourcePath));
-    return seriousErrors.length > 0;
+    return seriousErrors.map(diagnostic => {
+      const message = diagnostic.getMessageText();
+      const messageStr = typeof message === 'string' ? message : message.getMessageText();
+      const start = diagnostic.getStart ? diagnostic.getStart() : undefined;
+      if (start !== undefined) {
+        const sourceFile = diagnostic.getSourceFile ? diagnostic.getSourceFile() : undefined;
+        if (sourceFile) {
+          const lineAndChar = sourceFile.getLineAndColumnAtPos(start);
+          return `Line ${lineAndChar.line + 1}, Column ${lineAndChar.column + 1}: ${messageStr}`;
+        }
+      }
+      return messageStr;
+    });
   }
 
   private collectErrors(sourceFile: SourceFile) {

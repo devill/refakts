@@ -1,5 +1,5 @@
 import { SourceFile } from 'ts-morph';
-import { NodeContext } from '../../locators/node-context';
+import { NodeContext } from '../services/locator-node-context';
 
 export interface PositionRequest {
   line: number;

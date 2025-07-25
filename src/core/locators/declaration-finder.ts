@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import { Node } from 'ts-morph';
-import { NodeContext } from '../../locators/node-context';
+import { NodeContext } from '../services/locator-node-context';
 
 export class DeclarationFinder {
   static isDeclaration(node: Node): boolean {

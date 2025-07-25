@@ -1,8 +1,8 @@
 import { Node } from 'ts-morph';
-import { NodeContext } from '../node-context';
+import { NodeContext } from '../services/core-node-context';
 import { NodeDeclarationMatcher } from '../services/locators/node-declaration-matcher';
 import { ShadowingAnalysisRequestFactory } from '../shadowing-analysis-request-factory';
-import { NodeContext as LocatorNodeContext } from '../../locators/node-context';
+import { NodeContext as LocatorNodeContext } from '../services/locator-node-context';
 import { ScopeContext } from '../scope-context';
 
 

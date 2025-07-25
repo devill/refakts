@@ -47,7 +47,7 @@ describe('FileValidator', () => {
       mockASTService.loadSourceFile.mockReturnValue(mockSourceFile);
       
       expect(() => fileValidator.validateSourceFile('test/source.ts'))
-        .toThrow('Syntax errors detected in test/source.ts');
+        .toThrow('Syntax errors detected in test/source.ts:');
     });
 
     it('should pass when file exists and has valid syntax', () => {

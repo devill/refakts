@@ -1,7 +1,7 @@
 import { Node, SourceFile } from 'ts-morph';
 import { NodeAnalyzer } from '../services/node-analyzer';
 import { PositionData } from './position-data';
-import { NodeContext } from '../node-context';
+import { NodeContext } from '../services/core-node-context';
 
 export class PositionFinder {
   getDeclarationAtPosition(sourceFile: SourceFile, positionData: PositionData): Node {

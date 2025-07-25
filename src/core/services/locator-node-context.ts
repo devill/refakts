@@ -1,9 +1,9 @@
 import * as ts from 'typescript';
 import { Node, SourceFile } from 'ts-morph';
-import { ScopeAnalyzer } from '../core/services/scope-analyzer';
-import { DeclarationFinder } from '../core/locators/declaration-finder';
-import { VariableNameOperations } from '../core/locators/variable-name-operations';
-import { isShadowingDeclaration } from '../core/services/shadowing-analyzer';
+import { ScopeAnalyzer } from './scope-analyzer';
+import { DeclarationFinder } from '../locators/declaration-finder';
+import { VariableNameOperations } from '../locators/variable-name-operations';
+import { isShadowingDeclaration } from './shadowing-analyzer';
 
 export class NodeContext {
   private readonly node: Node;

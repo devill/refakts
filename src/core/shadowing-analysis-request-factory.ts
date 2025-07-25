@@ -1,5 +1,5 @@
 import { Node } from 'ts-morph';
-import { NodeContext } from './node-context';
+import { NodeContext } from './services/core-node-context';
 import { ShadowingAnalysisRequest } from './locators/shadowing-analysis-request';
 
 export class ShadowingAnalysisRequestFactory {

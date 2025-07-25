@@ -1,6 +1,5 @@
 import * as ts from 'typescript';
 import { Node } from 'ts-morph';
-import { NodeContext } from '../../locators/node-context';
 
 export class ScopeAnalyzer {
   static isScopeNode(node: Node): boolean {
@@ -42,8 +41,13 @@ export class ScopeAnalyzer {
   }
 
   static isScopeContainedIn(innerScope: Node, outerScope: Node): boolean {
-    const innerContext = new NodeContext(innerScope);
-    const outerContext = new NodeContext(outerScope);
-    return innerContext.isScopeContainedIn(outerContext);
+    let current: Node | undefined = innerScope;
+    while (current) {
+      if (current === outerScope) {
+        return true;
+      }
+      current = current.getParent();
+    }
+    return false;
   }
 }

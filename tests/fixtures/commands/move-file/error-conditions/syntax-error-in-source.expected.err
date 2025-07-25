@@ -1,1 +1,7 @@
-Syntax errors detected in src/broken.ts
+Syntax errors detected in src/broken.ts:
+  - Line 3, Column 33: Parameter declaration expected.
+  - Line 3, Column 35: Parameter 'string' implicitly has an 'any' type.
+  - Line 4, Column 11: Cannot find name 'name'.
+  - Line 4, Column 16: Identifier expected.
+  - Line 8, Column 12: Unexpected keyword or identifier.
+  - Line 8, Column 17: Member 'string' implicitly has an 'any' type.

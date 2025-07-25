@@ -1,8 +1,8 @@
 import * as ts from 'typescript';
 import { Node, SourceFile } from 'ts-morph';
-import { PositionData } from './locators/position-data';
-import { NodeDeclarationMatcher } from './services/locators/node-declaration-matcher';
-import { NodeScopeAnalyzer } from './services/locators/node-scope-analyzer';
+import { PositionData } from '../locators/position-data';
+import { NodeDeclarationMatcher } from './locators/node-declaration-matcher';
+import { NodeScopeAnalyzer } from './locators/node-scope-analyzer';
 
 export class NodeContext {
   readonly node: Node;

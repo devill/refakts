@@ -1,4 +1,4 @@
-import { NodeContext } from '../../../src/core/node-context';
+import { NodeContext } from '../../../src/core/services/core-node-context';
 import * as ts from 'typescript';
 import { verify } from 'approvals';
 import { setupProject } from './node-context-setup';

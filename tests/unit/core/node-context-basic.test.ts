@@ -1,4 +1,4 @@
-import { NodeContext } from '../../../src/core/node-context';
+import { NodeContext } from '../../../src/core/services/core-node-context';
 import { PositionData } from '../../../src/core/locators/position-data';
 import * as ts from 'typescript';
 import { setupProject } from './node-context-setup';
