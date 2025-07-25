@@ -1,6 +1,6 @@
 import { Project, SyntaxKind } from 'ts-morph';
 import { StatementInserter } from '../../../src/core/transformations/statement-inserter';
-import * as fixtures from '../../fixtures/unit/services/statement-scenarios';
+import * as fixtures from './statement-scenarios';
 
 describe('StatementInserter', () => {
   let inserter: StatementInserter;

@@ -1,6 +1,6 @@
 import { Project, SyntaxKind } from 'ts-morph';
 import { VariableNameValidator } from '../../../src/core/services/variable-name-validator';
-import * as fixtures from '../../fixtures/unit/services/validator-scenarios';
+import * as fixtures from './validator-scenarios';
 
 describe('VariableNameValidator', () => {
   let validator: VariableNameValidator;

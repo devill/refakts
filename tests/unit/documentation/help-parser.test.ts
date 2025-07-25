@@ -5,7 +5,7 @@ import {
   EMPTY_COMMANDS_HELP, 
   MALFORMED_HELP,
   MULTILINE_DESCRIPTION_HELP 
-} from '../../fixtures/unit/documentation/help-output-samples';
+} from './help-output-samples';
 
 // Import the private functions from update-readme.ts
 // We'll need to extract these to a testable module, but for now we'll copy the logic

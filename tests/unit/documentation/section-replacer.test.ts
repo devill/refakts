@@ -5,7 +5,7 @@ import {
   MISSING_END_MARKER,
   NO_MARKERS,
   NESTED_MARKERS
-} from '../../fixtures/unit/documentation/section-samples';
+} from './section-samples';
 import { SectionReplacer } from '../../../src/dev/section-replacer';
 import { SectionReplacementRequest } from '../../../src/dev/section-replacement-request';
 

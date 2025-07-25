@@ -4,7 +4,7 @@ import {
   EMPTY_QUALITY_CHECKS,
   BROKEN_QUALITY_CHECK,
   NO_GROUP_DEFINITIONS
-} from '../../fixtures/unit/documentation/quality-check-samples';
+} from './quality-check-samples';
 
 // Copy the quality checks parsing logic for testing
 // We'll need to extract these to a testable module in the refactor
