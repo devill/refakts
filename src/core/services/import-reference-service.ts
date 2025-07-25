@@ -1,6 +1,6 @@
 import {ExportDeclaration, ImportDeclaration, Project, SourceFile} from 'ts-morph';
 import {ASTService} from '../ast/ast-service';
-import { MovedFileImportUpdater } from './moved-file-import-updater';
+import {MovedFileImportUpdater} from './moved-file-import-updater';
 import * as path from 'path';
 
 export class ImportReferenceService {
@@ -56,21 +56,15 @@ export class ImportReferenceService {
   }
 
   private fileImportsFrom(sourceFile: SourceFile, targetPath: string): boolean {
-    const imports = sourceFile.getImportDeclarations();
-    const exports = sourceFile.getExportDeclarations();
     const targetPaths = this.createTargetPathVariants(targetPath);
-    
-    const hasImportFromTarget = this.checkImportsFromTarget(imports, targetPaths, sourceFile);
-    const hasExportFromTarget = this.checkExportsFromTarget(exports, targetPaths, sourceFile);
-    
-    return hasImportFromTarget || hasExportFromTarget;
+
+    return this.checkImportsFromTarget(sourceFile.getImportDeclarations(), targetPaths, sourceFile) ||
+        this.checkExportsFromTarget(sourceFile.getExportDeclarations(), targetPaths, sourceFile);
   }
 
   private checkImportsFromTarget(imports: ImportDeclaration[], targetPaths: string[], sourceFile: SourceFile): boolean {
     return imports.some(importDeclaration => {
-      const moduleSpecifier = importDeclaration.getModuleSpecifierValue();
-      const resolvedPath = this.resolveImportPath(sourceFile.getFilePath(), moduleSpecifier);
-      return targetPaths.includes(resolvedPath);
+      return targetPaths.includes(this.resolveImportPath(sourceFile.getFilePath(), importDeclaration.getModuleSpecifierValue()));
     });
   }
 
@@ -78,25 +72,20 @@ export class ImportReferenceService {
     return exports.some(exportDeclaration => {
       const moduleSpecifier = exportDeclaration.getModuleSpecifierValue();
       if (!moduleSpecifier) return false;
-      const resolvedPath = this.resolveImportPath(sourceFile.getFilePath(), moduleSpecifier);
-      return targetPaths.includes(resolvedPath);
+      return targetPaths.includes(this.resolveImportPath(sourceFile.getFilePath(), moduleSpecifier));
     });
   }
 
   private createTargetPathVariants(targetPath: string): string[] {
-    const baseVariants = this.createBaseFileVariants(targetPath);
-    const directoryVariants = this.createDirectoryVariantsForIndexFiles(targetPath);
-    
-    return [...baseVariants, ...directoryVariants];
+    return [...(this.createBaseFileVariants(targetPath)), ...(this.createDirectoryVariantsForIndexFiles(targetPath))];
   }
 
   private createBaseFileVariants(targetPath: string): string[] {
-    const targetPathWithoutExtension = targetPath.replace(/\.ts$/, '');
     const absoluteTargetPath = path.resolve(targetPath);
     const absoluteTargetPathWithoutExtension = absoluteTargetPath.replace(/\.ts$/, '');
     
     return [
-      targetPathWithoutExtension,
+      targetPath.replace(/\.ts$/, ''),
       targetPath,
       absoluteTargetPath,
       absoluteTargetPathWithoutExtension
@@ -109,9 +98,7 @@ export class ImportReferenceService {
     }
     
     const directory = path.dirname(targetPath);
-    const absoluteDirectory = path.resolve(directory);
-    
-    return [directory, absoluteDirectory];
+    return [directory, path.resolve(directory)];
   }
 
   private updateImportsInFile(sourceFile: SourceFile, sourcePath: string, destinationPath: string): void {
@@ -137,8 +124,7 @@ export class ImportReferenceService {
   }
 
   private updateImportDeclaration(importDeclaration: ImportDeclaration, context: { filePath: string; sourcePathWithoutExtension: string; sourcePath: string; destinationPath: string }): void {
-    const moduleSpecifier = importDeclaration.getModuleSpecifierValue();
-    const resolvedPath = this.resolveImportPath(context.filePath, moduleSpecifier);
+    const resolvedPath = this.resolveImportPath(context.filePath, importDeclaration.getModuleSpecifierValue());
     
     if (this.isTargetImport(resolvedPath, context.sourcePathWithoutExtension, context.sourcePath)) {
       const newImportPath = this.calculateNewImportPath(context.filePath, context.destinationPath);
@@ -202,20 +188,5 @@ export class ImportReferenceService {
 
   async updateImportsInMovedFile(originalPath: string, newPath: string): Promise<void> {
     return this.movedFileImportUpdater.updateImportsInMovedFile(originalPath, newPath);
-  }
-
-  private isRelativeImport(moduleSpecifier: string): boolean {
-    return moduleSpecifier.startsWith('./') || moduleSpecifier.startsWith('../');
-  }
-
-  private recalculateRelativeImport(oldImportPath: string, originalDir: string, newDir: string): string {
-    const targetPath = path.resolve(originalDir, oldImportPath);
-    let newRelativePath = path.relative(newDir, targetPath);
-    
-    if (!newRelativePath.startsWith('./') && !newRelativePath.startsWith('../')) {
-      newRelativePath = './' + newRelativePath;
-    }
-    
-    return newRelativePath.replace(/\\/g, '/');
   }
 }

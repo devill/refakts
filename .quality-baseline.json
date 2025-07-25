@@ -1,10 +1,4 @@
 {
-  "src/core/services/import-reference-service.ts": {
-    "lastCommitId": "9a1aaea33847ecc9ad8d699302c8db5d00b74c58",
-    "violations": [
-      "fileSize"
-    ]
-  },
   "src/dev/quality/baseline-cli.ts": {
     "lastCommitId": "72f0b80a2c1206e923102a707e6bb7d401905fb6",
     "violations": [
@@ -37,13 +31,13 @@
     ]
   },
   "src/dev/quality/checks/comment-check.ts": {
-    "lastCommitId": "75aef8f398d46ef7c661d51612fb4753c61129ff",
+    "lastCommitId": "876773659621d2929ad9c16187ad30ab7dcc177b",
     "violations": [
       "functionSize"
     ]
   },
   "src/dev/quality/checks/complexity-check.ts": {
-    "lastCommitId": "34c0630e797e2ab9addd58832ab8d95dfdd19d09",
+    "lastCommitId": "876773659621d2929ad9c16187ad30ab7dcc177b",
     "violations": [
       "functionSize"
     ]
@@ -55,7 +49,7 @@
     ]
   },
   "src/dev/quality/checks/feature-envy-check.ts": {
-    "lastCommitId": "6bc4666b54e4d3d72d5b68b565bc91c57b60272c",
+    "lastCommitId": "876773659621d2929ad9c16187ad30ab7dcc177b",
     "violations": [
       "functionSize"
     ]
