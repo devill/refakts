@@ -14,7 +14,7 @@ export class SortMethodsCommand implements RefactoringCommand {
   readonly complete = true;
 
   private consoleOutput!: ConsoleOutput;
-  private astService = new ASTService();
+  private astService!: ASTService;
   private methodFinder = new ClassMethodFinder();
   private dependencyAnalyzer = new MethodDependencyAnalyzer();
   private outputHandler!: SelectOutputHandler;

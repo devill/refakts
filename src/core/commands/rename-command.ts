@@ -1,10 +1,10 @@
 import { RefactoringCommand, CommandOptions } from './command';
 import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
-import { Node, SourceFile } from 'ts-morph';
+import { Node } from 'ts-morph';
 import { ASTService } from '../ast/ast-service';
-import { VariableLocator, VariableNodeResult } from '../locators/variable-locator';
+import { UsageFinderService } from '../services/usage-finder-service';
 import { RenameVariableTransformation } from '../transformations/rename-variable-transformation';
-import { LocationRange } from '../ast/location-range';
+import { LocationRange, UsageLocation } from '../ast/location-range';
 import { NodeAnalyzer } from '../services/node-analyzer';
 
 export class RenameCommand implements RefactoringCommand {
@@ -13,20 +13,15 @@ export class RenameCommand implements RefactoringCommand {
   readonly complete = true;
 
   private consoleOutput!: ConsoleOutput;
-  private astService = new ASTService();
-  private variableLocator: VariableLocator;
-
-  constructor() {
-    this.variableLocator = new VariableLocator(this.astService.getProject());
-  }
+  private astService!: ASTService;
+  private usageFinderService = new UsageFinderService();
 
   async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
     this.astService = ASTService.createForFile(file);
-    this.variableLocator = new VariableLocator(this.astService.getProject());
     const sourceFile = this.astService.loadSourceFile(file);
     const node = this.findTargetNode(options);
-    await this.performRename(node, options.to as string);
+    await this.performRename(node, options.location as LocationRange, options.to as string);
     await this.astService.saveSourceFile(sourceFile);
   }
 
@@ -47,29 +42,39 @@ export class RenameCommand implements RefactoringCommand {
     return '\nExamples:\n  refakts rename "[src/file.ts 5:8-5:18]" --to newName';
   }
 
-  private async performRename(node: Node, newName: string): Promise<void> {
+  private async performRename(node: Node, location: LocationRange, newName: string): Promise<void> {
     NodeAnalyzer.validateIdentifierNode(node);
-    const sourceFile = node.getSourceFile();
-    const nodeResult = this.findVariableNodesAtPosition(node, sourceFile);
-    const transformation = this.createRenameTransformation(nodeResult, newName);
-    await transformation.transform(sourceFile);
+    const usages = await this.usageFinderService.findUsages(location);
+    const transformation = this.createRenameTransformation(usages, newName);
+    await transformation.transform(node.getSourceFile());
   }
 
-  private findVariableNodesAtPosition(node: Node, sourceFile: SourceFile) {
-    const targetPosition = sourceFile.getLineAndColumnAtPos(node.getStart());
-    return this.variableLocator.findVariableNodesByPositionSync(
-      sourceFile,
-      targetPosition.line,
-      targetPosition.column
-    );
-  }
-
-  private createRenameTransformation(nodeResult: VariableNodeResult, newName: string) {
+  private createRenameTransformation(usages: UsageLocation[], newName: string) {
+    const declarationNode = this.findDeclarationNode(usages);
+    const usageNodes = this.getUsageNodes(usages);
+    
     return new RenameVariableTransformation(
-      nodeResult.declaration,
-      nodeResult.usages.map((u: { node: Node }) => u.node),
+      declarationNode,
+      usageNodes,
       newName
     );
+  }
+
+  private findDeclarationNode(usages: UsageLocation[]): Node {
+    if (usages.length === 0) {
+      throw new Error('No usages found');
+    }
+    
+    const firstUsage = usages[0];
+    const astService = ASTService.createForFile(firstUsage.location.file);
+    return astService.findNodeByLocation(firstUsage.location);
+  }
+
+  private getUsageNodes(usages: UsageLocation[]): Node[] {
+    return usages.map(usage => {
+      const astService = ASTService.createForFile(usage.location.file);
+      return astService.findNodeByLocation(usage.location);
+    });
   }
 
   setConsoleOutput(consoleOutput: ConsoleOutput): void {

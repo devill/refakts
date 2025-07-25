@@ -5,16 +5,17 @@ import {
   Expression,
   FunctionDeclaration,
   MethodDeclaration,
-  Project,
   SourceFile
 } from 'ts-morph';
+import { ProjectFactory } from '../../../core/ast/project-factory';
 import * as path from 'path';
 import * as ts from 'typescript';
 
 export const functionSizeCheck: QualityCheck = {
   name: 'functionSize',
   check: (files: string[]): QualityIssue[] => {
-    const project = new Project();
+    const factory = new ProjectFactory();
+    const project = factory.createDefault();
     project.addSourceFilesAtPaths(files);
     
     return project.getSourceFiles()

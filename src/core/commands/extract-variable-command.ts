@@ -14,7 +14,7 @@ export class ExtractVariableCommand implements RefactoringCommand {
   readonly complete = true;
 
   private consoleOutput!: ConsoleOutput;
-  private astService = new ASTService();
+  private astService!: ASTService;
   private scopeAnalyzer = new ExtractionScopeAnalyzer();
   private nameValidator = new VariableNameValidator();
   private statementInserter = new StatementInserter();

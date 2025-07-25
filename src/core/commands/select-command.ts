@@ -11,7 +11,7 @@ export class SelectCommand implements RefactoringCommand {
   readonly complete = true;
 
   private consoleOutput!: ConsoleOutput;
-  private astService = new ASTService();
+  private astService!: ASTService;
   private strategyFactory = new SelectionStrategyFactory();
   private outputHandler!: SelectOutputHandler;
 

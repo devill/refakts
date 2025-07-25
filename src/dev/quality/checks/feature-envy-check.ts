@@ -1,12 +1,13 @@
 import { QualityCheck, QualityIssue } from '../quality-check-interface';
-import { Project } from 'ts-morph';
+import { ProjectFactory } from '../../../core/ast/project-factory';
 import * as path from 'path';
 import { ImportSymbolExtractor, FeatureEnvyDetector } from './index';
 
 export const featureEnvyCheck: QualityCheck = {
   name: 'featureEnvy',
   check: (files: string[]): QualityIssue[] => {
-    const project = new Project();
+    const factory = new ProjectFactory();
+    const project = factory.createDefault();
     project.addSourceFilesAtPaths(files);
     
     const issues: QualityIssue[] = [];

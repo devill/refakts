@@ -4,7 +4,7 @@ import { MovedFileImportUpdater } from './moved-file-import-updater';
 import * as path from 'path';
 
 export class ImportReferenceService {
-  private astService = new ASTService();
+  private astService = ASTService.createInMemory();
   private movedFileImportUpdater = new MovedFileImportUpdater(this.astService);
 
   checkFileImportsFrom(sourcePath: string, targetPath: string): boolean {

@@ -6,11 +6,9 @@ import * as path from 'path';
 
 export class ASTService {
   private project: Project;
-  private tsConfigResolved = false;
 
-  constructor(project?: Project) {
-    this.project = project || new ProjectFactory().createDefault();
-    this.tsConfigResolved = !!project;
+  private constructor(project: Project) {
+    this.project = project;
   }
 
   static createForFile(filePath: string): ASTService {
@@ -20,28 +18,24 @@ export class ASTService {
     return new ASTService(project);
   }
 
+  static createInMemory(): ASTService {
+    const factory = new ProjectFactory();
+    const project = factory.createDefault();
+    
+    return new ASTService(project);
+  }
+
+  static createWithProject(project: Project): ASTService {
+    return new ASTService(project);
+  }
+
   loadSourceFile(filePath: string): SourceFile {
-    this.ensureTsConfigLoaded(filePath);
     const absolutePath = this.resolveAbsolutePath(filePath);
     const existingFile = this.getExistingSourceFile(absolutePath);
     if (existingFile) {
       return existingFile;
     }
     return this.addSourceFileAtPath(absolutePath, filePath);
-  }
-
-  private ensureTsConfigLoaded(filePath: string): void {
-    if (this.tsConfigResolved) {
-      return;
-    }
-
-    this.loadProjectWithTsConfig(filePath);
-    this.tsConfigResolved = true;
-  }
-
-  private loadProjectWithTsConfig(filePath: string): void {
-    const factory = new ProjectFactory();
-    this.project = factory.createForFile(filePath);
   }
 
 

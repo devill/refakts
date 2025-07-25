@@ -1,11 +1,13 @@
 import {QualityCheck, QualityIssue} from '../quality-check-interface';
-import {Project, SourceFile} from 'ts-morph';
+import {SourceFile} from 'ts-morph';
+import { ProjectFactory } from '../../../core/ast/project-factory';
 import * as path from 'path';
 
 export const fileSizeCheck: QualityCheck = {
   name: 'fileSize',
   check: (files: string[]): QualityIssue[] => {
-    const project = new Project();
+    const factory = new ProjectFactory();
+    const project = factory.createDefault();
     project.addSourceFilesAtPaths(files);
 
     return project.getSourceFiles()

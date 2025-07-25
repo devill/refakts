@@ -1,7 +1,7 @@
 import { QualityCheck, QualityIssue } from '../quality-check-interface';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { Project } from 'ts-morph';
+import { ProjectFactory } from '../../../core/ast/project-factory';
 import * as path from 'path';
 
 const execAsync = promisify(exec);
@@ -102,7 +102,8 @@ const isGeneratedFunction = (name: string): boolean => {
 
 
 const analyzeParameterCountFromFiles = (files: string[]): QualityIssue[] => {
-  const project = new Project();
+  const factory = new ProjectFactory();
+  const project = factory.createDefault();
   project.addSourceFilesAtPaths(files);
   
   const issues: QualityIssue[] = [];

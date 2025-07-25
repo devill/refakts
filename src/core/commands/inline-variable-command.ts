@@ -14,7 +14,7 @@ export class InlineVariableCommand implements RefactoringCommand {
   readonly complete = true;
 
   private consoleOutput!: ConsoleOutput;
-  private astService = new ASTService();
+  private astService!: ASTService;
   private declarationFinder = new VariableDeclarationFinder();
   private expressionAnalyzer = new ExpressionAnalyzer();
   private variableReplacer = new VariableReplacer();

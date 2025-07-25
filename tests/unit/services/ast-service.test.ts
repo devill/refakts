@@ -8,7 +8,7 @@ describe('ASTService', () => {
 
   beforeEach(() => {
     project = new Project({ useInMemoryFileSystem: true });
-    astService = new ASTService(project);
+    astService = ASTService.createWithProject(project);
   });
 
   describe('findNodeByLocation', () => {
