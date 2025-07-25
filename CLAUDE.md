@@ -6,6 +6,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 RefakTS is a TypeScript refactoring tool built for AI coding agents to perform precise refactoring operations via command line instead of requiring complete code regeneration. The tool uses ts-morph for AST manipulation and TypeScript analysis.
 
+### Architecture
+
+**Production Architecture:**
+- `src/command-line-parser/` - CLI argument parsing and command registration
+    - `output-formatter/` - Format output to human-readable format
+- `src/core/` - Self-contained core refactoring functionality
+    - `src/core/ast/` - Core AST operations and types (self-contained)
+    - `src/core/commands/` - Lightweight command orchestrators
+    - `src/core/locators/` - Find files and AST nodes based on search conditions
+    - `src/core/services/` - Utility classes supporting locators/transformations
+      - `src/core/services/file-system` - Classes that facilitate file system operations
+      - `src/core/services/locators` - Supporting classes for locators (should probably be removed long term)
+      - `src/core/services/selection` - Selection strategies used by the select command
+    - `src/core/transformations/` - Modify codebase (atomic or complex sequences)
+- `dev/` - Development tools
+    - `dev/quality/` - Code quality detection
+    - `dev/roadmap/` - Roadmap voting system
+
+**Test Directory Architecture:**
+- `tests/fixtures/` - **ONLY** fixtures used by `tests/integration/fixture.test.ts`
+- `tests/unit/` - Unit tests with their test data files next to them
+    - Test data files should be co-located with the unit tests that use them
+    - Use `test-data/` subdirectories or `.fixture.ts` files next to tests
+- `tests/integration/` - Integration test runners (`fixture.test.ts`)
+- `tests/utils/` - Test utilities and helpers shared across test types
+- `tests/scripts/` - Test management scripts (fixture approval, review, etc.)
+
+Some files may still be misplaced. If you find such issues, suggest a fix. 
+
+
 ## Development Environment
 
 **CRITICAL: Template Sync** When making changes to git hooks, scripts, or development setup, always check and update the template files in `dev-env-setup/` to keep them synchronized with the actual environment. These templates should be offered to users to include in their actual setup.
