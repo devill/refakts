@@ -1,5 +1,3 @@
-// Test fixtures for VariableNameValidator unit tests
-
 export const simpleFunction = `
 function calculate(input: number): number {
   const result = input * 2;

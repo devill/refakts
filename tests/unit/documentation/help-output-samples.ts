@@ -1,5 +1,3 @@
-// Sample help outputs for testing documentation parsing
-
 export const FULL_CLI_HELP = `Usage: refakts [options] [command]
 
 RefakTS lets AI agents make precise code changes without rewriting entire files

@@ -1,5 +1,3 @@
-// Sample content for testing section replacement
-
 export const BASIC_MARKDOWN_CONTENT = `# Example Document
 
 Some introductory text.

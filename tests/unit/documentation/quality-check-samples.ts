@@ -1,5 +1,3 @@
-// Sample quality check objects for testing
-
 export const MOCK_QUALITY_CHECKS = [
   {
     name: 'comments',
@@ -30,7 +28,7 @@ export const EMPTY_QUALITY_CHECKS: Array<{ name: string; getGroupDefinition?: (k
 export const BROKEN_QUALITY_CHECK = [
   {
     name: 'broken',
-    getGroupDefinition: (key: string) => {
+    getGroupDefinition: (_key: string) => {
       throw new Error('Broken quality check');
     }
   }
@@ -39,6 +37,5 @@ export const BROKEN_QUALITY_CHECK = [
 export const NO_GROUP_DEFINITIONS = [
   {
     name: 'nogroups'
-    // No getGroupDefinition method
   }
 ];

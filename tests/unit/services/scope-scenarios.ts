@@ -1,5 +1,3 @@
-// Test fixtures for ExtractionScopeAnalyzer unit tests
-
 export const simpleFunction = `
 function calculateTotal(a: number, b: number): number {
   const sum = a + b;

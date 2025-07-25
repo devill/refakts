@@ -1,5 +1,3 @@
-// Test fixtures for StatementInserter unit tests
-
 export const functionWithStatements = `
 function processData(input: number): number {
   const doubled = input * 2;
