@@ -1,7 +1,7 @@
 import { Project, Node, SourceFile } from 'ts-morph';
 import { createLoadFileError } from '../services/file-system/error-utils';
 import { LocationRange, LocationParser } from './location-range';
-import { TsConfigFinder } from './tsconfig-finder';
+import { ProjectFactory } from './project-factory';
 import * as path from 'path';
 
 export class ASTService {
@@ -9,18 +9,15 @@ export class ASTService {
   private tsConfigResolved = false;
 
   constructor(project?: Project) {
-    this.project = project || new Project({});
+    this.project = project || new ProjectFactory().createDefault();
+    this.tsConfigResolved = !!project;
   }
 
   static createForFile(filePath: string): ASTService {
-    const finder = new TsConfigFinder();
-    const configPath = finder.findPreferredConfig(filePath);
+    const factory = new ProjectFactory();
+    const project = factory.createForFile(filePath);
     
-    if (!configPath) {
-      return new ASTService();
-    }
-
-    return new ASTService(new Project({ tsConfigFilePath: configPath }));
+    return new ASTService(project);
   }
 
   loadSourceFile(filePath: string): SourceFile {
@@ -43,18 +40,10 @@ export class ASTService {
   }
 
   private loadProjectWithTsConfig(filePath: string): void {
-    const tsConfigPath = this.findTsConfigPath(filePath);
-    if (require('fs').existsSync(tsConfigPath)) {
-      this.project = new Project({ tsConfigFilePath: tsConfigPath });
-    }
+    const factory = new ProjectFactory();
+    this.project = factory.createForFile(filePath);
   }
 
-  private findTsConfigPath(filePath: string): string {
-    const finder = new TsConfigFinder();
-    const configPath = finder.findPreferredConfig(filePath);
-    
-    return configPath || path.join(path.dirname(filePath), 'tsconfig.json');
-  }
 
   private resolveAbsolutePath(filePath: string): string {
     return path.resolve(filePath);
