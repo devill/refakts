@@ -26,6 +26,7 @@ RefakTS is a TypeScript refactoring tool built for AI coding agents to perform p
 
 **Test Directory Architecture:**
 - `tests/fixtures/` - **ONLY** fixtures used by `tests/integration/fixture.test.ts`
+  - `tests/fixtures/commands` - Fixture tests for all locator and refactoring commands
 - `tests/unit/` - Unit tests with their test data files next to them
     - Test data files should be co-located with the unit tests that use them
     - Use `test-data/` subdirectories or `.fixture.ts` files next to tests
