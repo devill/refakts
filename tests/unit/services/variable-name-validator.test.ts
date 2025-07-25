@@ -47,7 +47,6 @@ describe('VariableNameValidator', () => {
       const sourceFile = project.createSourceFile('test.ts', fixtures.nestedScopes);
       const outerBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0]; // Outer function block
       
-      // Variables from inner scope should conflict when checking outer scope because they're descendants
       expect(() => {
         validator.generateUniqueName('innerVar', outerBlock);
       }).toThrow("Variable name 'innerVar' already exists in this scope. Please choose a different name.");
@@ -103,7 +102,6 @@ describe('VariableNameValidator', () => {
       
       const existingNames = validator.getExistingVariableNames(outerBlock);
       
-      // Should include variables and parameters from all nested scopes
       expect(existingNames).toEqual(new Set([
         'param1', 'outerVar', 'param2', 'innerVar', 'anotherVar'
       ]));
@@ -115,7 +113,6 @@ describe('VariableNameValidator', () => {
       
       const existingNames = validator.getExistingVariableNames(functionBlock);
       
-      // Should include destructured parameter names and local variables
       expect(existingNames).toEqual(new Set([
         'url', 'method', 'options', 'normalizedUrl', 'upperMethod'
       ]));
@@ -127,7 +124,6 @@ describe('VariableNameValidator', () => {
       
       const existingNames = validator.getExistingVariableNames(outerBlock);
       
-      // Should include variables from nested arrow functions
       expect(existingNames).toEqual(new Set([
         'items', 'filtered', 'transformed', 'item', 'converted'
       ]));
@@ -225,7 +221,6 @@ describe('VariableNameValidator', () => {
       `);
       const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
       
-      // Should detect both myVar and MYVAR as separate names
       expect(() => {
         validator.generateUniqueName('myVar', functionBlock);
       }).toThrow("Variable name 'myVar' already exists in this scope. Please choose a different name.");
@@ -234,7 +229,6 @@ describe('VariableNameValidator', () => {
         validator.generateUniqueName('MYVAR', functionBlock);
       }).toThrow("Variable name 'MYVAR' already exists in this scope. Please choose a different name.");
       
-      // But myvar (different case) should be allowed
       const uniqueName = validator.generateUniqueName('myvar', functionBlock);
       expect(uniqueName).toBe('myvar');
     });

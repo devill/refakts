@@ -7,9 +7,6 @@ import {
   MULTILINE_DESCRIPTION_HELP 
 } from './help-output-samples';
 
-// Import the private functions from update-readme.ts
-// We'll need to extract these to a testable module, but for now we'll copy the logic
-
 function extractCommands(helpOutput: string): string {
   const lines = helpOutput.split('\n');
   const commandsStartIndex = findCommandsStart(lines);

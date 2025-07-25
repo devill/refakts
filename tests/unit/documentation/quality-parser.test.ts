@@ -6,9 +6,6 @@ import {
   NO_GROUP_DEFINITIONS
 } from './quality-check-samples';
 
-// Copy the quality checks parsing logic for testing
-// We'll need to extract these to a testable module in the refactor
-
 function getQualityChecksContent(qualityChecks: Array<{ name: string; getGroupDefinition?: (_key: string) => { title: string; description: string } | undefined }>): string {
   const descriptions = new Set<string>();
   

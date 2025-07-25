@@ -72,18 +72,6 @@
       "featureEnvy"
     ]
   },
-  "tests/unit/documentation/help-parser.test.ts": {
-    "lastCommitId": "86bb345942fe8286dfd2451aeeb4688d858dc625",
-    "violations": [
-      "comment"
-    ]
-  },
-  "tests/unit/documentation/quality-parser.test.ts": {
-    "lastCommitId": "86bb345942fe8286dfd2451aeeb4688d858dc625",
-    "violations": [
-      "comment"
-    ]
-  },
   "tests/unit/services/variable-name-validator.test.ts": {
     "lastCommitId": "4d7170d18e23cea4dc86b7c500ac66e148a95683",
     "violations": [
