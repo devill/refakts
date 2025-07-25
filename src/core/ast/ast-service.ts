@@ -1,7 +1,7 @@
 import { Project, Node, SourceFile } from 'ts-morph';
 import { createLoadFileError } from '../services/file-system/error-utils';
 import { LocationRange, LocationParser } from './location-range';
-import { FileSystemHelper } from '../services/file-system/helper';
+import { TsConfigFinder } from './tsconfig-finder';
 import * as path from 'path';
 
 export class ASTService {
@@ -13,15 +13,14 @@ export class ASTService {
   }
 
   static createForFile(filePath: string): ASTService {
-    const fileSystemHelper = new FileSystemHelper(new Project({}));
-    const projectRoot = fileSystemHelper.findProjectRoot(filePath);
-    const tsConfigPath = path.join(projectRoot, 'tsconfig.json');
-
-    if (require('fs').existsSync(tsConfigPath)) {
-      return new ASTService(new Project({ tsConfigFilePath: tsConfigPath }));
+    const finder = new TsConfigFinder();
+    const configPath = finder.findPreferredConfig(filePath);
+    
+    if (!configPath) {
+      return new ASTService();
     }
 
-    return new ASTService();
+    return new ASTService(new Project({ tsConfigFilePath: configPath }));
   }
 
   loadSourceFile(filePath: string): SourceFile {
@@ -51,9 +50,10 @@ export class ASTService {
   }
 
   private findTsConfigPath(filePath: string): string {
-    const fileSystemHelper = new FileSystemHelper(this.project);
-    const projectRoot = fileSystemHelper.findProjectRoot(filePath);
-    return path.join(projectRoot, 'tsconfig.json');
+    const finder = new TsConfigFinder();
+    const configPath = finder.findPreferredConfig(filePath);
+    
+    return configPath || path.join(path.dirname(filePath), 'tsconfig.json');
   }
 
   private resolveAbsolutePath(filePath: string): string {
