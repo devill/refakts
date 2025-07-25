@@ -72,13 +72,6 @@
       "featureEnvy"
     ]
   },
-  "tests/unit/services/variable-name-validator.test.ts": {
-    "lastCommitId": "4d7170d18e23cea4dc86b7c500ac66e148a95683",
-    "violations": [
-      "comment",
-      "fileSize"
-    ]
-  },
   "tests/unit/locators/services/node-scope-analyzer.test.ts": {
     "lastCommitId": "a2275658cfe4f7a63c19bda87abc0569e6bb3835",
     "violations": [
@@ -95,7 +88,13 @@
     ]
   },
   "tests/unit/services/extraction-scope-analyzer.test.ts": {
-    "lastCommitId": "77a62ba593983ab542a704f579b5278f63e66e91",
+    "lastCommitId": "1b78d8f83e245546f66b8415f9c943759c41c13a",
+    "violations": [
+      "fileSize"
+    ]
+  },
+  "tests/unit/services/variable-name-validator.test.ts": {
+    "lastCommitId": "0f4e7736995c00491695acae2238fe55da1bd0a0",
     "violations": [
       "fileSize"
     ]

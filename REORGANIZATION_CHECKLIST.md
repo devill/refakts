@@ -281,7 +281,7 @@ This checklist tracks the systematic reorganization of the RefakTS codebase into
 - [ ] Review if there are any files that were created during the moves that are now misplaced. 
 - [ ] Clean up left over empty directories
 - [ ] Run full test suite to ensure everything works
-- [ ] Update CLAUDE.md with new architecture documentation
+- [x] Update CLAUDE.md with new architecture documentation
 
 ---
 
