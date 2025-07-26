@@ -4,6 +4,8 @@ import { FileSystemScanner } from './scanners/file-system-scanner';
 import { FixtureLocation } from './fixture-location';
 import { MultiFileTestCaseFactory } from './multi-file-test-case-factory';
 
+import {statSync} from "fs";
+
 interface DirectoryProcessingContext {
   scanner: FileSystemScanner;
   inputFiles: string[];
@@ -64,7 +66,7 @@ export class InputFileScanner {
   }
 
   private handleFileOrDirectory(fullPath: string, entry: string, context: DirectoryProcessingContext): void {
-    const stat = require('fs').statSync(fullPath);
+    const stat = statSync(fullPath);
     if (stat.isDirectory()) {
       context.inputFiles.push(...this.findInputFilesRecursively(fullPath, context.scanner));
     } else if (entry.endsWith('.input.ts')) {
@@ -98,7 +100,7 @@ export class InputFileScanner {
   }
 
   private handleConfigFileOrDirectory(fullPath: string, entry: string, context: DirectoryProcessingContext): void {
-    const stat = require('fs').statSync(fullPath);
+    const stat = statSync(fullPath);
     if (stat.isDirectory()) {
       context.inputFiles.push(...this.findConfigFilesRecursively(fullPath, context.scanner));
     } else if (entry === 'fixture.config.json') {

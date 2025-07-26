@@ -2,7 +2,7 @@ import * as path from 'path';
 import { Project, getCompilerOptionsFromTsConfig } from 'ts-morph';
 import { minimatch } from 'minimatch';
 
-import {existsSync, readFileSync, statSync} from "fs";
+import {existsSync, readdirSync, readFileSync, statSync} from "fs";
 
 export class FileSystemHelper {
   private _projectRoot: string | null = null;
@@ -75,7 +75,7 @@ export class FileSystemHelper {
   }
 
   private tsConfigExists(tsConfigPath: string): boolean {
-    return require('fs').existsSync(tsConfigPath);
+    return existsSync(tsConfigPath);
   }
 
   private extractExcludePatternsFromTsConfig(tsConfigPath: string): string[] | null {
@@ -126,7 +126,7 @@ export class FileSystemHelper {
       return;
     }
     
-    const entries = require('fs').readdirSync(dir);
+    const entries = readdirSync(dir);
     this.processDirectoryEntries(dir, entries);
   }
 

@@ -21,9 +21,6 @@ if (!fixturePath) {
 const normalizedPath = normalizeFixturePath(fixturePath);
 validateFixtureExists(normalizedPath);
 
-const fs = require('fs');
-
-
 async function runFixtureTest() {
   const validator = createValidator();
   const testCase = loadTestCase();

@@ -1,3 +1,7 @@
+import {exec} from "child_process";
+
+import {promisify} from "util";
+
 export class CliExecutor {
   async executeCommand(commandString: string, cwd: string): Promise<string> {
     try {
@@ -17,8 +21,6 @@ export class CliExecutor {
   }
 
   private createExecAsync() {
-    const { exec } = require('child_process');
-    const { promisify } = require('util');
     return promisify(exec);
   }
 }

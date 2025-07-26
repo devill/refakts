@@ -51,20 +51,9 @@ ${received}`);
     }
   }
 
-  static cleanupFailedTestFile(file: string): void {
-    const expectedFile = file.replace('.received.', '.expected.');
-    if (!fs.existsSync(expectedFile)) {
-      // Preserve received files when expected files are missing
-      // This helps developers review output for new tests
-      console.log(`📁 Preserved received file for review: ${file}`);
-    }
-  }
-
   static cleanupSingleFile(file: string, testPassed: boolean): void {
     if (testPassed) {
       fs.unlinkSync(file);
-    } else {
-      TestUtilities.cleanupFailedTestFile(file);
     }
   }
 }

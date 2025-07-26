@@ -1,6 +1,8 @@
 import * as path from 'path';
 import {FixtureTestCase, TestCase} from './test-case-loader';
 
+import fs from "fs";
+
 export class MultiFileTestCaseFactory {
   createFromConfigFile(configFile: string): TestCase[] {
     const testCaseConfigs = this.readConfigFile(configFile);
@@ -15,7 +17,6 @@ export class MultiFileTestCaseFactory {
   }
 
   private readConfigFile(configFile: string): any[] {
-    const fs = require('fs');
     const configContent = fs.readFileSync(configFile, 'utf8');
     return JSON.parse(configContent);
   }
