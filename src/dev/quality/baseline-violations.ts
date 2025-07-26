@@ -3,7 +3,7 @@ import { QualityBaseline, FileBaseline } from './baseline-types';
 import { getLastCommitId } from './baseline-git';
 
 const getBlacklistedTypes = (): string[] => {
-  return ['manyParameters', 'featureEnvy', 'fileSize', 'functionSize', 'comment'];
+  return ['manyParameters', 'featureEnvy', 'fileSize', 'functionSize', 'comment', 'singleUseVariable'];
 };
 
 const addViolationToMap = (violations: Map<string, Set<string>>, filePath: string, issueType: string): void => {
