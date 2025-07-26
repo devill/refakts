@@ -2,6 +2,8 @@ import * as path from 'path';
 import { Project, getCompilerOptionsFromTsConfig } from 'ts-morph';
 import { minimatch } from 'minimatch';
 
+import {existsSync, readFileSync, statSync} from "fs";
+
 export class FileSystemHelper {
   private _projectRoot: string | null = null;
   private _excludePatterns: string[] = [];
@@ -42,7 +44,7 @@ export class FileSystemHelper {
 
   private hasTsConfig(dir: string): boolean {
     const tsConfigPath = path.join(dir, 'tsconfig.json');
-    return require('fs').existsSync(tsConfigPath);
+    return existsSync(tsConfigPath);
   }
 
   private loadTsConfigExcludePatterns(projectDir: string): void {
@@ -95,7 +97,7 @@ export class FileSystemHelper {
 
   private readExcludePatternsFromFile(tsConfigPath: string): string[] | null {
     try {
-      const rawConfig = JSON.parse(require('fs').readFileSync(tsConfigPath, 'utf8'));
+      const rawConfig = JSON.parse(readFileSync(tsConfigPath, 'utf8'));
       return rawConfig.exclude || [];
     } catch {
       return null;
@@ -129,18 +131,18 @@ export class FileSystemHelper {
   }
 
   private directoryExists(dir: string): boolean {
-    return require('fs').existsSync(dir);
+    return existsSync(dir);
   }
 
   private processDirectoryEntries(dir: string, entries: string[]): void {
     for (const entry of entries) {
-      const fullPath = require('path').join(dir, entry);
+      const fullPath = path.join(dir, entry);
       this.processEntry(fullPath, entry);
     }
   }
 
   private processEntry(fullPath: string, entry: string): void {
-    const stat = require('fs').statSync(fullPath);
+    const stat = statSync(fullPath);
     
     if (this.shouldProcessDirectory(stat, entry)) {
       this.loadAllFilesInDirectory(fullPath);

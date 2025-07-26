@@ -1,6 +1,8 @@
 import * as ts from 'typescript';
 import * as path from 'path';
 
+import {existsSync} from "fs";
+
 export class TsConfigFinder {
   findPreferredConfig(filePath: string): string | undefined {
     const tsConfigPath = this.findTsConfig(filePath);
@@ -23,7 +25,7 @@ export class TsConfigFinder {
     const configDir = path.dirname(tsConfigPath);
     const eslintConfigPath = path.join(configDir, 'tsconfig.eslint.json');
     
-    if (require('fs').existsSync(eslintConfigPath)) {
+    if (existsSync(eslintConfigPath)) {
       return eslintConfigPath;
     }
     

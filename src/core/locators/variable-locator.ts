@@ -5,6 +5,8 @@ import { VariableNodeMatcher } from './variable-node-matcher';
 import { VariableResultBuilder, VariableLocation, VariableLocationResult, VariableNodeResult } from './variable-result-builder';
 import { PositionData } from './position-data';
 
+import fs from "fs";
+
 export { VariableLocation, VariableLocationResult, VariableNodeResult };
 
 export class VariableLocator {
@@ -42,7 +44,6 @@ export class VariableLocator {
   }
 
   private loadSourceFile(filePath: string): SourceFile {
-    const fs = require('fs');
     const content = fs.readFileSync(filePath, 'utf8');
     return this.project.createSourceFile(filePath, content);
   }

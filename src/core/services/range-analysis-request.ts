@@ -1,6 +1,8 @@
 import { SourceFile } from 'ts-morph';
 import { PositionData } from '../locators/position-data';
 
+import path from "path";
+
 interface RangePattern {
   start: RegExp;
   end: RegExp;
@@ -28,7 +30,6 @@ export class RangeAnalysisRequest {
   }
 
   private extractFileName(sourceFile: SourceFile): string {
-    const path = require('path');
     return path.basename(sourceFile.getFilePath());
   }
 

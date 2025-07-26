@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { exec } from 'child_process';
+import {exec, execSync} from 'child_process';
 import { promisify } from 'util';
 
 const execAsync = promisify(exec);
@@ -69,7 +69,6 @@ export class FileMover {
 
   private isFileTrackedByGit(sourcePath: string): boolean {
     try {
-      const { execSync } = require('child_process');
       execSync(`git ls-files --error-unmatch "${sourcePath}"`, { stdio: 'ignore' });
       return true;
     } catch {

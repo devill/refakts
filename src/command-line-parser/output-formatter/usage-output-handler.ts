@@ -5,6 +5,10 @@ import { CommandOptions, CommandOptionsWrapper } from '../../core/commands/comma
 import { UsageCollection } from '../../core/services/usage-collection';
 import { ConsoleOutput } from './console-output';
 
+import path from "path";
+
+import fs from "fs";
+
 interface OutputContext {
   baseDir: string;
   options: CommandOptionsWrapper;
@@ -138,7 +142,6 @@ export class UsageOutputHandler {
   }
 
   private readTargetLine(usage: UsageLocation): string | undefined {
-    const fs = require('fs');
     const sourceContent = fs.readFileSync(usage.location.file, 'utf8');
     const lines = sourceContent.split('\n');
     return lines[usage.location.start.line - 1];
@@ -156,7 +159,6 @@ export class UsageOutputHandler {
   }
 
   private formatLineLocation(location: LocationRange, baseDir: string): string {
-    const path = require('path');
     const relativePath = path.relative(baseDir, location.file);
     return `[${relativePath} ${location.start.line}:-${location.start.line}:]`;
   }

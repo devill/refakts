@@ -1,5 +1,7 @@
 import {Node, SourceFile} from "ts-morph";
 
+import path from "path";
+
 export interface SourceLocation {
   line: number;
   column: number;
@@ -21,7 +23,6 @@ export class LocationRange {
   }
 
   formatLocation(baseDir: string): string {
-    const path = require('path');
     const relativePath = this.normalizeTestPath(path.relative(baseDir, this.file));
     
     if (this.start.column === -1 && this.end.column === -1) {
@@ -45,7 +46,6 @@ export class LocationRange {
   }
 
   matchesTarget(targetFile: string, targetLine: number): boolean {
-    const path = require('path');
     const normalizedUsagePath = path.resolve(this.file);
     const normalizedTargetPath = path.resolve(targetFile);
     return normalizedUsagePath === normalizedTargetPath && this.start.line === targetLine;

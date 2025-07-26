@@ -1,5 +1,7 @@
 import {CallExpression, Node, Project, SourceFile, Symbol, SyntaxKind} from "ts-morph";
 
+import path from "path";
+
 export class ModuleImportReferenceFinder {
     constructor(private project: Project) {
     }
@@ -150,8 +152,6 @@ export class ModuleImportReferenceFinder {
     }
 
     private isRequirePathReferencingModule(requirePath: string, targetModulePath: string, requirerPath: string): boolean {
-        const path = require('path');
-
         if (requirePath.startsWith('./') || requirePath.startsWith('../')) {
             const resolvedPath = path.resolve(path.dirname(requirerPath), requirePath);
             return resolvedPath === targetModulePath.replace(/\.ts$/, '') ||
