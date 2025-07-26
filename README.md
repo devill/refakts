@@ -120,6 +120,7 @@ RefakTS development demonstrates an approach for helping AI agents develop pract
 - **FEATURE ENVY** (Methods that use another class more than their own class.)
 - **LARGE CHANGES** (Large diffs are harder to review and more likely to introduce bugs.)
 - **REQUIRE() STATEMENTS DETECTED** (CommonJS require() statements should be replaced with ES6 import statements.)
+- **SINGLE USE VARIABLES** (Variables that are declared and used exactly once often reduce code clarity.)
 ````
 <!-- AUTO-GENERATED QUALITY-CHECKS END -->
 

@@ -9,7 +9,8 @@ import { gitDiffCheck } from './checks/git-diff-check';
 import { linterCheck } from './checks/linter-check';
 import { featureEnvyCheck } from './checks/feature-envy-check';
 import { requireStatementsCheck } from './checks/require-statements-check';
-export const loadQualityChecks = (): QualityCheck[] => [
+import { singleUseVariableCheck } from './checks/single-use-variable-check';
+const allQualityChecks: QualityCheck[] = [
   linterCheck,
   commentCheck,
   fileSizeCheck,
@@ -19,6 +20,9 @@ export const loadQualityChecks = (): QualityCheck[] => [
   complexityCheck,
   featureEnvyCheck,
   gitDiffCheck,
-  requireStatementsCheck
+  requireStatementsCheck,
+  singleUseVariableCheck
 ];
+
+export const loadQualityChecks = (): QualityCheck[] => allQualityChecks;
 
