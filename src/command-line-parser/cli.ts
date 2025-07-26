@@ -6,6 +6,7 @@ import { CommandOption, CommandOptions, RefactoringCommand } from '../core/comma
 import { UsageTracker } from '../dev/usage-tracker';
 import { LocationParser } from '../core/ast/location-range';
 import { StandardConsole } from './output-formatter/standard-console';
+import { FixtureProtection } from '../core/services/fixture-protection';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -80,12 +81,14 @@ async function executeCommandWithTarget(command: RefactoringCommand, target: str
 
 async function executeWithLocationTarget(command: RefactoringCommand, target: string, options: CommandOptions): Promise<void> {
   const location = LocationParser.parseLocation(target);
+  FixtureProtection.validateFile(location.file);
   const optionsWithLocation = { ...options, location };
   command.validateOptions(optionsWithLocation);
   await command.execute(location.file, optionsWithLocation);
 }
 
 async function executeWithFileTarget(command: RefactoringCommand, target: string, options: CommandOptions): Promise<void> {
+  FixtureProtection.validateFile(target);
   command.validateOptions(options);
   await command.execute(target, options);
 }
