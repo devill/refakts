@@ -24,12 +24,6 @@
       "featureEnvy"
     ]
   },
-  "src/dev/quality/checks/change-frequency-check.ts": {
-    "lastCommitId": "ac67caabff0debfaff48cb59d92f40a8f844f03a",
-    "violations": [
-      "functionSize"
-    ]
-  },
   "src/dev/quality/checks/comment-check.ts": {
     "lastCommitId": "876773659621d2929ad9c16187ad30ab7dcc177b",
     "violations": [
@@ -58,12 +52,6 @@
     "lastCommitId": "e2df9dece60ba7ddd2a9c840397ffb04fce238cb",
     "violations": [
       "functionSize"
-    ]
-  },
-  "src/dev/quality-checks-extractor.ts": {
-    "lastCommitId": "9af607f7cabaa98d0ceed3f3c9498701f8595d4f",
-    "violations": [
-      "featureEnvy"
     ]
   },
   "tests/unit/locators/services/node-scope-analyzer.test.ts": {

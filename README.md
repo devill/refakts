@@ -119,6 +119,7 @@ RefakTS development demonstrates an approach for helping AI agents develop pract
 - **UNUSED CODE** (Dead code reduces codebase clarity and increases maintenance burden.)
 - **FEATURE ENVY** (Methods that use another class more than their own class.)
 - **LARGE CHANGES** (Large diffs are harder to review and more likely to introduce bugs.)
+- **REQUIRE() STATEMENTS DETECTED** (CommonJS require() statements should be replaced with ES6 import statements.)
 ````
 <!-- AUTO-GENERATED QUALITY-CHECKS END -->
 

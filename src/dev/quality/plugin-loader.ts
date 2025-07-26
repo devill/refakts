@@ -8,6 +8,7 @@ import { complexityCheck } from './checks/complexity-check';
 import { gitDiffCheck } from './checks/git-diff-check';
 import { linterCheck } from './checks/linter-check';
 import { featureEnvyCheck } from './checks/feature-envy-check';
+import { requireStatementsCheck } from './checks/require-statements-check';
 export const loadQualityChecks = (): QualityCheck[] => [
   linterCheck,
   commentCheck,
@@ -17,6 +18,7 @@ export const loadQualityChecks = (): QualityCheck[] => [
   unusedMethodCheck,
   complexityCheck,
   featureEnvyCheck,
-  gitDiffCheck
+  gitDiffCheck,
+  requireStatementsCheck
 ];
 
