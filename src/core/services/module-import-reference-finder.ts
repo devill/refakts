@@ -1,5 +1,5 @@
 import {ReferenceFinder} from "./references-finder";
-import {Node, Project, SourceFile, Symbol, SyntaxKind} from "ts-morph";
+import {CallExpression, Node, Project, SourceFile, Symbol, SyntaxKind} from "ts-morph";
 import {SearchContext} from "./search-context";
 
 export class ModuleImportReferenceFinder implements ReferenceFinder {
@@ -88,7 +88,7 @@ export class ModuleImportReferenceFinder implements ReferenceFinder {
         return nodes;
     }
 
-    private handleModuleCall(call: any, moduleFilePath: string, symbolName: string, file: SourceFile, callType: 'require' | 'import'): Node[] {
+    private handleModuleCall(call: CallExpression, moduleFilePath: string, symbolName: string, file: SourceFile, callType: 'require' | 'import'): Node[] {
         const nodes: Node[] = [];
         const args = call.getArguments();
         if (args.length === 0) return nodes;

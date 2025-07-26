@@ -38,7 +38,10 @@ export class UsageFinderService {
       const targetNode = this.extractNodeFromLocation(sourceFile, location);
       const scopeDirectory = this.projectScopeService?.determineScopeDirectory(location.file);
       
-      const finder = new CrossFileReferenceFinder(this.astService!.getProject());
+      if (!this.astService) {
+        throw new Error('ASTService not initialized');
+      }
+      const finder = new CrossFileReferenceFinder(this.astService.getProject());
       const nodes = finder.findAllReferences(targetNode, scopeDirectory);
       
       return nodes.map(node => PositionConverter.createUsageLocation(node.getSourceFile(), node));
