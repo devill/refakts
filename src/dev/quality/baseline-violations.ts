@@ -20,9 +20,8 @@ const buildFileViolationsMap = (issues: QualityIssue[]): Map<string, Set<string>
   const fileViolations = new Map<string, Set<string>>();
   
   issues.forEach(issue => {
-    const filePath = issue.file;
-    if (filePath) {
-      addViolationToMap(fileViolations, filePath, issue.type);
+    if (issue.file) {
+      addViolationToMap(fileViolations, issue.file, issue.type);
     }
   });
   
@@ -51,24 +50,17 @@ const buildBaselineFromViolations = (fileViolations: Map<string, Set<string>>): 
 };
 
 export const generateBaseline = (issues: QualityIssue[]): QualityBaseline => {
-  const blacklistedTypes = getBlacklistedTypes();
-  const relevantIssues = issues.filter(issue => blacklistedTypes.includes(issue.type));
-  const fileViolations = buildFileViolationsMap(relevantIssues);
-  return buildBaselineFromViolations(fileViolations);
+  return buildBaselineFromViolations(buildFileViolationsMap(issues.filter(issue => getBlacklistedTypes().includes(issue.type))));
 };
 
 const filterRelevantIssues = (issues: QualityIssue[]): QualityIssue[] => {
-  const blacklistedTypes = getBlacklistedTypes();
-  return issues.filter(issue => blacklistedTypes.includes(issue.type) && issue.file);
+  return issues.filter(issue => getBlacklistedTypes().includes(issue.type) && issue.file);
 };
 
 export const buildCurrentViolationsMap = (issues: QualityIssue[]): Map<string, Set<string>> => {
   const currentViolations = new Map<string, Set<string>>();
-  const relevantIssues = filterRelevantIssues(issues);
-  
-  relevantIssues.forEach(issue => {
-    const filePath = issue.file as string;
-    addViolationToMap(currentViolations, filePath, issue.type);
+  filterRelevantIssues(issues).forEach(issue => {
+    addViolationToMap(currentViolations, issue.file as string, issue.type);
   });
   
   return currentViolations;

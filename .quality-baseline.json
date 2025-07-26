@@ -123,12 +123,6 @@
       "singleUseVariable"
     ]
   },
-  "src/dev/quality/baseline-violations.ts": {
-    "lastCommitId": "72f0b80a2c1206e923102a707e6bb7d401905fb6",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
   "src/dev/quality/glob-resolver.ts": {
     "lastCommitId": "be5cc3acf1456dadbabb98b89389deab64a82c62",
     "violations": [
