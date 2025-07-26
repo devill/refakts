@@ -42,8 +42,16 @@ const analyzeSourceFileForSingleUseVariables = (sourceFile: SourceFile): Quality
   
   if (shouldSkipFile(filePath)) return [];
   
-  const singleUseVariables = findSingleUseVariables(sourceFile);
+  const singleUseVariables = findValidSingleUseVariables(sourceFile);
   return convertVariablesToIssues(singleUseVariables, filePath);
+};
+
+const findValidSingleUseVariables = (sourceFile: SourceFile): VariableDeclaration[] => {
+  return getAllVariableDeclarations(sourceFile)
+    .filter(varDecl => isLocalVariable(varDecl))
+    .filter(varDecl => hasInitializerAndIsSimple(varDecl))
+    .filter(varDecl => !isLambdaAssignment(varDecl))
+    .filter(varDecl => isUsedExactlyOnce(sourceFile, varDecl));
 };
 
 const convertVariablesToIssues = (variables: VariableDeclaration[], filePath: string): QualityIssue[] => {
@@ -59,11 +67,18 @@ const convertVariablesToIssues = (variables: VariableDeclaration[], filePath: st
 const shouldSkipFile = (filePath: string): boolean =>
   filePath.endsWith('.d.ts') || filePath.includes('/fixtures/');
 
-const findSingleUseVariables = (sourceFile: SourceFile): VariableDeclaration[] => {
-  return sourceFile.getVariableDeclarations()
-    .filter(varDecl => hasInitializerAndIsSimple(varDecl))
-    .filter(varDecl => isUsedExactlyOnce(sourceFile, varDecl));
+const getAllVariableDeclarations = (sourceFile: SourceFile): VariableDeclaration[] => {
+  const declarations: VariableDeclaration[] = [];
+  
+  sourceFile.forEachDescendant(node => {
+    if (Node.isVariableDeclaration(node)) {
+      declarations.push(node);
+    }
+  });
+  
+  return declarations;
 };
+
 
 const hasInitializerAndIsSimple = (varDecl: VariableDeclaration): boolean => {
   return varDecl.hasInitializer() && isSimpleVariable(varDecl);
@@ -77,6 +92,19 @@ const isUsedExactlyOnce = (sourceFile: SourceFile, varDecl: VariableDeclaration)
 
 const isSimpleVariable = (varDecl: VariableDeclaration): boolean => {
   return varDecl.getNameNode().getKind() === SyntaxKind.Identifier;
+};
+
+const isLocalVariable = (varDecl: VariableDeclaration): boolean => {
+  const scope = findVariableScope(varDecl);
+  return scope.getKind() !== SyntaxKind.SourceFile;
+};
+
+const isLambdaAssignment = (varDecl: VariableDeclaration): boolean => {
+  const initializer = varDecl.getInitializer();
+  if (!initializer) return false;
+  
+  return Node.isArrowFunction(initializer) || 
+         Node.isFunctionExpression(initializer);
 };
 
 const countVariableUsages = (sourceFile: SourceFile, variableName: string, declaration: VariableDeclaration): number => {
