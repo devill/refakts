@@ -14,18 +14,8 @@ export class ModuleImportReferenceFinder {
         }
 
         const symbolName = this.getSymbolName(symbol);
-        const nodes: Node[] = [];
-        const sourceFiles = this.project.getSourceFiles();
-
-        for (const file of sourceFiles) {
-            const requireNodes = this.findRequireNodes(file, moduleFilePath, symbolName);
-            nodes.push(...requireNodes);
-
-            const importNodes = this.findDynamicImportNodes(file, moduleFilePath, symbolName);
-            nodes.push(...importNodes);
-        }
-
-        return nodes;
+        return this.project.getSourceFiles()
+            .flatMap(file => this.findModuleImportsInFile(file, moduleFilePath, symbolName));
     }
 
     private getSymbolName(symbol: Symbol): string {
@@ -41,114 +31,78 @@ export class ModuleImportReferenceFinder {
         return symbol.getName();
     }
 
-    private findRequireNodes(file: SourceFile, moduleFilePath: string, symbolName: string): Node[] {
-        const nodes: Node[] = [];
-        const requireCalls = file.getDescendantsOfKind(SyntaxKind.CallExpression)
-            .filter(call => {
-                const expression = call.getExpression();
-                return expression.getKind() === SyntaxKind.Identifier &&
-                    expression.getText() === 'require';
-            });
-
-        for (const requireCall of requireCalls) {
-            const moduleNodes = this.handleModuleCall(requireCall, moduleFilePath, symbolName, file, 'require');
-            nodes.push(...moduleNodes);
-        }
-
-        return nodes;
+    private findModuleImportsInFile(file: SourceFile, moduleFilePath: string, symbolName: string): Node[] {
+        return this.findModuleCalls(file)
+            .filter(call => this.isCallReferencingModule(call, moduleFilePath, file.getFilePath()))
+            .flatMap(call => this.extractDestructuredReferences(call, symbolName, file));
     }
 
-    private findDynamicImportNodes(file: SourceFile, moduleFilePath: string, symbolName: string): Node[] {
-        const nodes: Node[] = [];
-        const importCalls = file.getDescendantsOfKind(SyntaxKind.CallExpression)
-            .filter(call => {
-                const expression = call.getExpression();
-                return expression.getKind() === SyntaxKind.ImportKeyword ||
-                    (expression.getKind() === SyntaxKind.Identifier && expression.getText() === 'import');
-            });
-
-        for (const importCall of importCalls) {
-            const moduleNodes = this.handleModuleCall(importCall, moduleFilePath, symbolName, file, 'import');
-            nodes.push(...moduleNodes);
-        }
-
-        return nodes;
+    private findModuleCalls(file: SourceFile): CallExpression[] {
+        return file.getDescendantsOfKind(SyntaxKind.CallExpression)
+            .filter(call => this.isRequireOrImportCall(call));
     }
 
-    private handleModuleCall(call: CallExpression, moduleFilePath: string, symbolName: string, file: SourceFile, callType: 'require' | 'import'): Node[] {
-        const nodes: Node[] = [];
+    private isRequireOrImportCall(call: CallExpression): boolean {
+        const expression = call.getExpression();
+        return expression.getKind() === SyntaxKind.Identifier && expression.getText() === 'require' ||
+               expression.getKind() === SyntaxKind.ImportKeyword ||
+               (expression.getKind() === SyntaxKind.Identifier && expression.getText() === 'import');
+    }
+
+    private isCallReferencingModule(call: CallExpression, moduleFilePath: string, requirerPath: string): boolean {
         const args = call.getArguments();
-        if (args.length === 0) return nodes;
+        if (args.length === 0) return false;
 
         const moduleArg = args[0];
-        if (moduleArg.getKind() !== SyntaxKind.StringLiteral) return nodes;
+        if (moduleArg.getKind() !== SyntaxKind.StringLiteral) return false;
 
         const requiredPath = moduleArg.getText().slice(1, -1);
-        if (this.isRequirePathReferencingModule(requiredPath, moduleFilePath, file.getFilePath())) {
-            if (callType === 'import') {
-                let parent = call.getParent();
-                while (parent && parent.getKind() !== SyntaxKind.VariableDeclaration) {
-                    parent = parent.getParent();
-                }
-
-                if (parent && parent.getKind() === SyntaxKind.VariableDeclaration) {
-                    const nameNode = parent.getChildAtIndex(0);
-                    if (nameNode && nameNode.getKind() === SyntaxKind.ObjectBindingPattern) {
-                        const destructuringNodes = this.extractDestructuredSymbols(nameNode, symbolName, file);
-                        nodes.push(...destructuringNodes);
-                    }
-                }
-            } else {
-                const parent = call.getParent();
-                if (parent && parent.getKind() === SyntaxKind.VariableDeclaration) {
-                    const nameNode = parent.getChildAtIndex(0);
-                    if (nameNode && nameNode.getKind() === SyntaxKind.ObjectBindingPattern) {
-                        const destructuringNodes = this.extractDestructuredSymbols(nameNode, symbolName, file);
-                        nodes.push(...destructuringNodes);
-                    }
-                }
-            }
-        }
-
-        return nodes;
+        return this.isRequirePathReferencingModule(requiredPath, moduleFilePath, requirerPath);
     }
 
-    private extractDestructuredSymbols(bindingPattern: Node, symbolName: string, file: SourceFile): Node[] {
-        const nodes: Node[] = [];
-        const identifiers = bindingPattern.getDescendantsOfKind(SyntaxKind.Identifier);
+    private extractDestructuredReferences(call: CallExpression, symbolName: string, file: SourceFile): Node[] {
+        const variableDeclaration = this.findVariableDeclaration(call);
+        if (!variableDeclaration) return [];
 
-        for (const identifier of identifiers) {
-            if (identifier.getText() === symbolName) {
-                nodes.push(identifier);
-                const localUsages = this.findLocalVariableUsages(file, identifier);
-                nodes.push(...localUsages);
-            }
+        const nameNode = variableDeclaration.getChildAtIndex(0);
+        if (!nameNode || nameNode.getKind() !== SyntaxKind.ObjectBindingPattern) return [];
+
+        return this.extractSymbolReferences(nameNode, symbolName, file);
+    }
+
+    private findVariableDeclaration(call: CallExpression): Node | undefined {
+        let parent = call.getParent();
+        while (parent && parent.getKind() !== SyntaxKind.VariableDeclaration) {
+            parent = parent.getParent();
         }
+        return parent?.getKind() === SyntaxKind.VariableDeclaration ? parent : undefined;
+    }
 
-        return nodes;
+    private extractSymbolReferences(bindingPattern: Node, symbolName: string, file: SourceFile): Node[] {
+        return bindingPattern.getDescendantsOfKind(SyntaxKind.Identifier)
+            .filter(identifier => identifier.getText() === symbolName)
+            .flatMap(identifier => [identifier, ...this.findLocalVariableUsages(file, identifier)]);
     }
 
     private findLocalVariableUsages(sourceFile: SourceFile, variableIdentifier: Node): Node[] {
-        const nodes: Node[] = [];
         const variableName = variableIdentifier.getText();
-        const allIdentifiers = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier);
+        return sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
+            .filter(identifier => 
+                identifier.getText() === variableName && 
+                identifier !== variableIdentifier &&
+                this.isVariableUsage(identifier)
+            );
+    }
 
-        for (const identifier of allIdentifiers) {
-            if (identifier.getText() === variableName && identifier !== variableIdentifier) {
-                const parent = identifier.getParent();
-                if (parent && (
-                    parent.getKind() === SyntaxKind.CallExpression ||
-                    parent.getKind() === SyntaxKind.PropertyAccessExpression ||
-                    parent.getKind() === SyntaxKind.BinaryExpression ||
-                    parent.getKind() === SyntaxKind.TemplateExpression ||
-                    parent.getKind() === SyntaxKind.ParenthesizedExpression
-                )) {
-                    nodes.push(identifier);
-                }
-            }
-        }
-
-        return nodes;
+    private isVariableUsage(identifier: Node): boolean {
+        const parent = identifier.getParent();
+        return Boolean(parent && (
+            parent.getKind() === SyntaxKind.CallExpression ||
+            parent.getKind() === SyntaxKind.PropertyAccessExpression ||
+            parent.getKind() === SyntaxKind.BinaryExpression ||
+            parent.getKind() === SyntaxKind.TemplateExpression ||
+            parent.getKind() === SyntaxKind.ParenthesizedExpression
+        ));
     }
 
     private isRequirePathReferencingModule(requirePath: string, targetModulePath: string, requirerPath: string): boolean {
