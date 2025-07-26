@@ -81,41 +81,31 @@ export class CrossFileReferenceFinder {
   private findSemanticUsagesInProject(targetSymbol: Symbol, targetNode: Node, scopeDirectory?: string): UsageLocation[] {
     // Use language service for comprehensive cross-file reference finding
     const languageService = this._project.getLanguageService();
-    
-    try {
-      // Get all references using the language service
-      const referencedSymbols = languageService.findReferences(targetNode);
-      const usages: UsageLocation[] = [];
-      
-      for (const referencedSymbol of referencedSymbols) {
-        for (const reference of referencedSymbol.getReferences()) {
-          const referenceSourceFile = reference.getSourceFile();
-          if (!referenceSourceFile) continue;
-          
-          const referenceNode = referenceSourceFile.getDescendantAtPos(reference.getTextSpan().getStart());
-          if (!referenceNode) continue;
-          
-          // Apply scope filtering
-          if (this.isNodeInScope(referenceNode, scopeDirectory)) {
-            usages.push(PositionConverter.createUsageLocation(referenceSourceFile, referenceNode));
-          }
+
+    // Get all references using the language service
+    const referencedSymbols = languageService.findReferences(targetNode);
+    const usages: UsageLocation[] = [];
+
+    for (const referencedSymbol of referencedSymbols) {
+      for (const reference of referencedSymbol.getReferences()) {
+        const referenceSourceFile = reference.getSourceFile();
+        if (!referenceSourceFile) continue;
+
+        const referenceNode = referenceSourceFile.getDescendantAtPos(reference.getTextSpan().getStart());
+        if (!referenceNode) continue;
+
+        // Apply scope filtering
+        if (this.isNodeInScope(referenceNode, scopeDirectory)) {
+          usages.push(PositionConverter.createUsageLocation(referenceSourceFile, referenceNode));
         }
       }
-      
-      // Add CommonJS require() and dynamic import() calls that language service might miss
-      const moduleUsages = this.findModuleImportUsages(targetSymbol, targetNode, scopeDirectory);
-      usages.push(...moduleUsages);
-      
-      // If no usages found, fall back to node-level methods
-      if (usages.length === 0) {
-        return this.fallbackToNodeLevelMethods(targetSymbol, targetNode, scopeDirectory);
-      }
-      
-      return this.deduplicateUsages(usages);
-    } catch (error) {
-      // If language service fails, fall back to node-level methods
-      return this.fallbackToNodeLevelMethods(targetSymbol, targetNode, scopeDirectory);
     }
+
+    // Add CommonJS require() and dynamic import() calls that language service might miss
+    const moduleUsages = this.findModuleImportUsages(targetSymbol, targetNode, scopeDirectory);
+    usages.push(...moduleUsages);
+
+    return this.deduplicateUsages(usages);
   }
 
   private findModuleImportUsages(targetSymbol: Symbol, targetNode: Node, scopeDirectory?: string): UsageLocation[] {
@@ -260,55 +250,6 @@ export class CrossFileReferenceFinder {
     // Handle absolute module names (node_modules, etc.)
     return false; // For now, only handle relative imports
   }
-
-  private fallbackToNodeLevelMethods(targetSymbol: Symbol, targetNode: Node, scopeDirectory?: string): UsageLocation[] {
-    const usages: UsageLocation[] = [];
-    
-    // Get definitions using the proper API, but extract identifier for backward compatibility
-    if (typeof (targetNode as any).getDefinitionNodes === 'function') {
-      try {
-        const definitions = (targetNode as any).getDefinitionNodes();
-        const definitionUsages = definitions
-          .filter((node: Node) => this.isNodeInScope(node, scopeDirectory))
-          .map((node: Node) => {
-            // Extract identifier from declaration node for backward compatibility
-            const identifierNode = this.extractIdentifierFromDeclaration(node);
-            return PositionConverter.createUsageLocation(identifierNode.getSourceFile(), identifierNode);
-          });
-        usages.push(...definitionUsages);
-      } catch (error) {
-        // If getDefinitionNodes fails, fall back to including target node
-        if (this.isNodeInScope(targetNode, scopeDirectory)) {
-          usages.push(PositionConverter.createUsageLocation(targetNode.getSourceFile(), targetNode));
-        }
-      }
-    } else {
-      // Fallback: include the target node if it doesn't support getDefinitionNodes
-      if (this.isNodeInScope(targetNode, scopeDirectory)) {
-        usages.push(PositionConverter.createUsageLocation(targetNode.getSourceFile(), targetNode));
-      }
-    }
-    
-    // Get references using findReferencesAsNodes
-    if (typeof (targetNode as any).findReferencesAsNodes === 'function') {
-      try {
-        const references = (targetNode as any).findReferencesAsNodes();
-        const referenceUsages = references
-          .filter((node: Node) => this.isNodeInScope(node, scopeDirectory))
-          .map((node: Node) => PositionConverter.createUsageLocation(node.getSourceFile(), node));
-        usages.push(...referenceUsages);
-      } catch (error) {
-        // References failed - this is an error condition
-        throw new Error(`Failed to find references for symbol: ${error}`);
-      }
-    } else {
-      throw new Error('Node does not support findReferencesAsNodes - semantic analysis not available');
-    }
-    
-    // Deduplicate based on location (file path + start position)
-    return this.deduplicateUsages(usages);
-  }
-
   private getFilteredSourceFiles(scopeDirectory?: string): SourceFile[] {
     const allFiles = this._project.getSourceFiles();
     return scopeDirectory ? this.filterFilesByScope(allFiles, scopeDirectory) : allFiles;
@@ -330,23 +271,6 @@ export class CrossFileReferenceFinder {
     const normalizedScope = require('path').resolve(scopeDirectory);
     return node.getSourceFile().getFilePath().startsWith(normalizedScope);
   }
-
-  private extractIdentifierFromDeclaration(declarationNode: Node): Node {
-    // For variable declarations, function declarations, etc., find the identifier
-    const identifiers = declarationNode.getChildrenOfKind(SyntaxKind.Identifier);
-    if (identifiers.length > 0) {
-      return identifiers[0]; // Return first identifier (the name being declared)
-    }
-    
-    // Fallback: if it's already an identifier, return it
-    if (declarationNode.getKind() === SyntaxKind.Identifier) {
-      return declarationNode;
-    }
-    
-    // Last resort: return the original node
-    return declarationNode;
-  }
-
   private deduplicateUsages(usages: UsageLocation[]): UsageLocation[] {
     const seen = new Set<string>();
     return usages.filter(usage => {
@@ -358,6 +282,4 @@ export class CrossFileReferenceFinder {
       return true;
     });
   }
-
-
 }
