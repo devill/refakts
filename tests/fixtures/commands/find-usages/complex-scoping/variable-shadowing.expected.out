@@ -1,10 +1,5 @@
 Declaration:
 [barrel/core.ts 7:7-7:12] const ≫count≪ = 10; // This variable will be shadowed
 
-Write Usages:
-[main.ts 25:7-25:12] const ≫count≪ = getCount();
-
-Read Usages:
+Usages:
 [barrel/core.ts 10:10-10:15]   return ≫count≪;
-[barrel/core.ts 14:11-14:16]   private ≫count≪ = 5; // Shadows the module-level count
-[barrel/core.ts 17:17-17:22]     return this.≫count≪; // References the class property

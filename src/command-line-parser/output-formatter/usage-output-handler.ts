@@ -60,10 +60,6 @@ export class UsageOutputHandler {
   }
 
   private outputUsagesSection(otherUsages: UsageLocation[], declaration: UsageLocation | undefined, context: OutputContext): void {
-    if (otherUsages.length === 0 || !declaration) {
-      return;
-    }
-    
     this.outputUsagesByType(otherUsages, context);
   }
 

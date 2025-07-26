@@ -3,3 +3,10 @@ Declaration:
 
 Usages:
 [user-of-destructured.ts 3:10-3:18] import { ≫original≪ as renamed, anotherFunc, CONFIG } from './destructured';
+[user-of-destructured.ts 3:22-3:29] import { original as ≫renamed≪, anotherFunc, CONFIG } from './destructured';
+[user-of-destructured.ts 6:17-6:24] const result1 = ≫renamed≪(5);
+[user-of-destructured.ts 7:17-7:24] const result2 = ≫renamed≪(10);
+[user-of-destructured.ts 19:19-19:26]   return data.map(≫renamed≪);
+[user-of-destructured.ts 25:22-25:29] const calculation1 = ≫renamed≪(100);
+[user-of-destructured.ts 26:22-26:29] const calculation2 = ≫renamed≪(200);
+[user-of-destructured.ts 27:22-27:29] const calculation3 = ≫renamed≪(calculation1);

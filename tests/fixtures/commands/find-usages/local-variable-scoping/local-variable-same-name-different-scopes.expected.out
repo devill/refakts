@@ -1,0 +1,6 @@
+Declaration:
+[scoping-bug.ts 3:9-3:14]   const ≫value≪ = "outer";
+
+Usages:
+[scoping-bug.ts 4:15-4:20]   console.log(≫value≪); // Should be included: line 4
+[scoping-bug.ts 16:10-16:15]   return ≫value≪; // Should be included: line 15

@@ -1,0 +1,7 @@
+[
+  {
+    "id": "local-variable-same-name-different-scopes",
+    "description": "Find usages should NOT include variables with same name in different scopes",
+    "command": "find-usages '[input/scoping-bug.ts 3:9-3:14]'"
+  }
+]
