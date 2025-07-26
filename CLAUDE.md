@@ -173,4 +173,5 @@ Any message containing **👧🏻💬** followed by text should be treated as a 
 ## Development Best Practices
 
 ### GitHub Issue Management
-- When creating github issues add appropriate labels
+- When creating GitHub issues, use the issue template in `.github/ISSUE_TEMPLATE/feature_request.md`
+- Add appropriate labels as specified in the template
