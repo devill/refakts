@@ -95,13 +95,12 @@ class MyCommand {
 **This tool is for you - make it what you wished it already was.** RefakTS development is driven by AI agents who actually use the tool.
 
 ### Development Workflow
-1. 🗺 Check roadmap (`npm run roadmap:status`)
-2. 😺 Assign GitHub issue to current user
-3. 📐 Design interface and ask for feedback
-4. 🧪 Add test cases using fixtures
-5. 👷 Implement functionality
-6. ✅ Run tests and validate
-7. 🗳️ Vote for helpful features
+1. 😺 Assign GitHub issue to current user
+2. 📐 Design interface and ask for feedback
+3. 🧪 Add test cases using fixtures
+4. 👷 Implement functionality
+5. ✅ Run tests and validate
+6. 🗳️ Vote for helpful features
 
 ### Feature Guidelines
 - **Only deterministic/mechanical features** (search, transform, analyze)
@@ -127,6 +126,17 @@ RefakTS follows a **command-based architecture** with clear separation of concer
 `ASTService` must load the appropriate `tsconfig.json` based on context to avoid "Syntax errors detected" failures.
 
 ## Testing Framework
+
+**Test Directory Architecture:**
+- `tests/fixtures/` - **ONLY** fixtures used by `tests/integration/fixture.test.ts`
+  - `tests/fixtures/commands` - Fixture tests for all locator and refactoring commands
+- `tests/unit/` - Unit tests with their test data files next to them
+  - Test data files should be co-located with the unit tests that use them
+  - Use `test-data/` subdirectories or `.fixture.ts` files next to tests
+- `tests/integration/` - Integration test runners (`fixture.test.ts`)
+- `tests/utils/` - Test utilities and helpers shared across test types
+- `tests/scripts/` - Test management scripts (fixture approval, review, etc.)
+
 
 **Test Types**:
 - **Single-file tests**: `tests/fixtures/[category]/[command]/[test-name].input.ts`
