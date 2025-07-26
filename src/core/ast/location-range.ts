@@ -1,4 +1,5 @@
 import {Node, SourceFile} from "ts-morph";
+import {ASTService} from "./ast-service";
 
 import path from "path";
 
@@ -87,6 +88,38 @@ export class LocationRange {
         sourceFile.getLineAndColumnAtPos(node.getStart()),
         sourceFile.getLineAndColumnAtPos(node.getEnd())
     );
+  }
+
+  getNodeFromSourceFile(sourceFile: SourceFile): Node {
+    const startPos = sourceFile.compilerNode.getPositionOfLineAndCharacter(
+      this.start.line - 1,
+      this.start.column - 1
+    );
+    const node = sourceFile.getDescendantAtPos(startPos);
+    if (!node) {
+      throw new Error(`No symbol found at location ${this.start.line}:${this.start.column}`);
+    }
+    const symbol = node.getSymbol();
+    if (!symbol) {
+      throw new Error(`No symbol found at location ${this.start.line}:${this.start.column}`);
+    }
+    return node;
+  }
+
+  getNode(): Node {
+    const astService = ASTService.createForFile(this.file);
+    const sourceFile = astService.loadSourceFile(this.file);
+    
+    // Check for compilation errors
+    const diagnostics = sourceFile.getPreEmitDiagnostics();
+    if (diagnostics.length > 0) {
+      throw new Error(`TypeScript compilation error in ${this.file}`);
+    }
+    
+    // Validate location bounds
+    this.validateLocationBounds(sourceFile);
+    
+    return this.getNodeFromSourceFile(sourceFile);
   }
 }
 

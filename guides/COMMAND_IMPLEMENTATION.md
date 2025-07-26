@@ -58,7 +58,7 @@ export class MyCommand implements RefactoringCommand {
 
 ### 3. LocationRange Conversion Pattern
 
-Based on the find-usages implementation, commands should handle LocationRange ↔ Node conversions:
+Commands use **single-line conversions** via LocationRange utility methods:
 
 ```typescript
 private async executeOperation(options: CommandOptions): Promise<void> {
@@ -74,24 +74,21 @@ private async executeOperation(options: CommandOptions): Promise<void> {
 
 private async performOperation(location: LocationRange): Promise<MyResult[]> {
   try {
+    const targetNode = location.getNode(); // Single line: LocationRange → Node
     const astService = ASTService.createForFile(location.file);
-    const targetNode = this.getNodeFor(location, astService);
     
     return new MyDomainService(astService.getProject())
       .performBusinessLogic(targetNode)
-      .map(node => this.convertToResult(node));
+      .map(node => PositionConverter.createUsageLocation(node.getSourceFile(), node)); // Single line: Node → UsageLocation
   } catch (error) {
     return this.handleError(error);
   }
 }
-
-private getNodeFor(location: LocationRange, astService: ASTService): Node {
-  return this.extractNodeFromLocation(
-    this.getValidSourceFile(astService, location), 
-    location
-  );
-}
 ```
+
+**Key Conversions:**
+- **LocationRange → Node**: `location.getNode()` - handles AST service creation, validation, and node extraction
+- **Node → UsageLocation**: `PositionConverter.createUsageLocation(node.getSourceFile(), node)` - creates properly formatted output
 
 ### 4. Service Layer Design
 
@@ -260,8 +257,8 @@ describe('MyDomainService', () => {
 ### Multi-Step Processing
 ```typescript
 private async performComplexOperation(location: LocationRange): Promise<Result[]> {
+  const targetNode = location.getNode(); // Single line conversion
   const astService = ASTService.createForFile(location.file);
-  const targetNode = this.getNodeFor(location, astService);
   
   // Step 1: Find candidates
   const candidates = new CandidateFinder(astService.getProject())
@@ -273,7 +270,7 @@ private async performComplexOperation(location: LocationRange): Promise<Result[]
     
   // Step 3: Extract results
   return validCandidates.map(candidate => 
-    this.convertToResult(candidate)
+    PositionConverter.createUsageLocation(candidate.getSourceFile(), candidate) // Single line conversion
   );
 }
 ```
