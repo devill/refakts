@@ -169,3 +169,8 @@ Any message containing **👧🏻💬** followed by text should be treated as a 
 - **COMPLETE** required actions before continuing other work
 - While unresolved issues exist, use STARTER_CHARACTER = 🚨
 - **ALWAYS** work until `npm run quality` shows zero violations
+
+## Development Best Practices
+
+### GitHub Issue Management
+- When creating github issues add appropriate labels

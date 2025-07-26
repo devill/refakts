@@ -43,8 +43,6 @@ function buildPossibleKeys(check: { name: string }): string[] {
     `${check.name}Functions`,
     `critical${check.name.charAt(0).toUpperCase() + check.name.slice(1)}`,
     `large${check.name.charAt(0).toUpperCase() + check.name.slice(1)}`,
-    'changeFrequency',
-    'cohesiveChange'
   ];
 }
 

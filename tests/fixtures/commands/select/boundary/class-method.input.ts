@@ -1,7 +1,7 @@
 /**
  * @description Test boundary selection on class method
  * @command refakts select class-method.input.ts --regex "calculateTax" --boundaries "function"
- * @skip
+ * @skip GitHub issue #67
  */
 
 class Calculator {

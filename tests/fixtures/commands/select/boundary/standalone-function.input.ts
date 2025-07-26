@@ -1,7 +1,7 @@
 /**
  * @description Test boundary selection on standalone function
  * @command refakts select standalone-function.input.ts --regex "calculateTotal" --boundaries "function"
- * @skip
+ * @skip GitHub issue #67
  */
 
 // Standalone function declaration

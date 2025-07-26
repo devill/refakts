@@ -1,7 +1,7 @@
 /**
  * @description Test boundary selection on arrow function
  * @command refakts select arrow-function.input.ts --regex "handler" --boundaries "function"
- * @skip
+ * @skip GitHub issue #67
  */
 
 // Arrow function in assignment

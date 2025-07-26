@@ -1,7 +1,7 @@
 /**
  * @description Test boundary selection on inline function in expression
  * @command refakts select inline-function.input.ts --regex "transform" --boundaries "function"
- * @skip
+ * @skip GitHub issue #67
  */
 
 // Inline function in expression context

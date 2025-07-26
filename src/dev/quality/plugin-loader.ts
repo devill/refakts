@@ -6,7 +6,6 @@ import { duplicationCheck } from './checks/duplication-check';
 import { unusedMethodCheck } from './checks/unused-method-check';
 import { complexityCheck } from './checks/complexity-check';
 import { gitDiffCheck } from './checks/git-diff-check';
-import { changeFrequencyCheck } from './checks/change-frequency-check';
 import { linterCheck } from './checks/linter-check';
 import { featureEnvyCheck } from './checks/feature-envy-check';
 export const loadQualityChecks = (): QualityCheck[] => [
@@ -18,7 +17,6 @@ export const loadQualityChecks = (): QualityCheck[] => [
   unusedMethodCheck,
   complexityCheck,
   featureEnvyCheck,
-  gitDiffCheck,
-  changeFrequencyCheck
+  gitDiffCheck
 ];
 

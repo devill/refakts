@@ -29,8 +29,9 @@ export class RegexPatternMatcher {
 
   findRegexMatches(sourceFile: SourceFile, options: RegexOptions): SelectResult[] {
     const content = sourceFile.getFullText();
-    const fileName = path.basename(sourceFile.getFilePath());
-    const context = MatchContext.fromContent(content, fileName, sourceFile.getFilePath());
+    const filePath = sourceFile.getFilePath();
+    const relativePath = path.relative(process.cwd(), filePath);
+    const context = MatchContext.fromContent(content, relativePath, filePath);
     const patterns = this.createRegexPatterns(options.regex || '');
     const allMatches = this.findAllPatternMatches(content, patterns);
     
