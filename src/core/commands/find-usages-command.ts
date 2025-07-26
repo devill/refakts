@@ -11,7 +11,6 @@ export class FindUsagesCommand implements RefactoringCommand {
   readonly description = 'Find all usages of a symbol across files';
   readonly complete = true;
   private consoleOutput!: ConsoleOutput;
-  private usageFinderService = new UsageFinderService();
   private outputHandler!: UsageOutputHandler;
   
   async execute(targetLocation: string, options: CommandOptions): Promise<void> {
@@ -23,7 +22,7 @@ export class FindUsagesCommand implements RefactoringCommand {
 
   private async executeFinUsagesOperation(options: CommandOptions): Promise<void> {
     const location = LocationRange.from(options.location as LocationRange);
-    const usages = await this.usageFinderService.findUsages(location);
+    const usages = await UsageFinderService.find(location);
     this.outputHandler.outputUsages({ 
       usages, 
       baseDir: process.cwd(), 

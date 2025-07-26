@@ -1,25 +1,30 @@
 import {LocationRange, UsageLocation} from '../ast/location-range';
 import {ASTService} from '../ast/ast-service';
-import {CrossFileReferenceFinder} from './cross-file-reference-finder';
+import {CrossFileReferenceFinder} from './reference-finding/cross-file-reference-finder';
 import {ProjectScopeService} from './project-scope-service';
 import {PositionConverter} from './position-converter';
-import {SourceFile, Node} from 'ts-morph';
+import {Node, SourceFile} from 'ts-morph';
 
 export class UsageFinderService {
-  private astService?: ASTService;
-  private projectScopeService?: ProjectScopeService;
+  private location: LocationRange
+  private astService: ASTService;
+  private projectScopeService: ProjectScopeService;
 
-  async findUsages(location: LocationRange): Promise<UsageLocation[]> {
+  constructor(location: LocationRange) {
+    this.location = location;
     this.astService = ASTService.createForFile(location.file);
     this.projectScopeService = new ProjectScopeService(this.astService.getProject());
-    const sourceFile = this.validateSourceFile(location);
-    return await this.findReferences(location, sourceFile);
+  }
+  
+  static async find(location: LocationRange): Promise<UsageLocation[]> {
+    return (new UsageFinderService(location)).findUsages();
+  }
+
+  async findUsages(): Promise<UsageLocation[]> {
+    return await this.findReferences(this.location, this.validateSourceFile(this.location));
   }
 
   private validateSourceFile(location: LocationRange): SourceFile {
-    if (!this.astService) {
-      throw new Error('ASTService not initialized');
-    }
     const sourceFile = this.astService.loadSourceFile(location.file);
     this.checkForCompilationErrors(sourceFile, location.file);
     location.validateLocationBounds(sourceFile);
@@ -35,16 +40,11 @@ export class UsageFinderService {
 
   private async findReferences(location: LocationRange, sourceFile: SourceFile): Promise<UsageLocation[]> {
     try {
-      const targetNode = this.extractNodeFromLocation(sourceFile, location);
-      const scopeDirectory = this.projectScopeService?.determineScopeDirectory(location.file);
-      
-      if (!this.astService) {
-        throw new Error('ASTService not initialized');
-      }
-      const finder = new CrossFileReferenceFinder(this.astService.getProject());
-      const nodes = finder.findAllReferences(targetNode, scopeDirectory);
-      
-      return nodes.map(node => PositionConverter.createUsageLocation(node.getSourceFile(), node));
+      return new CrossFileReferenceFinder(this.astService.getProject())
+          .findAllReferences(
+              this.extractNodeFromLocation(sourceFile, location),
+              this.projectScopeService?.determineScopeDirectory(location.file)
+          ).map(node => PositionConverter.createUsageLocation(node.getSourceFile(), node));
     } catch (error) {
       return this.handleFindReferencesError(error);
     }

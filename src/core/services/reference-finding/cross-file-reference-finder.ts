@@ -13,33 +13,30 @@ export class CrossFileReferenceFinder {
   }
 
   findAllReferences(targetNode: Node, scopeDirectory?: string): Node[] {
-    const symbol = targetNode.getSymbol();
-    if (!symbol) {
-      throw new Error('No symbol found for target node');
-    }
+    return this.findAllReferencesInContext(
+        targetNode,
+        new SearchContext(scopeDirectory, targetNode.getSourceFile().getFilePath())
+    );
+  }
 
-    const moduleFilePath = targetNode.getSourceFile().getFilePath();
-    const context = new SearchContext(scopeDirectory, moduleFilePath);
-
-    const semanticNodes = this.semanticFinder.findReferences(targetNode, context);
-    const moduleImportNodes = this.moduleImportFinder.findReferences(targetNode, context);
-
-    const allNodes = [...semanticNodes, ...moduleImportNodes];
-    return this.deduplicateNodes(allNodes);
+  private findAllReferencesInContext(targetNode: Node, context: SearchContext) {
+    return this.deduplicateNodes([
+      ...(this.semanticFinder.findReferences(targetNode, context)),
+      ...(this.moduleImportFinder.findReferences(targetNode, context))
+    ]);
   }
 
   private deduplicateNodes(nodes: Node[]): Node[] {
     const seen = new Set<string>();
     return nodes.filter(node => {
-      const sourceFile = node.getSourceFile();
-      const start = node.getStart();
-      const key = `${sourceFile.getFilePath()}:${start}`;
-      if (seen.has(key)) {
-        return false;
-      }
+      const key = CrossFileReferenceFinder.nodeKey(node);
+      if (seen.has(key)) return false;
       seen.add(key);
       return true;
     });
   }
 
+  private static nodeKey(node: Node) {
+    return `${node.getSourceFile().getFilePath()}:${(node.getStart())}`;
+  }
 }
