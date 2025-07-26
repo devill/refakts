@@ -1,2 +1,2 @@
-[include-line.received.ts 8:-8:] const ≫tempResult≪ = transform(input);
-[include-line.received.ts 9:-9:] const output = validate(≫tempResult≪);
+[tests/fixtures/commands/select/with-context/include-line.received.ts 8:-8:] const ≫tempResult≪ = transform(input);
+[tests/fixtures/commands/select/with-context/include-line.received.ts 9:-9:] const output = validate(≫tempResult≪);

@@ -1,2 +1,2 @@
-[multiline-matches.received.ts 6:1-8:2] function simple() {
-[multiline-matches.received.ts 10:1-14:2] function complex() {
+[tests/fixtures/commands/select/edge-cases/multiline-matches.received.ts 6:1-8:2] function simple() {
+[tests/fixtures/commands/select/edge-cases/multiline-matches.received.ts 10:1-14:2] function complex() {

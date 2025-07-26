@@ -1,1 +1,1 @@
-[narrow-down-with-capture-group.received.ts 8:11-8:21] const ◆≫tempResult≪ = transform(input◇);
+[tests/fixtures/commands/select/with-capture-group/narrow-down-with-capture-group.received.ts 8:11-8:21] const ◆≫tempResult≪ = transform(input◇);

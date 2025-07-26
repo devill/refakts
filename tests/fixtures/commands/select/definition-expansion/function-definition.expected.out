@@ -1,6 +1,6 @@
-[function-definition.received.ts 10:-13:]
+[tests/fixtures/commands/select/definition-expansion/function-definition.received.ts 10:-13:]
 function calculateTotal(a: number, b: number): number {
     const result = a + b;
     return result;
 }
-[function-definition.received.ts 10:-13:]
+[tests/fixtures/commands/select/definition-expansion/function-definition.received.ts 10:-13:]
