@@ -5,11 +5,12 @@ import { VariableReferenceRequest } from '../services/variable-reference-request
 export class VariableReplacer {
   private contextAnalyzer = new ContextAnalyzer();
 
-  replaceAllReferences(variableName: string, declaration: VariableDeclaration, initializerText: string): void {
+  replaceAllReferences(variableName: string, declaration: VariableDeclaration, initializerText: string): number {
     const references = this.findAllReferences(variableName, declaration);
     for (const reference of references) {
       reference.replaceWithText(initializerText);
     }
+    return references.length;
   }
 
   removeDeclaration(declaration: VariableDeclaration): void {

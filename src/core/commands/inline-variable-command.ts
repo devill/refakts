@@ -48,8 +48,15 @@ export class InlineVariableCommand implements RefactoringCommand {
     const sourceFile = node.getSourceFile();
     const declaration = this.declarationFinder.findVariableDeclaration(sourceFile, variableName, node);
     const initializerText = this.getInitializerText(declaration, variableName);
-    this.variableReplacer.replaceAllReferences(variableName, declaration, initializerText);
+    const replacementCount = this.variableReplacer.replaceAllReferences(variableName, declaration, initializerText);
     this.variableReplacer.removeDeclaration(declaration);
+    this.outputSuccessMessage(variableName, replacementCount);
+  }
+
+  private outputSuccessMessage(variableName: string, replacementCount: number): void {
+    const occurrences = replacementCount === 1 ? 'occurrence' : 'occurrences';
+    const message = `Successfully inlined variable '${variableName}' (${replacementCount} ${occurrences} replaced)`;
+    this.consoleOutput.log(message);
   }
 
   private validateTargetNode(node: Node): void {
