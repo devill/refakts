@@ -5,6 +5,15 @@ interface QualityCheck {
   getGroupDefinition?: (_key: string) => { title: string; description: string } | undefined;
 }
 
+const buildPossibleKeysForCheck = (check: QualityCheck): string[] => {
+  return [
+    check.name,
+    `${check.name}Functions`,
+    `critical${check.name.charAt(0).toUpperCase() + check.name.slice(1)}`,
+    `large${check.name.charAt(0).toUpperCase() + check.name.slice(1)}`,
+  ];
+};
+
 export class QualityChecksExtractor {
   extractQualityChecksContent(): string {
     const qualityChecks = loadQualityChecks();
@@ -34,17 +43,8 @@ export class QualityChecksExtractor {
   }
 
   private getValidGroupKeys(check: QualityCheck): string[] {
-    const possibleKeys = this.buildPossibleKeys(check);
+    const possibleKeys = buildPossibleKeysForCheck(check);
     return possibleKeys.filter(key => this.isValidKey(check, key));
-  }
-
-  private buildPossibleKeys(check: QualityCheck): string[] {
-    return [
-      check.name,
-      `${check.name}Functions`,
-      `critical${check.name.charAt(0).toUpperCase() + check.name.slice(1)}`,
-      `large${check.name.charAt(0).toUpperCase() + check.name.slice(1)}`,
-    ];
   }
 
   private isValidKey(check: QualityCheck, key: string): boolean {

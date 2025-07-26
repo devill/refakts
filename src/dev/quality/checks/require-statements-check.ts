@@ -55,15 +55,18 @@ const isRequireCall = (node: CallExpression): boolean => {
          expression.getText() === 'require';
 };
 
+const isFunctionLikeSyntaxKind = (kind: SyntaxKind): boolean => {
+  return kind === SyntaxKind.FunctionDeclaration || 
+         kind === SyntaxKind.MethodDeclaration || 
+         kind === SyntaxKind.ArrowFunction ||
+         kind === SyntaxKind.FunctionExpression;
+};
+
 const isImportInsideFunction = (importDecl: ImportDeclaration): boolean => {
   let parent: Node | undefined = importDecl.getParent();
   
   while (parent) {
-    const kind = parent.getKind();
-    if (kind === SyntaxKind.FunctionDeclaration || 
-        kind === SyntaxKind.MethodDeclaration || 
-        kind === SyntaxKind.ArrowFunction ||
-        kind === SyntaxKind.FunctionExpression) {
+    if (isFunctionLikeSyntaxKind(parent.getKind())) {
       return true;
     }
     parent = parent.getParent();
