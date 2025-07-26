@@ -1,12 +1,10 @@
-import {ReferenceFinder} from "./references-finder";
 import {Node, Project, ReferencedSymbol} from "ts-morph";
-import {SearchContext} from "./search-context";
 
-export class SemanticReferenceFinder implements ReferenceFinder {
+export class SemanticReferenceFinder {
     constructor(private project: Project) {
     }
 
-    findReferences(targetNode: Node, _context: SearchContext): Node[] {
+    findReferences(targetNode: Node): Node[] {
         return this.project
             .getLanguageService()
             .findReferences(targetNode)

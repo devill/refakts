@@ -1,26 +1,25 @@
-import {ReferenceFinder} from "./references-finder";
 import {CallExpression, Node, Project, SourceFile, Symbol, SyntaxKind} from "ts-morph";
-import {SearchContext} from "./search-context";
 
-export class ModuleImportReferenceFinder implements ReferenceFinder {
+export class ModuleImportReferenceFinder {
     constructor(private project: Project) {
     }
 
-    findReferences(targetNode: Node, context: SearchContext): Node[] {
+    findReferences(targetNode: Node): Node[] {
         const symbol = targetNode.getSymbol();
-        if (!symbol || !context.moduleFilePath) {
+        const moduleFilePath = targetNode.getSourceFile().getFilePath()
+        if (!symbol || !moduleFilePath) {
             return [];
         }
 
         const symbolName = this.getSymbolName(symbol);
         const nodes: Node[] = [];
-        const filteredFiles = this.getFilteredSourceFiles(context.scopeDirectory);
+        const sourceFiles = this.project.getSourceFiles();
 
-        for (const file of filteredFiles) {
-            const requireNodes = this.findRequireNodes(file, context.moduleFilePath, symbolName);
+        for (const file of sourceFiles) {
+            const requireNodes = this.findRequireNodes(file, moduleFilePath, symbolName);
             nodes.push(...requireNodes);
 
-            const importNodes = this.findDynamicImportNodes(file, context.moduleFilePath, symbolName);
+            const importNodes = this.findDynamicImportNodes(file, moduleFilePath, symbolName);
             nodes.push(...importNodes);
         }
 
@@ -38,20 +37,6 @@ export class ModuleImportReferenceFinder implements ReferenceFinder {
             return firstIdentifier ? firstIdentifier.getText() : symbol.getName();
         }
         return symbol.getName();
-    }
-
-    private getFilteredSourceFiles(scopeDirectory?: string): SourceFile[] {
-        const allFiles = this.project.getSourceFiles();
-        return scopeDirectory ? this.filterFilesByScope(allFiles, scopeDirectory) : allFiles;
-    }
-
-    private filterFilesByScope(files: SourceFile[], scopeDirectory: string): SourceFile[] {
-        const normalizedScope = require('path').resolve(scopeDirectory);
-        return files.filter(file => this.isFileInScope(file, normalizedScope));
-    }
-
-    private isFileInScope(sourceFile: SourceFile, normalizedScope: string): boolean {
-        return sourceFile.getFilePath().startsWith(normalizedScope);
     }
 
     private findRequireNodes(file: SourceFile, moduleFilePath: string, symbolName: string): Node[] {

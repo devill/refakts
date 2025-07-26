@@ -1,6 +1,5 @@
 import {Node, Project} from 'ts-morph';
 import {SemanticReferenceFinder} from "./semantic-reference-finder";
-import {SearchContext} from "./search-context";
 import {ModuleImportReferenceFinder} from "./module-import-reference-finder";
 
 export class CrossFileReferenceFinder {
@@ -12,17 +11,10 @@ export class CrossFileReferenceFinder {
     this.moduleImportFinder = new ModuleImportReferenceFinder(_project);
   }
 
-  findAllReferences(targetNode: Node, scopeDirectory?: string): Node[] {
-    return this.findAllReferencesInContext(
-        targetNode,
-        new SearchContext(scopeDirectory, targetNode.getSourceFile().getFilePath())
-    );
-  }
-
-  private findAllReferencesInContext(targetNode: Node, context: SearchContext) {
+  findAllReferences(targetNode: Node): Node[] {
     return this.deduplicateNodes([
-      ...(this.semanticFinder.findReferences(targetNode, context)),
-      ...(this.moduleImportFinder.findReferences(targetNode, context))
+      ...(this.semanticFinder.findReferences(targetNode)),
+      ...(this.moduleImportFinder.findReferences(targetNode))
     ]);
   }
 

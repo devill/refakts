@@ -42,8 +42,7 @@ export class UsageFinderService {
     try {
       return new CrossFileReferenceFinder(this.astService.getProject())
           .findAllReferences(
-              this.extractNodeFromLocation(sourceFile, location),
-              this.projectScopeService?.determineScopeDirectory(location.file)
+              this.extractNodeFromLocation(sourceFile, location)
           ).map(node => PositionConverter.createUsageLocation(node.getSourceFile(), node));
     } catch (error) {
       return this.handleFindReferencesError(error);
