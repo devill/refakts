@@ -91,11 +91,19 @@ export class LocationRange {
   }
 
   getNodeFromSourceFile(sourceFile: SourceFile): Node {
-    const startPos = sourceFile.compilerNode.getPositionOfLineAndCharacter(
+    const startPos = this.getPositionInSourceFile(sourceFile);
+    const node = sourceFile.getDescendantAtPos(startPos);
+    return this.validateNodeHasSymbol(node);
+  }
+
+  private getPositionInSourceFile(sourceFile: SourceFile): number {
+    return sourceFile.compilerNode.getPositionOfLineAndCharacter(
       this.start.line - 1,
       this.start.column - 1
     );
-    const node = sourceFile.getDescendantAtPos(startPos);
+  }
+
+  private validateNodeHasSymbol(node: Node | undefined): Node {
     if (!node) {
       throw new Error(`No symbol found at location ${this.start.line}:${this.start.column}`);
     }
@@ -110,16 +118,17 @@ export class LocationRange {
     const astService = ASTService.createForFile(this.file);
     const sourceFile = astService.loadSourceFile(this.file);
     
-    // Check for compilation errors
+    this.checkForCompilationErrors(sourceFile);
+    this.validateLocationBounds(sourceFile);
+    
+    return this.getNodeFromSourceFile(sourceFile);
+  }
+
+  private checkForCompilationErrors(sourceFile: SourceFile): void {
     const diagnostics = sourceFile.getPreEmitDiagnostics();
     if (diagnostics.length > 0) {
       throw new Error(`TypeScript compilation error in ${this.file}`);
     }
-    
-    // Validate location bounds
-    this.validateLocationBounds(sourceFile);
-    
-    return this.getNodeFromSourceFile(sourceFile);
   }
 }
 
