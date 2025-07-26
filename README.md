@@ -29,7 +29,13 @@ RefakTS provides surgical refactoring operations via command line, allowing AI a
 ## Available Commands
 
 ```
-Error: Could not generate help output
+- extract-variable [options] <target>  Extract expression into a variable
+- inline-variable <target>             Replace variable usage with its value
+- rename [options] <target>            Rename a variable and all its references
+- select [options] <target>            Find code elements and return their locations with content preview
+- sort-methods <target>                Sort methods according to the step down rule
+- find-usages [options] <target>       Find all usages of a symbol across files
+- move-file [options] <target>         Move a file and update all import references
 ```
 <!-- AUTO-GENERATED HELP END -->
 

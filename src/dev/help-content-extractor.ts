@@ -7,7 +7,7 @@ const execAsync = promisify(exec);
 export class HelpContentExtractor {
   async extractHelpContent(): Promise<string> {
     try {
-      const { stdout } = await execAsync('ts-node src/cli.ts --help', {
+      const { stdout } = await execAsync('npm run dev -- --help', {
         cwd: path.join(__dirname, '..', '..')
       });
       return this.parseCommands(stdout);
