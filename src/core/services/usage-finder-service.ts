@@ -2,7 +2,8 @@ import {LocationRange, UsageLocation} from '../ast/location-range';
 import {ASTService} from '../ast/ast-service';
 import {CrossFileReferenceFinder} from './cross-file-reference-finder';
 import {ProjectScopeService} from './project-scope-service';
-import {SourceFile} from 'ts-morph';
+import {PositionConverter} from './position-converter';
+import {SourceFile, Node} from 'ts-morph';
 
 export class UsageFinderService {
   private astService?: ASTService;
@@ -33,23 +34,30 @@ export class UsageFinderService {
   }
 
   private async findReferences(location: LocationRange, sourceFile: SourceFile): Promise<UsageLocation[]> {
-    const finder = this.createReferenceFinder(location);
     try {
-      const result = await finder.findAllReferences(location, sourceFile);
-      return result.usages;
+      const targetNode = this.extractNodeFromLocation(sourceFile, location);
+      const scopeDirectory = this.projectScopeService?.determineScopeDirectory(location.file);
+      
+      const finder = new CrossFileReferenceFinder(this.astService!.getProject());
+      const nodes = finder.findAllReferences(targetNode, scopeDirectory);
+      
+      return nodes.map(node => PositionConverter.createUsageLocation(node.getSourceFile(), node));
     } catch (error) {
       return this.handleFindReferencesError(error);
     }
   }
 
-  private createReferenceFinder(location: LocationRange) {
-    if (!this.astService || !this.projectScopeService) {
-      throw new Error('Services not initialized');
+  private extractNodeFromLocation(sourceFile: SourceFile, location: LocationRange): Node {
+    const startPos = PositionConverter.getStartPosition(sourceFile, location);
+    const node = sourceFile.getDescendantAtPos(startPos);
+    if (!node) {
+      throw new Error(`No symbol found at location ${location.start.line}:${location.start.column}`);
     }
-    const project = this.astService.getProject();
-    const finder = new CrossFileReferenceFinder(project);
-    const scopeDirectory = this.projectScopeService.determineScopeDirectory(location.file);
-    return { findAllReferences: (loc: LocationRange, sf: SourceFile) => finder.findAllReferences(loc, sf, scopeDirectory) };
+    const symbol = node.getSymbol();
+    if (!symbol) {
+      throw new Error(`No symbol found at location ${location.start.line}:${location.start.column}`);
+    }
+    return node;
   }
 
   private handleFindReferencesError(error: unknown): UsageLocation[] {
