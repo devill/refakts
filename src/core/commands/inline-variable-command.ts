@@ -43,13 +43,26 @@ export class InlineVariableCommand implements RefactoringCommand {
   }
 
   private async performInlineVariable(node: Node): Promise<void> {
-    NodeAnalyzer.validateIdentifierNode(node);
+    this.validateTargetNode(node);
     const variableName = node.getText();
     const sourceFile = node.getSourceFile();
     const declaration = this.declarationFinder.findVariableDeclaration(sourceFile, variableName, node);
     const initializerText = this.getInitializerText(declaration, variableName);
     this.variableReplacer.replaceAllReferences(variableName, declaration, initializerText);
     this.variableReplacer.removeDeclaration(declaration);
+  }
+
+  private validateTargetNode(node: Node): void {
+    if (this.isDestructuringPattern(node)) {
+      throw new Error('Destructuring declaration has no initializer to inline');
+    }
+    NodeAnalyzer.validateIdentifierNode(node);
+  }
+
+  private isDestructuringPattern(node: Node): boolean {
+    return node.getKindName() === 'OpenBraceToken' || 
+           node.getKindName() === 'CloseBraceToken' ||
+           Node.isObjectBindingPattern(node);
   }
 
   private getInitializerText(declaration: VariableDeclaration, variableName?: string, context?: Node): string {
