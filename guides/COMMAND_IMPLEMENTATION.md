@@ -111,7 +111,43 @@ export class MyDomainService {
 }
 ```
 
-### 5. Output Handler Integration
+### 5. User Feedback Requirements
+
+**CRITICAL: All commands must provide informative feedback to users about what was changed, including location ranges of impacted nodes.**
+
+Commands should never execute silently. Users need to understand:
+- **What changed** - Clear description of the operation performed
+- **Where it changed** - Specific LocationRange information for all impacted nodes
+- **How much changed** - Count of modifications when applicable
+
+```typescript
+// ✅ GOOD: Informative feedback with location ranges
+private outputSuccessMessage(results: ModificationResult[]): void {
+  const locations = results.map(r => r.locationRange);
+  const message = `Successfully refactored ${results.length} locations:`;
+  
+  this.consoleOutput.log(message);
+  locations.forEach(loc => this.consoleOutput.log(`  ${loc.toString()}`));
+}
+
+// ❌ BAD: Silent execution
+private executeRefactoring(): void {
+  // ... perform changes ...
+  // No user feedback - user doesn't know what happened
+}
+```
+
+**For transformation commands (inline-variable, extract-variable, etc.):**
+- Output success message with operation details
+- Include LocationRange of modified code
+- Show count of replacements/modifications
+
+**For query commands (find-usages, select, etc.):**
+- Use SelectOutputHandler for consistent formatting
+- Include LocationRange information in results
+- Show total count of findings
+
+### 6. Output Handler Integration
 
 **Use Existing Output Handlers:**
 ```typescript
@@ -194,7 +230,7 @@ for (const file of this.getTargetFiles()) {
 }
 ```
 
-### 4. Error Handling Strategy
+### 7. Error Handling Strategy
 
 **Command Level - Handle User-Facing Errors:**
 ```typescript
