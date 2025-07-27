@@ -42,6 +42,22 @@ ${received}`);
     if (fs.existsSync(expectedFile)) {
       TestUtilities.validateReceivedFileExists(expectedFile, receivedFile);
       TestUtilities.compareFileContents(expectedFile, receivedFile);
+
+
+
+
+
+
+    } else if (fs.existsSync(receivedFile)) {
+      // Only check for orphaned files for output files (.out, .err), not source files (.ts)
+      const isOutputFile = receivedFile.endsWith('.out') || receivedFile.endsWith('.err');
+      if (isOutputFile) {
+        const receivedContent = fs.readFileSync(receivedFile, 'utf8').trim();
+        if (receivedContent) {
+          throw new Error(`Received file ${receivedFile} exists but no corresponding expected file ${expectedFile} found. ` +
+            `If this output is correct, create the expected file: cp "${receivedFile}" "${expectedFile}"`);
+        }
+      }
     }
   }
 
