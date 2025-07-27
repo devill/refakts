@@ -2,8 +2,7 @@ import * as fs from 'fs';
 
 export class TestUtilities {
   static normalizePaths(content: string): string {
-    const projectRoot = process.cwd();
-    return content.replace(new RegExp(projectRoot.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'), 'g'), '.');
+    return content.replace(new RegExp(process.cwd().replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'), 'g'), '.');
   }
 
   static createMismatchError(receivedFile: string, expected: string, received: string): Error {
@@ -15,12 +14,9 @@ ${received}`);
   }
 
   static readAndNormalizeFiles(expectedFile: string, receivedFile: string) {
-    const expected = fs.readFileSync(expectedFile, 'utf8').trim();
-    const received = fs.readFileSync(receivedFile, 'utf8').trim();
-    
     return {
-      normalizedExpected: TestUtilities.normalizePaths(expected),
-      normalizedReceived: TestUtilities.normalizePaths(received)
+      normalizedExpected: TestUtilities.normalizePaths(fs.readFileSync(expectedFile, 'utf8').trim()),
+      normalizedReceived: TestUtilities.normalizePaths(fs.readFileSync(receivedFile, 'utf8').trim())
     };
   }
 
@@ -42,18 +38,15 @@ ${received}`);
     if (fs.existsSync(expectedFile)) {
       TestUtilities.validateReceivedFileExists(expectedFile, receivedFile);
       TestUtilities.compareFileContents(expectedFile, receivedFile);
+    } else {
+      TestUtilities.validateOrphanedReceivedFile(receivedFile, expectedFile);
+    }
+  }
 
-
-
-
-
-
-    } else if (fs.existsSync(receivedFile)) {
-      // Only check for orphaned files for output files (.out, .err), not source files (.ts)
-      const isOutputFile = receivedFile.endsWith('.out') || receivedFile.endsWith('.err');
-      if (isOutputFile) {
-        const receivedContent = fs.readFileSync(receivedFile, 'utf8').trim();
-        if (receivedContent) {
+  private static validateOrphanedReceivedFile(receivedFile: string, expectedFile: string): void {
+    if (fs.existsSync(receivedFile)) {
+      if (receivedFile.endsWith('.out') || receivedFile.endsWith('.err')) {
+        if (fs.readFileSync(receivedFile, 'utf8').trim()) {
           throw new Error(`Received file ${receivedFile} exists but no corresponding expected file ${expectedFile} found. ` +
             `If this output is correct, create the expected file: cp "${receivedFile}" "${expectedFile}"`);
         }
