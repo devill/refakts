@@ -24,13 +24,13 @@ export class MethodNodeExpander {
     ];
   }
 
+  private getJsDocNodes(method: MethodDeclaration | ConstructorDeclaration): ts.Node[] {
+    return method.getJsDocs().map((jsDoc: JSDoc) => jsDoc.compilerNode);
+  }
+
   private getDecoratorNodes(method: MethodDeclaration | ConstructorDeclaration): ts.Node[] {
     if (!Node.isMethodDeclaration(method)) return [];
     return method.getDecorators().map((decorator: Decorator) => decorator.compilerNode);
-  }
-
-  private getJsDocNodes(method: MethodDeclaration | ConstructorDeclaration): ts.Node[] {
-    return method.getJsDocs().map((jsDoc: JSDoc) => jsDoc.compilerNode);
   }
 
   private createWrapperNode(
@@ -42,6 +42,38 @@ export class MethodNodeExpander {
     const wrapperNode = this.createBlockNode(allNodes);
     this.setWrapperRange(wrapperNode, allNodes, sourceFile);
     return createWrappedNode(wrapperNode, { sourceFile: sourceFile.compilerNode });
+  }
+
+  private setWrapperRange(
+    wrapperNode: ts.Block,
+    allNodes: ts.Node[],
+    sourceFile: SourceFile
+  ): void {
+    if (allNodes.length === 0) return;
+    
+    this.setNodePosition(wrapperNode, this.calculateStartPosition(allNodes, sourceFile));
+    this.setNodeEnd(wrapperNode, this.calculateEndPosition(allNodes));
+  }
+
+  private calculateEndPosition(allNodes: ts.Node[]): number {
+    return Math.max(...allNodes.map(node => node.end));
+  }
+
+  private setNodeEnd(node: ts.Node, endPosition: number): void {
+    Object.defineProperty(node, 'end', { value: endPosition, writable: false });
+  }
+
+  private calculateStartPosition(allNodes: ts.Node[], sourceFile: SourceFile): number {
+    return Math.min(...allNodes.map(node => {
+      const leadingComments = ts.getLeadingCommentRanges(sourceFile.getFullText(), node.pos) || [];
+      return leadingComments.length > 0 
+        ? Math.min(...leadingComments.map(c => c.pos))
+        : node.pos;
+    }));
+  }
+
+  private setNodePosition(node: ts.Node, position: number): void {
+    Object.defineProperty(node, 'pos', { value: position, writable: false });
   }
 
   private createBlockNode(allNodes: ts.Node[]): ts.Block {
@@ -58,38 +90,4 @@ export class MethodNodeExpander {
     }
     return ts.factory.createExpressionStatement(node as ts.Expression);
   }
-
-  private setWrapperRange(
-    wrapperNode: ts.Block,
-    allNodes: ts.Node[],
-    sourceFile: SourceFile
-  ): void {
-    if (allNodes.length === 0) return;
-    
-    this.setNodePosition(wrapperNode, this.calculateStartPosition(allNodes, sourceFile));
-    this.setNodeEnd(wrapperNode, this.calculateEndPosition(allNodes));
-  }
-
-  private calculateStartPosition(allNodes: ts.Node[], sourceFile: SourceFile): number {
-    return Math.min(...allNodes.map(node => {
-      const leadingComments = ts.getLeadingCommentRanges(sourceFile.getFullText(), node.pos) || [];
-      return leadingComments.length > 0 
-        ? Math.min(...leadingComments.map(c => c.pos))
-        : node.pos;
-    }));
-  }
-
-  private calculateEndPosition(allNodes: ts.Node[]): number {
-    return Math.max(...allNodes.map(node => node.end));
-  }
-
-  private setNodePosition(node: ts.Node, position: number): void {
-    Object.defineProperty(node, 'pos', { value: position, writable: false });
-  }
-
-  private setNodeEnd(node: ts.Node, endPosition: number): void {
-    Object.defineProperty(node, 'end', { value: endPosition, writable: false });
-  }
-
-
 }
