@@ -715,12 +715,6 @@
       "singleUseVariable"
     ]
   },
-  "tests/utils/test-utilities.ts": {
-    "lastCommitId": "833b616cbfbafc559be677926289fc4eddf0bc4e",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
   "tests/integration/fixture.test.ts": {
     "lastCommitId": "f7d3433d1b8e57e08257e50af05bf009f175e2d0",
     "violations": [
