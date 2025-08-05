@@ -69,6 +69,8 @@ npm run usage:report                # View command usage statistics
 ```
 <!-- AUTO-GENERATED HELP END -->
 
+**CRITICAL: Use `--help` to check command syntax before trying unfamiliar RefakTS commands.**
+
 ## Core Development Principles
 
 **CRITICAL: Dog fooding** - RefakTS is meant for AI agents like you. Use existing RefakTS functionality when refactoring. If you find a bug while using it, add it to the todo list immediately.
