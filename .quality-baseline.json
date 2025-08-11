@@ -219,12 +219,6 @@
       "singleUseVariable"
     ]
   },
-  "src/core/commands/rename-command.ts": {
-    "lastCommitId": "bf89440ad4d87ed9c05abccbdce0a584a374bedf",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
   "src/core/commands/select-command.ts": {
     "lastCommitId": "876773659621d2929ad9c16187ad30ab7dcc177b",
     "violations": [

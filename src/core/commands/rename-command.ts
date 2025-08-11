@@ -6,6 +6,8 @@ import { VariableLocator, VariableNodeResult } from '../locators/variable-locato
 import { RenameVariableTransformation } from '../transformations/rename-variable-transformation';
 import { LocationRange } from '../ast/location-range';
 import { NodeAnalyzer } from '../services/node-analyzer';
+import { VariableNameValidator } from '../services/variable-name-validator';
+import { ScopeAnalyzer } from '../services/scope-analyzer';
 
 export class RenameCommand implements RefactoringCommand {
   readonly name = 'rename';
@@ -15,15 +17,15 @@ export class RenameCommand implements RefactoringCommand {
   private consoleOutput!: ConsoleOutput;
   private astService!: ASTService;
   private variableLocator!: VariableLocator;
+  private nameValidator!: VariableNameValidator;
 
   async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
     this.astService = ASTService.createForFile(file);
     this.variableLocator = new VariableLocator(this.astService.getProject());
-    const sourceFile = this.astService.loadSourceFile(file);
-    const node = this.findTargetNode(options);
-    await this.performRename(node, options.to as string);
-    await this.astService.saveSourceFile(sourceFile);
+    this.nameValidator = new VariableNameValidator();
+    await this.performRename(this.findTargetNode(options), options.to as string);
+    await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
   }
 
   private findTargetNode(options: CommandOptions): Node {
@@ -47,8 +49,9 @@ export class RenameCommand implements RefactoringCommand {
     NodeAnalyzer.validateIdentifierNode(node);
     const sourceFile = node.getSourceFile();
     const nodeResult = this.findVariableNodesAtPosition(node, sourceFile);
-    const transformation = this.createRenameTransformation(nodeResult, newName);
-    await transformation.transform(sourceFile);
+    
+    this.validateNewName(nodeResult.declaration, newName);
+    await this.createRenameTransformation(nodeResult, newName).transform(sourceFile);
   }
 
   private findVariableNodesAtPosition(node: Node, sourceFile: SourceFile) {
@@ -70,5 +73,9 @@ export class RenameCommand implements RefactoringCommand {
 
   setConsoleOutput(consoleOutput: ConsoleOutput): void {
     this.consoleOutput = consoleOutput;
+  }
+
+  private validateNewName(declarationNode: Node, newName: string): void {
+    this.nameValidator.generateUniqueName(newName, ScopeAnalyzer.getNodeScope(declarationNode));
   }
 }
