@@ -240,6 +240,14 @@ tests/fixtures/commands/my-command/
 └── error-handling/
 ```
 
+### Fixture Test JSDoc Consistency
+
+When creating fixture test pairs (`.input.ts` and `.expected.ts`):
+
+- **Copy JSDoc exactly** from `.input.ts` to `.expected.ts` 
+- **Keep coordinates unchanged** - `@command` line numbers must reference the `.input.ts` file location
+- **Maintain identical content** - all JSDoc metadata must match exactly
+
 ### Unit Tests for Service Logic
 ```typescript
 describe('MyDomainService', () => {
