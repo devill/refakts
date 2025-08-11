@@ -6,6 +6,8 @@ import { VariableLocator, VariableNodeResult } from '../locators/variable-locato
 import { RenameVariableTransformation } from '../transformations/rename-variable-transformation';
 import { LocationRange } from '../ast/location-range';
 import { NodeAnalyzer } from '../services/node-analyzer';
+import { VariableNameValidator } from '../services/variable-name-validator';
+import { ScopeAnalyzer } from '../services/scope-analyzer';
 
 export class RenameCommand implements RefactoringCommand {
   readonly name = 'rename';
@@ -15,11 +17,13 @@ export class RenameCommand implements RefactoringCommand {
   private consoleOutput!: ConsoleOutput;
   private astService!: ASTService;
   private variableLocator!: VariableLocator;
+  private nameValidator!: VariableNameValidator;
 
   async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
     this.astService = ASTService.createForFile(file);
     this.variableLocator = new VariableLocator(this.astService.getProject());
+    this.nameValidator = new VariableNameValidator();
     const sourceFile = this.astService.loadSourceFile(file);
     const node = this.findTargetNode(options);
     await this.performRename(node, options.to as string);
@@ -47,6 +51,9 @@ export class RenameCommand implements RefactoringCommand {
     NodeAnalyzer.validateIdentifierNode(node);
     const sourceFile = node.getSourceFile();
     const nodeResult = this.findVariableNodesAtPosition(node, sourceFile);
+    
+    this.validateNewName(nodeResult.declaration, newName);
+    
     const transformation = this.createRenameTransformation(nodeResult, newName);
     await transformation.transform(sourceFile);
   }
@@ -70,5 +77,10 @@ export class RenameCommand implements RefactoringCommand {
 
   setConsoleOutput(consoleOutput: ConsoleOutput): void {
     this.consoleOutput = consoleOutput;
+  }
+
+  private validateNewName(declarationNode: Node, newName: string): void {
+    const scope = ScopeAnalyzer.getNodeScope(declarationNode);
+    this.nameValidator.generateUniqueName(newName, scope);
   }
 }
