@@ -24,10 +24,8 @@ export class RenameCommand implements RefactoringCommand {
     this.astService = ASTService.createForFile(file);
     this.variableLocator = new VariableLocator(this.astService.getProject());
     this.nameValidator = new VariableNameValidator();
-    const sourceFile = this.astService.loadSourceFile(file);
-    const node = this.findTargetNode(options);
-    await this.performRename(node, options.to as string);
-    await this.astService.saveSourceFile(sourceFile);
+    await this.performRename(this.findTargetNode(options), options.to as string);
+    await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
   }
 
   private findTargetNode(options: CommandOptions): Node {
@@ -53,9 +51,7 @@ export class RenameCommand implements RefactoringCommand {
     const nodeResult = this.findVariableNodesAtPosition(node, sourceFile);
     
     this.validateNewName(nodeResult.declaration, newName);
-    
-    const transformation = this.createRenameTransformation(nodeResult, newName);
-    await transformation.transform(sourceFile);
+    await this.createRenameTransformation(nodeResult, newName).transform(sourceFile);
   }
 
   private findVariableNodesAtPosition(node: Node, sourceFile: SourceFile) {
@@ -80,7 +76,6 @@ export class RenameCommand implements RefactoringCommand {
   }
 
   private validateNewName(declarationNode: Node, newName: string): void {
-    const scope = ScopeAnalyzer.getNodeScope(declarationNode);
-    this.nameValidator.generateUniqueName(newName, scope);
+    this.nameValidator.generateUniqueName(newName, ScopeAnalyzer.getNodeScope(declarationNode));
   }
 }
