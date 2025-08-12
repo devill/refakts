@@ -1,13 +1,11 @@
-import { Node, ParameterDeclaration, FunctionDeclaration, MethodDeclaration, ArrowFunction, FunctionExpression, BindingElement, OmittedExpression, ConstructorDeclaration, ObjectBindingPattern } from 'ts-morph';
+import { Node, ParameterDeclaration, FunctionDeclaration, MethodDeclaration, ArrowFunction, FunctionExpression, BindingElement, OmittedExpression, ConstructorDeclaration } from 'ts-morph';
 import { ScopeAnalyzer } from './scope-analyzer';
 
 type FunctionLikeNode = FunctionDeclaration | MethodDeclaration | ArrowFunction | FunctionExpression | ConstructorDeclaration;
 
 export class VariableNameValidator {
   generateUniqueName(baseName: string, scope: Node): string {
-    const existingNames = this.getExistingVariableNames(scope);
-    
-    if (!existingNames.has(baseName)) {
+    if (!this.getExistingVariableNames(scope).has(baseName)) {
       return baseName;
     }
 
@@ -98,8 +96,7 @@ export class VariableNameValidator {
   }
 
   private processParameters(functionNode: Node, names: Set<string>): void {
-    const parameters = this.getParametersFromFunction(functionNode);
-    for (const param of parameters) {
+    for (const param of this.getParametersFromFunction(functionNode)) {
       this.processParameter(param, names);
     }
   }
@@ -116,44 +113,23 @@ export class VariableNameValidator {
     if (Node.isIdentifier(nameNode)) {
       this.addNameIfIdentifier(nameNode, names);
     } else {
-      this.addDestructuredParameterNames(nameNode, names);
+      this.addBindingPatternNames(nameNode, names);
     }
   }
 
-  private addDestructuredParameterNames(nameNode: Node, names: Set<string>): void {
-    if (Node.isObjectBindingPattern(nameNode)) {
-      this.addObjectBindingNames(nameNode, names);
-    } else if (Node.isArrayBindingPattern(nameNode)) {
-      this.addArrayBindingNames(nameNode, names);
-    }
-  }
-
-  private addObjectBindingNames(nameNode: Node, names: Set<string>): void {
-    if (Node.isObjectBindingPattern(nameNode)) {
-      this.processBindingElements(nameNode, names);
-    }
-  }
-
-  private processBindingElements(nameNode: ObjectBindingPattern, names: Set<string>): void {
-    nameNode.getElements().forEach((element: BindingElement | OmittedExpression) => {
-      this.processBindingElement(element, names);
-    });
-  }
-
-  private processBindingElement(element: BindingElement | OmittedExpression, names: Set<string>): void {
-    if (!Node.isBindingElement(element)) return;
-    this.addNameIfIdentifier(element.getNameNode(), names);
-  }
-
-  private addArrayBindingNames(nameNode: Node, names: Set<string>): void {
-    if (Node.isArrayBindingPattern(nameNode)) {
-      nameNode.getElements().forEach((element: BindingElement | OmittedExpression) => {
-        this.processArrayBindingElement(element, names);
+  private addBindingPatternNames(pattern: Node, names: Set<string>): void {
+    if (Node.isObjectBindingPattern(pattern)) {
+      pattern.getElements().forEach(element => {
+        this.addBindingElementName(element, names);
+      });
+    } else if (Node.isArrayBindingPattern(pattern)) {
+      pattern.getElements().forEach(element => {
+        this.addBindingElementName(element, names);
       });
     }
   }
 
-  private processArrayBindingElement(element: BindingElement | OmittedExpression, names: Set<string>): void {
+  private addBindingElementName(element: BindingElement | OmittedExpression, names: Set<string>): void {
     if (element && Node.isBindingElement(element)) {
       this.addNameIfIdentifier(element.getNameNode(), names);
     }

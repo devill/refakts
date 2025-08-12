@@ -131,3 +131,9 @@ const lineCount = this.getLineCount(func);
 - **Intention-revealing names** that describe the business purpose
 - **Avoid technical jargon** in favor of domain language
 - **Use verbs for methods, nouns for classes and properties**
+
+### Systematic Refactoring
+
+#### Line-Based Operations
+- **Work bottom-up for coordinate-based edits** - Start with highest line numbers to avoid coordinate shifts
+- **Example**: When inlining multiple variables, process line 167 before line 94 to maintain stable targets
