@@ -125,7 +125,7 @@ describe('VariableNameValidator', () => {
       const existingNames = validator.getExistingVariableNames(outerBlock);
       
       expect(existingNames).toEqual(new Set([
-        'items', 'filtered', 'transformed', 'item', 'converted'
+        'items', 'filtered', 'transformed', 'item', 'converted', 'processor'
       ]));
     });
 
@@ -168,7 +168,7 @@ describe('VariableNameValidator', () => {
       
       const existingNames = validator.getExistingVariableNames(functionBlock);
       
-      expect(existingNames).toEqual(new Set(['param', 'local']));
+      expect(existingNames).toEqual(new Set(['param', 'local', 'fn']));
     });
 
     it('should handle complex nested structures', () => {

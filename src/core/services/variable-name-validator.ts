@@ -1,4 +1,5 @@
 import { Node, ParameterDeclaration, FunctionDeclaration, MethodDeclaration, ArrowFunction, FunctionExpression, BindingElement, OmittedExpression, ConstructorDeclaration, ObjectBindingPattern } from 'ts-morph';
+import { ScopeAnalyzer } from './scope-analyzer';
 
 type FunctionLikeNode = FunctionDeclaration | MethodDeclaration | ArrowFunction | FunctionExpression | ConstructorDeclaration;
 
@@ -18,6 +19,7 @@ export class VariableNameValidator {
     
     this.addFunctionParametersIfInBlock(scope, names);
     this.addDescendantVariableNames(scope, names);
+    this.addParentScopeVariableNames(scope, names);
     
     return names;
   }
@@ -44,21 +46,48 @@ export class VariableNameValidator {
     });
   }
 
+  private addParentScopeVariableNames(scope: Node, names: Set<string>): void {
+    let parentScope = ScopeAnalyzer.getParentScope(scope);
+    while (parentScope) {
+      this.addDirectVariableNames(parentScope, names);
+      this.addFunctionParametersIfInBlock(parentScope, names);
+      parentScope = ScopeAnalyzer.getParentScope(parentScope);
+    }
+  }
+
+  private addDirectVariableNames(scope: Node, names: Set<string>): void {
+    scope.forEachChild((child) => {
+      this.addChildVariableNames(child, names);
+    });
+  }
+
+  private addChildVariableNames(child: Node, names: Set<string>): void {
+    if (Node.isVariableStatement(child)) {
+      child.getDeclarations().forEach((declaration) => {
+        this.addVariableNameIfExists(declaration, names);
+      });
+    } else if (Node.isVariableDeclaration(child)) {
+      this.addVariableNameIfExists(child, names);
+    } else if (Node.isParameterDeclaration(child)) {
+      this.addParameterNameIfExists(child, names);
+    }
+  }
+
+  private addNameIfIdentifier(node: Node, names: Set<string>): void {
+    if (Node.isIdentifier(node)) {
+      names.add(node.getText());
+    }
+  }
+
   private addVariableNameIfExists(node: Node, names: Set<string>): void {
     if (Node.isVariableDeclaration(node)) {
-      const nameNode = node.getNameNode();
-      if (Node.isIdentifier(nameNode)) {
-        names.add(nameNode.getText());
-      }
+      this.addNameIfIdentifier(node.getNameNode(), names);
     }
   }
 
   private addParameterNameIfExists(node: Node, names: Set<string>): void {
     if (Node.isParameterDeclaration(node)) {
-      const nameNode = node.getNameNode();
-      if (Node.isIdentifier(nameNode)) {
-        names.add(nameNode.getText());
-      }
+      this.addNameIfIdentifier(node.getNameNode(), names);
     }
   }
 
@@ -76,9 +105,7 @@ export class VariableNameValidator {
   }
 
   private getParametersFromFunction(functionNode: Node): ParameterDeclaration[] {
-    if (Node.isFunctionDeclaration(functionNode) || Node.isMethodDeclaration(functionNode) || 
-        Node.isArrowFunction(functionNode) || Node.isFunctionExpression(functionNode) || 
-        Node.isConstructorDeclaration(functionNode)) {
+    if (this.isFunctionNode(functionNode)) {
       return (functionNode as FunctionLikeNode).getParameters();
     }
     return [];
@@ -87,7 +114,7 @@ export class VariableNameValidator {
   private processParameter(param: ParameterDeclaration, names: Set<string>): void {
     const nameNode = param.getNameNode();
     if (Node.isIdentifier(nameNode)) {
-      names.add(nameNode.getText());
+      this.addNameIfIdentifier(nameNode, names);
     } else {
       this.addDestructuredParameterNames(nameNode, names);
     }
@@ -115,10 +142,7 @@ export class VariableNameValidator {
 
   private processBindingElement(element: BindingElement | OmittedExpression, names: Set<string>): void {
     if (!Node.isBindingElement(element)) return;
-    const elementName = element.getNameNode();
-    if (Node.isIdentifier(elementName)) {
-      names.add(elementName.getText());
-    }
+    this.addNameIfIdentifier(element.getNameNode(), names);
   }
 
   private addArrayBindingNames(nameNode: Node, names: Set<string>): void {
@@ -131,10 +155,7 @@ export class VariableNameValidator {
 
   private processArrayBindingElement(element: BindingElement | OmittedExpression, names: Set<string>): void {
     if (element && Node.isBindingElement(element)) {
-      const elementName = element.getNameNode();
-      if (Node.isIdentifier(elementName)) {
-        names.add(elementName.getText());
-      }
+      this.addNameIfIdentifier(element.getNameNode(), names);
     }
   }
 }
