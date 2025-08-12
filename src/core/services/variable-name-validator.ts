@@ -1,12 +1,11 @@
-import { Node, ParameterDeclaration, FunctionDeclaration, MethodDeclaration, ArrowFunction, FunctionExpression, BindingElement, OmittedExpression, ConstructorDeclaration, ObjectBindingPattern } from 'ts-morph';
+import { Node, ParameterDeclaration, FunctionDeclaration, MethodDeclaration, ArrowFunction, FunctionExpression, BindingElement, OmittedExpression, ConstructorDeclaration } from 'ts-morph';
+import { ScopeAnalyzer } from './scope-analyzer';
 
 type FunctionLikeNode = FunctionDeclaration | MethodDeclaration | ArrowFunction | FunctionExpression | ConstructorDeclaration;
 
 export class VariableNameValidator {
   generateUniqueName(baseName: string, scope: Node): string {
-    const existingNames = this.getExistingVariableNames(scope);
-    
-    if (!existingNames.has(baseName)) {
+    if (!this.getExistingVariableNames(scope).has(baseName)) {
       return baseName;
     }
 
@@ -18,6 +17,7 @@ export class VariableNameValidator {
     
     this.addFunctionParametersIfInBlock(scope, names);
     this.addDescendantVariableNames(scope, names);
+    this.addParentScopeVariableNames(scope, names);
     
     return names;
   }
@@ -44,21 +44,48 @@ export class VariableNameValidator {
     });
   }
 
+  private addParentScopeVariableNames(scope: Node, names: Set<string>): void {
+    let parentScope = ScopeAnalyzer.getParentScope(scope);
+    while (parentScope) {
+      this.addDirectVariableNames(parentScope, names);
+      this.addFunctionParametersIfInBlock(parentScope, names);
+      parentScope = ScopeAnalyzer.getParentScope(parentScope);
+    }
+  }
+
+  private addDirectVariableNames(scope: Node, names: Set<string>): void {
+    scope.forEachChild((child) => {
+      this.addChildVariableNames(child, names);
+    });
+  }
+
+  private addChildVariableNames(child: Node, names: Set<string>): void {
+    if (Node.isVariableStatement(child)) {
+      child.getDeclarations().forEach((declaration) => {
+        this.addVariableNameIfExists(declaration, names);
+      });
+    } else if (Node.isVariableDeclaration(child)) {
+      this.addVariableNameIfExists(child, names);
+    } else if (Node.isParameterDeclaration(child)) {
+      this.addParameterNameIfExists(child, names);
+    }
+  }
+
+  private addNameIfIdentifier(node: Node, names: Set<string>): void {
+    if (Node.isIdentifier(node)) {
+      names.add(node.getText());
+    }
+  }
+
   private addVariableNameIfExists(node: Node, names: Set<string>): void {
     if (Node.isVariableDeclaration(node)) {
-      const nameNode = node.getNameNode();
-      if (Node.isIdentifier(nameNode)) {
-        names.add(nameNode.getText());
-      }
+      this.addNameIfIdentifier(node.getNameNode(), names);
     }
   }
 
   private addParameterNameIfExists(node: Node, names: Set<string>): void {
     if (Node.isParameterDeclaration(node)) {
-      const nameNode = node.getNameNode();
-      if (Node.isIdentifier(nameNode)) {
-        names.add(nameNode.getText());
-      }
+      this.addNameIfIdentifier(node.getNameNode(), names);
     }
   }
 
@@ -69,16 +96,13 @@ export class VariableNameValidator {
   }
 
   private processParameters(functionNode: Node, names: Set<string>): void {
-    const parameters = this.getParametersFromFunction(functionNode);
-    for (const param of parameters) {
+    for (const param of this.getParametersFromFunction(functionNode)) {
       this.processParameter(param, names);
     }
   }
 
   private getParametersFromFunction(functionNode: Node): ParameterDeclaration[] {
-    if (Node.isFunctionDeclaration(functionNode) || Node.isMethodDeclaration(functionNode) || 
-        Node.isArrowFunction(functionNode) || Node.isFunctionExpression(functionNode) || 
-        Node.isConstructorDeclaration(functionNode)) {
+    if (this.isFunctionNode(functionNode)) {
       return (functionNode as FunctionLikeNode).getParameters();
     }
     return [];
@@ -87,54 +111,27 @@ export class VariableNameValidator {
   private processParameter(param: ParameterDeclaration, names: Set<string>): void {
     const nameNode = param.getNameNode();
     if (Node.isIdentifier(nameNode)) {
-      names.add(nameNode.getText());
+      this.addNameIfIdentifier(nameNode, names);
     } else {
-      this.addDestructuredParameterNames(nameNode, names);
+      this.addBindingPatternNames(nameNode, names);
     }
   }
 
-  private addDestructuredParameterNames(nameNode: Node, names: Set<string>): void {
-    if (Node.isObjectBindingPattern(nameNode)) {
-      this.addObjectBindingNames(nameNode, names);
-    } else if (Node.isArrayBindingPattern(nameNode)) {
-      this.addArrayBindingNames(nameNode, names);
-    }
-  }
-
-  private addObjectBindingNames(nameNode: Node, names: Set<string>): void {
-    if (Node.isObjectBindingPattern(nameNode)) {
-      this.processBindingElements(nameNode, names);
-    }
-  }
-
-  private processBindingElements(nameNode: ObjectBindingPattern, names: Set<string>): void {
-    nameNode.getElements().forEach((element: BindingElement | OmittedExpression) => {
-      this.processBindingElement(element, names);
-    });
-  }
-
-  private processBindingElement(element: BindingElement | OmittedExpression, names: Set<string>): void {
-    if (!Node.isBindingElement(element)) return;
-    const elementName = element.getNameNode();
-    if (Node.isIdentifier(elementName)) {
-      names.add(elementName.getText());
-    }
-  }
-
-  private addArrayBindingNames(nameNode: Node, names: Set<string>): void {
-    if (Node.isArrayBindingPattern(nameNode)) {
-      nameNode.getElements().forEach((element: BindingElement | OmittedExpression) => {
-        this.processArrayBindingElement(element, names);
+  private addBindingPatternNames(pattern: Node, names: Set<string>): void {
+    if (Node.isObjectBindingPattern(pattern)) {
+      pattern.getElements().forEach(element => {
+        this.addBindingElementName(element, names);
+      });
+    } else if (Node.isArrayBindingPattern(pattern)) {
+      pattern.getElements().forEach(element => {
+        this.addBindingElementName(element, names);
       });
     }
   }
 
-  private processArrayBindingElement(element: BindingElement | OmittedExpression, names: Set<string>): void {
+  private addBindingElementName(element: BindingElement | OmittedExpression, names: Set<string>): void {
     if (element && Node.isBindingElement(element)) {
-      const elementName = element.getNameNode();
-      if (Node.isIdentifier(elementName)) {
-        names.add(elementName.getText());
-      }
+      this.addNameIfIdentifier(element.getNameNode(), names);
     }
   }
 }

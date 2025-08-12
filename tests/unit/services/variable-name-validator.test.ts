@@ -13,166 +13,114 @@ describe('VariableNameValidator', () => {
 
   describe('generateUniqueName', () => {
     it('should return base name when no conflict exists', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.simpleFunction);
-      const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
-      const uniqueName = validator.generateUniqueName('newVar', functionBlock);
-      
-      expect(uniqueName).toBe('newVar');
+      expect(validator.generateUniqueName('newVar', 
+        project.createSourceFile('test.ts', fixtures.simpleFunction)
+               .getDescendantsOfKind(SyntaxKind.Block)[0]
+      )).toBe('newVar');
     });
 
     it('should throw error when variable name already exists', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.simpleFunction);
-      const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
       expect(() => {
-        validator.generateUniqueName('result', functionBlock);
+        validator.generateUniqueName('result', 
+          project.createSourceFile('test.ts', fixtures.simpleFunction)
+                 .getDescendantsOfKind(SyntaxKind.Block)[0]
+        );
       }).toThrow("Variable name 'result' already exists in this scope. Please choose a different name.");
     });
 
     it('should throw error when parameter name conflicts', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.functionWithParameters);
-      const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
       expect(() => {
-        validator.generateUniqueName('data', functionBlock);
+        validator.generateUniqueName('data', project.createSourceFile('test1.ts', fixtures.functionWithParameters)
+                                               .getDescendantsOfKind(SyntaxKind.Block)[0]);
       }).toThrow("Variable name 'data' already exists in this scope. Please choose a different name.");
       
       expect(() => {
-        validator.generateUniqueName('options', functionBlock);
+        validator.generateUniqueName('options', project.createSourceFile('test2.ts', fixtures.functionWithParameters)
+                                               .getDescendantsOfKind(SyntaxKind.Block)[0]);
       }).toThrow("Variable name 'options' already exists in this scope. Please choose a different name.");
     });
 
     it('should detect conflicts in nested scopes', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.nestedScopes);
-      const outerBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0]; // Outer function block
-      
       expect(() => {
-        validator.generateUniqueName('innerVar', outerBlock);
+        validator.generateUniqueName('innerVar', 
+          project.createSourceFile('test.ts', fixtures.nestedScopes)
+                 .getDescendantsOfKind(SyntaxKind.Block)[0]
+        );
       }).toThrow("Variable name 'innerVar' already exists in this scope. Please choose a different name.");
     });
 
     it('should detect conflicts in class method scope', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.classScope);
-      const methodBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[1]; // Calculate method block
-      
       expect(() => {
-        validator.generateUniqueName('input', methodBlock);
+        validator.generateUniqueName('input', project.createSourceFile('test3.ts', fixtures.classScope)
+                                             .getDescendantsOfKind(SyntaxKind.Block)[1]);
       }).toThrow("Variable name 'input' already exists in this scope. Please choose a different name.");
       
       expect(() => {
-        validator.generateUniqueName('result', methodBlock);
+        validator.generateUniqueName('result', project.createSourceFile('test4.ts', fixtures.classScope)
+                                             .getDescendantsOfKind(SyntaxKind.Block)[1]);
       }).toThrow("Variable name 'result' already exists in this scope. Please choose a different name.");
     });
 
     it('should allow names that do not conflict in empty scope', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.emptyScope);
-      const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
-      const uniqueName1 = validator.generateUniqueName('anyName', functionBlock);
-      const uniqueName2 = validator.generateUniqueName('anotherName', functionBlock);
-      
-      expect(uniqueName1).toBe('anyName');
-      expect(uniqueName2).toBe('anotherName');
+      expect(validator.generateUniqueName('anyName', project.createSourceFile('test5.ts', fixtures.emptyScope)
+                                             .getDescendantsOfKind(SyntaxKind.Block)[0])).toBe('anyName');
+      expect(validator.generateUniqueName('anotherName', project.createSourceFile('test6.ts', fixtures.emptyScope)
+                                             .getDescendantsOfKind(SyntaxKind.Block)[0])).toBe('anotherName');
     });
   });
 
   describe('getExistingVariableNames', () => {
     it('should collect all variable names in simple function', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.simpleFunction);
-      const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
-      const existingNames = validator.getExistingVariableNames(functionBlock);
-      
-      expect(existingNames).toEqual(new Set(['input', 'result', 'output']));
+      expect(validator.getExistingVariableNames(project.createSourceFile('test.ts', fixtures.simpleFunction).getDescendantsOfKind(SyntaxKind.Block)[0])).toEqual(new Set(['input', 'result', 'output']));
     });
 
     it('should collect parameter names and variable names', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.functionWithParameters);
-      const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
-      const existingNames = validator.getExistingVariableNames(functionBlock);
-      
-      expect(existingNames).toEqual(new Set(['data', 'options', 'callback', 'processed', 'config', 'item']));
+      expect(validator.getExistingVariableNames(project.createSourceFile('test.ts', fixtures.functionWithParameters).getDescendantsOfKind(SyntaxKind.Block)[0])).toEqual(new Set(['data', 'options', 'callback', 'processed', 'config', 'item']));
     });
 
     it('should collect names from nested scopes', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.nestedScopes);
-      const outerBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
-      const existingNames = validator.getExistingVariableNames(outerBlock);
-      
-      expect(existingNames).toEqual(new Set([
+      expect(validator.getExistingVariableNames(project.createSourceFile('test.ts', fixtures.nestedScopes).getDescendantsOfKind(SyntaxKind.Block)[0])).toEqual(new Set([
         'param1', 'outerVar', 'param2', 'innerVar', 'anotherVar'
       ]));
     });
 
     it('should handle destructuring parameters', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.destructuringParameters);
-      const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
-      const existingNames = validator.getExistingVariableNames(functionBlock);
-      
-      expect(existingNames).toEqual(new Set([
+      expect(validator.getExistingVariableNames(project.createSourceFile('test.ts', fixtures.destructuringParameters).getDescendantsOfKind(SyntaxKind.Block)[0])).toEqual(new Set([
         'url', 'method', 'options', 'normalizedUrl', 'upperMethod'
       ]));
     });
 
     it('should collect names from arrow functions', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.arrowFunctions);
-      const outerBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
-      const existingNames = validator.getExistingVariableNames(outerBlock);
-      
-      expect(existingNames).toEqual(new Set([
-        'items', 'filtered', 'transformed', 'item', 'converted'
+      expect(validator.getExistingVariableNames(project.createSourceFile('test.ts', fixtures.arrowFunctions).getDescendantsOfKind(SyntaxKind.Block)[0])).toEqual(new Set([
+        'items', 'filtered', 'transformed', 'item', 'converted', 'processor'
       ]));
     });
 
     it('should return empty set for scope with no variables', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.emptyScope);
-      const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
-      const existingNames = validator.getExistingVariableNames(functionBlock);
-      
-      expect(existingNames).toEqual(new Set());
+      expect(validator.getExistingVariableNames(project.createSourceFile('test.ts', fixtures.emptyScope).getDescendantsOfKind(SyntaxKind.Block)[0])).toEqual(new Set());
     });
 
     it('should collect module-level variables', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.moduleLevel);
-      
-      const existingNames = validator.getExistingVariableNames(sourceFile);
-      
-      expect(existingNames).toEqual(new Set(['globalVar', 'anotherGlobal', 'mutableGlobal']));
+      expect(validator.getExistingVariableNames(project.createSourceFile('test.ts', fixtures.moduleLevel))).toEqual(new Set(['globalVar', 'anotherGlobal', 'mutableGlobal']));
     });
   });
 
   describe('edge cases and error conditions', () => {
     it('should handle class constructor parameters', () => {
-      const sourceFile = project.createSourceFile('test.ts', fixtures.classScope);
-      const constructorBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
-      const existingNames = validator.getExistingVariableNames(constructorBlock);
-      
-      expect(existingNames).toEqual(new Set(['initialValue']));
+      expect(validator.getExistingVariableNames(project.createSourceFile('test.ts', fixtures.classScope).getDescendantsOfKind(SyntaxKind.Block)[0])).toEqual(new Set(['initialValue']));
     });
 
     it('should handle function expressions', () => {
-      const sourceFile = project.createSourceFile('test.ts', `
+      expect(validator.getExistingVariableNames(project.createSourceFile('test.ts', `
         const fn = function(param: string) {
           const local = param.toUpperCase();
           return local;
         };
-      `);
-      const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
-      const existingNames = validator.getExistingVariableNames(functionBlock);
-      
-      expect(existingNames).toEqual(new Set(['param', 'local']));
+      `).getDescendantsOfKind(SyntaxKind.Block)[0])).toEqual(new Set(['param', 'local', 'fn']));
     });
 
     it('should handle complex nested structures', () => {
-      const sourceFile = project.createSourceFile('test.ts', `
+      expect(validator.getExistingVariableNames(project.createSourceFile('test.ts', `
         function complex(a: number) {
           const b = a + 1;
           
@@ -188,28 +136,18 @@ describe('VariableNameValidator', () => {
           const e = b - 1;
           return e;
         }
-      `);
-      const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
-      const existingNames = validator.getExistingVariableNames(functionBlock);
-      
-      expect(existingNames).toEqual(new Set(['a', 'b', 'c', 'i', 'd', 'e']));
+      `).getDescendantsOfKind(SyntaxKind.Block)[0])).toEqual(new Set(['a', 'b', 'c', 'i', 'd', 'e']));
     });
 
     it('should handle variable naming edge cases', () => {
-      const sourceFile = project.createSourceFile('test.ts', `
+      expect(validator.getExistingVariableNames(project.createSourceFile('test.ts', `
         function test() {
           const _private = 1;
           const $jquery = 2;
           const var123 = 3;
-          const αβγ = 4; // Unicode identifiers
+          const αβγ = 4;
         }
-      `);
-      const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
-      const existingNames = validator.getExistingVariableNames(functionBlock);
-      
-      expect(existingNames).toEqual(new Set(['_private', '$jquery', 'var123', 'αβγ']));
+      `).getDescendantsOfKind(SyntaxKind.Block)[0])).toEqual(new Set(['_private', '$jquery', 'var123', 'αβγ']));
     });
 
     it('should throw error for case-sensitive conflicts', () => {
@@ -219,18 +157,14 @@ describe('VariableNameValidator', () => {
           const MYVAR = 2;
         }
       `);
-      const functionBlock = sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0];
-      
       expect(() => {
-        validator.generateUniqueName('myVar', functionBlock);
+        validator.generateUniqueName('myVar', sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0]);
       }).toThrow("Variable name 'myVar' already exists in this scope. Please choose a different name.");
       
       expect(() => {
-        validator.generateUniqueName('MYVAR', functionBlock);
+        validator.generateUniqueName('MYVAR', sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0]);
       }).toThrow("Variable name 'MYVAR' already exists in this scope. Please choose a different name.");
-      
-      const uniqueName = validator.generateUniqueName('myvar', functionBlock);
-      expect(uniqueName).toBe('myvar');
+      expect(validator.generateUniqueName('myvar', sourceFile.getDescendantsOfKind(SyntaxKind.Block)[0])).toBe('myvar');
     });
   });
 });
