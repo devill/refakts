@@ -1,6 +1,6 @@
 /**
  * @description Test error handling for missing --name option
- * @command extract-variable "[missing-name-option.input.ts 2:17-2:25]"
+ * @command extract-variable "[{{CURRENT_FILE}} 2:17-2:25]"
  * @expect-error true
  */
 function example() {

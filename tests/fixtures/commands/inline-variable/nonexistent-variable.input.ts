@@ -1,6 +1,6 @@
 /**
  * @description Test error handling for non-existent variable
- * @command inline-variable "[nonexistent-variable.input.ts 5:1-5:5]"
+ * @command inline-variable "[{{CURRENT_FILE}} 5:1-5:5]"
  * @expect-error true
  */
 function example() {

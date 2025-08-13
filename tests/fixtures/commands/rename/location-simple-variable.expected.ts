@@ -1,6 +1,6 @@
 /**
  * @description Rename a variable using location format
- * @command refakts rename "[location-simple-variable.input.ts 7:8-7:11]" --to "newName"
+ * @command refakts rename "[{{CURRENT_FILE}} 7:8-7:11]" --to "newName"
  */
 
 function test() {

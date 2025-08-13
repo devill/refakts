@@ -1,6 +1,6 @@
 /**
  * @description Rename parameter in arrow function  
- * @command refakts rename "[arrow-function.input.ts 6:20-6:21]" --to "value"
+ * @command refakts rename "[{{CURRENT_FILE}} 6:20-6:21]" --to "value"
  */
 
 const transform = (value: number) => {

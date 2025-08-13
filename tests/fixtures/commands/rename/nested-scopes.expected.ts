@@ -1,6 +1,6 @@
 /**
  * @description Rename variable in nested scopes with multiple usages
- * @command refakts rename "[nested-scopes.input.ts 6:23-6:28]" --to "itemList"
+ * @command refakts rename "[{{CURRENT_FILE}} 6:23-6:28]" --to "itemList"
  */
 
 function processItems(itemList: string[]): string[] {

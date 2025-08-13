@@ -1,6 +1,6 @@
 /**
  * @description Extract all occurrences when last occurrence is selected
- * @command refakts extract-variable "[complex-expression-last-selected.input.ts 10:12-10:35]" --name "upperName" --all
+ * @command refakts extract-variable "[{{CURRENT_FILE}} 10:12-10:35]" --name "upperName" --all
  */
 
 function processUser(user: { name: string }) {
