@@ -1,6 +1,6 @@
 /**
  * @description Rename variable should only affect the targeted scope, not same-named variables in other scopes
- * @command refakts rename "[scope-isolation.input.ts 7:9-7:13]" --to "processedData"
+ * @command refakts rename "[{{CURRENT_FILE}} 7:9-7:13]" --to "processedData"
  */
 
 function outerFunction() {

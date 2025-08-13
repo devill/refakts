@@ -1,6 +1,6 @@
 /**
  * @description Extract variable from inside conditional block
- * @command refakts extract-variable "[conditional-block.input.ts 7:7-7:15]" --name "userAge"
+ * @command refakts extract-variable "[{{CURRENT_FILE}} 7:7-7:15]" --name "userAge"
  */
 
 function checkAge(user: { age: number }) {

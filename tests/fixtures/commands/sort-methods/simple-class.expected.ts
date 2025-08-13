@@ -1,6 +1,6 @@
 /**
  * @description Basic class with methods out of order that need sorting by step down rule
- * @command sort-methods "[simple-class.input.ts 5:1-5:10]"
+ * @command sort-methods "[{{CURRENT_FILE}} 5:1-5:10]"
  */
 export class Calculator {
   private baseValue = 10;

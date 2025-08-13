@@ -1,6 +1,6 @@
 /**
  * @description Rename variable in block scope
- * @command refakts rename "[block-scope.input.ts 10:11-10:15]" --to "temporaryValue"
+ * @command refakts rename "[{{CURRENT_FILE}} 10:11-10:15]" --to "temporaryValue"
  */
 
 function processValue(condition: boolean, input: number): number {
