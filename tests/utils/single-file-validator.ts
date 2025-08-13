@@ -111,6 +111,7 @@ export class SingleFileValidator implements TestValidator {
   }
 
   private replaceInputFileReference(command: string, receivedFile: string): string {
+    command = command.replace(/\{\{CURRENT_FILE\}\}/g, receivedFile);
     return command.replace(path.basename(receivedFile).replace('.received.ts', '.input.ts'), receivedFile);
   }
 

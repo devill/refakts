@@ -1,6 +1,6 @@
 /**
  * @description Class with recursive method calls that need proper entry point detection
- * @command sort-methods "[recursive-methods.input.ts 5:1-5:18]"
+ * @command sort-methods "[{{CURRENT_FILE}} 5:1-5:18]"
  */
 export class MathProcessor {
   private cache = new Map<number, number>();

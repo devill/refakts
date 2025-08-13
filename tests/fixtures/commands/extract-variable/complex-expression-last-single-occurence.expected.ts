@@ -1,6 +1,6 @@
 /**
  * @description Extract last occurrence of a complex expression with method calls
- * @command refakts extract-variable "[complex-expression-last-single-occurence.input.ts 10:12-10:35]" --name "upperName"
+ * @command refakts extract-variable "[{{CURRENT_FILE}} 10:12-10:35]" --name "upperName"
  */
 
 function processUser(user: { name: string }) {

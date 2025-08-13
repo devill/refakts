@@ -1,6 +1,6 @@
 /**
  * @description Extract a complex expression with method calls
- * @command refakts extract-variable "[complex-expression.input.ts 7:9-7:32]" --name "upperName" --all
+ * @command refakts extract-variable "[{{CURRENT_FILE}} 7:9-7:32]" --name "upperName" --all
  */
 
 function processUser(user: { name: string }) {
