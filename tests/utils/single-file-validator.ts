@@ -19,11 +19,7 @@ export class SingleFileValidator implements TestValidator {
   async validate(testCase: TestCase): Promise<void> {
     const receivedTsFile = this.getReceivedPath(testCase.inputFile, '.ts');
     this.setupTestFile(testCase.inputFile, receivedTsFile);
-    
-    const outputs = await this.executeCommand(testCase, receivedTsFile);
-    const receivedFiles = this.writeReceivedFiles(testCase.inputFile, outputs);
-    
-    this.validateAndCleanup(testCase, receivedFiles);
+    this.validateAndCleanup(testCase, this.writeReceivedFiles(testCase.inputFile, await this.executeCommand(testCase, receivedTsFile)));
   }
 
   private validateAndCleanup(testCase: TestCase, receivedFiles: any): void {
@@ -43,14 +39,11 @@ export class SingleFileValidator implements TestValidator {
   private async executeCommand(testCase: TestCase, receivedFile: string): Promise<{
     stdout: string; stderr: string; fileContent: string; success: boolean;
   }> {
-    const command = this.prepareCommand(testCase.commands[0], receivedFile);
-    const executionResult = await this.runCommand(command, process.cwd());
-    return { ...executionResult, fileContent: this.readFileContent(receivedFile) };
+    return { ...await this.runCommand(this.prepareCommand(testCase.commands[0], receivedFile), process.cwd()), fileContent: this.readFileContent(receivedFile) };
   }
 
   private prepareCommand(command: string, receivedFile: string): string {
-    const cleanCommand = this.removeRefaktsPrefix(command);
-    return this.replaceInputFileReference(cleanCommand, receivedFile);
+    return this.replaceInputFileReference(this.removeRefaktsPrefix(command), receivedFile);
   }
 
   private writeReceivedFiles(inputFile: string, outputs: any): {
@@ -118,8 +111,7 @@ export class SingleFileValidator implements TestValidator {
   }
 
   private replaceInputFileReference(command: string, receivedFile: string): string {
-    const inputFileName = path.basename(receivedFile).replace('.received.ts', '.input.ts');
-    return command.replace(inputFileName, receivedFile);
+    return command.replace(path.basename(receivedFile).replace('.received.ts', '.input.ts'), receivedFile);
   }
 
   private writeOutputIfPresent(filePath: string, output: string): void {

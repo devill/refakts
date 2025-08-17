@@ -381,12 +381,6 @@
       "singleUseVariable"
     ]
   },
-  "src/core/services/variable-name-validator.ts": {
-    "lastCommitId": "4d7170d18e23cea4dc86b7c500ac66e148a95683",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
   "src/core/services/variable-reference-request.ts": {
     "lastCommitId": "5add9ade67733f16f53716881aab85e467d3c68f",
     "violations": [
@@ -609,13 +603,6 @@
       "singleUseVariable"
     ]
   },
-  "tests/unit/services/variable-name-validator.test.ts": {
-    "lastCommitId": "0f4e7736995c00491695acae2238fe55da1bd0a0",
-    "violations": [
-      "fileSize",
-      "singleUseVariable"
-    ]
-  },
   "tests/utils/file-operations.ts": {
     "lastCommitId": "89ea54e72e552715acec38f728fc0face807d2ad",
     "violations": [
@@ -705,12 +692,6 @@
   },
   "tests/utils/test-case-loader.ts": {
     "lastCommitId": "6a0edea869a04d1cbc7cc2b354e0193c69da6459",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
-  "tests/utils/test-utilities.ts": {
-    "lastCommitId": "833b616cbfbafc559be677926289fc4eddf0bc4e",
     "violations": [
       "singleUseVariable"
     ]
