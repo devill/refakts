@@ -4,7 +4,7 @@
  */
 
 function calculate(x: number, y: number): number {
-    const product = x * y;
+  const product = x * y;
   const sum = product + product;
   const difference = product - 10;
   return sum + difference;
