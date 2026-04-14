@@ -23,10 +23,8 @@ export class InlineVariableCommand implements RefactoringCommand {
     this.validateOptions(options);
     const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
-    const node = this.astService.findNodeByLocation(location);
-    const sourceFile = this.astService.loadSourceFile(file);
-    await this.performInlineVariable(node);
-    await this.astService.saveSourceFile(sourceFile);
+    await this.performInlineVariable(this.astService.findNodeByLocation(location));
+    await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
   }
 
   validateOptions(options: CommandOptions): void {
@@ -42,18 +40,13 @@ export class InlineVariableCommand implements RefactoringCommand {
   private async performInlineVariable(node: Node): Promise<void> {
     this.validateTargetNode(node);
     const variableName = node.getText();
-    const sourceFile = node.getSourceFile();
-    const declaration = this.declarationFinder.findVariableDeclaration(sourceFile, variableName, node);
-    const initializerText = this.getInitializerText(declaration, variableName);
-    const replacementCount = this.variableReplacer.replaceAllReferences(variableName, declaration, initializerText);
+    const declaration = this.declarationFinder.findVariableDeclaration(node.getSourceFile(), variableName, node);
+    this.outputSuccessMessage(variableName, this.variableReplacer.replaceAllReferences(variableName, declaration, this.getInitializerText(declaration, variableName)));
     this.variableReplacer.removeDeclaration(declaration);
-    this.outputSuccessMessage(variableName, replacementCount);
   }
 
   private outputSuccessMessage(variableName: string, replacementCount: number): void {
-    const occurrences = replacementCount === 1 ? 'occurrence' : 'occurrences';
-    const message = `Successfully inlined variable '${variableName}' (${replacementCount} ${occurrences} replaced)`;
-    this.consoleOutput.log(message);
+    this.consoleOutput.log(`Successfully inlined variable '${variableName}' (${replacementCount} ${replacementCount === 1 ? 'occurrence' : 'occurrences'} replaced)`);
   }
 
   private validateTargetNode(node: Node): void {
@@ -70,12 +63,10 @@ export class InlineVariableCommand implements RefactoringCommand {
   }
 
   private getInitializerText(declaration: VariableDeclaration, variableName?: string, context?: Node): string {
-    const nameNode = declaration.getNameNode();
-    
-    if (Node.isObjectBindingPattern(nameNode) && variableName) {
+    if (Node.isObjectBindingPattern(declaration.getNameNode()) && variableName) {
       return this.getDestructuringInitializer(declaration, variableName);
     }
-    
+
     return this.getRegularInitializer(declaration, context);
   }
 
@@ -84,9 +75,8 @@ export class InlineVariableCommand implements RefactoringCommand {
     if (!initializer) {
       throw new Error('Destructuring declaration has no initializer to inline');
     }
-    
-    const initializerText = initializer.getText();
-    return `${initializerText}.${variableName}`;
+
+    return `${initializer.getText()}.${variableName}`;
   }
 
   private getRegularInitializer(declaration: VariableDeclaration, context?: Node): string {

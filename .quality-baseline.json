@@ -195,20 +195,8 @@
       "singleUseVariable"
     ]
   },
-  "src/core/commands/extract-variable-command.ts": {
-    "lastCommitId": "876773659621d2929ad9c16187ad30ab7dcc177b",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
   "src/core/commands/find-usages-command.ts": {
     "lastCommitId": "80b7716fa3dca7c42480e2b4f76ea1421d85b7db",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
-  "src/core/commands/inline-variable-command.ts": {
-    "lastCommitId": "2884690f0d9412fd4d25568215b16a77b915d25e",
     "violations": [
       "singleUseVariable"
     ]
@@ -220,12 +208,6 @@
     ]
   },
   "src/core/commands/select-command.ts": {
-    "lastCommitId": "876773659621d2929ad9c16187ad30ab7dcc177b",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
-  "src/core/commands/sort-methods-command.ts": {
     "lastCommitId": "876773659621d2929ad9c16187ad30ab7dcc177b",
     "violations": [
       "singleUseVariable"
@@ -680,12 +662,6 @@
   },
   "tests/utils/rename-transformation-test-helper.ts": {
     "lastCommitId": "3c8e68fb7a1588c65543fa98bb836d98c968e599",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
-  "tests/utils/single-file-validator.ts": {
-    "lastCommitId": "a0fece80d0baa84a5fb21ead3febdc6c373a150f",
     "violations": [
       "singleUseVariable"
     ]

@@ -23,10 +23,8 @@ export class SortMethodsCommand implements RefactoringCommand {
     this.validateOptions(options);
     const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
-    const sourceFile = this.astService.loadSourceFile(file);
-    const targetClass = this.findTargetClass(this.astService.findNodeByLocation(location));
-    await this.performMethodSorting(targetClass);
-    await this.astService.saveSourceFile(sourceFile);
+    await this.performMethodSorting(this.findTargetClass(this.astService.findNodeByLocation(location)));
+    await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
   }
 
   private findTargetClass(targetNode: Node): ClassDeclaration {
@@ -66,9 +64,8 @@ export class SortMethodsCommand implements RefactoringCommand {
   private async performMethodSorting(targetClass: ClassDeclaration): Promise<void> {
     const methods = this.methodFinder.findMethods(targetClass);
     if (this.shouldSkipSorting(methods)) return;
-    
-    const sortedMethods = this.getSortedMethods(methods);
-    this.reorderMethodsInClass(targetClass, sortedMethods);
+
+    this.reorderMethodsInClass(targetClass, this.getSortedMethods(methods));
   }
   
   private shouldSkipSorting(methods: MethodInfo[]): boolean {
@@ -76,18 +73,11 @@ export class SortMethodsCommand implements RefactoringCommand {
   }
   
   private getSortedMethods(methods: MethodInfo[]): MethodInfo[] {
-    const methodsWithDeps = this.dependencyAnalyzer.analyzeDependencies(methods);
-    return MethodSorter.sortByStepDownRule(methodsWithDeps);
+    return MethodSorter.sortByStepDownRule(this.dependencyAnalyzer.analyzeDependencies(methods));
   }
 
   private reorderMethodsInClass(targetClass: ClassDeclaration, sortedMethods: MethodInfo[]): void {
-    const allMembers = targetClass.getMembers();
-    const nonMethodCount = this.countNonMethodMembers(allMembers);
-    
-    sortedMethods.forEach((method, index) => {
-      const targetIndex = nonMethodCount + index;
-      method.getNode().setOrder(targetIndex);
-    });
+    sortedMethods.forEach((method, index) => method.getNode().setOrder(this.countNonMethodMembers(targetClass.getMembers()) + index));
   }
   
   private countNonMethodMembers(allMembers: ClassMemberTypes[]): number {

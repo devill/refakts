@@ -24,9 +24,8 @@ export class ExtractVariableCommand implements RefactoringCommand {
     this.validateOptions(options);
     const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
-    const sourceFile = this.astService.loadSourceFile(file);
     await this.performExtraction(this.astService.findNodeByLocation(location), options);
-    await this.astService.saveSourceFile(sourceFile);
+    await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
   }
 
   validateOptions(options: CommandOptions): void {
@@ -52,9 +51,8 @@ export class ExtractVariableCommand implements RefactoringCommand {
 
   private async extractSingleOccurrence(targetNode: Node, variableName: string): Promise<void> {
     this.validateExpressionNode(targetNode);
-    const scope = this.scopeAnalyzer.findExtractionScope(targetNode);
-    const uniqueName = this.nameValidator.generateUniqueName(variableName, scope);
-    
+    const uniqueName = this.nameValidator.generateUniqueName(variableName, this.scopeAnalyzer.findExtractionScope(targetNode));
+
     this.statementInserter.insertVariableDeclaration(targetNode, uniqueName);
     targetNode.replaceWithText(uniqueName);
   }
@@ -63,9 +61,8 @@ export class ExtractVariableCommand implements RefactoringCommand {
     this.validateExpressionNode(targetNode);
     const allExpressions = this.expressionMatcher.findAllMatchingExpressions(targetNode);
     this.validateExpressionsFound(allExpressions);
-    
-    const groupedExpressions = this.expressionMatcher.groupExpressionsByScope(allExpressions);
-    this.extractInEachScope(groupedExpressions, variableName);
+
+    this.extractInEachScope(this.expressionMatcher.groupExpressionsByScope(allExpressions), variableName);
   }
 
   private validateExpressionNode(node: Node): void {
