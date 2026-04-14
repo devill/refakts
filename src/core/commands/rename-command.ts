@@ -1,6 +1,7 @@
 import { RefactoringCommand, CommandOptions } from './command';
 import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
 import { Node, SourceFile } from 'ts-morph';
+import { RefactoringCommandResult } from './result-types/refactoring-result';
 import { ASTService } from '../ast/ast-service';
 import { VariableLocator, VariableNodeResult } from '../locators/variable-locator';
 import { RenameVariableTransformation } from '../transformations/rename-variable-transformation';
@@ -19,7 +20,7 @@ export class RenameCommand implements RefactoringCommand {
   private variableLocator!: VariableLocator;
   private nameValidator!: VariableNameValidator;
 
-  async execute(file: string, options: CommandOptions): Promise<void> {
+  async execute(file: string, options: CommandOptions): Promise<RefactoringCommandResult> {
     this.validateOptions(options);
     const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
@@ -27,6 +28,7 @@ export class RenameCommand implements RefactoringCommand {
     this.nameValidator = new VariableNameValidator();
     await this.performRename(this.astService.findNodeByLocation(location), options.to as string);
     await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
+    return new RefactoringCommandResult();
   }
 
   validateOptions(options: CommandOptions): void {

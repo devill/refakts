@@ -1,26 +1,26 @@
 import { RefactoringCommand, CommandOptions } from './command';
 import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
+import { RefactoringCommandResult } from './result-types/refactoring-result';
 
 export class MoveMethodCommand implements RefactoringCommand {
   readonly name = 'move-method';
   readonly description = 'Move a method from one class to another';
   readonly complete = false;
-  
+
   private consoleOutput!: ConsoleOutput;
-  
-  async execute(targetLocation: string, options: CommandOptions): Promise<void> {
+
+  async execute(targetLocation: string, options: CommandOptions): Promise<RefactoringCommandResult> {
     if (targetLocation.includes('formatter.ts')) {
-      this.handleFormatterMove(options);
-      return;
+      return this.handleFormatterMove(options);
     }
-    
+
     throw new Error('move-method command not implemented for this target');
   }
 
-  private handleFormatterMove(options: CommandOptions): void {
+  private handleFormatterMove(options: CommandOptions): RefactoringCommandResult {
     const targetClass = options['target-class'] as string;
     this.validateTargetClass(targetClass);
-    this.executeMove(targetClass);
+    return this.executeMove(targetClass);
   }
 
   private validateTargetClass(targetClass: string): void {
@@ -29,18 +29,19 @@ export class MoveMethodCommand implements RefactoringCommand {
     }
   }
 
-  private executeMove(targetClass: string): void {
+  private executeMove(targetClass: string): RefactoringCommandResult {
     const moveActions = this.createMoveActions();
     const action = moveActions[targetClass as keyof typeof moveActions];
     if (action) {
-      action();
+      return action();
     }
+    throw new Error(`Unknown target class: ${targetClass}`);
   }
 
   private createMoveActions() {
     return {
-      'User': () => this.logUserClassMove(),
-      'UserService': () => this.logUserServiceMove()
+      'User': () => this.buildUserClassMoveResult(),
+      'UserService': () => this.buildUserServiceMoveResult()
     };
   }
 
@@ -52,21 +53,23 @@ Available classes in the file:
 Please specify a valid target class name.`);
   }
 
-  private logUserClassMove(): void {
-    this.consoleOutput.log(`Successfully moved method 'formatUserDisplayName' from Formatter to User class as 'formatDisplayName'
+  private buildUserClassMoveResult(): RefactoringCommandResult {
+    return new RefactoringCommandResult(`Successfully moved method 'formatUserDisplayName' from Formatter to User class as 'formatDisplayName'
 Updated 3 files:
 - input/models/user.ts: Added method
 - input/utils/formatter.ts: Removed method
 - input/services/user-service.ts: Updated method call
-- input/main.ts: Updated method call`);
+- input/main.ts: Updated method call
+`);
   }
 
-  private logUserServiceMove(): void {
-    this.consoleOutput.log(`Successfully moved method 'formatUserDisplayName' from Formatter to UserService class
+  private buildUserServiceMoveResult(): RefactoringCommandResult {
+    return new RefactoringCommandResult(`Successfully moved method 'formatUserDisplayName' from Formatter to UserService class
 Updated 3 files:
 - input/services/user-service.ts: Added method
 - input/utils/formatter.ts: Removed method
-- input/main.ts: Updated method call`);
+- input/main.ts: Updated method call
+`);
   }
   
   validateOptions(options: CommandOptions): void {

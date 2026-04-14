@@ -1,6 +1,7 @@
 import { RefactoringCommand, CommandOptions } from './command';
 import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
 import { Node, Expression } from 'ts-morph';
+import { RefactoringCommandResult } from './result-types/refactoring-result';
 import { ASTService } from '../ast/ast-service';
 import { ExtractionScopeAnalyzer } from '../services/extraction-scope-analyzer';
 import { VariableNameValidator } from '../services/variable-name-validator';
@@ -20,12 +21,13 @@ export class ExtractVariableCommand implements RefactoringCommand {
   private statementInserter = new StatementInserter();
   private expressionMatcher = new ExpressionMatcher(this.scopeAnalyzer);
 
-  async execute(file: string, options: CommandOptions): Promise<void> {
+  async execute(file: string, options: CommandOptions): Promise<RefactoringCommandResult> {
     this.validateOptions(options);
     const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
     await this.performExtraction(this.astService.findNodeByLocation(location), options);
     await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
+    return new RefactoringCommandResult();
   }
 
   validateOptions(options: CommandOptions): void {

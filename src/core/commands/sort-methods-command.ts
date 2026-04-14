@@ -2,11 +2,11 @@ import { ClassDeclaration, ClassMemberTypes, Node, SyntaxKind } from 'ts-morph';
 import { CommandOptions, RefactoringCommand } from './command';
 import { LocationRange } from '../ast/location-range';
 import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
+import { RefactoringCommandResult } from './result-types/refactoring-result';
 import { ASTService } from '../ast/ast-service';
 import { ClassMethodFinder, MethodInfo } from '../services/class-method-finder';
 import { MethodDependencyAnalyzer } from '../services/method-dependency-analyzer';
 import { MethodSorter } from '../transformations/method-sorter';
-import { SelectOutputHandler } from '../../command-line-parser/output-formatter/selection-output-handler';
 
 export class SortMethodsCommand implements RefactoringCommand {
   readonly name = 'sort-methods';
@@ -17,14 +17,14 @@ export class SortMethodsCommand implements RefactoringCommand {
   private astService!: ASTService;
   private methodFinder = new ClassMethodFinder();
   private dependencyAnalyzer = new MethodDependencyAnalyzer();
-  private outputHandler!: SelectOutputHandler;
 
-  async execute(file: string, options: CommandOptions): Promise<void> {
+  async execute(file: string, options: CommandOptions): Promise<RefactoringCommandResult> {
     this.validateOptions(options);
     const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
     await this.performMethodSorting(this.findTargetClass(this.astService.findNodeByLocation(location)));
     await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
+    return new RefactoringCommandResult();
   }
 
   private findTargetClass(targetNode: Node): ClassDeclaration {
@@ -58,7 +58,6 @@ export class SortMethodsCommand implements RefactoringCommand {
 
   setConsoleOutput(consoleOutput: ConsoleOutput): void {
     this.consoleOutput = consoleOutput;
-    this.outputHandler = new SelectOutputHandler(consoleOutput);
   }
 
   private async performMethodSorting(targetClass: ClassDeclaration): Promise<void> {

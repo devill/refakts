@@ -1,6 +1,7 @@
 import { RefactoringCommand, CommandOptions } from './command';
 import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
 import { Node, VariableDeclaration } from 'ts-morph';
+import { RefactoringCommandResult } from './result-types/refactoring-result';
 import { ASTService } from '../ast/ast-service';
 import { VariableDeclarationFinder } from '../services/variable-declaration-finder';
 import { ExpressionAnalyzer } from '../services/expression-analyzer';
@@ -19,12 +20,13 @@ export class InlineVariableCommand implements RefactoringCommand {
   private expressionAnalyzer = new ExpressionAnalyzer();
   private variableReplacer = new VariableReplacer();
 
-  async execute(file: string, options: CommandOptions): Promise<void> {
+  async execute(file: string, options: CommandOptions): Promise<RefactoringCommandResult> {
     this.validateOptions(options);
     const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
-    await this.performInlineVariable(this.astService.findNodeByLocation(location));
+    const result = await this.performInlineVariable(this.astService.findNodeByLocation(location));
     await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
+    return result;
   }
 
   validateOptions(options: CommandOptions): void {
@@ -37,16 +39,18 @@ export class InlineVariableCommand implements RefactoringCommand {
     return '\nExamples:\n  refakts inline-variable "[src/file.ts 5:8-5:18]"';
   }
 
-  private async performInlineVariable(node: Node): Promise<void> {
+  private async performInlineVariable(node: Node): Promise<RefactoringCommandResult> {
     this.validateTargetNode(node);
     const variableName = node.getText();
     const declaration = this.declarationFinder.findVariableDeclaration(node.getSourceFile(), variableName, node);
-    this.outputSuccessMessage(variableName, this.variableReplacer.replaceAllReferences(variableName, declaration, this.getInitializerText(declaration, variableName)));
+    const replacementCount = this.variableReplacer.replaceAllReferences(variableName, declaration, this.getInitializerText(declaration, variableName));
     this.variableReplacer.removeDeclaration(declaration);
+    return this.buildSuccessResult(variableName, replacementCount);
   }
 
-  private outputSuccessMessage(variableName: string, replacementCount: number): void {
-    this.consoleOutput.log(`Successfully inlined variable '${variableName}' (${replacementCount} ${replacementCount === 1 ? 'occurrence' : 'occurrences'} replaced)`);
+  private buildSuccessResult(variableName: string, replacementCount: number): RefactoringCommandResult {
+    const occurrences = replacementCount === 1 ? 'occurrence' : 'occurrences';
+    return new RefactoringCommandResult(`Successfully inlined variable '${variableName}' (${replacementCount} ${occurrences} replaced)\n`);
   }
 
   private validateTargetNode(node: Node): void {
