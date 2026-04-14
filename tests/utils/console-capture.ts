@@ -3,7 +3,7 @@ import {ConsoleOutput} from '../../src/command-line-parser/output-formatter/cons
 export class ConsoleCapture implements ConsoleOutput {
   private output: string[] = [];
 
-  async captureOutput(executeFn: () => Promise<void>): Promise<string> {
+  async captureOutput(executeFn: () => Promise<unknown>): Promise<string> {
     this.output = [];
     await executeFn();
     return this.getFormattedOutput();

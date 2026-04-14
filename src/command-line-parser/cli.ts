@@ -6,6 +6,7 @@ import { CommandOption, CommandOptions, RefactoringCommand } from '../core/comma
 import { UsageTracker } from '../dev/usage-tracker';
 import { LocationParser } from '../core/ast/location-range';
 import { StandardConsole } from './output-formatter/standard-console';
+import { CommandOutputFormatter } from './output-formatter/command-output-formatter';
 import { FixtureProtection } from '../core/services/fixture-protection';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -65,32 +66,35 @@ function readOptionsFile(optionsPath: string, commandName: string): CommandOptio
 
 async function executeRefactoringCommand(command: RefactoringCommand, target: string, options: CommandOptions): Promise<void> {
   try {
-    await executeCommandWithTarget(command, target, options);
+    const consoleOutput = new StandardConsole();
+    const outputFormatter = new CommandOutputFormatter(consoleOutput);
+    const result = await executeCommandWithTarget(command, target, options);
+    outputFormatter.formatResult(result, options);
   } catch (error) {
     handleCommandError(error);
   }
 }
 
-async function executeCommandWithTarget(command: RefactoringCommand, target: string, options: CommandOptions): Promise<void> {
+async function executeCommandWithTarget(command: RefactoringCommand, target: string, options: CommandOptions): Promise<unknown> {
   if (LocationParser.isLocationFormat(target)) {
-    await executeWithLocationTarget(command, target, options);
+    return await executeWithLocationTarget(command, target, options);
   } else {
-    await executeWithFileTarget(command, target, options);
+    return await executeWithFileTarget(command, target, options);
   }
 }
 
-async function executeWithLocationTarget(command: RefactoringCommand, target: string, options: CommandOptions): Promise<void> {
+async function executeWithLocationTarget(command: RefactoringCommand, target: string, options: CommandOptions): Promise<unknown> {
   const location = LocationParser.parseLocation(target);
   FixtureProtection.validateFile(location.file);
   const optionsWithLocation = { ...options, location };
   command.validateOptions(optionsWithLocation);
-  await command.execute(location.file, optionsWithLocation);
+  return await command.execute(location.file, optionsWithLocation);
 }
 
-async function executeWithFileTarget(command: RefactoringCommand, target: string, options: CommandOptions): Promise<void> {
+async function executeWithFileTarget(command: RefactoringCommand, target: string, options: CommandOptions): Promise<unknown> {
   FixtureProtection.validateFile(target);
   command.validateOptions(options);
-  await command.execute(target, options);
+  return await command.execute(target, options);
 }
 
 function handleCommandError(error: unknown): void {

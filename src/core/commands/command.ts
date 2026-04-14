@@ -36,8 +36,8 @@ export interface RefactoringCommand {
   readonly name: string;
   readonly description: string;
   readonly complete: boolean;
-  
-  execute(_file: string, _options: CommandOptions): Promise<void>;
+
+  execute(_file: string, _options: CommandOptions): Promise<unknown>;
   validateOptions(_options: CommandOptions): void;
   getHelpText(): string;
   setConsoleOutput(_consoleOutput: ConsoleOutput): void;
