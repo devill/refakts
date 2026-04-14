@@ -22,14 +22,13 @@ program
   .option('--show-incomplete', 'Show incomplete commands in help');
 
 for (const command of commandRegistry.getAllCommands()) {
-  const warningText = !command.complete ? ' (warning: incomplete)' : '';
   const cmd = program
     .command(command.name)
-    .description(command.description + warningText)
+    .description(command.description + (!command.complete ? ' (warning: incomplete)' : ''))
     .argument('<target>', 'TypeScript file or location format [file.ts line:col-line:col]');
-  
+
   addCommandOptions(cmd, command);
-  
+
   cmd
     .addHelpText('after', command.getHelpText())
     .action(async (target: string, options) => {
@@ -39,15 +38,13 @@ for (const command of commandRegistry.getAllCommands()) {
 }
 
 function addCommandOptions(cmd: Command, command: RefactoringCommand): void {
-  const options = loadCommandOptions(command.name);
-  for (const option of options) {
+  for (const option of loadCommandOptions(command.name)) {
     cmd.option(option.flags, option.description);
   }
 }
 
 function loadCommandOptions(commandName: string): CommandOption[] {
-  const optionsPath = getOptionsPath(commandName);
-  return readOptionsFile(optionsPath, commandName);
+  return readOptionsFile(getOptionsPath(commandName), commandName);
 }
 
 function getOptionsPath(commandName: string): string {
@@ -56,8 +53,7 @@ function getOptionsPath(commandName: string): string {
 
 function readOptionsFile(optionsPath: string, commandName: string): CommandOption[] {
   try {
-    const optionsData = fs.readFileSync(optionsPath, 'utf8');
-    return JSON.parse(optionsData) as CommandOption[];
+    return JSON.parse(fs.readFileSync(optionsPath, 'utf8')) as CommandOption[];
   } catch (error) {
     process.stderr.write(`Failed to load options for command ${commandName}: ${error}\n`);
     return [];
@@ -109,13 +105,12 @@ function reorderHelpCommandArguments(): void {
   const commandIndex = findCommandArgumentIndex(args);
 
   if (shouldReorderArguments(helpIndex, commandIndex)) {
-    const reorderedArgs = createReorderedArguments(args, helpIndex, commandIndex);
-    process.argv = ['node', 'cli.ts', ...reorderedArgs];
+    process.argv = ['node', 'cli.ts', ...createReorderedArguments(args, helpIndex, commandIndex)];
   }
 }
 
 function findCommandArgumentIndex(args: string[]): number {
-  return args.findIndex(arg => 
+  return args.findIndex(arg =>
     commandRegistry.getAllCommands().some(cmd => cmd.name === arg)
   );
 }
@@ -125,9 +120,7 @@ function shouldReorderArguments(helpIndex: number, commandIndex: number): boolea
 }
 
 function createReorderedArguments(args: string[], helpIndex: number, commandIndex: number): string[] {
-  const command = args[commandIndex];
-  const filteredArgs = args.filter((_, i) => i !== helpIndex && i !== commandIndex);
-  return [command, '--help', ...filteredArgs];
+  return [args[commandIndex], '--help', ...args.filter((_, i) => i !== helpIndex && i !== commandIndex)];
 }
 
 reorderHelpCommandArguments();

@@ -23,16 +23,13 @@ export class FindUsagesCommand implements RefactoringCommand {
 
   private async executeFinUsagesOperation(options: CommandOptions): Promise<UsageResult> {
     const location = LocationRange.from(options.location as LocationRange);
-    const usages = await this.findUsages(location);
-    return new UsageResult(usages, location);
+    return new UsageResult(await this.findUsages(location), location);
   }
 
   private async findUsages(location: LocationRange): Promise<UsageLocation[]> {
     try {
-      const targetNode = location.getNode();
-      const astService = ASTService.createForFile(location.file);
-      return new CrossFileReferenceFinder(astService.getProject())
-        .findAllReferences(targetNode)
+      return new CrossFileReferenceFinder(ASTService.createForFile(location.file).getProject())
+        .findAllReferences(location.getNode())
         .map(node => PositionConverter.createUsageLocation(node.getSourceFile(), node));
     } catch (error) {
       return this.handleFindReferencesError(error);
@@ -62,8 +59,7 @@ export class FindUsagesCommand implements RefactoringCommand {
 
   getHelpText(): string {
     try {
-      const helpFilePath = path.join(__dirname, 'find-usages.help.txt');
-      return '\n' + fs.readFileSync(helpFilePath, 'utf8');
+      return '\n' + fs.readFileSync(path.join(__dirname, 'find-usages.help.txt'), 'utf8');
     } catch {
       return '\nHelp file not found';
     }

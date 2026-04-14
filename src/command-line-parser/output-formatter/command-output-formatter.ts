@@ -60,8 +60,7 @@ export class CommandOutputFormatter {
     }
     this.consoleOutput.write('Updated imports in:\n');
     files.forEach(file => {
-      const relativePath = this.getRelativePath(file);
-      this.consoleOutput.write(`  - ${relativePath}\n`);
+      this.consoleOutput.write(`  - ${this.getRelativePath(file)}\n`);
     });
   }
 

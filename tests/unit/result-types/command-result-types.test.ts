@@ -57,9 +57,7 @@ describe('Command Result Types', () => {
     });
 
     it('should create move file result with sameLocation flag', () => {
-      const result = new MoveFileCommandResult('same.ts', 'same.ts', [], true);
-
-      expect(result.sameLocation).toBe(true);
+      expect(new MoveFileCommandResult('same.ts', 'same.ts', [], true).sameLocation).toBe(true);
     });
   });
 });

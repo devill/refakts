@@ -24,10 +24,7 @@ describe('CommandOutputFormatter', () => {
 
   describe('UsageResult formatting', () => {
     it('should format usage result with multiple usages', () => {
-      const location = new LocationRange('test.ts', { line: 1, column: 0 }, { line: 1, column: 5 });
-      const result = new UsageResult([], location);
-
-      formatter.formatResult(result);
+      formatter.formatResult(new UsageResult([], new LocationRange('test.ts', { line: 1, column: 0 }, { line: 1, column: 5 })));
 
       expect(consoleOutput.getOutput()).toContain('Symbol not found at specified location');
     });
@@ -35,13 +32,10 @@ describe('CommandOutputFormatter', () => {
 
   describe('SelectCommandResult formatting', () => {
     it('should format select result with results', () => {
-      const selectResults = [
+      formatter.formatResult(new SelectCommandResult([
         new SelectResult('test.ts 1:0', 'const x = 5'),
         new SelectResult('test.ts 2:0', 'const y = 10')
-      ];
-      const result = new SelectCommandResult(selectResults);
-
-      formatter.formatResult(result);
+      ]));
 
       const output = consoleOutput.getOutput();
       expect(output).toContain('test.ts 1:0');
@@ -51,18 +45,15 @@ describe('CommandOutputFormatter', () => {
 
   describe('RefactoringCommandResult formatting', () => {
     it('should format refactoring result without message', () => {
-      const result = new RefactoringCommandResult();
-
-      formatter.formatResult(result);
+      formatter.formatResult(new RefactoringCommandResult());
 
       expect(consoleOutput.getOutput()).toBe('');
     });
 
     it('should format refactoring result with message', () => {
       const message = 'Successfully completed refactoring';
-      const result = new RefactoringCommandResult(message);
 
-      formatter.formatResult(result);
+      formatter.formatResult(new RefactoringCommandResult(message));
 
       expect(consoleOutput.getOutput()).toContain(message);
     });
@@ -70,10 +61,7 @@ describe('CommandOutputFormatter', () => {
 
   describe('MoveFileCommandResult formatting', () => {
     it('should format move file result with files updated', () => {
-      const files = ['src/main.ts', 'src/utils.ts'];
-      const result = new MoveFileCommandResult('old.ts', 'new.ts', files);
-
-      formatter.formatResult(result);
+      formatter.formatResult(new MoveFileCommandResult('old.ts', 'new.ts', ['src/main.ts', 'src/utils.ts']));
 
       const output = consoleOutput.getOutput();
       expect(output).toContain('File moved: old.ts → new.ts');
@@ -83,9 +71,7 @@ describe('CommandOutputFormatter', () => {
     });
 
     it('should format move file result with no files updated', () => {
-      const result = new MoveFileCommandResult('old.ts', 'new.ts', []);
-
-      formatter.formatResult(result);
+      formatter.formatResult(new MoveFileCommandResult('old.ts', 'new.ts', []));
 
       const output = consoleOutput.getOutput();
       expect(output).toContain('File moved: old.ts → new.ts');
@@ -93,9 +79,7 @@ describe('CommandOutputFormatter', () => {
     });
 
     it('should format move file result when same location', () => {
-      const result = new MoveFileCommandResult('same.ts', 'same.ts', [], true);
-
-      formatter.formatResult(result);
+      formatter.formatResult(new MoveFileCommandResult('same.ts', 'same.ts', [], true));
 
       expect(consoleOutput.getOutput()).toContain('File is already at the target location: same.ts');
     });

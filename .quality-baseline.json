@@ -99,12 +99,6 @@
       "singleUseVariable"
     ]
   },
-  "src/command-line-parser/cli.ts": {
-    "lastCommitId": "b65ce4d9447e17f6d5c9dbe9c0568b98b8780db1",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
   "src/dev/quality/baseline-file-io.ts": {
     "lastCommitId": "e5fad6fcca6ff1a3d5121f0d51cb2a3e41d4a7ad",
     "violations": [
@@ -185,30 +179,6 @@
   },
   "src/core/ast/tsconfig-finder.ts": {
     "lastCommitId": "8e975741dfb6cdb005188f172c203855a6292bf3",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
-  "src/core/commands/command.ts": {
-    "lastCommitId": "03b373e95e8193b75a27e1563b5fb1c9bed60d62",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
-  "src/core/commands/find-usages-command.ts": {
-    "lastCommitId": "80b7716fa3dca7c42480e2b4f76ea1421d85b7db",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
-  "src/core/commands/move-file-command.ts": {
-    "lastCommitId": "03b373e95e8193b75a27e1563b5fb1c9bed60d62",
-    "violations": [
-      "singleUseVariable"
-    ]
-  },
-  "src/core/commands/select-command.ts": {
-    "lastCommitId": "876773659621d2929ad9c16187ad30ab7dcc177b",
     "violations": [
       "singleUseVariable"
     ]

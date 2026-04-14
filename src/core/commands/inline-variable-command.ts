@@ -22,12 +22,14 @@ export class InlineVariableCommand implements RefactoringCommand {
 
   async execute(file: string, options: CommandOptions): Promise<RefactoringCommandResult> {
     this.validateOptions(options);
-    const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
-    const result = await this.performInlineVariable(this.astService.findNodeByLocation(location));
+    const location = LocationRange.from(options.location as LocationRange);
+    const inlineResult = await this.performInlineVariable(this.astService.findNodeByLocation(location));
     await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
-    return result;
+    return inlineResult;
   }
+
+
 
   validateOptions(options: CommandOptions): void {
     if (!options.location) {
@@ -45,12 +47,7 @@ export class InlineVariableCommand implements RefactoringCommand {
     const declaration = this.declarationFinder.findVariableDeclaration(node.getSourceFile(), variableName, node);
     const replacementCount = this.variableReplacer.replaceAllReferences(variableName, declaration, this.getInitializerText(declaration, variableName));
     this.variableReplacer.removeDeclaration(declaration);
-    return this.buildSuccessResult(variableName, replacementCount);
-  }
-
-  private buildSuccessResult(variableName: string, replacementCount: number): RefactoringCommandResult {
-    const occurrences = replacementCount === 1 ? 'occurrence' : 'occurrences';
-    return new RefactoringCommandResult(`Successfully inlined variable '${variableName}' (${replacementCount} ${occurrences} replaced)\n`);
+    return new RefactoringCommandResult(`Successfully inlined variable '${variableName}' (${replacementCount} ${replacementCount === 1 ? 'occurrence' : 'occurrences'} replaced)\n`);
   }
 
   private validateTargetNode(node: Node): void {

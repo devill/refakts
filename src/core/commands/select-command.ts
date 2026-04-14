@@ -22,14 +22,11 @@ export class SelectCommand implements RefactoringCommand {
   }
 
   private async performSelection(file: string, options: CommandOptions, strategy: SelectionStrategy): Promise<SelectCommandResult> {
-    const sourceFile = this.astService.loadSourceFile(file);
-    const results = await strategy.select(sourceFile, options);
-    return new SelectCommandResult(results);
+    return new SelectCommandResult(await strategy.select(this.astService.loadSourceFile(file), options));
   }
 
   validateOptions(options: CommandOptions): void {
-    const strategy = this.strategyFactory.getStrategy(options);
-    strategy.validateOptions(options);
+    this.strategyFactory.getStrategy(options).validateOptions(options);
   }
 
   getHelpText(): string {
