@@ -6,6 +6,7 @@ import { RefactoringCommandResult } from '../../core/commands/result-types/refac
 import { MoveFileCommandResult } from '../../core/commands/result-types/move-file-result';
 import { UsageOutputHandler } from './usage-output-handler';
 import { SelectOutputHandler } from './selection-output-handler';
+import * as path from 'path';
 
 export class CommandOutputFormatter {
   private usageOutputHandler: UsageOutputHandler;
@@ -65,7 +66,6 @@ export class CommandOutputFormatter {
   }
 
   private getRelativePath(filePath: string): string {
-    const path = require('path');
     return path.relative(process.cwd(), filePath);
   }
 

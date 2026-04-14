@@ -15,6 +15,6 @@ export class MoveFileCommandResult implements MoveFileResultData {
     public movedFrom: string,
     public movedTo: string,
     public referencingFiles: string[],
-    public sameLocation: boolean = false
+    public sameLocation = false
   ) {}
 }

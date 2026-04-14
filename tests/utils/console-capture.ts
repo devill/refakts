@@ -13,6 +13,10 @@ export class ConsoleCapture implements ConsoleOutput {
     return this.output.join('').trim();
   }
 
+  getOutput(): string {
+    return this.output.join('');
+  }
+
   log(message: string): void {
     this.output.push(message + '\n');
   }

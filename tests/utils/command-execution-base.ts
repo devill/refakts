@@ -30,15 +30,15 @@ export abstract class CommandExecutionBase {
   }
 
   private async runValidatedCommand(consoleCapture: ConsoleCapture): Promise<string | void> {
-    const result = await this.captureCommandExecution(consoleCapture);
-    return result;
+    return this.captureCommandExecution(consoleCapture);
   }
 
   private async captureCommandExecution(consoleCapture: ConsoleCapture): Promise<string> {
     return consoleCapture.captureOutput(async () => {
-      const result = await this.command.execute(this.file, this.options);
-      const formatter = new CommandOutputFormatter(consoleCapture);
-      formatter.formatResult(result, this.options);
+      new CommandOutputFormatter(consoleCapture).formatResult(
+        await this.command.execute(this.file, this.options),
+        this.options
+      );
     });
   }
 
