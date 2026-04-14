@@ -21,15 +21,12 @@ export class RenameCommand implements RefactoringCommand {
 
   async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
+    const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
     this.variableLocator = new VariableLocator(this.astService.getProject());
     this.nameValidator = new VariableNameValidator();
-    await this.performRename(this.findTargetNode(options), options.to as string);
+    await this.performRename(this.astService.findNodeByLocation(location), options.to as string);
     await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
-  }
-
-  private findTargetNode(options: CommandOptions): Node {
-    return this.astService.findNodeByLocation(options.location as LocationRange);
   }
 
   validateOptions(options: CommandOptions): void {
@@ -49,7 +46,7 @@ export class RenameCommand implements RefactoringCommand {
     NodeAnalyzer.validateIdentifierNode(node);
     const sourceFile = node.getSourceFile();
     const nodeResult = this.findVariableNodesAtPosition(node, sourceFile);
-    
+
     this.validateNewName(nodeResult.declaration, newName);
     await this.createRenameTransformation(nodeResult, newName).transform(sourceFile);
   }

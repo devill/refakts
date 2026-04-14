@@ -21,15 +21,15 @@ export class SortMethodsCommand implements RefactoringCommand {
 
   async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
+    const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
     const sourceFile = this.astService.loadSourceFile(file);
-    const targetClass = this.findTargetClass(options);
+    const targetClass = this.findTargetClass(this.astService.findNodeByLocation(location));
     await this.performMethodSorting(targetClass);
     await this.astService.saveSourceFile(sourceFile);
   }
 
-  private findTargetClass(options: CommandOptions): ClassDeclaration {
-    const targetNode = this.astService.findNodeByLocation(options.location as LocationRange);
+  private findTargetClass(targetNode: Node): ClassDeclaration {
     return this.resolveClassFromNode(targetNode);
   }
   

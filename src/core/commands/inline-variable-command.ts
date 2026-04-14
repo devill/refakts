@@ -21,15 +21,12 @@ export class InlineVariableCommand implements RefactoringCommand {
 
   async execute(file: string, options: CommandOptions): Promise<void> {
     this.validateOptions(options);
+    const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
+    const node = this.astService.findNodeByLocation(location);
     const sourceFile = this.astService.loadSourceFile(file);
-    const node = this.findTargetNode(options);
     await this.performInlineVariable(node);
     await this.astService.saveSourceFile(sourceFile);
-  }
-
-  private findTargetNode(options: CommandOptions): Node {
-    return this.astService.findNodeByLocation(options.location as LocationRange);
   }
 
   validateOptions(options: CommandOptions): void {
