@@ -66,10 +66,10 @@ function readOptionsFile(optionsPath: string, commandName: string): CommandOptio
 
 async function executeRefactoringCommand(command: RefactoringCommand, target: string, options: CommandOptions): Promise<void> {
   try {
-    const consoleOutput = new StandardConsole();
-    const outputFormatter = new CommandOutputFormatter(consoleOutput);
-    const result = await executeCommandWithTarget(command, target, options);
-    outputFormatter.formatResult(result, options);
+    new CommandOutputFormatter(new StandardConsole()).formatResult(
+      await executeCommandWithTarget(command, target, options),
+      options
+    );
   } catch (error) {
     handleCommandError(error);
   }

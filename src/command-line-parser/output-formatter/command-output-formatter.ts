@@ -7,10 +7,6 @@ import { MoveFileCommandResult } from '../../core/commands/result-types/move-fil
 import { UsageOutputHandler } from './usage-output-handler';
 import { SelectOutputHandler } from './selection-output-handler';
 
-/**
- * Routes command results to appropriate output handlers.
- * This separates output formatting from command logic.
- */
 export class CommandOutputFormatter {
   private usageOutputHandler: UsageOutputHandler;
   private selectOutputHandler: SelectOutputHandler;
@@ -21,62 +17,66 @@ export class CommandOutputFormatter {
   }
 
   formatResult(result: unknown, options?: CommandOptions): void {
-    if (!result) {
-      return;
-    }
-
-    if (this.isUsageResult(result)) {
-      this.usageOutputHandler.outputUsages({
-        usages: result.usages,
-        baseDir: process.cwd(),
-        targetLocation: result.targetLocation,
-        options
-      });
-    } else if (this.isSelectResult(result)) {
-      this.selectOutputHandler.outputResults(result.results);
-    } else if (this.isMoveFileResult(result)) {
-      this.outputMoveFileResult(result);
-    } else if (this.isRefactoringResult(result)) {
-      if (result.message) {
-        this.consoleOutput.write(result.message);
-      }
-    }
+    if (!result) return;
+    if (this.tryFormatUsageResult(result, options)) return;
+    if (this.tryFormatSelectResult(result)) return;
+    if (this.tryFormatMoveFileResult(result)) return;
+    this.tryFormatRefactoringResult(result);
   }
 
-  private outputMoveFileResult(result: MoveFileCommandResult): void {
+  private tryFormatUsageResult(result: unknown, options?: CommandOptions): boolean {
+    if (!this.isUsageResult(result)) return false;
+    this.usageOutputHandler.outputUsages({
+      usages: result.usages,
+      baseDir: process.cwd(),
+      targetLocation: result.targetLocation,
+      options
+    });
+    return true;
+  }
+
+  private tryFormatSelectResult(result: unknown): boolean {
+    if (!this.isSelectResult(result)) return false;
+    this.selectOutputHandler.outputResults(result.results);
+    return true;
+  }
+
+  private tryFormatMoveFileResult(result: unknown): boolean {
+    if (!this.isMoveFileResult(result)) return false;
     this.consoleOutput.write(`File moved: ${result.movedFrom} → ${result.movedTo}\n`);
     this.consoleOutput.write(`Updated imports in ${result.referencesUpdated} file(s)\n`);
+    return true;
+  }
+
+  private tryFormatRefactoringResult(result: unknown): boolean {
+    if (!this.isRefactoringResult(result)) return false;
+    if ((result as RefactoringCommandResult).message) {
+      this.consoleOutput.write((result as RefactoringCommandResult).message + '\n');
+    }
+    return true;
   }
 
   private isUsageResult(result: unknown): result is UsageResult {
-    return (
-      typeof result === 'object' &&
-      result !== null &&
-      (result as Record<string, unknown>).type === 'usage'
-    );
+    return this.hasType(result, 'usage');
   }
 
   private isSelectResult(result: unknown): result is SelectCommandResult {
-    return (
-      typeof result === 'object' &&
-      result !== null &&
-      (result as Record<string, unknown>).type === 'select'
-    );
+    return this.hasType(result, 'select');
   }
 
   private isMoveFileResult(result: unknown): result is MoveFileCommandResult {
-    return (
-      typeof result === 'object' &&
-      result !== null &&
-      (result as Record<string, unknown>).type === 'move-file'
-    );
+    return this.hasType(result, 'move-file');
   }
 
   private isRefactoringResult(result: unknown): result is RefactoringCommandResult {
+    return this.hasType(result, 'refactoring');
+  }
+
+  private hasType(result: unknown, type: string): result is Record<string, unknown> {
     return (
       typeof result === 'object' &&
       result !== null &&
-      (result as Record<string, unknown>).type === 'refactoring'
+      (result as Record<string, unknown>).type === type
     );
   }
 }
