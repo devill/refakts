@@ -43,9 +43,30 @@ export class CommandOutputFormatter {
 
   private tryFormatMoveFileResult(result: unknown): boolean {
     if (!this.isMoveFileResult(result)) return false;
+    if ((result as MoveFileCommandResult).sameLocation) {
+      this.consoleOutput.write(`File is already at the target location: ${result.movedFrom}`);
+      return true;
+    }
     this.consoleOutput.write(`File moved: ${result.movedFrom} → ${result.movedTo}\n`);
-    this.consoleOutput.write(`Updated imports in ${result.referencesUpdated} file(s)\n`);
+    this.outputFilesList(result.referencingFiles);
     return true;
+  }
+
+  private outputFilesList(files: string[]): void {
+    if (files.length === 0) {
+      this.consoleOutput.write('No import references found to update\n');
+      return;
+    }
+    this.consoleOutput.write('Updated imports in:\n');
+    files.forEach(file => {
+      const relativePath = this.getRelativePath(file);
+      this.consoleOutput.write(`  - ${relativePath}\n`);
+    });
+  }
+
+  private getRelativePath(filePath: string): string {
+    const path = require('path');
+    return path.relative(process.cwd(), filePath);
   }
 
   private tryFormatRefactoringResult(result: unknown): boolean {

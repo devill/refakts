@@ -4,7 +4,8 @@ export interface MoveFileResultData extends CommandResult {
   type: 'move-file';
   movedFrom: string;
   movedTo: string;
-  referencesUpdated: number;
+  referencingFiles: string[];
+  sameLocation: boolean;
 }
 
 export class MoveFileCommandResult implements MoveFileResultData {
@@ -13,6 +14,7 @@ export class MoveFileCommandResult implements MoveFileResultData {
   constructor(
     public movedFrom: string,
     public movedTo: string,
-    public referencesUpdated: number
+    public referencingFiles: string[],
+    public sameLocation: boolean = false
   ) {}
 }

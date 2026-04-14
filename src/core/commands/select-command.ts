@@ -1,6 +1,6 @@
 import { RefactoringCommand, CommandOptions } from './command';
 import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
-import { SelectOutputHandler } from '../../command-line-parser/output-formatter/selection-output-handler';
+import { SelectCommandResult } from './result-types/select-result';
 import { ASTService } from '../ast/ast-service';
 import { SelectionStrategyFactory } from '../services/selection/selection-strategy-factory';
 import { SelectionStrategy } from '../services/selection/selection-strategy';
@@ -13,19 +13,18 @@ export class SelectCommand implements RefactoringCommand {
   private consoleOutput!: ConsoleOutput;
   private astService!: ASTService;
   private strategyFactory = new SelectionStrategyFactory();
-  private outputHandler!: SelectOutputHandler;
 
-  async execute(file: string, options: CommandOptions): Promise<void> {
+  async execute(file: string, options: CommandOptions): Promise<SelectCommandResult> {
     const strategy = this.strategyFactory.getStrategy(options);
     strategy.validateOptions(options);
     this.astService = ASTService.createForFile(file);
-    await this.performSelection(file, options, strategy);
+    return await this.performSelection(file, options, strategy);
   }
 
-  private async performSelection(file: string, options: CommandOptions, strategy: SelectionStrategy): Promise<void> {
+  private async performSelection(file: string, options: CommandOptions, strategy: SelectionStrategy): Promise<SelectCommandResult> {
     const sourceFile = this.astService.loadSourceFile(file);
     const results = await strategy.select(sourceFile, options);
-    this.outputHandler.outputResults(results);
+    return new SelectCommandResult(results);
   }
 
   validateOptions(options: CommandOptions): void {
@@ -39,6 +38,5 @@ export class SelectCommand implements RefactoringCommand {
 
   setConsoleOutput(consoleOutput: ConsoleOutput): void {
     this.consoleOutput = consoleOutput;
-    this.outputHandler = new SelectOutputHandler(consoleOutput);
   }
 }

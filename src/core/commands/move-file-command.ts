@@ -1,7 +1,7 @@
 import { CommandOptions, RefactoringCommand } from './command';
 import { ConsoleOutput } from '../../command-line-parser/output-formatter/console-output';
 import { MoveFileService, MoveFileRequest } from '../transformations/move-file-service';
-import { MoveFileOutputHandler } from '../../command-line-parser/output-formatter/move-file-output-handler';
+import { MoveFileCommandResult } from './result-types/move-file-result';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -9,26 +9,30 @@ export class MoveFileCommand implements RefactoringCommand {
   readonly name = 'move-file';
   readonly description = 'Move a file and update all import references';
   readonly complete = true;
-  
+
   private moveFileService: MoveFileService;
-  private outputHandler!: MoveFileOutputHandler;
   private consoleOutput!: ConsoleOutput;
 
   constructor(moveFileService?: MoveFileService) {
     this.moveFileService = moveFileService || new MoveFileService();
   }
 
-  async execute(sourcePath: string, options: CommandOptions): Promise<void> {
+  async execute(sourcePath: string, options: CommandOptions): Promise<MoveFileCommandResult> {
     const destinationPath = options.destination as string;
     if (!destinationPath) {
       throw new Error('--destination option is required');
     }
-    
+
     this.validateDestinationPathFormat(destinationPath);
-    
+
     const request: MoveFileRequest = { sourcePath, destinationPath };
     const result = await this.moveFileService.moveFile(request);
-    this.outputHandler.outputResult(result);
+    return new MoveFileCommandResult(
+      result.sourcePath,
+      result.destinationPath,
+      result.referencingFiles,
+      result.sameLocation
+    );
   }
 
 
@@ -52,6 +56,5 @@ export class MoveFileCommand implements RefactoringCommand {
 
   setConsoleOutput(consoleOutput: ConsoleOutput): void {
     this.consoleOutput = consoleOutput;
-    this.outputHandler = new MoveFileOutputHandler(consoleOutput);
   }
 }

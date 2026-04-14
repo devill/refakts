@@ -2,7 +2,7 @@ import {CommandOptions, RefactoringCommand} from './command';
 import {ConsoleOutput} from '../../command-line-parser/output-formatter/console-output';
 import {LocationParser, LocationRange, UsageLocation} from '../ast/location-range';
 import {CrossFileReferenceFinder} from '../services/reference-finding/cross-file-reference-finder';
-import {UsageOutputHandler} from '../../command-line-parser/output-formatter/usage-output-handler';
+import {UsageResult} from './result-types/usage-result';
 import {ASTService} from '../ast/ast-service';
 import {PositionConverter} from '../services/position-converter';
 import * as fs from 'fs';
@@ -13,24 +13,18 @@ export class FindUsagesCommand implements RefactoringCommand {
   readonly description = 'Find all usages of a symbol across files';
   readonly complete = true;
   private consoleOutput!: ConsoleOutput;
-  private outputHandler!: UsageOutputHandler;
-  
-  async execute(targetLocation: string, options: CommandOptions): Promise<void> {
+
+  async execute(targetLocation: string, options: CommandOptions): Promise<UsageResult> {
     const finalOptions = this.processTarget(targetLocation, options);
     this.validateOptions(finalOptions);
-    
-    await this.executeFinUsagesOperation(finalOptions);
+
+    return await this.executeFinUsagesOperation(finalOptions);
   }
 
-  private async executeFinUsagesOperation(options: CommandOptions): Promise<void> {
+  private async executeFinUsagesOperation(options: CommandOptions): Promise<UsageResult> {
     const location = LocationRange.from(options.location as LocationRange);
     const usages = await this.findUsages(location);
-    this.outputHandler.outputUsages({ 
-      usages, 
-      baseDir: process.cwd(), 
-      targetLocation: location, 
-      options 
-    });
+    return new UsageResult(usages, location);
   }
 
   private async findUsages(location: LocationRange): Promise<UsageLocation[]> {
@@ -77,6 +71,5 @@ export class FindUsagesCommand implements RefactoringCommand {
 
   setConsoleOutput(consoleOutput: ConsoleOutput): void {
     this.consoleOutput = consoleOutput;
-    this.outputHandler = new UsageOutputHandler(consoleOutput);
   }
 }

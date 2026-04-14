@@ -1,5 +1,6 @@
 import { RefactoringCommand } from '../../src/core/commands/command';
 import { ConsoleCapture } from './console-capture';
+import { CommandOutputFormatter } from '../../src/command-line-parser/output-formatter/command-output-formatter';
 
 export abstract class CommandExecutionBase {
   protected command: RefactoringCommand;
@@ -29,7 +30,16 @@ export abstract class CommandExecutionBase {
   }
 
   private async runValidatedCommand(consoleCapture: ConsoleCapture): Promise<string | void> {
-    return consoleCapture.captureOutput(() => this.command.execute(this.file, this.options));
+    const result = await this.captureCommandExecution(consoleCapture);
+    return result;
+  }
+
+  private async captureCommandExecution(consoleCapture: ConsoleCapture): Promise<string> {
+    return consoleCapture.captureOutput(async () => {
+      const result = await this.command.execute(this.file, this.options);
+      const formatter = new CommandOutputFormatter(consoleCapture);
+      formatter.formatResult(result, this.options);
+    });
   }
 
   private handleExecutionError(error: unknown): never {
