@@ -1,8 +1,19 @@
-import {QualityCheck, QualityGroup, QualityIssue} from '../quality-check-interface';
+import {QualityCheck, QualityIssue} from '../quality-check-interface';
 import {exec} from 'child_process';
 import {promisify} from 'util';
+import * as path from 'path';
+import {getLinterGroupDefinition} from './linter-groups';
 
 const execAsync = promisify(exec);
+
+const RULE_TO_TYPE: Record<string, string> = {
+  'max-lines': 'fileSize',
+  'max-lines-per-function': 'functionSize',
+  'complexity': 'cyclomaticComplexity',
+  'max-params': 'manyParameters',
+  '@typescript-eslint/no-require-imports': 'requireStatements',
+  'import/first': 'requireStatements'
+};
 
 interface EslintMessage {
   ruleId: string;
@@ -32,19 +43,32 @@ function createLinterData(message: EslintMessage): LinterData {
   };
 }
 
-function convertMessageToIssue(message: EslintMessage, filePath: string): QualityIssue {
-  const severity = determineSeverity(message);
-  return createQualityIssue(message, filePath, severity);
-}
-
 function determineSeverity(message: EslintMessage): 'critical' | 'warning' {
   return message.severity === 2 ? 'critical' : 'warning';
 }
 
-function createQualityIssue(message: EslintMessage, filePath: string, severity: 'critical' | 'warning'): QualityIssue {
+function convertMessageToIssue(message: EslintMessage, filePath: string): QualityIssue {
+  const mappedType = RULE_TO_TYPE[message.ruleId];
+  return mappedType
+    ? buildMappedIssue(message, filePath, mappedType)
+    : buildGenericIssue(message, filePath);
+}
+
+function buildMappedIssue(message: EslintMessage, filePath: string, type: string): QualityIssue {
+  return {
+    type,
+    severity: determineSeverity(message),
+    message: message.message,
+    file: path.relative(process.cwd(), filePath),
+    line: message.line,
+    data: createLinterData(message)
+  };
+}
+
+function buildGenericIssue(message: EslintMessage, filePath: string): QualityIssue {
   return {
     type: 'linter-violation',
-    severity,
+    severity: determineSeverity(message),
     message: `${message.ruleId}: ${message.message}`,
     file: filePath,
     line: message.line,
@@ -89,7 +113,7 @@ async function handleLinterError(error: Error): Promise<QualityIssue[]> {
 async function handleEslintCommandFailed(): Promise<QualityIssue[]> {
   try {
     const { stdout } = await execAsync('npx eslint src tests/integration tests/utils tests/unit --ext .ts --ignore-pattern "**/*.fixture.ts" --format json').catch(err => ({ stdout: err.stdout }));
-    
+
     if (stdout) {
       return parseEslintResults(stdout);
     }
@@ -102,40 +126,12 @@ async function handleEslintCommandFailed(): Promise<QualityIssue[]> {
 async function runEslintForFiles(files: string[]): Promise<QualityIssue[]> {
   const fileArgs = files.map(f => `'${f}'`).join(' ');
   const { stdout, stderr } = await execAsync(`npx eslint ${fileArgs} --format json --no-warn-ignored`);
-  
+
   if (stderr && !stderr.includes('warning')) {
     return [createLinterError(`ESLint execution failed: ${stderr}`)];
   }
 
   return parseEslintResults(stdout);
-}
-
-function getGroupDefinition(groupKey: string): Omit<QualityGroup, 'violations'> | undefined {
-  if (groupKey === 'linter-violation') {
-    return createLinterViolationGroup();
-  }
-  if (groupKey === 'linter-error') {
-    return createLinterErrorGroup();
-  }
-  return undefined;
-}
-
-function createLinterViolationGroup(): Omit<QualityGroup, 'violations'> {
-  return {
-    title: 'ESLint Violations',
-    description: 'Code style and potential bug issues detected by ESLint',
-    actionGuidance: 'Run `npm run lint:fix` to automatically fix many of these issues. Manual fixes may be needed for logical errors.',
-    requiresUserConsultation: false
-  };
-}
-
-function createLinterErrorGroup(): Omit<QualityGroup, 'violations'> {
-  return {
-    title: 'Linter Execution Errors',
-    description: 'Issues with running the linter itself',
-    actionGuidance: 'Check ESLint configuration and ensure all dependencies are installed.',
-    requiresUserConsultation: true
-  };
 }
 
 async function checkLinterFiles(files: string[]): Promise<QualityIssue[]> {
@@ -154,7 +150,7 @@ function shouldSkipLinting(files: string[]): boolean {
   if (files.length === 0) {
     return true;
   }
-  
+
   const filteredFiles = filterNonFixtureFiles(files);
   return filteredFiles.length === 0;
 }
@@ -162,5 +158,5 @@ function shouldSkipLinting(files: string[]): boolean {
 export const linterCheck: QualityCheck = {
   name: 'linter-check',
   check: checkLinterFiles,
-  getGroupDefinition: getGroupDefinition
+  getGroupDefinition: getLinterGroupDefinition
 };

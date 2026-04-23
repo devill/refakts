@@ -1,6 +1,7 @@
 const eslint = require('@eslint/js');
 const tseslint = require('@typescript-eslint/eslint-plugin');
 const tseslintParser = require('@typescript-eslint/parser');
+const importPlugin = require('eslint-plugin-import');
 const prettier = require('eslint-config-prettier');
 
 module.exports = [
@@ -31,7 +32,8 @@ module.exports = [
       }
     },
     plugins: {
-      '@typescript-eslint': tseslint
+      '@typescript-eslint': tseslint,
+      'import': importPlugin
     },
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
@@ -46,6 +48,20 @@ module.exports = [
       'no-var': 'error',
       'eqeqeq': 'error',
       'no-duplicate-imports': 'error'
+    }
+  },
+  {
+    files: ['src/**/*.ts'],
+    plugins: {
+      'import': importPlugin
+    },
+    rules: {
+      'max-lines': ['error', { max: 200, skipBlankLines: false, skipComments: false }],
+      'max-lines-per-function': ['error', { max: 12, skipBlankLines: false, skipComments: false }],
+      'complexity': ['error', { max: 10 }],
+      'max-params': ['error', { max: 3 }],
+      '@typescript-eslint/no-require-imports': 'error',
+      'import/first': 'error'
     }
   },
   {
