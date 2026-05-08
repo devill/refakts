@@ -26,9 +26,9 @@ export class RenameCommand implements RefactoringCommand {
     this.astService = ASTService.createForFile(file);
     this.variableLocator = new VariableLocator(this.astService.getProject());
     this.nameValidator = new VariableNameValidator();
-    await this.performRename(this.astService.findNodeByLocation(location), options.to as string);
+    const result = await this.performRename(this.astService.findNodeByLocation(location), options.to as string);
     await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
-    return new RefactoringCommandResult();
+    return result;
   }
 
   validateOptions(options: CommandOptions): void {
@@ -44,13 +44,22 @@ export class RenameCommand implements RefactoringCommand {
     return '\nExamples:\n  refakts rename "[src/file.ts 5:8-5:18]" --to newName';
   }
 
-  private async performRename(node: Node, newName: string): Promise<void> {
+  private async performRename(node: Node, newName: string): Promise<RefactoringCommandResult> {
     NodeAnalyzer.validateIdentifierNode(node);
-    const sourceFile = node.getSourceFile();
-    const nodeResult = this.findVariableNodesAtPosition(node, sourceFile);
-
+    const nodeResult = this.findVariableNodesAtPosition(node, node.getSourceFile());
     this.validateNewName(nodeResult.declaration, newName);
-    await this.createRenameTransformation(nodeResult, newName).transform(sourceFile);
+    return this.applyRename(nodeResult, nodeResult.variable, newName);
+  }
+
+  private async applyRename(nodeResult: VariableNodeResult, oldName: string, newName: string): Promise<RefactoringCommandResult> {
+    const transformResult = await this.createRenameTransformation(nodeResult, newName).transformWithResult();
+    if (!transformResult.success) {
+      throw new Error(transformResult.message || 'Rename transformation failed');
+    }
+    const count = transformResult.changesCount;
+    return new RefactoringCommandResult(
+      `Successfully renamed '${oldName}' to '${newName}' (${count} occurrence${count === 1 ? '' : 's'} renamed)`
+    );
   }
 
   private findVariableNodesAtPosition(node: Node, sourceFile: SourceFile) {

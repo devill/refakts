@@ -25,9 +25,13 @@ export class ExtractVariableCommand implements RefactoringCommand {
     this.validateOptions(options);
     const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
-    await this.performExtraction(this.astService.findNodeByLocation(location), options);
+    const count = await this.performExtraction(this.astService.findNodeByLocation(location), options);
     await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
-    return new RefactoringCommandResult();
+    const variableName = options.name as string;
+    const message = options.all
+      ? `Successfully extracted variable '${variableName}' (${count} occurrence${count === 1 ? '' : 's'} replaced)`
+      : `Successfully extracted variable '${variableName}'`;
+    return new RefactoringCommandResult(message);
   }
 
   validateOptions(options: CommandOptions): void {
@@ -43,11 +47,12 @@ export class ExtractVariableCommand implements RefactoringCommand {
     return '\nExamples:\n  refakts extract-variable "[src/file.ts 8:15-8:29]" --name "result"';
   }
 
-  private async performExtraction(targetNode: Node, options: CommandOptions): Promise<void> {
+  private async performExtraction(targetNode: Node, options: CommandOptions): Promise<number> {
     if (options.all) {
-      await this.extractAllOccurrences(targetNode, options.name as string);
+      return await this.extractAllOccurrences(targetNode, options.name as string);
     } else {
       await this.extractSingleOccurrence(targetNode, options.name as string);
+      return 1;
     }
   }
 
@@ -59,12 +64,13 @@ export class ExtractVariableCommand implements RefactoringCommand {
     targetNode.replaceWithText(uniqueName);
   }
 
-  private async extractAllOccurrences(targetNode: Node, variableName: string): Promise<void> {
+  private async extractAllOccurrences(targetNode: Node, variableName: string): Promise<number> {
     this.validateExpressionNode(targetNode);
     const allExpressions = this.expressionMatcher.findAllMatchingExpressions(targetNode);
     this.validateExpressionsFound(allExpressions);
 
     this.extractInEachScope(this.expressionMatcher.groupExpressionsByScope(allExpressions), variableName);
+    return allExpressions.length;
   }
 
   private validateExpressionNode(node: Node): void {

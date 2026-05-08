@@ -22,9 +22,12 @@ export class SortMethodsCommand implements RefactoringCommand {
     this.validateOptions(options);
     const location = LocationRange.from(options.location as LocationRange);
     this.astService = ASTService.createForFile(file);
-    await this.performMethodSorting(this.findTargetClass(this.astService.findNodeByLocation(location)));
+    const targetClass = this.findTargetClass(this.astService.findNodeByLocation(location));
+    const { className, methodCount } = await this.performMethodSorting(targetClass);
     await this.astService.saveSourceFile(this.astService.loadSourceFile(file));
-    return new RefactoringCommandResult();
+    return new RefactoringCommandResult(
+      `Successfully sorted ${methodCount} method${methodCount === 1 ? '' : 's'} in class '${className}'`
+    );
   }
 
   private findTargetClass(targetNode: Node): ClassDeclaration {
@@ -60,11 +63,13 @@ export class SortMethodsCommand implements RefactoringCommand {
     this.consoleOutput = consoleOutput;
   }
 
-  private async performMethodSorting(targetClass: ClassDeclaration): Promise<void> {
+  private async performMethodSorting(targetClass: ClassDeclaration): Promise<{ className: string; methodCount: number }> {
     const methods = this.methodFinder.findMethods(targetClass);
-    if (this.shouldSkipSorting(methods)) return;
-
-    this.reorderMethodsInClass(targetClass, this.getSortedMethods(methods));
+    const className = targetClass.getName() ?? 'unknown';
+    if (!this.shouldSkipSorting(methods)) {
+      this.reorderMethodsInClass(targetClass, this.getSortedMethods(methods));
+    }
+    return { className, methodCount: targetClass.getMethods().length };
   }
   
   private shouldSkipSorting(methods: MethodInfo[]): boolean {
