@@ -53,13 +53,6 @@
       "manyParameters"
     ]
   },
-  "src/core/transformations/move-file-service.ts": {
-    "lastCommitId": "9a1aaea33847ecc9ad8d699302c8db5d00b74c58",
-    "violations": [
-      "functionSize",
-      "featureEnvy"
-    ]
-  },
   "src/dev/quality/baseline-cli.ts": {
     "lastCommitId": "72f0b80a2c1206e923102a707e6bb7d401905fb6",
     "violations": [
