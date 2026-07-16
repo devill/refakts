@@ -17,7 +17,7 @@ export interface MoveFileResult {
 export class MoveFileService {
   private fileMover: FileMover;
 
-  constructor() {
+  constructor(private importReferenceService: ImportReferenceService = new ImportReferenceService()) {
     const fileSystem = new RealFileSystemWrapper();
     this.fileMover = new FileMover(fileSystem);
   }
@@ -40,7 +40,7 @@ export class MoveFileService {
   }
 
   private async performSafeFileMove(request: MoveFileRequest, resolvedDestinationPath: string) {
-    const importReferenceService = new ImportReferenceService();
+    const importReferenceService = this.importReferenceService;
     const referencingFiles = await this.collectReferences(request, resolvedDestinationPath, importReferenceService);
     
     const context = { request, resolvedDestinationPath, referencingFiles, importReferenceService };

@@ -4,15 +4,18 @@ import {MovedFileImportUpdater} from './moved-file-import-updater';
 import * as path from 'path';
 
 export class ImportReferenceService {
-  private astService = ASTService.createInMemory();
-  private movedFileImportUpdater = new MovedFileImportUpdater(this.astService);
+  private movedFileImportUpdater: MovedFileImportUpdater;
+
+  constructor(private astService: ASTService = ASTService.createInMemory()) {
+    this.movedFileImportUpdater = new MovedFileImportUpdater(this.astService);
+  }
 
   checkFileImportsFrom(sourcePath: string, targetPath: string): boolean {
     try {
       const sourceFile = this.astService.loadSourceFile(sourcePath);
       return this.fileImportsFrom(sourceFile, targetPath);
-    } catch {
-      return false;
+    } catch (error) {
+      throw new Error(`Failed to check imports from ${sourcePath}: ${this.describeError(error)}`);
     }
   }
 
@@ -20,9 +23,13 @@ export class ImportReferenceService {
     try {
       const project = this.loadAllProjectFiles();
       return this.collectReferencingFiles(project, sourcePath);
-    } catch {
-      return [];
+    } catch (error) {
+      throw new Error(`Failed to scan project references for ${sourcePath}: ${this.describeError(error)}`);
     }
+  }
+
+  private describeError(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
   }
 
   private loadAllProjectFiles() {
