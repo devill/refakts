@@ -9,3 +9,4 @@ coverage/
 .quality-snooze.json
 .refakts-stats.json
 --*
+.claude-channel
